@@ -29,6 +29,7 @@ const mockChannels: Channel[] = [
 
 export default function ChannelsPage() {
   const [activeChannel, setActiveChannel] = useState(mockChannels[0]);
+  const [showChannelList, setShowChannelList] = useState(false);
 
   return (
     <MainLayout title="Channels" noPadding>
@@ -36,7 +37,15 @@ export default function ChannelsPage() {
         <div className="flex-1 flex overflow-hidden">
 
           {/* Channels List Sidebar */}
-          <div className="w-80 border-r-2 border-black flex flex-col bg-white">
+          <div className={`${showChannelList ? 'fixed inset-0 z-50' : 'hidden'} lg:relative lg:flex lg:w-80 border-r-2 border-black flex-col bg-white overflow-hidden`}>
+            {showChannelList && (
+              <button 
+                onClick={() => setShowChannelList(false)}
+                className="absolute right-4 top-4 p-2 lg:hidden z-10"
+              >
+                <MoreHorizontal size={24} className="rotate-90" />
+              </button>
+            )}
             <div className="p-4 border-b-2 border-black space-y-4">
               <h2 className="text-xl font-bold uppercase tracking-tighter italic">Channels</h2>
               <div className="relative">
@@ -58,7 +67,15 @@ export default function ChannelsPage() {
                 </div>
                 <div className="space-y-1">
                   {mockChannels.filter(c => c.type === 'internal').map(c => (
-                    <ChannelItem key={c.id} channel={c} isActive={activeChannel.id === c.id} onClick={() => setActiveChannel(c)} />
+                    <ChannelItem 
+                      key={c.id} 
+                      channel={c} 
+                      isActive={activeChannel.id === c.id} 
+                      onClick={() => {
+                        setActiveChannel(c);
+                        setShowChannelList(false);
+                      }} 
+                    />
                   ))}
                 </div>
               </div>
@@ -71,7 +88,15 @@ export default function ChannelsPage() {
                 </div>
                 <div className="space-y-1">
                   {mockChannels.filter(c => c.type === 'inter-practice').map(c => (
-                    <ChannelItem key={c.id} channel={c} isActive={activeChannel.id === c.id} onClick={() => setActiveChannel(c)} />
+                    <ChannelItem 
+                      key={c.id} 
+                      channel={c} 
+                      isActive={activeChannel.id === c.id} 
+                      onClick={() => {
+                        setActiveChannel(c);
+                        setShowChannelList(false);
+                      }} 
+                    />
                   ))}
                 </div>
               </div>
@@ -91,7 +116,15 @@ export default function ChannelsPage() {
 
                 <div className="space-y-1">
                   {mockChannels.filter(c => c.type === 'patient').map(c => (
-                    <ChannelItem key={c.id} channel={c} isActive={activeChannel.id === c.id} onClick={() => setActiveChannel(c)} />
+                    <ChannelItem 
+                      key={c.id} 
+                      channel={c} 
+                      isActive={activeChannel.id === c.id} 
+                      onClick={() => {
+                        setActiveChannel(c);
+                        setShowChannelList(false);
+                      }} 
+                    />
                   ))}
                 </div>
               </div>
@@ -101,21 +134,27 @@ export default function ChannelsPage() {
           {/* Chat Window */}
           <div className="flex-1 flex flex-col bg-gray-50">
             {/* Chat Header */}
-            <div className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-6 shrink-0">
+            <div className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-4 sm:px-6 shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 border-2 border-black flex items-center justify-center">
+                <button 
+                  onClick={() => setShowChannelList(true)}
+                  className="p-2 -ml-2 lg:hidden hover:bg-gray-100 transition-colors"
+                >
+                  <Hash size={20} />
+                </button>
+                <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0">
                   {activeChannel.type === 'internal' ? <Hash size={16} /> : <Users size={16} />}
                 </div>
-                <div>
-                  <h3 className="font-bold uppercase text-xs">{activeChannel.name}</h3>
+                <div className="min-w-0">
+                  <h3 className="font-bold uppercase text-xs truncate">{activeChannel.name}</h3>
                   <div className="flex items-center gap-2">
                     <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
                     <span className="text-[8px] text-muted-foreground uppercase font-bold">{activeChannel.memberCount} Members</span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <button className="text-[10px] font-bold uppercase underline">Participants</button>
+              <div className="flex items-center gap-2 sm:gap-4">
+                <button className="hidden sm:block text-[10px] font-bold uppercase underline">Participants</button>
                 <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all">
                   <MoreHorizontal size={18} />
                 </button>
@@ -123,7 +162,7 @@ export default function ChannelsPage() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-8 space-y-6">
+            <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
               <Message
                 user="Dr. Smith"
                 text="Just finished the X-rays for Alice. Sending them over to the clinical-team channel now."
@@ -157,14 +196,14 @@ export default function ChannelsPage() {
             </div>
 
             {/* Message Input */}
-            <div className="p-6 bg-white border-t-2 border-black">
+            <div className="p-4 sm:p-6 bg-white border-t-2 border-black">
               <div className="wireframe-card p-4 space-y-4">
                 <textarea
                   placeholder={`MESSAGE #${activeChannel.name}...`}
                   className="w-full bg-transparent border-none focus:ring-0 text-xs uppercase resize-none h-12"
                 />
-                <div className="flex items-center justify-between pt-2 border-t border-black border-dashed">
-                  <div className="flex items-center gap-3 text-muted-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
+                  <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
                     <button className="hover:text-black transition-colors"><Paperclip size={18} /></button>
                     <button className="hover:text-black transition-colors"><Smile size={18} /></button>
 
@@ -214,7 +253,7 @@ export default function ChannelsPage() {
                       </>
                     )}
                   </div>
-                  <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 flex items-center gap-2">
+                  <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 flex items-center justify-center gap-2 w-full sm:w-auto">
                     Send Message <Send size={12} />
                   </button>
                 </div>
