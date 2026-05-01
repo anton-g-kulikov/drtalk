@@ -8,7 +8,7 @@ import {
   Award, DollarSign, ArrowRight 
 } from 'lucide-react';
 
-interface AcademyChannel {
+interface HubChannel {
   id: string;
   title: string;
   host: string;
@@ -19,7 +19,7 @@ interface AcademyChannel {
   members: string;
 }
 
-const mockAcademy: AcademyChannel[] = [
+const mockLearningHub: HubChannel[] = [
   { 
     id: '1', 
     title: 'Advanced Implantology', 
@@ -62,32 +62,32 @@ const mockAcademy: AcademyChannel[] = [
   },
 ];
 
-export default function AcademyPage() {
+export default function LearningHubPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'ce' | 'mentorship' | 'tech'>('all');
 
   return (
-    <MainLayout title="Academy">
+    <MainLayout title="Learning Hub">
       <div className="max-w-6xl mx-auto space-y-12">
         
         {/* Hero Section */}
-        <div className="wireframe-card bg-black text-white p-12 space-y-6 relative overflow-hidden">
+        <div className="wireframe-card bg-black text-white p-6 sm:p-12 space-y-6 relative overflow-hidden">
           <div className="relative z-10 space-y-4 max-w-2xl">
-            <h2 className="text-4xl font-bold uppercase tracking-tighter italic leading-none">
+            <h2 className="text-2xl sm:text-4xl font-bold uppercase tracking-tighter italic leading-none">
               Grow and monetize your audience on Education channels.
             </h2>
-            <p className="text-xs uppercase leading-relaxed opacity-80 font-medium">
+            <p className="text-[10px] sm:text-xs uppercase leading-relaxed opacity-80 font-medium">
               Industry leaders can host private or public channels. Subscribe to CE channels that are of interest to you and earn CE “on the go”.
             </p>
-            <div className="pt-4 flex gap-4">
-              <button className="bg-white text-black px-8 py-3 text-[10px] font-black uppercase hover:bg-gray-200 transition-all">
+            <div className="pt-4 flex flex-col sm:flex-row gap-4">
+              <button className="bg-white text-black px-8 py-3 text-[10px] font-black uppercase hover:bg-gray-200 transition-all w-full sm:w-auto">
                 Become a Mentor
               </button>
-              <button className="border-2 border-white px-8 py-3 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all">
+              <button className="border-2 border-white px-8 py-3 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all w-full sm:w-auto">
                 Explore CE Courses
               </button>
             </div>
           </div>
-          <GraduationCap size={200} className="absolute right-[-20px] bottom-[-40px] opacity-10 rotate-12" />
+          <GraduationCap size={200} className="absolute right-[-40px] sm:right-[-20px] bottom-[-60px] sm:bottom-[-40px] opacity-10 rotate-12" />
         </div>
 
         {/* Discovery Hub */}
@@ -97,12 +97,12 @@ export default function AcademyPage() {
               <h3 className="text-2xl font-bold uppercase tracking-tighter">Learning Channels</h3>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest italic">Instant access to mentorship and technology updates</p>
             </div>
-            <div className="flex border-2 border-black p-1 bg-white">
+            <div className="flex border-2 border-black p-1 bg-white overflow-x-auto no-scrollbar">
               {['all', 'ce', 'mentorship', 'tech'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab as any)}
-                  className={`px-6 py-2 text-[9px] font-black uppercase transition-all ${
+                  className={`px-4 sm:px-6 py-2 text-[9px] font-black uppercase transition-all whitespace-nowrap ${
                     activeTab === tab ? 'bg-black text-white' : 'text-black hover:bg-gray-100'
                   }`}
                 >
@@ -113,7 +113,7 @@ export default function AcademyPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {mockAcademy.map((channel) => (
+            {mockLearningHub.map((channel) => (
               <div 
                 key={channel.id} 
                 className="wireframe-card group hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-4px] hover:translate-y-[-4px] transition-all bg-white flex flex-col md:flex-row"
