@@ -16,22 +16,23 @@ export default function DashboardPage() {
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Welcome Section */}
-        <div className="flex justify-between items-end">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
-            <h2 className="text-3xl font-bold uppercase tracking-tighter italic">Practice Dashboard</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Practice Dashboard</h2>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Welcome back, Sunshine Dental Practice
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 w-full sm:w-auto">
             <button 
               onClick={() => router.push('/referrals')}
-              className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center gap-2"
+              className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
               New Referral <Send size={14} />
             </button>
           </div>
         </div>
+
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -95,6 +96,7 @@ export default function DashboardPage() {
                 View all Referrals
               </button>
             </div>
+
 
             {/* Recent Messages */}
             <div className="space-y-4">
