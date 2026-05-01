@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "drTalk Prototype",
-  description: "Black and White Interactive Prototype",
+  title: "drtalk Platform",
+  description: "Interactive Prototype",
 };
 
 export default function RootLayout({
