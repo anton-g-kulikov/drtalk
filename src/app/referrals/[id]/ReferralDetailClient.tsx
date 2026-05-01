@@ -29,16 +29,16 @@ export default function ReferralDetailClient() {
     <MainLayout title="Referral Detail">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Breadcrumbs / Back button */}
-        <div className="flex items-start gap-5">
+        <div className="flex items-start gap-3 sm:gap-5">
           <button 
             onClick={() => router.push('/referrals')}
-            className="mt-1 p-2.5 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
+            className="mt-1 p-2 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+            <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
           </div>
         </div>
 
@@ -46,7 +46,7 @@ export default function ReferralDetailClient() {
         <div className="wireframe-card p-0 flex flex-col md:flex-row overflow-hidden bg-white min-h-[75vh]">
           
           {/* Main Info */}
-          <div className="flex-1 p-10 space-y-10 border-r-2 border-black">
+          <div className="flex-1 p-6 sm:p-10 space-y-10 border-b-2 md:border-b-0 md:border-r-2 border-black">
             
             {/* AI Warning Banner */}
             {referral.confidence < 60 && (
@@ -73,7 +73,7 @@ export default function ReferralDetailClient() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
               <div className="space-y-10">
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Patient Details</h4>
@@ -118,11 +118,11 @@ export default function ReferralDetailClient() {
               </div>
             </div>
 
-            <div className="pt-16 flex gap-6">
-              <button className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center gap-3">
+            <div className="pt-8 sm:pt-16 flex flex-col sm:flex-row gap-4 sm:gap-6">
+              <button className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto">
                 Process Referral <Send size={14} />
               </button>
-              <button className="wireframe-button text-[11px] uppercase px-10 py-4">
+              <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto">
                 Archive Case
               </button>
             </div>

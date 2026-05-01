@@ -55,15 +55,15 @@ export default function DashboardPage() {
     <MainLayout title="Referrals">
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Top Section */}
-          <div className="flex justify-between items-end">
-            <div>
-              <h2 className="text-3xl font-bold uppercase tracking-tighter">Referrals</h2>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold">Referral Pipeline & Lifecycle Management</p>
-            </div>
-            <button className="wireframe-button bg-black text-white text-xs uppercase px-8 py-3">
-              Send New Referral
-            </button>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Referral Pipeline & Lifecycle Management</p>
           </div>
+          <button className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto">
+            Send New Referral
+          </button>
+        </div>
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -87,12 +87,12 @@ export default function DashboardPage() {
           <div className="space-y-4">
             {/* Tabs & Search */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-2 border-black">
-              <div className="flex">
+              <div className="flex overflow-x-auto no-scrollbar">
                 {tabs.map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-6 py-3 text-[10px] font-bold uppercase transition-all relative ${
+                    className={`px-4 sm:px-6 py-3 text-[10px] font-bold uppercase transition-all relative whitespace-nowrap ${
                       activeTab === tab 
                         ? 'text-black' 
                         : 'text-muted-foreground hover:text-black'
@@ -111,7 +111,7 @@ export default function DashboardPage() {
                   <input 
                     type="text" 
                     placeholder="SEARCH REFERRALS..." 
-                    className="wireframe-input pl-10 py-1.5 text-[10px] w-64"
+                    className="wireframe-input pl-10 py-1.5 text-[10px] w-full md:w-64"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
