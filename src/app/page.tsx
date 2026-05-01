@@ -7,10 +7,10 @@ export default function LandingPage() {
   const router = useRouter();
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-white text-black font-sans">
-      <div className="wireframe-card max-w-xl w-full text-center space-y-12 p-16">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-white text-black font-sans">
+      <div className="wireframe-card max-w-xl w-full text-center space-y-12 p-8 sm:p-16">
         <div className="space-y-4">
-          <h1 className="text-6xl font-bold uppercase tracking-tighter italic">drTalk</h1>
+          <h1 className="text-4xl sm:text-6xl font-bold uppercase tracking-tighter italic leading-none">drTalk</h1>
           <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
             Interactive Platform Prototype / HIPAA-Compliant Communication
           </p>
@@ -24,7 +24,7 @@ export default function LandingPage() {
             Send Secure Referral
           </button>
           
-          <div className="flex gap-4 pt-4 border-t border-black border-dashed mt-4">
+          <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-black border-dashed mt-4">
             <button 
               onClick={() => router.push('/dashboard')}
               className="wireframe-button flex-1 text-[10px] uppercase py-3 font-bold"
