@@ -127,13 +127,14 @@ export const Header = ({ title }: { title?: string }) => {
                 { label: 'Billing & Usage', href: '/settings' },
                 { label: 'Sign Out', href: '/', color: 'text-red-600' },
               ].map((item, i) => (
-                <button
+                <Link
                   key={i}
-                  onClick={() => window.location.href = item.href}
-                  className={`w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-all ${item.color || 'text-black'}`}
+                  href={item.href}
+                  className={`block w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-all ${item.color || 'text-black'}`}
+                  onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
-                </button>
+                </Link>
               ))}
             </div>
           )}

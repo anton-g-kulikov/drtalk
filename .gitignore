@@ -7,6 +7,9 @@
 node_modules
 yarn.lock
 .next
+out
+build
+dist
 .env
 .env.local
 .DS_Store
