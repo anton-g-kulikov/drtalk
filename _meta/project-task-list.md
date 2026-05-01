@@ -9,7 +9,7 @@
 - [x] Guest Referral Flow <!-- id: 4 -->
 - [x] Channels & Communication <!-- id: 6 -->
 - [x] Practice Network & Directory <!-- id: 6.5 -->
-- [x] Academy & Education Channels <!-- id: 6.7 -->
+- [x] Learning Hub & Education Channels <!-- id: 6.7 -->
 - [x] Final Polish & Verification <!-- id: 7 -->
 
 ## Backlog
