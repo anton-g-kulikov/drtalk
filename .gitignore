@@ -8,4 +8,5 @@ node_modules
 yarn.lock
 .next
 .env
-.env.local.DS_Store
+.env.local
+.DS_Store
