@@ -3,31 +3,40 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, MessageSquare, Settings, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, Settings, GraduationCap, Menu, X } from 'lucide-react';
 
-export const Sidebar = () => {
+export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const navItems = [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
     { icon: Users, label: 'Referrals', href: '/referrals' },
     { icon: MessageSquare, label: 'Channels', href: '/channels' },
-    { icon: GraduationCap, label: 'Academy', href: '/academy' },
+    { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
     { icon: Users, label: 'Network', href: '/network' },
   ];
 
   const pathname = usePathname();
 
   return (
-    <div className="w-64 h-full border-r-2 border-black flex flex-col">
+    <div className={`w-64 h-full border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'hidden lg:flex'}`}>
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute right-4 top-4 p-2 lg:hidden"
+        >
+          <X size={24} />
+        </button>
+      )}
       <div className="h-16 border-b-2 border-black flex items-center px-6">
         <h2 className="font-bold text-xl uppercase tracking-tighter italic">drTalk</h2>
       </div>
       <nav className="flex-1 p-4 space-y-2">
-        {navItems.filter(item => item.label !== 'Academy').map((item) => {
+        {navItems.filter(item => item.label !== 'Learning Hub').map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.label}
               href={item.href}
+              onClick={onClose}
               className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
                 isActive 
                   ? 'bg-black text-white' 
@@ -45,13 +54,14 @@ export const Sidebar = () => {
           <div className="border-t border-black border-dashed" />
         </div>
 
-        {/* Academy Section */}
-        {navItems.filter(item => item.label === 'Academy').map((item) => {
+        {/* Learning Hub Section */}
+        {navItems.filter(item => item.label === 'Learning Hub').map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
               key={item.label}
               href={item.href}
+              onClick={onClose}
               className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
                 isActive 
                   ? 'bg-black text-white' 
@@ -67,6 +77,7 @@ export const Sidebar = () => {
       <div className="p-4 border-t-2 border-black space-y-4">
         <Link
           href="/settings"
+          onClick={onClose}
           className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
             pathname === '/settings' 
               ? 'bg-black text-white' 
@@ -82,22 +93,30 @@ export const Sidebar = () => {
   );
 };
 
-export const Header = ({ title }: { title?: string }) => {
+export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: () => void }) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   return (
-    <header className="h-16 border-b-2 border-black flex items-center justify-between px-8 bg-white relative z-40">
-      <div className="flex items-center gap-4">
+    <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
+      <div className="flex items-center gap-2 sm:gap-4">
+        {onMenuClick && (
+          <button 
+            onClick={onMenuClick}
+            className="p-2 -ml-2 lg:hidden hover:bg-gray-100 transition-colors"
+          >
+            <Menu size={20} />
+          </button>
+        )}
         <div className="flex flex-col -space-y-1">
           <h1 className="font-black uppercase tracking-tight text-sm">Sunshine Dental Practice</h1>
           {title && (
             <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">{title}</p>
           )}
         </div>
-        <div className="bg-black text-white text-[10px] px-2 py-0.5 font-bold uppercase">Verified</div>
+        <div className="bg-black text-white text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 font-bold uppercase shrink-0">Verified</div>
       </div>
-      <div className="flex items-center gap-6">
-        <div className="flex gap-4 border-r-2 border-black pr-6 mr-2">
+      <div className="flex items-center gap-3 sm:gap-6">
+        <div className="hidden md:flex gap-4 border-r-2 border-black pr-6 mr-2">
           <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Support</div>
           <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Docs</div>
         </div>
