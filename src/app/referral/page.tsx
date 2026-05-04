@@ -48,7 +48,7 @@ export default function GuestReferralPage() {
               <div className="space-y-4">
                 <button 
                   onClick={() => nextStep('PATIENT')}
-                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
                 >
                   Continue to Patient Details <ChevronRight size={16} />
                 </button>
@@ -90,7 +90,7 @@ export default function GuestReferralPage() {
               </div>
               <button 
                 onClick={() => nextStep('PATIENT')}
-                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
               >
                 Log In & Continue <ChevronRight size={16} />
               </button>
