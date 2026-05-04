@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronRight, ArrowLeft, CheckCircle2, ShieldCheck, Users, Building2 } from 'lucide-react';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 
 type OnboardingStep = 
@@ -26,12 +27,19 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6 w-full max-w-sm">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Specialist Account</h1>
-              <p className="text-xs text-muted-foreground uppercase">{isLogin ? 'Login to manage your practice' : 'Create account to create or join a practice'}</p>
+              <h1 className="text-3xl font-bold uppercase tracking-tighter italic leading-none">Specialist Account</h1>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Create account to create or join a practice</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Email Address</label>
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold uppercase">Email Address</label>
+                  <CommentMarker 
+                    id="onboarding-email-policy"
+                    title="Corporate Email Policy"
+                    description="Personal emails will be checked and discouraged. The system will ask users to register with a corporate email, but they would still be able to continue with a Gmail/personal account if a professional one is unavailable."
+                  />
+                </div>
                 <input type="email" placeholder="doctor@practice.com" className="wireframe-input" />
               </div>
               <div className="space-y-1">
@@ -52,15 +60,15 @@ export default function OnboardingPage() {
               )}
               <button 
                 onClick={() => nextStep('VERIFY')}
-                className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm mt-4"
+                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
               >
                 {isLogin ? 'Login' : 'Create Account'}
               </button>
             </div>
-            <p className="text-center text-[10px] uppercase font-bold text-muted-foreground">
+            <p className="text-center text-[10px] uppercase font-black tracking-tighter">
               {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
               <span 
-                className="text-black cursor-pointer underline" 
+                className="text-black cursor-pointer underline ml-1" 
                 onClick={() => setIsLogin(!isLogin)}
               >
                 {isLogin ? 'Sign Up' : 'Login'}
@@ -97,31 +105,35 @@ export default function OnboardingPage() {
 
       case 'ROLE_SELECTION':
         return (
-          <div className="space-y-8 w-full max-w-2xl">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Welcome to drTalk</h1>
-              <p className="text-xs text-muted-foreground uppercase">Create a specialist practice or join your existing team.</p>
+          <div className="space-y-12 w-full max-w-4xl px-4">
+            <div className="text-center space-y-3">
+              <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A SPECIALIST PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div 
                 onClick={() => nextStep('PRACTICE_DETAILS')}
-                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4"
+                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Building2 size={32} />
-                <h3 className="font-bold uppercase text-lg">Create Specialist Practice</h3>
-                <p className="text-xs uppercase leading-relaxed opacity-70">
-                  Set up a specialist profile to receive referrals and coordinate patient communication.
-                </p>
+                <Building2 size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE SPECIALIST PRACTICE</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Set up a specialist profile to receive referrals and coordinate patient communication.
+                  </p>
+                </div>
               </div>
               <div
                 onClick={() => nextStep('PRACTICE_INVITE')}
-                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4 border-dashed"
+                className="wireframe-card border-dashed hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Users size={32} />
-                <h3 className="font-bold uppercase text-lg">Join Existing Practice</h3>
-                <p className="text-xs uppercase leading-relaxed opacity-70">
-                  Enter with an invite code or request access from a practice administrator.
-                </p>
+                <Users size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Enter with an invite code or request access from a practice administrator.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
