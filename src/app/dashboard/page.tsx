@@ -28,21 +28,21 @@ export default function DashboardPage() {
         
         {/* Verification Alert */}
         {!isVerified && (
-          <div className="wireframe-card border-red-600 bg-red-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 border-2 border-red-600 flex items-center justify-center shrink-0 bg-white">
-                <AlertCircle className="text-red-600" size={24} />
+              <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
+                <AlertCircle className="text-black" size={24} />
               </div>
               <div className="space-y-1">
-                <h3 className="font-black uppercase text-sm tracking-tight text-red-600 leading-none">Practice Owner Identity Verification Required</h3>
-                <p className="text-[10px] uppercase font-bold text-red-800 leading-relaxed max-w-xl">
-                  Your account is currently in "Limited Mode". You can set up your team and channels, but PHI access (Referrals) is restricted until identity verification is complete.
+                <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                  Practice owner verification is required to process referrals and access PHI. Your account is in "Limited Mode" until verification is complete.
                 </p>
               </div>
             </div>
             <button 
               onClick={() => setShowVerification(true)}
-              className="wireframe-button bg-red-600 text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap hover:bg-red-700 transition-colors"
+              className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
             >
               Verify Identity Now
             </button>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
             {/* Requires Attention Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
-                <AlertCircle size={18} className="text-red-600" />
+                <AlertCircle size={18} />
                 <h3 className="font-bold uppercase text-xs tracking-widest">Requires Attention (3)</h3>
               </div>
               
@@ -110,14 +110,14 @@ export default function DashboardPage() {
                   <div 
                     key={i} 
                     onClick={() => handleReferralClick(item.id)}
-                    className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-red-50 cursor-pointer border-red-600 group transition-all"
+                    className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-black hover:text-white cursor-pointer group transition-all"
                   >
                     <div className="space-y-1">
                       <p className="font-bold uppercase text-xs">{item.patient}</p>
-                      <p className="text-[10px] uppercase text-red-600 font-bold">{item.reason}</p>
+                      <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{item.reason}</p>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="text-[8px] uppercase font-bold text-muted-foreground">{item.type}</span>
+                      <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-white opacity-70">{item.type}</span>
                       <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                     </div>
                   </div>
