@@ -13,7 +13,7 @@ export default function SettingsPage() {
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: '#' },
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: '#' },
-    { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: '/dashboard/settings/team' },
+    { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
     ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.', href: '#' }]),
   ];
 
