@@ -11,6 +11,8 @@ type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCES
 
 export default function GuestReferralPage() {
   const [step, setStep] = useState<ReferralStep>('IDENTIFY');
+  const [email, setEmail] = useState('');
+  const [practiceName, setPracticeName] = useState('');
   const router = useRouter();
 
   const nextStep = (next: ReferralStep) => setStep(next);
@@ -29,11 +31,23 @@ export default function GuestReferralPage() {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Enter email</label>
-                  <input type="email" placeholder="dr.smith@example.com" className="wireframe-input" />
+                  <input 
+                    type="email" 
+                    placeholder="dr.smith@example.com" 
+                    className="wireframe-input" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Your practice name</label>
-                  <input type="text" placeholder="Smith Dental Care" className="wireframe-input" />
+                  <input 
+                    type="text" 
+                    placeholder="Smith Dental Care" 
+                    className="wireframe-input" 
+                    value={practiceName}
+                    onChange={(e) => setPracticeName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Select Doctor</label>
@@ -268,7 +282,7 @@ export default function GuestReferralPage() {
                 </p>
               </div>
               <button 
-                onClick={() => router.push('/dentist/dashboard')}
+                onClick={() => router.push(`/onboarding?email=${encodeURIComponent(email)}&practice=${encodeURIComponent(practiceName)}`)}
                 className="wireframe-button w-full bg-black text-white py-3 uppercase text-xs font-black"
               >
                 Track This Referral

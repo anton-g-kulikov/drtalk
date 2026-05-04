@@ -10,7 +10,8 @@ import {
   Building2 as Building2Icon 
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 type OnboardingStep = 
   | 'AUTH' 
@@ -21,11 +22,24 @@ type OnboardingStep =
   | 'PRACTICE_INVITE' 
   | 'SUCCESS';
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
   const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [practiceName, setPracticeName] = useState('');
+  
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    const emailParam = searchParams.get('email');
+    const practiceParam = searchParams.get('practice');
+    if (emailParam) setEmail(emailParam);
+    if (practiceParam) setPracticeName(practiceParam);
+  }, [searchParams]);
 
   const dentalTypes = [
     'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
@@ -62,7 +76,13 @@ export default function OnboardingPage() {
                     description="Personal emails will be checked and discouraged. The system will ask users to register with a corporate email, but they would still be able to continue with a Gmail/personal account if a professional one is unavailable."
                   />
                 </div>
-                <input type="email" placeholder="doctor@practice.com" className="wireframe-input" />
+                <input 
+                  type="email" 
+                  placeholder="doctor@practice.com" 
+                  className="wireframe-input" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Password</label>
@@ -72,11 +92,21 @@ export default function OnboardingPage() {
                 <div className="flex gap-4">
                   <div className="space-y-1 flex-1">
                     <label className="text-[10px] font-bold uppercase">First Name</label>
-                    <input type="text" className="wireframe-input" />
+                    <input 
+                      type="text" 
+                      className="wireframe-input" 
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-1 flex-1">
                     <label className="text-[10px] font-bold uppercase">Last Name</label>
-                    <input type="text" className="wireframe-input" />
+                    <input 
+                      type="text" 
+                      className="wireframe-input" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
                   </div>
                 </div>
               )}
@@ -198,7 +228,13 @@ export default function OnboardingPage() {
                       description="Practice name will work as search/filter after first 3 letters suggesting users to select a practice from drtalk db."
                     />
                   </div>
-                  <input type="text" placeholder="Valley Endodontics" className="wireframe-input py-4 px-4 text-sm" />
+                  <input 
+                    type="text" 
+                    placeholder="Valley Endodontics" 
+                    className="wireframe-input py-4 px-4 text-sm" 
+                    value={practiceName}
+                    onChange={(e) => setPracticeName(e.target.value)}
+                  />
                 </div>
               </div>
 
@@ -372,5 +408,13 @@ export default function OnboardingPage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-bold uppercase tracking-widest">Loading...</div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }
