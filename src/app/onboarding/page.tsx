@@ -227,13 +227,18 @@ function OnboardingContent() {
               <div className="grid grid-cols-[120px_1fr] gap-6">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
-                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
-                    <option>CA</option>
-                    <option>NY</option>
-                    <option>TX</option>
-                    <option>FL</option>
-                    <option>WA</option>
-                  </select>
+                  <div className="relative">
+                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                      <option>CA</option>
+                      <option>NY</option>
+                      <option>TX</option>
+                      <option>FL</option>
+                      <option>WA</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <ChevronRightIcon size={12} className="rotate-90" />
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
@@ -340,13 +345,18 @@ function OnboardingContent() {
                 <div className="grid grid-cols-[120px_1fr] gap-6">
                   <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
-                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
-                      <option>CA</option>
-                      <option>NY</option>
-                      <option>TX</option>
-                      <option>FL</option>
-                      <option>WA</option>
-                    </select>
+                    <div className="relative">
+                      <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                        <option>CA</option>
+                        <option>NY</option>
+                        <option>TX</option>
+                        <option>FL</option>
+                        <option>WA</option>
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <ChevronRightIcon size={12} className="rotate-90" />
+                      </div>
+                    </div>
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
