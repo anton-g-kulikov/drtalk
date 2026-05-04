@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description: "Interactive Prototype",
 };
 
+import { VerificationProvider } from "@/components/VerificationContext";
+import { VerificationManager } from "@/components/VerificationManager";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -15,9 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <CommentSystem>
-          {children}
-        </CommentSystem>
+        <VerificationProvider>
+          <CommentSystem>
+            {children}
+            <VerificationManager />
+          </CommentSystem>
+        </VerificationProvider>
       </body>
     </html>
   );
