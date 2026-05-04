@@ -122,7 +122,10 @@ export function SubscriptionManager() {
                 onClick={() => handleSelectPlan(p.id)}
                 className={`w-full py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-4 border-black ${p.id === 'Pro' ? 'bg-black text-white hover:bg-white hover:text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]' : 'bg-white text-black hover:bg-black hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]'}`}
               >
-                {p.buttonText}
+                {isCurrent 
+                  ? (isTrialEnded ? 'Trial Ended' : `Ends in ${daysRemaining} days`)
+                  : p.buttonText
+                }
               </button>
             </div>
             );
