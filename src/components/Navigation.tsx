@@ -13,6 +13,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
         { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
         { icon: MessageSquare, label: 'Channels', href: '/dentist/channels' },
+        { icon: Users, label: 'Network', href: '/dentist/network' },
         { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
       ]
     : [
