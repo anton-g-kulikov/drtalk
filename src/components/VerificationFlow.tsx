@@ -51,6 +51,11 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest max-w-sm mx-auto leading-relaxed">
                 Practice owner verification is required to process referrals and access PHI.
               </p>
+              <div className="pt-4 border-t border-black border-dashed">
+                <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed italic">
+                  Once verified, all Clinical personnel in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
+                </p>
+              </div>
             </div>
 
             <div className="space-y-4">
