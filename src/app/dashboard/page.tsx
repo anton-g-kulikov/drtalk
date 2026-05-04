@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { 
-  AlertCircle, MessageSquare, ArrowUpRight, 
-  TrendingUp, Users, FileText, Send 
+import {
+  AlertCircle, MessageSquare, ArrowUpRight,
+  TrendingUp, Users, FileText, Send
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -25,7 +25,7 @@ export default function DashboardPage() {
   return (
     <MainLayout title="Specialist Dashboard">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* Verification Alert */}
         {!isVerified && (
           <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -36,11 +36,11 @@ export default function DashboardPage() {
               <div className="space-y-1">
                 <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
                 <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
-                  Practice owner verification is required to process referrals and access PHI. Your account is in "Limited Mode" until verification is complete.
+                  Practice owner verification is required to process referrals and access PHI.
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setShowVerification(true)}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
             >
@@ -48,17 +48,17 @@ export default function DashboardPage() {
             </button>
           </div>
         )}
-        
+
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Specialist Practice Dashboard</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Receive referrals, process cases, coordinate with dentists, and manage patient communication.
             </p>
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
-            <button 
+            <button
               onClick={() => router.push('/referrals')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
@@ -70,12 +70,12 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Acceptance Rate', value: '82%', trend: '+4%', icon: TrendingUp },
-              { label: 'Referrals', value: '18', trend: '+2', icon: FileText },
-              { label: 'Dentist Partners', value: '12', trend: '+1', icon: Users },
-              { label: 'Patient Messages', value: '05', trend: '-2', icon: MessageSquare },
-            ].map((stat) => (
+          {[
+            { label: 'Acceptance Rate', value: '82%', trend: '+4%', icon: TrendingUp },
+            { label: 'Referrals', value: '18', trend: '+2', icon: FileText },
+            { label: 'Dentist Partners', value: '12', trend: '+1', icon: Users },
+            { label: 'Patient Messages', value: '05', trend: '-2', icon: MessageSquare },
+          ].map((stat) => (
             <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
               <div className="flex justify-between items-start">
                 <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
@@ -90,25 +90,25 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
-            
+
             {/* Requires Attention Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
                 <AlertCircle size={18} />
                 <h3 className="font-bold uppercase text-xs tracking-widest">Requires Attention (3)</h3>
               </div>
-              
+
               <div className="space-y-3">
                 {[
                   { id: '2', patient: 'Bob Marley', reason: 'Low Confidence (45%)', type: 'Extraction' },
                   { id: '5', patient: 'Eve Online', reason: 'Low Confidence (30%)', type: 'Periodontal' },
                   { id: '1', patient: 'Charlie Brown', reason: 'Missing Attachment', type: 'Endodontic' },
                 ].map((item, i) => (
-                  <div 
-                    key={i} 
+                  <div
+                    key={i}
                     onClick={() => handleReferralClick(item.id)}
                     className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-black hover:text-white cursor-pointer group transition-all"
                   >
@@ -123,7 +123,7 @@ export default function DashboardPage() {
                   </div>
                 ))}
               </div>
-              <button 
+              <button
                 onClick={() => router.push('/referrals')}
                 className="text-[10px] font-black uppercase underline"
               >
