@@ -168,7 +168,7 @@ export default function DashboardPage() {
                   onClick={() => router.push('/dashboard/invite')}
                 />
                 <ActionCard 
-                  label="PHI & Access Control" 
+                  label="TEAM, ROLES & ACCESS CONTROL" 
                   desc="Manage team permissions and patient communication safeguards." 
                   onClick={() => router.push('/dashboard/settings/team')}
                 />

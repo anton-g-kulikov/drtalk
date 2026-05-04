@@ -76,7 +76,7 @@ export default function TeamManagementPage() {
   };
 
   return (
-    <MainLayout title="Team & Access Control">
+    <MainLayout title="TEAM, ROLES & ACCESS CONTROL">
       <div className="max-w-5xl mx-auto space-y-10">
         
         {/* Header */}
@@ -86,7 +86,7 @@ export default function TeamManagementPage() {
               <button onClick={() => router.push('/dashboard')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
-              <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">Team & Access Control</h1>
+              <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-12">
               Manage practice ownership, clinical permissions, and PHI access safeguards.

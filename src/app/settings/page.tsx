@@ -13,9 +13,8 @@ export default function SettingsPage() {
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: '#' },
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: '#' },
-    { icon: Shield, label: 'PHI & Access Control', desc: 'Manage team permissions and patient communication safeguards.', href: '/dashboard/settings/team' },
+    { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: '/dashboard/settings/team' },
     ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.', href: '#' }]),
-    { icon: HelpCircle, label: 'Support & Docs', desc: 'Access help articles or contact drTalk support.', href: '#' },
   ];
 
   return (
@@ -53,11 +52,8 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        <div className="pt-8 border-t-2 border-black border-dashed flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="pt-8 border-t-2 border-black border-dashed">
           <p className="text-[8px] font-bold uppercase text-muted-foreground italic">Platform Version: Prototype 1.0.4-BW</p>
-          <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 w-full sm:w-auto">
-            Save All Changes
-          </button>
         </div>
       </div>
     </MainLayout>
