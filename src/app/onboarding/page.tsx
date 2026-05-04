@@ -203,7 +203,7 @@ function OnboardingContent() {
               </button>
               <div>
                 <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 3</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 2</p>
               </div>
             </div>
             
@@ -272,7 +272,7 @@ function OnboardingContent() {
               </div>
 
               <button 
-                onClick={() => nextStep('PRACTICE_VERIFY')}
+                onClick={() => nextStep('PRACTICE_INVITE')}
                 className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
                 NEXT STEP <ChevronRightIcon size={18} />
@@ -324,12 +324,12 @@ function OnboardingContent() {
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_VERIFY')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 3 of 3</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 2</p>
               </div>
             </div>
             <div className="space-y-4">
@@ -393,13 +393,13 @@ function OnboardingContent() {
       {renderStep()}
       
       {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].includes(step) && (
+      {['PRACTICE_DETAILS', 'PRACTICE_INVITE'].includes(step) && (
         <div className="fixed bottom-12 flex gap-2">
-          {['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].map((s, i) => (
+          {['PRACTICE_DETAILS', 'PRACTICE_INVITE'].map((s, i) => (
             <div 
               key={s} 
               className={`h-1 w-12 transition-all ${
-                ['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].indexOf(step) >= i 
+                ['PRACTICE_DETAILS', 'PRACTICE_INVITE'].indexOf(step) >= i 
                   ? 'bg-black' 
                   : 'bg-gray-200'
               }`} 
