@@ -178,9 +178,39 @@ export default function OnboardingPage() {
             </div>
             
             <div className="space-y-6">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
-                <input type="text" placeholder="Valley Endodontics" className="wireframe-input py-4 px-4 text-sm" />
+              <div className="grid grid-cols-[120px_1fr] gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
+                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                    <option>CA</option>
+                    <option>NY</option>
+                    <option>TX</option>
+                    <option>FL</option>
+                    <option>WA</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                    <CommentMarker 
+                      id="onboarding-practice-search"
+                      title="Practice Search"
+                      description="Practice name will work as search/filter after first 3 letters suggesting users to select a practice from drtalk db."
+                    />
+                  </div>
+                  <input type="text" placeholder="Valley Endodontics" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
+                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
@@ -202,17 +232,6 @@ export default function OnboardingPage() {
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
-                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
-                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
                 </div>
               </div>
 
