@@ -52,7 +52,7 @@ export function CommentPanel() {
           {/* Description */}
           <div className="wireframe-card bg-muted/30 border-dashed">
             <p className="text-sm font-medium italic">
-              "{activeMarker.description}"
+              &quot;{activeMarker.description}&quot;
             </p>
           </div>
 

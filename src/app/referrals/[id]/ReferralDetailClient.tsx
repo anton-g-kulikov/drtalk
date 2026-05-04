@@ -149,7 +149,7 @@ export default function ReferralDetailClient() {
                   <p className="text-[8px] text-muted-foreground uppercase">1h ago</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
-                  Clinical records requested from Dr. Smith's office. Pending response.
+                  Clinical records requested from Dr. Smith&apos;s office. Pending response.
                 </div>
               </div>
             </div>

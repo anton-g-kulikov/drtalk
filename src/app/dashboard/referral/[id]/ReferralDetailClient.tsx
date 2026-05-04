@@ -8,10 +8,13 @@ import {
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 
+export type ReferralStatus = 'Pending' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed' | 'Archived';
+
 export default function ReferralDetailClient() {
   const router = useRouter();
   const params = useParams();
   const [isEditorMode, setIsEditorMode] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState<ReferralStatus>('Pending');
 
   // Mock data for the specific referral
   const referral = {
@@ -20,25 +23,78 @@ export default function ReferralDetailClient() {
     type: 'Endodontic Consultation',
     source: 'Email',
     confidence: 55,
-    status: 'Received',
     receivedAt: '2h ago',
     dentist: 'Dr. Smith'
+  };
+
+  const getStatusColor = (status: ReferralStatus) => {
+    switch (status) {
+      case 'Pending': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+      case 'Accepted': return 'bg-blue-50 text-blue-800 border-blue-200';
+      case 'Scheduled': return 'bg-purple-50 text-purple-800 border-purple-200';
+      case 'In Progress': return 'bg-orange-50 text-orange-800 border-orange-200';
+      case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
+      case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
+      default: return 'bg-white';
+    }
   };
 
   return (
     <MainLayout title="Referral Detail">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Breadcrumbs / Back button */}
-        <div className="flex items-start gap-5">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="mt-1 p-2.5 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
-          >
-            <ArrowLeft size={18} />
-          </button>
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
-            <h1 className="text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-5">
+            <button 
+              onClick={() => router.push('/referrals')}
+              className="mt-1 p-2.5 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div className="space-y-1">
+              <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
+              <div className="flex items-center gap-3">
+                <h1 className="text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+                <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
+                  {currentStatus}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex gap-2">
+            {currentStatus === 'Pending' && (
+              <button 
+                onClick={() => setCurrentStatus('Accepted')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
+              >
+                Accept Referral
+              </button>
+            )}
+            {currentStatus === 'Accepted' && (
+              <button 
+                onClick={() => setCurrentStatus('Scheduled')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
+              >
+                Confirm Schedule
+              </button>
+            )}
+            {currentStatus === 'Scheduled' && (
+              <button 
+                onClick={() => setCurrentStatus('In Progress')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
+              >
+                Start Treatment
+              </button>
+            )}
+            {currentStatus === 'In Progress' && (
+              <button 
+                onClick={() => setCurrentStatus('Completed')}
+                className="wireframe-button bg-green-600 text-white text-[10px] uppercase px-6 py-2 border-green-600"
+              >
+                Complete Case
+              </button>
+            )}
           </div>
         </div>
 
@@ -49,7 +105,7 @@ export default function ReferralDetailClient() {
           <div className="flex-1 p-10 space-y-10 border-r-2 border-black">
             
             {/* AI Warning Banner */}
-            {referral.confidence < 60 && (
+            {referral.confidence < 60 && currentStatus === 'Pending' && (
               <div className="wireframe-card border-red-600 bg-red-50 p-6 flex gap-5 items-start">
                 <AlertTriangle className="text-red-600 shrink-0" size={28} />
                 <div className="flex-1">
@@ -119,10 +175,10 @@ export default function ReferralDetailClient() {
             </div>
 
             <div className="pt-16 flex gap-6">
-              <button className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center gap-3">
-                Process Referral <Send size={14} />
-              </button>
-              <button className="wireframe-button text-[11px] uppercase px-10 py-4">
+              <button 
+                onClick={() => setCurrentStatus('Archived')}
+                className="wireframe-button text-[11px] uppercase px-10 py-4 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all"
+              >
                 Archive Case
               </button>
             </div>
@@ -143,15 +199,18 @@ export default function ReferralDetailClient() {
                   Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via AI Pipeline.
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase">Administrator</p>
-                  <p className="text-[8px] text-muted-foreground uppercase">1h ago</p>
+              
+              {currentStatus !== 'Pending' && (
+                <div className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[9px] font-black uppercase">Specialist Team</p>
+                    <p className="text-[8px] text-muted-foreground uppercase">Just now</p>
+                  </div>
+                  <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
+                    Case status updated to <span className="font-black">{currentStatus}</span>.
+                  </div>
                 </div>
-                <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
-                  Clinical records requested from Dr. Smith's office. Pending response.
-                </div>
-              </div>
+              )}
             </div>
             <div className="p-6 border-t-2 border-black bg-white space-y-4">
               <textarea 
