@@ -1,0 +1,110 @@
+{
+  "User": {
+    "properties": {
+      "user_id": "string",
+      "name": "string",
+      "email": "string",
+      "phone": "string",
+      "verification_status": "enum[unverified, verified]",
+      "profile_status": "enum[incomplete, complete]"
+    }
+  },
+
+  "Practice": {
+    "properties": {
+      "practice_id": "string",
+      "name": "string",
+      "address": {
+        "state": "string",
+        "city": "string",
+        "zip": "string"
+      },
+      "type": "enum[dentist, specialist]",
+      "category": "string",
+      "contact_person": "string",
+      "verification_status": "enum[unverified, verified]",
+      "subscription_status": "string",
+      "subscription_plan": "string",
+      "billing_info": "object"
+    }
+  },
+
+  "PracticeMembership": {
+    "properties": {
+      "membership_id": "string",
+      "user_id": "string",
+      "practice_id": "string",
+      "role": "enum[owner, medical_staff, admin_staff]",
+      "status": "enum[invited, pending, active, suspended]",
+      "phi_access_status": "enum[none, pending, granted, revoked]"
+    }
+  },
+
+  "PracticePatient": {
+    "properties": {
+      "practice_patient_id": "string",
+      "practice_id": "string",
+      "name": "string",
+      "phone": "string",
+      "email": "string",
+      "consent_status": "boolean",
+      "created_at": "timestamp"
+    }
+  },
+
+  "Referral": {
+    "properties": {
+      "referral_id": "string",
+      "practice_patient_id": "string",
+      "source_practice_id": "string",
+      "target_practice_id": "string",
+      "created_by_user_id": "string",
+      "status": "enum[new, viewed, accepted, processed, completed]",
+      "origin": "enum[email, efax, web, manual]",
+      "created_at": "timestamp"
+    }
+  },
+
+  "Document": {
+    "properties": {
+      "document_id": "string",
+      "practice_patient_id": "string",
+      "referral_id": "string (nullable)",
+      "type": "string",
+      "file_url": "string",
+      "source": "enum[upload, email, efax, generated]",
+      "created_at": "timestamp"
+    }
+  },
+
+  "Channel": {
+    "properties": {
+      "channel_id": "string",
+      "type": "enum[internal, inter_practice, public, patient]",
+      "owner_practice_id": "string",
+      "practice_patient_id": "string (nullable)",
+      "counterparty_practice_id": "string (nullable)",
+      "parent_channel_id": "string (nullable)",
+      "created_at": "timestamp"
+    }
+  },
+
+  "ChannelParticipant": {
+    "properties": {
+      "channel_id": "string",
+      "user_id": "string",
+      "role": "enum[member, admin]"
+    }
+  },
+
+  "Message": {
+    "properties": {
+      "message_id": "string",
+      "channel_id": "string",
+      "sender_user_id": "string (nullable)",
+      "transport": "enum[in_app, sms, secure_email]",
+      "content": "string",
+      "created_at": "timestamp"
+    }
+  }
+}
