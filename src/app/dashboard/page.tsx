@@ -23,7 +23,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <MainLayout title="Specialist Dashboard">
+    <MainLayout title="Practice Dashboard">
       <div className="max-w-6xl mx-auto space-y-8">
 
         {/* Verification Alert */}
@@ -162,9 +162,20 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
-                <ActionCard label="Invite Dentist" desc="Grow your referral network" />
-                <ActionCard label="Practice Setup" desc="Manage team, channels, and specialties" />
-                <ActionCard label="Learning Resource" desc="Create a public or paid education channel" />
+                <ActionCard 
+                  label="Invite Dentist" 
+                  desc="Grow your referral network" 
+                  onClick={() => router.push('/dashboard/invite')}
+                />
+                <ActionCard 
+                  label="PHI & Access Control" 
+                  desc="Manage team permissions and patient communication safeguards." 
+                  onClick={() => router.push('/dashboard/settings/team')}
+                />
+                <ActionCard 
+                  label="Learning Resource" 
+                  desc="Create a public or paid education channel" 
+                />
               </div>
             </div>
           </div>
@@ -175,9 +186,12 @@ export default function DashboardPage() {
   );
 }
 
-function ActionCard({ label, desc }: { label: string, desc: string }) {
+function ActionCard({ label, desc, onClick }: { label: string, desc: string, onClick?: () => void }) {
   return (
-    <div className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group">
+    <div 
+      onClick={onClick}
+      className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group"
+    >
       <h4 className="font-bold uppercase text-[10px] tracking-tight">{label}</h4>
       <p className="text-[8px] uppercase opacity-70 group-hover:opacity-100">{desc}</p>
     </div>
