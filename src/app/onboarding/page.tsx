@@ -348,30 +348,34 @@ function OnboardingContent() {
               </div>
             </div>
             <div className="space-y-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff or administrators to your practice</p>
               
               <div className="space-y-6">
-                {invites.map((invite, index) => (
-                  <div key={index} className="flex gap-4 items-end">
-                    <div className="flex-1 space-y-1">
-                      <label className="text-[10px] font-black uppercase tracking-widest">Email</label>
-                      <input 
-                        type="email" 
-                        placeholder="colleague@practice.com" 
-                        className="wireframe-input w-full py-4 px-4 text-sm" 
-                        value={invite.email}
-                        onChange={(e) => updateInvite(index, 'email', e.target.value)}
-                      />
-                    </div>
-                    <div className="w-32 space-y-1">
-                      <label className="text-[10px] font-black uppercase tracking-widest">Role Type</label>
-                      <div className="relative">
+                {/* Column Headers */}
+                <div className="flex gap-4 px-1">
+                  <label className="flex-1 text-[10px] font-black uppercase tracking-widest">Email</label>
+                  <label className="w-32 text-[10px] font-black uppercase tracking-widest">Role Type</label>
+                </div>
+
+                <div className="space-y-4">
+                  {invites.map((invite, index) => (
+                    <div key={index} className="flex gap-4 items-center">
+                      <div className="flex-1">
+                        <input 
+                          type="email" 
+                          placeholder="colleague@practice.com" 
+                          className="wireframe-input w-full py-4 px-4 text-sm" 
+                          value={invite.email}
+                          onChange={(e) => updateInvite(index, 'email', e.target.value)}
+                        />
+                      </div>
+                      <div className="w-32 relative">
                         <select 
                           value={invite.role}
                           onChange={(e) => updateInvite(index, 'role', e.target.value)}
                           className="wireframe-input w-full appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center pr-8"
                         >
-                          <option value="administrative">Administrative</option>
+                          <option value="admin">Admin</option>
                           <option value="clinical">Clinical</option>
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -379,8 +383,8 @@ function OnboardingContent() {
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
 
               {invites.length < 10 && (
