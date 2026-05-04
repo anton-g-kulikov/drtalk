@@ -7,24 +7,110 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-type ReferralStep = 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
+type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
 export default function GuestReferralPage() {
-  const [step, setStep] = useState<ReferralStep>('PATIENT');
+  const [step, setStep] = useState<ReferralStep>('IDENTIFY');
   const router = useRouter();
 
   const nextStep = (next: ReferralStep) => setStep(next);
 
   const renderStep = () => {
     switch (step) {
-      case 'PATIENT':
+      case 'IDENTIFY':
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Send Referral</h1>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-                Safe & Secure Case Submission to Sunshine Dental
-              </p>
+              <h1 className="text-3xl font-bold uppercase tracking-tighter">Refer to</h1>
+              <p className="text-xl font-black uppercase italic tracking-tighter">Sunshine Dental</p>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Enter email</label>
+                  <input type="email" placeholder="dr.smith@example.com" className="wireframe-input" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Practice name</label>
+                  <input type="text" placeholder="Smith Dental Care" className="wireframe-input" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Select Doctor</label>
+                  <select className="wireframe-input bg-white appearance-none cursor-pointer">
+                    <option value="">Select a doctor</option>
+                    <option value="1">Dr. John Taylor</option>
+                    <option value="2">Dr. Sarah Reed</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <button 
+                  onClick={() => nextStep('PATIENT')}
+                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                >
+                  Continue to Patient Details <ChevronRight size={16} />
+                </button>
+                
+                <div className="text-center pt-4 border-t border-black border-dashed">
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Already have an account?</p>
+                  <button 
+                    onClick={() => nextStep('LOGIN')}
+                    className="text-xs font-black uppercase underline hover:text-black transition-colors"
+                  >
+                    Log In
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'LOGIN':
+        return (
+          <div className="space-y-8 w-full max-w-lg">
+            <div className="flex items-center gap-4">
+              <button onClick={() => nextStep('IDENTIFY')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeft size={16} />
+              </button>
+              <h1 className="text-2xl font-bold uppercase tracking-tighter">Log In</h1>
+            </div>
+
+            <div className="space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Email</label>
+                  <input type="email" placeholder="your@email.com" className="wireframe-input" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Password</label>
+                  <input type="password" placeholder="••••••••" className="wireframe-input" />
+                </div>
+              </div>
+              <button 
+                onClick={() => nextStep('PATIENT')}
+                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+              >
+                Log In & Continue <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'PATIENT':
+        return (
+          <div className="space-y-8 w-full max-w-lg">
+            <div className="flex items-center gap-4">
+              <button onClick={() => nextStep('IDENTIFY')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeft size={16} />
+              </button>
+              <div className="space-y-1">
+                <h1 className="text-2xl font-bold uppercase tracking-tighter">Patient Info</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  Step 2: Case Details for Sunshine Dental
+                </p>
+              </div>
             </div>
             
             <div className="space-y-6">
@@ -211,14 +297,14 @@ export default function GuestReferralPage() {
       {/* Step Indicator */}
       {step !== 'SUCCESS' && (
         <div className="fixed bottom-12 flex gap-4 items-center">
-          {['PATIENT', 'CASE', 'DOCS'].map((s, i) => (
+          {['IDENTIFY', 'PATIENT', 'CASE', 'DOCS'].map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div 
                 className={`w-3 h-3 border-2 border-black transition-all ${
-                  ['PATIENT', 'CASE', 'DOCS'].indexOf(step) >= i ? 'bg-black' : 'bg-transparent'
+                  (['IDENTIFY', 'PATIENT', 'CASE', 'DOCS'].indexOf(step) >= i) || (step === 'LOGIN' && i === 0) ? 'bg-black' : 'bg-transparent'
                 }`}
               />
-              {i < 2 && <div className="w-8 h-0.5 bg-black/20" />}
+              {i < 3 && <div className="w-8 h-0.5 bg-black/20" />}
             </div>
           ))}
         </div>
