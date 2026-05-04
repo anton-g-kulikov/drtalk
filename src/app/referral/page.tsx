@@ -32,7 +32,7 @@ export default function GuestReferralPage() {
                   <input type="email" placeholder="dr.smith@example.com" className="wireframe-input" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Practice name</label>
+                  <label className="text-[10px] font-bold uppercase">Your practice name</label>
                   <input type="text" placeholder="Smith Dental Care" className="wireframe-input" />
                 </div>
                 <div className="space-y-1">
