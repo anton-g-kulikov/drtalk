@@ -27,7 +27,7 @@ const PLANS = [
       { icon: Users, text: 'Unlimited team members' },
       { icon: Globe, text: 'Unlimited connections' }
     ],
-    buttonText: 'Get started'
+    buttonText: 'Upgrade'
   },
   {
     id: 'BusinessPlus',
@@ -39,7 +39,7 @@ const PLANS = [
       { icon: Users, text: 'Up to 3 providers' },
       { icon: Zap, text: '$99/mo for each additional provider' }
     ],
-    buttonText: 'Get started'
+    buttonText: 'Upgrade'
   }
 ];
 
