@@ -40,7 +40,8 @@ export default function TeamManagementPage() {
   const { isVerified } = useVerification();
   const [team, setTeam] = useState<TeamMember[]>(mockTeam);
   const [showTransferModal, setShowTransferModal] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null);
+  const [newOwnerId, setNewOwnerId] = useState<string>('');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
   const getPhiBadge = (status: PhiStatus) => {
     switch (status) {
@@ -55,29 +56,26 @@ export default function TeamManagementPage() {
     }
   };
 
-  const handleTransferClick = (member: TeamMember) => {
-    setSelectedMember(member);
-    setShowTransferModal(true);
-  };
-
   const confirmTransfer = () => {
-    if (!selectedMember) return;
+    if (!newOwnerId) return;
     
     // Simulate ownership transfer
     const updatedTeam = team.map(m => {
-      if (m.id === selectedMember.id) return { ...m, role: 'Owner' as MemberRole, phiStatus: 'Pending' as PhiStatus }; // New owner must re-verify
+      if (m.id === newOwnerId) return { ...m, role: 'Owner' as MemberRole, phiStatus: 'Pending' as PhiStatus }; // New owner must re-verify
       if (m.role === 'Owner') return { ...m, role: 'Clinical' as MemberRole, phiStatus: 'Granted' as PhiStatus }; // Old owner becomes clinical
       return m;
     });
     
     setTeam(updatedTeam);
     setShowTransferModal(false);
-    // In a real app, we'd also update the global verification state to false for the new owner
+    setNewOwnerId('');
   };
+
+  const clinicalStaff = team.filter(m => m.role === 'Clinical');
 
   return (
     <MainLayout title="TEAM, ROLES & ACCESS CONTROL">
-      <div className="max-w-5xl mx-auto space-y-10">
+      <div className="max-w-5xl mx-auto space-y-10" onClick={() => setOpenMenuId(null)}>
         
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
@@ -143,18 +141,37 @@ export default function TeamManagementPage() {
                 <div className="col-span-2 w-full">
                   <p className="text-[10px] font-bold uppercase text-muted-foreground">{member.joinedAt}</p>
                 </div>
-                <div className="col-span-1 w-full text-right flex justify-end gap-2">
-                  {member.role !== 'Owner' && (
-                    <button 
-                      onClick={() => handleTransferClick(member)}
-                      className="p-1.5 border-2 border-black hover:bg-black hover:text-white transition-all title='Transfer Ownership'"
-                    >
-                      <ArrowRightLeftIcon size={14} />
-                    </button>
-                  )}
-                  <button className="p-1.5 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <div className="col-span-1 w-full text-right flex justify-end relative">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenMenuId(openMenuId === member.id ? null : member.id);
+                    }}
+                    className="p-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
+                  >
                     <MoreVerticalIcon size={14} />
                   </button>
+                  
+                  {openMenuId === member.id && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white border-4 border-black z-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-top-2 duration-200">
+                      <div className="py-1">
+                        {member.role === 'Owner' && (
+                          <button 
+                            onClick={() => setShowTransferModal(true)}
+                            className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 border-b-2 border-black"
+                          >
+                            <ArrowRightLeftIcon size={14} /> Transfer Ownership
+                          </button>
+                        )}
+                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2">
+                          Edit Member
+                        </button>
+                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-red-600">
+                          Remove Member
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -162,7 +179,7 @@ export default function TeamManagementPage() {
         </div>
 
         {/* Transfer Ownership Modal */}
-        {showTransferModal && selectedMember && (
+        {showTransferModal && (
           <div className="fixed inset-0 z-[110] flex items-center justify-center bg-white/95 backdrop-blur-sm p-4">
             <div className="w-full max-w-md bg-white border-4 border-black p-10 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] space-y-8 animate-in zoom-in-95 duration-300">
               <div className="text-center space-y-4">
@@ -171,32 +188,52 @@ export default function TeamManagementPage() {
                 </div>
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Transfer Ownership</h2>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
-                  You are about to transfer practice ownership to <span className="text-black">{selectedMember.name}</span>.
+                  Select a clinical team member to become the new practice lead.
                 </p>
               </div>
 
-              <div className="wireframe-card p-6 bg-gray-50 border-dashed space-y-4">
-                <div className="flex gap-4 items-start">
-                  <LockIcon size={20} className="shrink-0" />
-                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed">
-                    IMPORTANT: The new owner must undergo the personal verification process to re-activate PHI access for the practice.
-                  </p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest">Select New Owner</label>
+                  <select 
+                    value={newOwnerId}
+                    onChange={(e) => setNewOwnerId(e.target.value)}
+                    className="wireframe-input w-full py-4 px-4 text-sm appearance-none bg-transparent"
+                  >
+                    <option value="">Choose clinical staff...</option>
+                    {clinicalStaff.map(m => (
+                      <option key={m.id} value={m.id}>{m.name} ({m.specialty || 'Clinical'})</option>
+                    ))}
+                  </select>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 gap-3 pt-4">
-                <button 
-                  onClick={confirmTransfer}
-                  className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
-                >
-                  Confirm Transfer
-                </button>
-                <button 
-                  onClick={() => setShowTransferModal(false)}
-                  className="text-[10px] font-black uppercase underline py-2"
-                >
-                  Cancel
-                </button>
+                <div className="wireframe-card p-6 bg-gray-50 border-dashed space-y-4">
+                  <div className="flex gap-4 items-start">
+                    <LockIcon size={20} className="shrink-0" />
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed">
+                      IMPORTANT: The new owner must undergo personal verification to restore PHI access. You will be reassigned as clinical staff.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 pt-4">
+                  <button 
+                    disabled={!newOwnerId}
+                    onClick={confirmTransfer}
+                    className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest disabled:opacity-30"
+                  >
+                    Confirm Transfer
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowTransferModal(false);
+                      setNewOwnerId('');
+                    }}
+                    className="text-[10px] font-black uppercase underline py-2"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           </div>
