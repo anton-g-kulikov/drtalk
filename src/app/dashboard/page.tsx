@@ -38,7 +38,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
               { label: 'Acceptance Rate', value: '82%', trend: '+4%', icon: TrendingUp },
-              { label: 'Received Referrals', value: '18', trend: '+2', icon: FileText },
+              { label: 'Referrals', value: '18', trend: '+2', icon: FileText },
               { label: 'Dentist Partners', value: '12', trend: '+1', icon: Users },
               { label: 'Patient Messages', value: '05', trend: '-2', icon: MessageSquare },
             ].map((stat) => (

@@ -1,3 +1,3 @@
-import DentistDashboardPage from '../dashboard/page';
+import ReferralsPage from '../../referrals/page';
 
-export default DentistDashboardPage;
+export default ReferralsPage;
