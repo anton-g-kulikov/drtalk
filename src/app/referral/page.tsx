@@ -5,6 +5,7 @@ import {
   ChevronRight, ArrowLeft, CheckCircle2, 
   Upload, FileText, X, Shield, Lock 
 } from 'lucide-react';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
@@ -23,7 +24,14 @@ export default function GuestReferralPage() {
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Refer to</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-3xl font-bold uppercase tracking-tighter">Refer to</h1>
+                <CommentMarker 
+                  id="referral-target-practice"
+                  title="Target Practice"
+                  description="Target practice is pre-filled since you used a special practice link."
+                />
+              </div>
               <p className="text-xl font-black uppercase italic tracking-tighter">Sunshine Dental</p>
             </div>
             
