@@ -196,7 +196,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
                 { label: 'View Profile', href: isDentist ? '/dentist/settings' : '/settings' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
                 ...(!isDentist ? [{ label: 'Billing & Usage', href: '/settings' }] : []),
-                { label: 'Sign Out', href: '/', color: 'text-red-600' },
+                { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link
                   key={i}
