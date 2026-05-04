@@ -8,12 +8,46 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+import { useVerification } from '@/components/VerificationContext';
+
 export default function DashboardPage() {
   const router = useRouter();
+  const { isVerified, setShowVerification } = useVerification();
+
+  const handleReferralClick = (id: string) => {
+    if (!isVerified) {
+      setShowVerification(true);
+    } else {
+      router.push(`/referrals/${id}`);
+    }
+  };
 
   return (
     <MainLayout title="Specialist Dashboard">
       <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Verification Alert */}
+        {!isVerified && (
+          <div className="wireframe-card border-red-600 bg-red-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 border-2 border-red-600 flex items-center justify-center shrink-0 bg-white">
+                <AlertCircle className="text-red-600" size={24} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-black uppercase text-sm tracking-tight text-red-600 leading-none">Practice Owner Identity Verification Required</h3>
+                <p className="text-[10px] uppercase font-bold text-red-800 leading-relaxed max-w-xl">
+                  Your account is currently in "Limited Mode". You can set up your team and channels, but PHI access (Referrals) is restricted until identity verification is complete.
+                </p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowVerification(true)}
+              className="wireframe-button bg-red-600 text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap hover:bg-red-700 transition-colors"
+            >
+              Verify Identity Now
+            </button>
+          </div>
+        )}
         
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -75,7 +109,7 @@ export default function DashboardPage() {
                 ].map((item, i) => (
                   <div 
                     key={i} 
-                    onClick={() => router.push(`/referrals/${item.id}`)}
+                    onClick={() => handleReferralClick(item.id)}
                     className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-red-50 cursor-pointer border-red-600 group transition-all"
                   >
                     <div className="space-y-1">

@@ -27,12 +27,23 @@ const mockReferrals: Referral[] = [
   { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Scheduled', receivedAt: '1h ago', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
 ];
 
+import { useVerification } from '@/components/VerificationContext';
+
 export default function ReferralsPage() {
+  const { isVerified, setShowVerification } = useVerification();
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ReferralStatus>('Pending');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleReferralClick = (id: string) => {
+    if (!isVerified) {
+      setShowVerification(true);
+    } else {
+      router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
+    }
+  };
 
   const tabs: ReferralStatus[] = ['Pending', 'Accepted', 'Scheduled', 'In Progress', 'Completed', 'Archived'];
 
@@ -151,7 +162,7 @@ export default function ReferralsPage() {
                 filteredReferrals.map((referral) => (
                   <div 
                     key={referral.id} 
-                    onClick={() => router.push(isDentist ? '/dentist/channels' : `/referrals/${referral.id}`)}
+                    onClick={() => handleReferralClick(referral.id)}
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
