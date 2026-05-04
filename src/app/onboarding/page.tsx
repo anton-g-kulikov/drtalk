@@ -27,10 +27,12 @@ function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
   const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
-  const [email, setEmail] = useState('');
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState(searchParams.get('email') || '');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [practiceName, setPracticeName] = useState('');
+  const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+
   const [invites, setInvites] = useState<{email: string, role: string}[]>([
     { email: '', role: 'admin' },
     { email: '', role: 'clinical' }
@@ -48,14 +50,6 @@ function OnboardingContent() {
     setInvites(newInvites);
   };
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  React.useEffect(() => {
-    const emailParam = searchParams.get('email');
-    const practiceParam = searchParams.get('practice');
-    if (emailParam) setEmail(emailParam);
-    if (practiceParam) setPracticeName(practiceParam);
-  }, [searchParams]);
 
   const dentalTypes = [
     'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
