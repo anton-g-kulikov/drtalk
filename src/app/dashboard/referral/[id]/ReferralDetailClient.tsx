@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
   AlertTriangle, Send, MoreHorizontal 
@@ -55,6 +56,7 @@ export default function ReferralDetailClient() {
               <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
               <div className="flex items-center gap-3">
                 <h1 className="text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+                <CommentMarker id="dashboard-referral-detail" title="Dashboard Referral Detail" description="Referral detail view accessible from the dashboard." />
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
                   {currentStatus}
                 </span>
