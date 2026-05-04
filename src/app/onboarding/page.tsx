@@ -18,6 +18,7 @@ type OnboardingStep =
   | 'VERIFY' 
   | 'ROLE_SELECTION' 
   | 'PRACTICE_DETAILS' 
+  | 'JOIN_PRACTICE'
   | 'PRACTICE_VERIFY' 
   | 'PRACTICE_INVITE' 
   | 'SUCCESS';
@@ -191,7 +192,7 @@ function OnboardingContent() {
                 </div>
               </div>
               <div
-                onClick={() => nextStep('PRACTICE_INVITE')}
+                onClick={() => nextStep('JOIN_PRACTICE')}
                 className="wireframe-card border-dashed hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
                 <UsersIcon size={48} className="mb-2" />
@@ -292,6 +293,84 @@ function OnboardingContent() {
               >
                 NEXT STEP <ChevronRightIcon size={18} />
               </button>
+            </div>
+          </div>
+        );
+
+      case 'JOIN_PRACTICE':
+        return (
+          <div className="space-y-10 w-full max-w-2xl px-4">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => nextStep('ROLE_SELECTION')} 
+                className="w-12 h-12 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all"
+              >
+                <ArrowLeftIcon size={20} />
+              </button>
+              <div>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">JOIN EXISTING PRACTICE</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">REQUEST ACCESS TO YOUR TEAM</p>
+              </div>
+            </div>
+
+            <div className="space-y-12">
+              {/* Option 1: Invite Code */}
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">OPTION 1: ENTER INVITE CODE</label>
+                  <input type="text" placeholder="X-782-K9L" className="wireframe-input py-6 text-center text-2xl font-black tracking-[0.5em] uppercase" />
+                </div>
+                <button 
+                  onClick={() => nextStep('SUCCESS')}
+                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                >
+                  JOIN WITH CODE
+                </button>
+              </div>
+
+              {/* Separator */}
+              <div className="relative flex items-center justify-center">
+                <div className="absolute w-full border-t border-black border-dashed"></div>
+                <span className="relative bg-white px-4 text-xs font-black uppercase italic">OR</span>
+              </div>
+
+              {/* Option 2: Search & Request */}
+              <div className="space-y-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">OPTION 2: FIND YOUR PRACTICE & REQUEST ACCESS</p>
+                <div className="grid grid-cols-[120px_1fr] gap-6">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
+                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                      <option>CA</option>
+                      <option>NY</option>
+                      <option>TX</option>
+                      <option>FL</option>
+                      <option>WA</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                      <CommentMarker 
+                        id="join-practice-search"
+                        title="Practice Search"
+                        description="Start typing your practice name. We'll suggest matches from the drTalk database after 3 letters."
+                      />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="Search practice name..." 
+                      className="wireframe-input py-4 px-4 text-sm" 
+                    />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => nextStep('SUCCESS')}
+                  className="wireframe-button w-full border-2 border-black py-4 uppercase text-sm font-black tracking-widest hover:bg-black hover:text-white transition-all"
+                >
+                  REQUEST ACCESS
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -444,18 +523,10 @@ function OnboardingContent() {
       {renderStep()}
       
       {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'PRACTICE_INVITE'].includes(step) && (
+      {['PRACTICE_DETAILS', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
         <div className="fixed bottom-12 flex gap-2">
-          {['PRACTICE_DETAILS', 'PRACTICE_INVITE'].map((s, i) => (
-            <div 
-              key={s} 
-              className={`h-1 w-12 transition-all ${
-                ['PRACTICE_DETAILS', 'PRACTICE_INVITE'].indexOf(step) >= i 
-                  ? 'bg-black' 
-                  : 'bg-gray-200'
-              }`} 
-            />
-          ))}
+          <div className="h-1 w-12 bg-black transition-all" />
+          <div className={`h-1 w-12 transition-all ${['PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
         </div>
       )}
     </main>
