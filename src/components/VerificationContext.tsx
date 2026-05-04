@@ -32,8 +32,6 @@ export function VerificationProvider({ children }: { children: React.ReactNode }
     setIsVerified(false);
     setShowVerification(false);
     localStorage.removeItem('drtalk_owner_verified');
-    // Force a reload to ensure all states are clean
-    window.location.reload();
   };
 
   return (
