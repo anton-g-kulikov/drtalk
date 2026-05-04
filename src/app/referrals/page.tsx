@@ -56,13 +56,13 @@ export default function ReferralsPage() {
   const getConfidenceColor = (score: number) => {
     if (score >= 90) return 'text-black';
     if (score >= 60) return 'text-gray-500';
-    return 'text-red-600 font-black italic';
+    return 'text-black font-black italic opacity-60';
   };
 
   const getConfidenceLabel = (score: number) => {
     if (score >= 90) return 'High';
     if (score >= 60) return 'Medium';
-    return 'Low Confidence';
+    return 'Review Required';
   };
 
   return (
@@ -189,9 +189,6 @@ export default function ReferralsPage() {
                             <div className={`text-[10px] uppercase font-bold ${getConfidenceColor(referral.confidence)}`}>
                               {getConfidenceLabel(referral.confidence)} ({referral.confidence}%)
                             </div>
-                            {referral.confidence < 60 && (
-                              <AlertCircle size={12} className="text-red-600" />
-                            )}
                           </div>
                         </div>
                       )}
