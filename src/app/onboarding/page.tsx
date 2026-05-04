@@ -332,18 +332,25 @@ function OnboardingContent() {
                 <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 2</p>
               </div>
             </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
-              {[1, 2].map((i) => (
-                <div key={i} className="flex gap-2">
-                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1" />
-                  <select className="wireframe-input w-32 appearance-none bg-transparent text-[10px] font-bold uppercase">
-                    <option>Clinical</option>
-                    <option>Admin</option>
-                  </select>
+            <div className="space-y-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
+              
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
+                  <div className="w-32 border-2 border-black flex items-center justify-center font-black uppercase text-[10px] tracking-widest">
+                    Admin
+                  </div>
                 </div>
-              ))}
-              <button className="text-[10px] font-bold underline uppercase">+ Add Another</button>
+                <div className="flex gap-4">
+                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
+                  <div className="w-32 border-2 border-black flex items-center justify-center font-black uppercase text-[10px] tracking-widest">
+                    Clinical
+                  </div>
+                </div>
+              </div>
+
+              <button className="text-[10px] font-black underline uppercase tracking-widest">+ Add Another</button>
               
               <div className="pt-8 space-y-4">
                 <button 
