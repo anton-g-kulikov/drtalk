@@ -44,7 +44,7 @@ const PLANS = [
 ];
 
 export function SubscriptionManager() {
-  const { showPaywall, setShowPaywall, setPlan, isTrialEnded, plan } = useSubscription();
+  const { showPaywall, setShowPaywall, setPlan, isTrialEnded, plan, daysRemaining } = useSubscription();
 
   if (!showPaywall) return null;
 
@@ -60,28 +60,44 @@ export function SubscriptionManager() {
         {/* Header */}
         <div className="text-center space-y-6 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-black bg-gray-50 text-[10px] font-black uppercase tracking-[0.2em]">
-            <ShieldAlert size={14} /> Subscription Required
+            <ShieldAlert size={14} /> Subscription Status
           </div>
           <h1 className="text-5xl sm:text-7xl font-black uppercase tracking-tighter italic leading-none">
             {isTrialEnded ? 'Your trial has ended' : 'Choose your plan'}
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
-            Choose the right plan to continue processing referrals and communicating with your network.
-          </p>
+          <div className="space-y-2">
+            <p className="text-xs sm:text-sm text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
+              Choose the right plan to continue processing referrals and communicating with your network.
+            </p>
+            {!isTrialEnded && (
+              <p className="text-[10px] font-black uppercase tracking-widest text-black bg-yellow-400 inline-block px-3 py-1 border border-black italic">
+                Currently on Starter Plan. Trial ends in {daysRemaining} days.
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Pricing Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PLANS.map((p) => (
-            <div 
-              key={p.id} 
-              className={`wireframe-card p-10 bg-white flex flex-col space-y-8 relative transition-all hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] ${p.badge ? 'border-4 border-black' : 'border-2 border-black opacity-90'}`}
-            >
-              {p.badge && (
-                <div className="absolute top-0 right-10 -translate-y-1/2 bg-[#A855F7] text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  {p.badge}
-                </div>
-              )}
+          {PLANS.map((p) => {
+            const isCurrent = (p.id === 'Starter' && (plan === 'Trial' || plan === 'Starter'));
+            
+            return (
+              <div 
+                key={p.id} 
+                className={`wireframe-card p-10 bg-white flex flex-col space-y-8 relative transition-all hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] ${p.badge || isCurrent ? 'border-4 border-black' : 'border-2 border-black opacity-90'}`}
+              >
+                {p.badge && (
+                  <div className="absolute top-0 right-10 -translate-y-1/2 bg-[#A855F7] text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    {p.badge}
+                  </div>
+                )}
+                
+                {isCurrent && (
+                  <div className="absolute top-0 left-10 -translate-y-1/2 bg-black text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    Current Plan
+                  </div>
+                )}
 
               <div className="space-y-2">
                 <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none">{p.name}</h3>
