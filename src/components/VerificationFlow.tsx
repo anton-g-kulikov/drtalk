@@ -49,7 +49,7 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
               </div>
               <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Identity Verification</h1>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest max-w-sm mx-auto leading-relaxed">
-                Practice owner verification is required to process referrals and access PHI. Your account is in "Limited Mode" until verification is complete.
+                Practice owner verification is required to process referrals and access PHI.
               </p>
             </div>
 
