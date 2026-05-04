@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+// Force re-compile to fix RSC payload fetch issue
 import { MainLayout } from "@/components/MainLayout";
 import { 
   ArrowLeft as ArrowLeftIcon, 
@@ -26,22 +27,30 @@ interface TeamMember {
   role: MemberRole;
   phiStatus: PhiStatus;
   joinedAt: string;
+  specialty?: string;
 }
 
 const mockTeam: TeamMember[] = [
-  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', phiStatus: 'Verified', joinedAt: 'Mar 2024' },
+  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', phiStatus: 'Verified', joinedAt: 'Mar 2024', specialty: 'Endodontics' },
   { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', phiStatus: 'Restricted', joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', phiStatus: 'Granted', joinedAt: 'Apr 2024' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', phiStatus: 'Pending', joinedAt: 'May 2024' },
+  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', phiStatus: 'Granted', joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
+  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', phiStatus: 'Pending', joinedAt: 'May 2024', specialty: 'Periodontics' },
 ];
 
 export default function TeamManagementPage() {
   const router = useRouter();
-  const { isVerified } = useVerification();
+  const { isVerified, reset, setShowVerification } = useVerification();
   const [team, setTeam] = useState<TeamMember[]>(mockTeam);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [newOwnerId, setNewOwnerId] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const getPhiStatus = (member: TeamMember): PhiStatus => {
+    if (member.role === 'Owner') return isVerified ? 'Verified' : 'Pending';
+    if (member.role === 'Administrative') return 'Restricted';
+    if (member.role === 'Clinical') return isVerified ? 'Granted' : 'Pending';
+    return 'Pending';
+  };
 
   const getPhiBadge = (status: PhiStatus) => {
     switch (status) {
@@ -61,14 +70,16 @@ export default function TeamManagementPage() {
     
     // Simulate ownership transfer
     const updatedTeam = team.map(m => {
-      if (m.id === newOwnerId) return { ...m, role: 'Owner' as MemberRole, phiStatus: 'Pending' as PhiStatus }; // New owner must re-verify
-      if (m.role === 'Owner') return { ...m, role: 'Clinical' as MemberRole, phiStatus: 'Granted' as PhiStatus }; // Old owner becomes clinical
+      if (m.id === newOwnerId) return { ...m, role: 'Owner' as MemberRole };
+      if (m.role === 'Owner') return { ...m, role: 'Clinical' as MemberRole };
       return m;
     });
     
     setTeam(updatedTeam);
     setShowTransferModal(false);
     setNewOwnerId('');
+    // Reset global verification when owner changes
+    reset();
   };
 
   const clinicalStaff = team.filter(m => m.role === 'Clinical');
@@ -95,23 +106,26 @@ export default function TeamManagementPage() {
           </button>
         </div>
 
-        {/* PHI Status Banner */}
-        <div className="wireframe-card p-6 bg-gray-50 border-black flex items-center justify-between gap-6 border-2 border-dashed">
-          <div className="flex items-start gap-4">
-            <ShieldCheckIcon size={24} />
-            <div className="space-y-1">
-              <p className="text-[10px] font-black uppercase tracking-widest">Global PHI Status: {isVerified ? 'ACTIVE' : 'RESTRICTED'}</p>
-              <p className="text-[10px] text-muted-foreground uppercase leading-relaxed font-bold max-w-xl">
-                {isVerified 
-                  ? 'The practice owner is verified. All clinical personnel have been granted access to patient health information.'
-                  : 'Verification required. PHI access is currently restricted for all team members until the practice owner completes identity validation.'}
-              </p>
+        {/* PHI Status Banner - Only show when NOT verified */}
+        {!isVerified && (
+          <div className="wireframe-card p-6 bg-gray-50 border-black flex items-center justify-between gap-6 border-2 border-dashed animate-in fade-in slide-in-from-top-4 duration-500">
+            <div className="flex items-start gap-4">
+              <ShieldCheckIcon size={24} />
+              <div className="space-y-1">
+                <p className="text-[10px] font-black uppercase tracking-widest">Global PHI Status: RESTRICTED</p>
+                <p className="text-[10px] text-muted-foreground uppercase leading-relaxed font-bold max-w-xl">
+                  Verification required. PHI access is currently restricted for all team members until the practice owner completes identity validation.
+                </p>
+              </div>
             </div>
+            <button 
+              onClick={() => setShowVerification(true)}
+              className="text-[10px] font-black uppercase underline hover:text-muted-foreground transition-colors"
+            >
+              Verify Now
+            </button>
           </div>
-          {!isVerified && (
-            <button className="text-[10px] font-black uppercase underline">Verify Now</button>
-          )}
-        </div>
+        )}
 
         {/* Team Table */}
         <div className="space-y-4">
@@ -136,7 +150,7 @@ export default function TeamManagementPage() {
                   </span>
                 </div>
                 <div className="col-span-3 w-full flex items-center">
-                  {getPhiBadge(member.phiStatus)}
+                  {getPhiBadge(getPhiStatus(member))}
                 </div>
                 <div className="col-span-2 w-full">
                   <p className="text-[10px] font-bold uppercase text-muted-foreground">{member.joinedAt}</p>
