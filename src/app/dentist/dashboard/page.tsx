@@ -219,7 +219,7 @@ export default function DentistDashboardPage() {
                 <ActionCard 
                   label="Find Specialist" 
                   desc="Browse the drTalk network" 
-                  onClick={() => router.push('/dentist/referrals')}
+                  onClick={() => router.push('/dentist/network')}
                 />
                 <ActionCard 
                   label="Practice Setup" 
