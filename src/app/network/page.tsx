@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
-  Search, Filter, MapPin, Star, 
+  Search, Filter, MapPin, 
   UserPlus, ExternalLink, ShieldCheck, 
   Building2, MessageCircle 
 } from 'lucide-react';
@@ -16,19 +16,18 @@ interface NetworkPractice {
   specialty: string;
   location: string;
   status: 'Connected' | 'Nearby' | 'Suggested';
-  rating: number;
   verified: boolean;
 }
 
 const mockNetwork: NetworkPractice[] = [
-  { id: '1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', rating: 4.9, verified: true },
-  { id: '2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', rating: 4.8, verified: true },
-  { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', rating: 4.7, verified: true },
-  { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', rating: 4.5, verified: false },
-  { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', rating: 4.9, verified: true },
-  { id: '6', name: 'Sunshine Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Phoenix, AZ', status: 'Connected', rating: 4.8, verified: true },
-  { id: '7', name: 'Desert Bloom Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Scottsdale, AZ', status: 'Nearby', rating: 4.6, verified: true },
-  { id: '8', name: 'Mountain View Family Dental', type: 'Dentist', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ', status: 'Suggested', rating: 4.4, verified: false },
+  { id: '1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', verified: true },
+  { id: '2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', verified: true },
+  { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
+  { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
+  { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
+  { id: '6', name: 'Sunshine Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Phoenix, AZ', status: 'Connected', verified: true },
+  { id: '7', name: 'Desert Bloom Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
+  { id: '8', name: 'Mountain View Family Dental', type: 'Dentist', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ', status: 'Suggested', verified: false },
 ];
 
 export default function NetworkPage() {
@@ -106,11 +105,7 @@ export default function NetworkPage() {
                         <Building2 size={24} />
                       </div>
                       <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-1">
-                          <Star size={10} className="fill-black" />
-                          <span className="text-[10px] font-black">{practice.rating}</span>
-                        </div>
-                        <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 mt-1 border border-black ${
+                        <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
                           practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
                         }`}>
                           {practice.status}

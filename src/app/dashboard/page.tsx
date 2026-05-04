@@ -9,14 +9,12 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { useVerification } from '@/components/VerificationContext';
-import { useSubscription } from '@/components/SubscriptionContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isVerified, reset: resetVerification, setShowVerification } = useVerification();
-  const { endTrial, resetSubscription } = useSubscription();
+  const { isVerified, setShowVerification } = useVerification();
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -194,27 +192,6 @@ export default function DashboardPage() {
 
         </div>
 
-        {/* Debug Controls */}
-        <div className="pt-12 border-t-2 border-black border-dashed flex flex-wrap gap-4 opacity-30 hover:opacity-100 transition-opacity">
-          <button 
-            onClick={resetVerification}
-            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
-          >
-            Debug: Reset Verification
-          </button>
-          <button 
-            onClick={endTrial}
-            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
-          >
-            Debug: End Trial
-          </button>
-          <button 
-            onClick={resetSubscription}
-            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
-          >
-            Debug: Reset Subscription
-          </button>
-        </div>
 
       </div>
     </MainLayout>
