@@ -93,7 +93,7 @@ export default function SpecialistEntryPage() {
                   <CommentMarker 
                     id="specialist-signup-email"
                     title="Corporate Email Policy"
-                    description="Personal emails will be checked and discouraged. You may be asked to register with a corporate email, but you can still continue with a Gmail/personal account if a professional one is unavailable."
+                    description="Personal emails will be checked and discouraged. The system will ask users to register with a corporate email, but they would still be able to continue with a Gmail/personal account if a professional one is unavailable."
                   />
                 )}
               </div>
