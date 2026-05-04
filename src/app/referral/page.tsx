@@ -178,14 +178,14 @@ export default function GuestReferralPage() {
               <div className="space-y-2">
                 <h3 className="text-sm font-bold uppercase tracking-tighter">Join the drTalk Network</h3>
                 <p className="text-[10px] uppercase leading-relaxed text-muted-foreground">
-                  Create your own free practice account to track status updates, communicate with specialists, and manage all your referrals in one place.
+                  Log in or create a dentist account to track status updates and communicate with the specialist team.
                 </p>
               </div>
               <button 
-                onClick={() => router.push('/onboarding')}
+                onClick={() => router.push('/dentist/dashboard')}
                 className="wireframe-button w-full bg-black text-white py-3 uppercase text-xs font-black"
               >
-                Claim My Free Account
+                Track This Referral
               </button>
               <button 
                 onClick={() => router.push('/')}
