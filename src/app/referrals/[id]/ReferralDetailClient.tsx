@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
   AlertTriangle, Send, MoreHorizontal 
@@ -50,7 +51,10 @@ export default function ReferralDetailClient() {
           </button>
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
-            <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+              <CommentMarker id="referral-page-detail" title="Referral Detail Page" description="The full-page detailed view of a referral." />
+            </div>
           </div>
         </div>
 
