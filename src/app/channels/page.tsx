@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import {
   Search, Hash, Lock, Users, Send,
@@ -22,13 +23,22 @@ interface Channel {
 const mockChannels: Channel[] = [
   { id: '1', name: 'clinical-team', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
-  { id: '3', name: 'Dr. Smith (Dentist)', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice.', memberCount: 2 },
+  { id: '3', name: 'Valley Endodontics', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice.', memberCount: 2 },
   { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Appointment confirmed.', memberCount: 2 },
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];
 
 export default function ChannelsPage() {
-  const [activeChannel, setActiveChannel] = useState(mockChannels[0]);
+  const pathname = usePathname();
+  const isDentist = pathname.startsWith('/dentist');
+  
+  // Filter channels based on role
+  const displayedChannels = mockChannels.filter(c => {
+    if (isDentist && c.type === 'patient') return false;
+    return true;
+  });
+
+  const [activeChannel, setActiveChannel] = useState(displayedChannels[0]);
   const [showChannelList, setShowChannelList] = useState(false);
 
   return (
@@ -66,7 +76,7 @@ export default function ChannelsPage() {
                   <button className="text-[8px] font-black uppercase underline hover:text-black">Create +</button>
                 </div>
                 <div className="space-y-1">
-                  {mockChannels.filter(c => c.type === 'internal').map(c => (
+                  {displayedChannels.filter(c => c.type === 'internal').map(c => (
                     <ChannelItem 
                       key={c.id} 
                       channel={c} 
@@ -87,7 +97,7 @@ export default function ChannelsPage() {
                   <button className="text-[8px] font-black uppercase underline hover:text-black">Connect</button>
                 </div>
                 <div className="space-y-1">
-                  {mockChannels.filter(c => c.type === 'inter-practice').map(c => (
+                  {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
                     <ChannelItem 
                       key={c.id} 
                       channel={c} 
@@ -102,32 +112,34 @@ export default function ChannelsPage() {
               </div>
 
               {/* Patient */}
-              <div className="p-4 border-t border-black border-dashed space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Patient Comm (SMS/Email)</p>
-                </div>
+              {!isDentist && (
+                <div className="p-4 border-t border-black border-dashed space-y-3">
+                  <div className="flex justify-between items-center">
+                    <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Patient Comm (SMS/Email)</p>
+                  </div>
 
-                {/* Tip for Patient Channels */}
-                <div className="p-3 bg-gray-50 border border-black border-dashed">
-                  <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
-                    Tip: Patient channels are automatically created once you process a referral and initiate external communication.
-                  </p>
-                </div>
+                  {/* Tip for Patient Channels */}
+                  <div className="p-3 bg-gray-50 border border-black border-dashed">
+                    <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
+                      Tip: Patient channels are automatically created once you process a referral and initiate external communication.
+                    </p>
+                  </div>
 
-                <div className="space-y-1">
-                  {mockChannels.filter(c => c.type === 'patient').map(c => (
-                    <ChannelItem 
-                      key={c.id} 
-                      channel={c} 
-                      isActive={activeChannel.id === c.id} 
-                      onClick={() => {
-                        setActiveChannel(c);
-                        setShowChannelList(false);
-                      }} 
-                    />
-                  ))}
+                  <div className="space-y-1">
+                    {displayedChannels.filter(c => c.type === 'patient').map(c => (
+                      <ChannelItem 
+                        key={c.id} 
+                        channel={c} 
+                        isActive={activeChannel.id === c.id} 
+                        onClick={() => {
+                          setActiveChannel(c);
+                          setShowChannelList(false);
+                        }} 
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
