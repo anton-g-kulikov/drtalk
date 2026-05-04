@@ -52,21 +52,6 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
-              <div className="flex items-center gap-4 sm:gap-6 w-full">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-black flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-all">
-                  <section.icon size={20} className="sm:w-6 sm:h-6" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-bold uppercase text-xs sm:text-sm tracking-tight truncate">{section.label}</h3>
-                  <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase leading-relaxed">{section.desc}</p>
-                </div>
-              </div>
-              <div className="sm:opacity-0 group-hover:opacity-100 transition-opacity w-full sm:w-auto text-right">
-                <p className="text-[10px] font-bold uppercase underline">Configure</p>
-              </div>
-            </div>
-          ))}
-        </div>
 
         <div className="pt-8 border-t-2 border-black border-dashed flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-[8px] font-bold uppercase text-muted-foreground italic">Platform Version: Prototype 1.0.4-BW</p>
