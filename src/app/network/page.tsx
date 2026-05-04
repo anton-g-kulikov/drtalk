@@ -26,6 +26,9 @@ const mockNetwork: NetworkPractice[] = [
   { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', rating: 4.7, verified: true },
   { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', rating: 4.5, verified: false },
   { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', rating: 4.9, verified: true },
+  { id: '6', name: 'Sunshine Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Phoenix, AZ', status: 'Connected', rating: 4.8, verified: true },
+  { id: '7', name: 'Desert Bloom Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Scottsdale, AZ', status: 'Nearby', rating: 4.6, verified: true },
+  { id: '8', name: 'Mountain View Family Dental', type: 'Dentist', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ', status: 'Suggested', rating: 4.4, verified: false },
 ];
 
 export default function NetworkPage() {
@@ -35,8 +38,10 @@ export default function NetworkPage() {
   const filteredNetwork = mockNetwork.filter(p => {
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
     if (activeTab === 'nearby' && p.status !== 'Nearby') return false;
-    return p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-           p.specialty.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchStr = searchQuery.toLowerCase();
+    return p.name.toLowerCase().includes(searchStr) || 
+           p.specialty.toLowerCase().includes(searchStr) ||
+           p.type.toLowerCase().includes(searchStr);
   });
 
   return (
@@ -129,7 +134,7 @@ export default function NetworkPage() {
 
                   <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
                     <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                      Send Referral
+                      {practice.type === 'Dentist' ? 'Connect' : 'Send Referral'}
                     </button>
                     <button className="wireframe-button p-2 hover:bg-white transition-all">
                       <MessageCircle size={14} />
