@@ -63,7 +63,7 @@ function OnboardingContent() {
         return (
           <div className="space-y-6 w-full max-w-sm">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter italic leading-none">Specialist Account</h1>
+              <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">drTalk Account</h1>
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Create account to create or join a practice</p>
             </div>
             <div className="space-y-4">
