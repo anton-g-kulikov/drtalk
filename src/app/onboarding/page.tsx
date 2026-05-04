@@ -141,42 +141,70 @@ export default function OnboardingPage() {
 
       case 'PRACTICE_DETAILS':
         return (
-          <div className="space-y-8 w-full max-w-lg">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('ROLE_SELECTION')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+          <div className="space-y-10 w-full max-w-2xl px-4">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => nextStep('ROLE_SELECTION')} 
+                className="w-12 h-12 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all"
+              >
+                <ArrowLeft size={20} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">Specialist Practice Details</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 1 of 3</p>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 3</p>
               </div>
             </div>
-            <div className="space-y-4">
+            
+            <div className="space-y-6">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Practice Name</label>
-                <input type="text" placeholder="Valley Endodontics" className="wireframe-input" />
+                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                <input type="text" placeholder="Valley Endodontics" className="wireframe-input py-4 px-4 text-sm" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Type</label>
-                  <select className="wireframe-input appearance-none bg-transparent">
-                    <option>Specialist</option>
+                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
+                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                    <option>Dental</option>
+                    <option>Medical</option>
+                    <option>Other</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">City</label>
-                  <input type="text" className="wireframe-input" />
+                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
+                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                    <option>Dentist</option>
+                    <option>Dental Laboratory</option>
+                    <option>Dental Radiology</option>
+                    <option>Endodontist</option>
+                    <option>Oral & Maxillofacial Surgeon</option>
+                    <option>Orthodontist</option>
+                    <option>Pediatric Dentist</option>
+                    <option>Periodontist</option>
+                    <option>Prosthodontist</option>
+                    <option>Oral Pathologist</option>
+                    <option>Dental Anaesthesiology</option>
+                    <option>Dental Implant Company</option>
+                  </select>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Full Address</label>
-                <input type="text" className="wireframe-input" />
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
+                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
               </div>
+
               <button 
                 onClick={() => nextStep('PRACTICE_VERIFY')}
-                className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm mt-4 flex items-center justify-center gap-2"
+                className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
-                Next Step <ChevronRight size={16} />
+                NEXT STEP <ChevronRight size={18} />
               </button>
             </div>
           </div>
