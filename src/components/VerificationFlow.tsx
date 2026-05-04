@@ -29,9 +29,9 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
     // Simulate API call
     setTimeout(() => {
       setNpiResult({
-        name: "DR. ANTON KULIKOV",
+        name: "DR. EMMA SMITH",
         specialty: "ENDODONTICS",
-        address: "123 DENTAL WAY, BEVERLY HILLS, CA",
+        address: "SUNSHINE DENTAL, 456 MEDICAL PLAZA, PHOENIX, AZ",
         npi: npi || "1234567890"
       });
       setIsNpiLoading(false);
