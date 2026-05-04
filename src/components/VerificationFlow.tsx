@@ -47,9 +47,9 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
               <div className="w-20 h-20 border-4 border-black rounded-full flex items-center justify-center mx-auto bg-gray-50">
                 <LockIcon size={40} />
               </div>
-              <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">PHI Access Restricted</h1>
+              <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Identity Verification</h1>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest max-w-sm mx-auto leading-relaxed">
-                As a practice owner, you must verify your identity to access Protected Health Information (PHI) and process patient referrals.
+                Practice owner verification is required to process referrals and access PHI. Your account is in "Limited Mode" until verification is complete.
               </p>
             </div>
 
