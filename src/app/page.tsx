@@ -2,13 +2,21 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
 
 export default function LandingPage() {
   const router = useRouter();
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-24 bg-white text-black font-sans">
-      <div className="wireframe-card max-w-xl w-full text-center space-y-12 p-8 sm:p-16">
+      <div className="wireframe-card max-w-xl w-full text-center space-y-12 p-8 sm:p-16 relative">
+        <CommentMarker 
+          id="hero-header" 
+          title="Branding & Title" 
+          description="We're using an italicized, tracking-tighter style for the main logo to emphasize speed and urgency. Is it readable enough?"
+          className="absolute top-4 right-4"
+        />
+        
         <div className="space-y-4">
           <h1 className="text-4xl sm:text-6xl font-bold uppercase tracking-tighter italic leading-none">drTalk</h1>
           <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">
@@ -16,7 +24,13 @@ export default function LandingPage() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 gap-4 pt-8">
+        <div className="grid grid-cols-1 gap-4 pt-8 relative">
+          <CommentMarker 
+            id="primary-cta" 
+            title="Primary Action Button" 
+            description="This button uses a heavy drop-shadow to feel tactile. Does the 'Send Secure Referral' label feel like the most important action for a first-time user?"
+            className="absolute -top-2 -right-2 z-10"
+          />
           <button 
             onClick={() => router.push('/referral')}
             className="wireframe-button w-full uppercase text-sm bg-black text-white py-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] transition-all font-black italic tracking-widest"
