@@ -8,7 +8,8 @@ import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
-  const isDentist = pathname.startsWith('/dentist');
+  const isDentist = pathname.includes('/dentist');
+  console.log('SettingsPage: isDentist =', isDentist, 'pathname =', pathname);
 
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: '#' },

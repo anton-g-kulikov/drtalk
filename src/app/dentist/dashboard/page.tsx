@@ -76,7 +76,7 @@ export default function DentistDashboardPage() {
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter italic">Dentist Practice Dashboard</h2>
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter italic">Dashboard</h2>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Refer patients, track specialist progress, and coordinate care across your network.
             </p>
