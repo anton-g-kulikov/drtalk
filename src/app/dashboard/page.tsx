@@ -166,9 +166,6 @@ export default function DashboardPage() {
 
           {/* Quick Actions / Side Column */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="mt-1.5">
-              <SubscriptionBanner />
-            </div>
             <div className="space-y-4">
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
@@ -188,6 +185,7 @@ export default function DashboardPage() {
                 />
               </div>
             </div>
+            <SubscriptionBanner />
           </div>
 
         </div>
