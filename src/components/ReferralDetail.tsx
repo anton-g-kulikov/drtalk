@@ -6,6 +6,7 @@ import {
   AlertTriangle, CheckCircle2, MoreHorizontal, User, 
   Calendar, Phone, Mail, Paperclip 
 } from 'lucide-react';
+import { CommentMarker } from "./Comments/CommentMarker";
 
 interface ReferralDetailProps {
   referral: any;
@@ -33,7 +34,10 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
               <X size={24} />
             </button>
             <div>
-              <h2 className="text-xl font-bold uppercase tracking-tighter leading-none">{referral.patientName}</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold uppercase tracking-tighter leading-none">{referral.patientName}</h2>
+                <CommentMarker id="referral-detail" title="Referral Detail" description="Detailed view of a specific referral." />
+              </div>
               <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">Ref ID: {referral.id}000X — {referral.status}</p>
             </div>
           </div>

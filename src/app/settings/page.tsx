@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
 
+import { CommentMarker } from "@/components/Comments/CommentMarker";
+
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
@@ -22,9 +24,12 @@ export default function SettingsPage() {
     <MainLayout title="Practice Settings">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
-            Practice Settings
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
+              Practice Settings
+            </h2>
+            <CommentMarker id="settings-main" title="Practice Settings" description="Global practice configuration and team access." />
+          </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
             Practice management, team access, and referral operations
           </p>

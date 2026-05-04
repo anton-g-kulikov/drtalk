@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import {
   Search, Hash, Lock, Users, Send,
   Paperclip, Smile, MoreHorizontal,
@@ -57,7 +58,10 @@ export default function ChannelsPage() {
               </button>
             )}
             <div className="p-4 border-b-2 border-black space-y-4">
-              <h2 className="text-xl font-bold uppercase tracking-tighter italic">Channels</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold uppercase tracking-tighter italic">Channels</h2>
+                <CommentMarker id="channels-list" title="Channels Page" description="The list of communication channels." />
+              </div>
               <div className="relative">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input

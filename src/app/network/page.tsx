@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   Search, Filter, MapPin, Star, 
   UserPlus, ExternalLink, ShieldCheck, 
@@ -44,7 +45,10 @@ export default function NetworkPage() {
         {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-1">
-              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Practice Network</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Practice Network</h2>
+                <CommentMarker id="practice-network" title="Practice Network" description="Directory of trusted clinical partners." />
+              </div>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Connect, Collaborate, and Refer with Trusted Partners</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">

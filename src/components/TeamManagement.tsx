@@ -36,6 +36,8 @@ const mockTeam: TeamMember[] = [
   { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', phiStatus: 'Pending', joinedAt: 'May 2024', specialty: 'Periodontics' },
 ];
 
+import { CommentMarker } from "@/components/Comments/CommentMarker";
+
 export function TeamManagement({ backPath }: { backPath: string }) {
   const router = useRouter();
   const { isVerified, reset, setShowVerification } = useVerification();
@@ -94,7 +96,10 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               <button onClick={() => router.push(backPath)} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
-              <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
+                <CommentMarker id="team-management" title="Team Management" description="Manage practice ownership and team permissions." />
+              </div>
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-12">
               Manage practice ownership, clinical permissions, and PHI access safeguards.

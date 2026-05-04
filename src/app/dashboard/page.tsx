@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -59,7 +60,10 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
+              <CommentMarker id="dashboard-specialist" title="Specialist Dashboard" description="The main overview for specialist practices." />
+            </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Receive referrals, process cases, coordinate with dentists, and manage patient communication.
             </p>

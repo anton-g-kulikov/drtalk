@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { Search, Filter, AlertCircle, Clock, MoreVertical } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 
 type ReferralStatus = 'Pending' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed' | 'Archived';
 
@@ -71,7 +72,10 @@ export default function ReferralsPage() {
         {/* Top Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+              <CommentMarker id="referrals-list" title="Referrals Page" description="The list of all practice referrals." />
+            </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               {isDentist 
                 ? 'Track specialist progress and coordinate patient care'
