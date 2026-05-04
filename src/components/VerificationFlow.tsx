@@ -11,7 +11,7 @@ import {
   Lock as LockIcon
 } from 'lucide-react';
 
-type VerificationStep = 'INTRO' | 'NPI_LOOKUP' | 'PERSONA' | 'SUCCESS';
+type VerificationStep = 'INTRO' | 'NPI_LOOKUP' | 'MANUAL_DETAILS' | 'PERSONA' | 'SUCCESS';
 
 interface VerificationFlowProps {
   onComplete: () => void;
@@ -23,6 +23,11 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
   const [npi, setNpi] = useState('');
   const [isNpiLoading, setIsNpiLoading] = useState(false);
   const [npiResult, setNpiResult] = useState<any>(null);
+  const [manualDetails, setManualDetails] = useState({
+    name: '',
+    specialty: '',
+    address: ''
+  });
 
   const handleNpiSearch = () => {
     setIsNpiLoading(true);
@@ -149,12 +154,66 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
 
               <div className="flex flex-col gap-4">
                 <button 
-                  onClick={() => setStep('PERSONA')}
+                  onClick={() => setStep(npiResult ? 'PERSONA' : 'MANUAL_DETAILS')}
                   className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
                 >
-                  {npiResult ? 'Confirm & Continue' : 'Skip to Identity Check'}
+                  {npiResult ? 'Confirm & Continue' : 'Provide Details Manually'}
                 </button>
               </div>
+            </div>
+          </div>
+        );
+
+      case 'MANUAL_DETAILS':
+        return (
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setStep('NPI_LOOKUP')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeftIcon size={16} />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold uppercase tracking-tighter">Professional Details</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Step 1.5 of 2: Manual Credentials</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Provider Full Name</label>
+                <input 
+                  type="text" 
+                  placeholder="E.G. DR. EMMA SMITH" 
+                  className="wireframe-input w-full py-3 px-4 text-sm" 
+                  value={manualDetails.name}
+                  onChange={(e) => setManualDetails({...manualDetails, name: e.target.value})}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Medical Specialty</label>
+                <input 
+                  type="text" 
+                  placeholder="E.G. ENDODONTICS" 
+                  className="wireframe-input w-full py-3 px-4 text-sm" 
+                  value={manualDetails.specialty}
+                  onChange={(e) => setManualDetails({...manualDetails, specialty: e.target.value})}
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Practice Address</label>
+                <textarea 
+                  placeholder="STREET, CITY, STATE, ZIP" 
+                  className="wireframe-input w-full py-3 px-4 text-sm min-h-[80px]" 
+                  value={manualDetails.address}
+                  onChange={(e) => setManualDetails({...manualDetails, address: e.target.value})}
+                />
+              </div>
+
+              <button 
+                onClick={() => setStep('PERSONA')}
+                className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest w-full mt-4"
+              >
+                Continue to Identity Check
+              </button>
             </div>
           </div>
         );
@@ -163,7 +222,7 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex items-center gap-4">
-              <button onClick={() => setStep('NPI_LOOKUP')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => setStep(npiResult ? 'NPI_LOOKUP' : 'MANUAL_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
