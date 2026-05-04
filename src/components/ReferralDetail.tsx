@@ -38,7 +38,9 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
                 <h2 className="text-xl font-bold uppercase tracking-tighter leading-none">{referral.patientName}</h2>
                 <CommentMarker id="referral-detail" title="Referral Detail" description="Detailed view of a specific referral." />
               </div>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">Ref ID: {referral.id}000X — {referral.status}</p>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">
+                Ref ID: {referral.id}000X — {referral.status === 'Received' ? 'Received (Review)' : referral.status === 'Working on' ? 'Working on (In progress)' : referral.status}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -46,7 +48,7 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
               Forward
             </button>
             <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2">
-              Process Referral
+              Mark as Processed
             </button>
           </div>
         </div>
