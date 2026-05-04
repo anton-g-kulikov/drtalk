@@ -70,7 +70,7 @@ export function SubscriptionManager() {
               Choose the right plan to continue processing referrals and communicating with your network.
             </p>
             {!isTrialEnded && (
-              <p className="text-[10px] font-black uppercase tracking-widest text-black bg-yellow-400 inline-block px-3 py-1 border border-black italic">
+              <p className="text-[10px] font-black uppercase tracking-widest text-black bg-white inline-block px-3 py-1 border-2 border-black italic">
                 Currently on Starter Plan. Trial ends in {daysRemaining} days.
               </p>
             )}
@@ -88,7 +88,7 @@ export function SubscriptionManager() {
                 className={`wireframe-card p-10 bg-white flex flex-col space-y-8 relative transition-all hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] ${p.badge || isCurrent ? 'border-4 border-black' : 'border-2 border-black opacity-90'}`}
               >
                 {p.badge && (
-                  <div className="absolute top-0 right-10 -translate-y-1/2 bg-[#A855F7] text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="absolute top-0 right-10 -translate-y-1/2 bg-black text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     {p.badge}
                   </div>
                 )}
@@ -120,12 +120,13 @@ export function SubscriptionManager() {
 
               <button 
                 onClick={() => handleSelectPlan(p.id)}
-                className={`w-full py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-4 border-black ${p.id === 'Pro' ? 'bg-black text-white hover:bg-white hover:text-black shadow-[8px_8px_0px_0px_rgba(168,85,247,0.4)]' : 'bg-white text-black hover:bg-black hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]'}`}
+                className={`w-full py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-4 border-black ${p.id === 'Pro' ? 'bg-black text-white hover:bg-white hover:text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]' : 'bg-white text-black hover:bg-black hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]'}`}
               >
                 {p.buttonText}
               </button>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Footer / Cancel */}
