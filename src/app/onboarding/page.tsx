@@ -15,7 +15,7 @@ type OnboardingStep =
 
 export default function OnboardingPage() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const router = useRouter();
 
   const nextStep = (next: OnboardingStep) => setStep(next);
@@ -26,8 +26,8 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6 w-full max-w-sm">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">drTalk</h1>
-              <p className="text-xs text-muted-foreground uppercase">{isLogin ? 'Login to your account' : 'Create your account'}</p>
+              <h1 className="text-3xl font-bold uppercase tracking-tighter">Specialist Account</h1>
+              <p className="text-xs text-muted-foreground uppercase">{isLogin ? 'Login to manage your practice' : 'Create account to create or join a practice'}</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
@@ -100,7 +100,7 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-2xl">
             <div className="text-center space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Welcome to drTalk</h1>
-              <p className="text-xs text-muted-foreground uppercase">How would you like to start?</p>
+              <p className="text-xs text-muted-foreground uppercase">Create a specialist practice or join your existing team.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div 
@@ -108,16 +108,19 @@ export default function OnboardingPage() {
                 className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4"
               >
                 <Building2 size={32} />
-                <h3 className="font-bold uppercase text-lg">Create New Practice</h3>
+                <h3 className="font-bold uppercase text-lg">Create Specialist Practice</h3>
                 <p className="text-xs uppercase leading-relaxed opacity-70">
-                  I want to set up a new practice profile and invite my clinical team.
+                  Set up a specialist profile to receive referrals and coordinate patient communication.
                 </p>
               </div>
-              <div className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4 border-dashed opacity-50">
+              <div
+                onClick={() => nextStep('PRACTICE_INVITE')}
+                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4 border-dashed"
+              >
                 <Users size={32} />
-                <h3 className="font-bold uppercase text-lg">Join Existing Team</h3>
+                <h3 className="font-bold uppercase text-lg">Join Existing Practice</h3>
                 <p className="text-xs uppercase leading-relaxed opacity-70">
-                  My practice is already on drTalk. I have an invite code.
+                  Enter with an invite code or request access from a practice administrator.
                 </p>
               </div>
             </div>
@@ -132,20 +135,19 @@ export default function OnboardingPage() {
                 <ArrowLeft size={16} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">Practice Details</h1>
+                <h1 className="text-2xl font-bold uppercase tracking-tighter">Specialist Practice Details</h1>
                 <p className="text-[10px] text-muted-foreground uppercase">Step 1 of 3</p>
               </div>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Practice Name</label>
-                <input type="text" placeholder="Sunshine Dental" className="wireframe-input" />
+                <input type="text" placeholder="Valley Endodontics" className="wireframe-input" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Type</label>
                   <select className="wireframe-input appearance-none bg-transparent">
-                    <option>Dentist</option>
                     <option>Specialist</option>
                   </select>
                 </div>
@@ -176,7 +178,7 @@ export default function OnboardingPage() {
                 <ArrowLeft size={16} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">Identity & NPI</h1>
+                <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Lookup</h1>
                 <p className="text-[10px] text-muted-foreground uppercase">Step 2 of 3</p>
               </div>
             </div>
@@ -184,17 +186,17 @@ export default function OnboardingPage() {
               <div className="flex gap-4 items-start">
                 <ShieldCheck className="text-black shrink-0" size={24} />
                 <p className="text-[10px] uppercase font-bold leading-relaxed">
-                  To enable HIPAA-compliant features (PHI), we need to verify your medical license or NPI number.
+                  Add an NPI now to autofill practice information. Owner verification happens later when PHI/referral processing is triggered.
                 </p>
               </div>
               <div className="space-y-4 pt-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">National Provider Identifier (NPI)</label>
+                  <label className="text-[10px] font-bold uppercase">National Provider Identifier (Optional)</label>
                   <input type="text" placeholder="10-digit number" className="wireframe-input bg-white" />
                 </div>
                 <div className="p-4 border border-black border-dashed text-center">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Upload Medical License (PDF/Image)</p>
-                  <button className="text-[10px] font-bold underline uppercase">Browse Files</button>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Registry match preview</p>
+                  <button className="text-[10px] font-bold underline uppercase">Use Autofilled Practice Data</button>
                 </div>
               </div>
             </div>
@@ -202,7 +204,7 @@ export default function OnboardingPage() {
               onClick={() => nextStep('PRACTICE_INVITE')}
               className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm flex items-center justify-center gap-2"
             >
-              Verify & Next <ChevronRight size={16} />
+              Save & Continue <ChevronRight size={16} />
             </button>
           </div>
         );
@@ -220,12 +222,12 @@ export default function OnboardingPage() {
               </div>
             </div>
             <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Add clinical staff or administrators</p>
+              <p className="text-[10px] font-bold uppercase text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
               {[1, 2].map((i) => (
                 <div key={i} className="flex gap-2">
                   <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1" />
                   <select className="wireframe-input w-32 appearance-none bg-transparent text-[10px] font-bold uppercase">
-                    <option>Medical</option>
+                    <option>Clinical</option>
                     <option>Admin</option>
                   </select>
                 </div>
@@ -261,14 +263,14 @@ export default function OnboardingPage() {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Success!</h1>
               <p className="text-xs text-muted-foreground uppercase leading-relaxed">
-                Your practice is set up.<br />You can now start sending referrals.
+                Your specialist practice is set up.<br />You can now receive and process referrals.
               </p>
             </div>
             <button 
-              onClick={() => router.push('/')}
+              onClick={() => router.push('/dashboard')}
               className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm"
             >
-              Go to Dashboard
+              Go to Specialist Dashboard
             </button>
           </div>
         );

@@ -52,16 +52,16 @@ export default function DashboardPage() {
   };
 
   return (
-    <MainLayout title="Referrals">
+    <MainLayout title="Received Referrals">
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Top Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Referral Pipeline & Lifecycle Management</p>
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Received Referrals</h2>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Specialist intake pipeline and case processing workflow</p>
           </div>
           <button className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto">
-            Send New Referral
+            Configure Referral Link
           </button>
         </div>
 
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             <div className="hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest">
               <div className="col-span-3">Patient / Case Type</div>
               <div className="col-span-2">Source / ID</div>
-              <div className="col-span-2">Sender</div>
+              <div className="col-span-2">Referring Dentist</div>
               <div className="col-span-2">AI Confidence</div>
               <div className="col-span-2">Received</div>
               <div className="col-span-1 text-right">Action</div>

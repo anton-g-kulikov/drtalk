@@ -22,7 +22,7 @@ interface Channel {
 const mockChannels: Channel[] = [
   { id: '1', name: 'clinical-team', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
-  { id: '3', name: 'Dr. Jones (Specialist)', type: 'inter-practice', lastMessage: 'Referral accepted.', memberCount: 2 },
+  { id: '3', name: 'Dr. Smith (Dentist)', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice.', memberCount: 2 },
   { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Appointment confirmed.', memberCount: 2 },
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];

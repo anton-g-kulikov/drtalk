@@ -6,19 +6,19 @@ import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
 
 export default function SettingsPage() {
   const sections = [
-    { icon: User, label: 'Profile Settings', desc: 'Manage your personal information and credentials.' },
-    { icon: Bell, label: 'Notifications', desc: 'Configure how you receive referral updates.' },
-    { icon: Shield, label: 'Privacy & Security', desc: 'Manage HIPAA compliance and access logs.' },
-    { icon: CreditCard, label: 'Billing & Plan', desc: 'View invoices and manage your subscription.' },
+    { icon: User, label: 'Practice Profile', desc: 'Manage specialist details, locations, and clinical specialties.' },
+    { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.' },
+    { icon: Shield, label: 'PHI & Access Control', desc: 'Manage team permissions and patient communication safeguards.' },
+    { icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.' },
     { icon: HelpCircle, label: 'Support & Docs', desc: 'Access help articles or contact drTalk support.' },
   ];
 
   return (
-    <MainLayout>
+    <MainLayout title="Practice">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">Settings</h2>
-          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Workspace & Personal Preferences</p>
+          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">Specialist Practice</h2>
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Practice management, team access, and referral operations</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">

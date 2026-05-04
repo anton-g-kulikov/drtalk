@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { 
-  Search, GraduationCap, Star, 
-  PlayCircle, BookOpen, Users, 
-  Award, DollarSign, ArrowRight 
+  GraduationCap, Star, 
+  PlayCircle, Users, 
+  Award, ArrowRight, PlusCircle 
 } from 'lucide-react';
 
 interface HubChannel {
@@ -76,14 +76,14 @@ export default function LearningHubPage() {
               Grow and monetize your audience on Education channels.
             </h2>
             <p className="text-[10px] sm:text-xs uppercase leading-relaxed opacity-80 font-medium">
-              Industry leaders can host private or public channels. Subscribe to CE channels that are of interest to you and earn CE “on the go”.
+              Public materials are open to everyone. Any drTalk account can create resources, host a channel, or publish CE content.
             </p>
             <div className="pt-4 flex flex-col sm:flex-row gap-4">
               <button className="bg-white text-black px-8 py-3 text-[10px] font-black uppercase hover:bg-gray-200 transition-all w-full sm:w-auto">
-                Become a Mentor
+                Create Resource
               </button>
               <button className="border-2 border-white px-8 py-3 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all w-full sm:w-auto">
-                Explore CE Courses
+                Browse Public Materials
               </button>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default function LearningHubPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-1">
               <h3 className="text-2xl font-bold uppercase tracking-tighter">Learning Channels</h3>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest italic">Instant access to mentorship and technology updates</p>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest italic">Shared by dentists, specialists, educators, and vendors</p>
             </div>
             <div className="flex border-2 border-black p-1 bg-white overflow-x-auto no-scrollbar">
               {['all', 'ce', 'mentorship', 'tech'].map((tab) => (
@@ -166,6 +166,14 @@ export default function LearningHubPage() {
 
         {/* Vendor Showcase */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="wireframe-card p-8 bg-black text-white space-y-4">
+            <PlusCircle size={24} />
+            <h4 className="font-bold uppercase text-xs tracking-widest border-b border-white/40 pb-2">Create</h4>
+            <p className="text-[10px] uppercase leading-relaxed font-medium text-white/75">
+              Publish a resource, start a public channel, or build a paid learning product from any account role.
+            </p>
+            <button className="text-[9px] font-black uppercase underline">Start Resource</button>
+          </div>
           <div className="wireframe-card p-8 bg-gray-50 space-y-4">
             <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Mentorship</h4>
             <p className="text-[10px] uppercase leading-relaxed font-medium">
@@ -179,13 +187,6 @@ export default function LearningHubPage() {
               Latest technology updates, digital workflows, and instant support from equipment specialists.
             </p>
             <button className="text-[9px] font-black uppercase underline">Partner Directory</button>
-          </div>
-          <div className="wireframe-card p-8 bg-gray-50 space-y-4">
-            <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Study Groups</h4>
-            <p className="text-[10px] uppercase leading-relaxed font-medium">
-              Collaborate with local peers, share interesting cases, and discuss practice management.
-            </p>
-            <button className="text-[9px] font-black uppercase underline">Join Study Group</button>
           </div>
         </div>
       </div>
