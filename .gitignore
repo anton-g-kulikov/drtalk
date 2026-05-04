@@ -1,0 +1,14 @@
+# metacoding: AI coding assistant exclusions
+.codex
+.claude
+.agents
+.backup/
+node_modules
+yarn.lock
+.next
+out
+build
+dist
+.env
+.env.local
+.DS_Store
