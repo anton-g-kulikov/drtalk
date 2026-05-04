@@ -514,14 +514,14 @@ function OnboardingContent() {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Success!</h1>
               <p className="text-xs text-muted-foreground uppercase leading-relaxed">
-                Your specialist practice is set up.<br />You can now receive and process referrals.
+                Your practice account is set up.<br />You can now collaborate and manage referrals.
               </p>
             </div>
             <button 
               onClick={() => router.push('/dashboard')}
-              className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm"
+              className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >
-              Go to Specialist Dashboard
+              Go to Dashboard
             </button>
           </div>
         );
