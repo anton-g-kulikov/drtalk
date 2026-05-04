@@ -172,40 +172,49 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">Professional Details</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold">Step 1.5 of 2: Manual Credentials</p>
+                <h1 className="text-2xl font-bold uppercase tracking-tighter">Medical Credentials</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Step 1.5 of 2: Manual Licensing</p>
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
+              <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed">
+                Since you've skipped the NPI lookup, please provide your medical licensing details for manual verification.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Medical License #</label>
+                  <input 
+                    type="text" 
+                    placeholder="E.G. 12345678" 
+                    className="wireframe-input w-full py-3 px-4 text-sm" 
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">License State</label>
+                  <select className="wireframe-input w-full py-3 px-4 text-sm appearance-none bg-transparent">
+                    <option>CA</option>
+                    <option>NY</option>
+                    <option>TX</option>
+                    <option>FL</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Provider Full Name</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Professional Title</label>
                 <input 
                   type="text" 
-                  placeholder="E.G. DR. EMMA SMITH" 
+                  placeholder="E.G. ENDODONTIST" 
                   className="wireframe-input w-full py-3 px-4 text-sm" 
-                  value={manualDetails.name}
-                  onChange={(e) => setManualDetails({...manualDetails, name: e.target.value})}
                 />
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Medical Specialty</label>
-                <input 
-                  type="text" 
-                  placeholder="E.G. ENDODONTICS" 
-                  className="wireframe-input w-full py-3 px-4 text-sm" 
-                  value={manualDetails.specialty}
-                  onChange={(e) => setManualDetails({...manualDetails, specialty: e.target.value})}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Practice Address</label>
-                <textarea 
-                  placeholder="STREET, CITY, STATE, ZIP" 
-                  className="wireframe-input w-full py-3 px-4 text-sm min-h-[80px]" 
-                  value={manualDetails.address}
-                  onChange={(e) => setManualDetails({...manualDetails, address: e.target.value})}
-                />
+
+              <div className="wireframe-card p-4 bg-gray-50 border-dashed">
+                <p className="text-[9px] uppercase font-bold text-muted-foreground italic leading-relaxed">
+                  Note: Providing a valid NPI is the fastest way to verify. You can still go back and search for yours.
+                </p>
               </div>
 
               <button 
