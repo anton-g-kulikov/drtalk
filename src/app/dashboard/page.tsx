@@ -31,7 +31,6 @@ export default function DashboardPage() {
 
         {/* Status Banners */}
         <div className="space-y-4">
-          <SubscriptionBanner />
           
           {/* Verification Alert */}
           {!isVerified && (
@@ -169,6 +168,7 @@ export default function DashboardPage() {
           <div className="lg:col-span-4 space-y-8">
             <div className="space-y-4">
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
+              <SubscriptionBanner />
               <div className="grid grid-cols-1 gap-3">
                 <ActionCard 
                   label="Invite Dentist" 
