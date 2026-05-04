@@ -5,6 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 interface VerificationContextType {
   isVerified: boolean;
   verify: () => void;
+  reset: () => void;
   showVerification: boolean;
   setShowVerification: (show: boolean) => void;
 }
@@ -27,8 +28,16 @@ export function VerificationProvider({ children }: { children: React.ReactNode }
     localStorage.setItem('drtalk_owner_verified', 'true');
   };
 
+  const reset = () => {
+    setIsVerified(false);
+    setShowVerification(false);
+    localStorage.removeItem('drtalk_owner_verified');
+    // Force a reload to ensure all states are clean
+    window.location.reload();
+  };
+
   return (
-    <VerificationContext.Provider value={{ isVerified, verify, showVerification, setShowVerification }}>
+    <VerificationContext.Provider value={{ isVerified, verify, reset, showVerification, setShowVerification }}>
       {children}
     </VerificationContext.Provider>
   );
