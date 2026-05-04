@@ -83,7 +83,7 @@ export default function TeamManagementPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-4">
-              <button onClick={() => router.push('/dashboard')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => router.push('/settings')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
