@@ -1,15 +1,19 @@
 "use client";
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
 
 export default function SettingsPage() {
+  const pathname = usePathname();
+  const isDentist = pathname.startsWith('/dentist');
+
   const sections = [
-    { icon: User, label: 'Practice Profile', desc: 'Manage specialist details, locations, and clinical specialties.' },
+    { icon: User, label: isDentist ? 'Practice Profile' : 'Practice Profile', desc: isDentist ? 'Manage practice details and referral preferences.' : 'Manage specialist details, locations, and clinical specialties.' },
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.' },
     { icon: Shield, label: 'PHI & Access Control', desc: 'Manage team permissions and patient communication safeguards.' },
-    { icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.' },
+    ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.' }]),
     { icon: HelpCircle, label: 'Support & Docs', desc: 'Access help articles or contact drTalk support.' },
   ];
 
@@ -17,8 +21,12 @@ export default function SettingsPage() {
     <MainLayout title="Practice">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">Specialist Practice</h2>
-          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Practice management, team access, and referral operations</p>
+          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
+            {isDentist ? 'Dentist Practice' : 'Specialist Practice'}
+          </h2>
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+            {isDentist ? 'Practice management and referral preferences' : 'Practice management, team access, and referral operations'}
+          </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
