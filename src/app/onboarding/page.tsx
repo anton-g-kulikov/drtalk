@@ -338,15 +338,17 @@ function OnboardingContent() {
               <div className="space-y-4">
                 <div className="flex gap-4">
                   <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
-                  <div className="w-32 border-2 border-black flex items-center justify-center font-black uppercase text-[10px] tracking-widest">
-                    Admin
-                  </div>
+                  <select className="wireframe-input w-32 appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center">
+                    <option value="admin">Admin</option>
+                    <option value="clinical">Clinical</option>
+                  </select>
                 </div>
                 <div className="flex gap-4">
                   <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
-                  <div className="w-32 border-2 border-black flex items-center justify-center font-black uppercase text-[10px] tracking-widest">
-                    Clinical
-                  </div>
+                  <select className="wireframe-input w-32 appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center" defaultValue="clinical">
+                    <option value="admin">Admin</option>
+                    <option value="clinical">Clinical</option>
+                  </select>
                 </div>
               </div>
 
