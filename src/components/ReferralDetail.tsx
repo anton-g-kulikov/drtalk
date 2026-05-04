@@ -61,10 +61,10 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
             
             {/* AI Warning Banner */}
             {referral.confidence < 60 && (
-              <div className="wireframe-card border-red-600 bg-red-50 p-4 flex gap-4 items-start">
-                <AlertTriangle className="text-red-600 shrink-0" size={24} />
+              <div className="wireframe-card border-black bg-zinc-50 p-4 flex gap-4 items-start">
+                <AlertTriangle className="text-black shrink-0" size={24} />
                 <div className="flex-1">
-                  <p className="text-[10px] font-black uppercase text-red-600 tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[10px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1">
                     Some fields were extracted from a {referral.source} with low confidence. Please verify all information before processing.
                   </p>

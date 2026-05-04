@@ -90,10 +90,10 @@ export default function ReferralDetailClient() {
             
             {/* AI Warning Banner */}
             {referral.confidence < 60 && currentStatus === 'Received' && (
-              <div className="wireframe-card border-red-600 bg-red-50 p-6 flex gap-5 items-start">
-                <AlertTriangle className="text-red-600 shrink-0" size={28} />
+              <div className="wireframe-card border-black bg-zinc-50 p-6 flex gap-5 items-start">
+                <AlertTriangle className="text-black shrink-0" size={28} />
                 <div className="flex-1">
-                  <p className="text-[11px] font-black uppercase text-red-600 tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[11px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1 font-medium">
                     Please verify all information before processing. Manual review required for clinical accuracy.
                   </p>
@@ -161,7 +161,7 @@ export default function ReferralDetailClient() {
             <div className="pt-16 flex gap-6">
               <button 
                 onClick={() => setCurrentStatus('Archived')}
-                className="wireframe-button text-[11px] uppercase px-10 py-4 hover:bg-red-600 hover:text-white hover:border-red-600 transition-all"
+                className="wireframe-button text-[11px] uppercase px-10 py-4 hover:bg-black hover:text-white hover:border-black transition-all"
               >
                 Archive Case
               </button>
