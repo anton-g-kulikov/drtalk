@@ -184,7 +184,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                         <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2">
                           Edit Member
                         </button>
-                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-red-600">
+                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-black">
                           Remove Member
                         </button>
                       </div>
