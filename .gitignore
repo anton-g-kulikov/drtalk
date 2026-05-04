@@ -1,8 +1,7 @@
 # metacoding: AI coding assistant exclusions
-.codex/skills/metacoding-workflow/
-.claude/agents/metacoding-workflow.md
-.claude/metacoding-workflow/
-.agents/skills/metacoding-workflow/
+.codex
+.claude
+.agents
 .backup/
 node_modules
 yarn.lock
