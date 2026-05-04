@@ -69,11 +69,6 @@ export function SubscriptionManager() {
             <p className="text-xs sm:text-sm text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
               Choose the right plan to continue processing referrals and communicating with your network.
             </p>
-            {!isTrialEnded && (
-              <p className="text-[10px] font-black uppercase tracking-widest text-black bg-white inline-block px-3 py-1 border-2 border-black italic">
-                Currently on Starter Plan. Trial ends in {daysRemaining} days.
-              </p>
-            )}
           </div>
         </div>
 
