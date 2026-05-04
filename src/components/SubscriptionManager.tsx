@@ -59,9 +59,6 @@ export function SubscriptionManager() {
         
         {/* Header */}
         <div className="text-center space-y-6 max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-2 border-2 border-black bg-gray-50 text-[10px] font-black uppercase tracking-[0.2em]">
-            <ShieldAlert size={14} /> Subscription Status
-          </div>
           <h1 className="text-5xl sm:text-7xl font-black uppercase tracking-tighter italic leading-none">
             {isTrialEnded ? 'Your trial has ended' : 'Choose your plan'}
           </h1>
