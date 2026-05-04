@@ -89,7 +89,7 @@ export default function ReferralDetailClient() {
           <div className="flex-1 p-10 space-y-10 border-r-2 border-black">
             
             {/* AI Warning Banner */}
-            {referral.confidence < 60 && currentStatus === 'Pending' && (
+            {referral.confidence < 60 && currentStatus === 'Received' && (
               <div className="wireframe-card border-red-600 bg-red-50 p-6 flex gap-5 items-start">
                 <AlertTriangle className="text-red-600 shrink-0" size={28} />
                 <div className="flex-1">
@@ -184,7 +184,7 @@ export default function ReferralDetailClient() {
                 </div>
               </div>
               
-              {currentStatus !== 'Pending' && (
+              {currentStatus !== 'Received' && (
                 <div className="space-y-2">
                   <div className="flex justify-between items-baseline">
                     <p className="text-[9px] font-black uppercase">Specialist Team</p>
