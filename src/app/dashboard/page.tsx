@@ -9,10 +9,13 @@ import {
 import { useRouter } from 'next/navigation';
 
 import { useVerification } from '@/components/VerificationContext';
+import { useSubscription } from '@/components/SubscriptionContext';
+import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isVerified, setShowVerification } = useVerification();
+  const { isVerified, reset: resetVerification, setShowVerification } = useVerification();
+  const { endTrial, resetSubscription } = useSubscription();
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -24,30 +27,35 @@ export default function DashboardPage() {
 
   return (
     <MainLayout title="Practice Dashboard">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8 pb-20">
 
-        {/* Verification Alert */}
-        {!isVerified && (
-          <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
-                <AlertCircle className="text-black" size={24} />
+        {/* Status Banners */}
+        <div className="space-y-4">
+          <SubscriptionBanner />
+          
+          {/* Verification Alert */}
+          {!isVerified && (
+            <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
+                  <AlertCircle className="text-black" size={24} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                    Practice owner verification is required to process referrals and access PHI.
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
-                <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
-                  Practice owner verification is required to process referrals and access PHI.
-                </p>
-              </div>
+              <button
+                onClick={() => setShowVerification(true)}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+              >
+                Verify Identity Now
+              </button>
             </div>
-            <button
-              onClick={() => setShowVerification(true)}
-              className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
-            >
-              Verify Identity Now
-            </button>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -181,6 +189,29 @@ export default function DashboardPage() {
           </div>
 
         </div>
+
+        {/* Debug Controls */}
+        <div className="pt-12 border-t-2 border-black border-dashed flex flex-wrap gap-4 opacity-30 hover:opacity-100 transition-opacity">
+          <button 
+            onClick={resetVerification}
+            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
+          >
+            Debug: Reset Verification
+          </button>
+          <button 
+            onClick={endTrial}
+            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
+          >
+            Debug: End Trial
+          </button>
+          <button 
+            onClick={resetSubscription}
+            className="text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black hover:bg-black hover:text-white transition-all"
+          >
+            Debug: Reset Subscription
+          </button>
+        </div>
+
       </div>
     </MainLayout>
   );

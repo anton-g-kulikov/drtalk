@@ -7,11 +7,23 @@ import {
   AlertTriangle, Send, MoreHorizontal 
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
+import { useSubscription } from '@/components/SubscriptionContext';
 
 export default function ReferralDetailClient() {
   const router = useRouter();
   const params = useParams();
+  const { isTrialEnded, setShowPaywall } = useSubscription();
   const [isEditorMode, setIsEditorMode] = useState(false);
+
+  const handleProcessReferral = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+    } else {
+      // Logic for processing referral
+      alert("Referral Processed Successfully!");
+      router.push('/referrals');
+    }
+  };
 
   // Mock data for the specific referral
   const referral = {
@@ -119,7 +131,10 @@ export default function ReferralDetailClient() {
             </div>
 
             <div className="pt-8 sm:pt-16 flex flex-col sm:flex-row gap-4 sm:gap-6">
-              <button className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto">
+              <button 
+                onClick={handleProcessReferral}
+                className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto"
+              >
                 Process Referral <Send size={14} />
               </button>
               <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto">

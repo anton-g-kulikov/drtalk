@@ -9,6 +9,8 @@ export const metadata: Metadata = {
 
 import { VerificationProvider } from "@/components/VerificationContext";
 import { VerificationManager } from "@/components/VerificationManager";
+import { SubscriptionProvider } from "@/components/SubscriptionContext";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
 
 export default function RootLayout({
   children,
@@ -18,12 +20,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <VerificationProvider>
-          <CommentSystem>
-            {children}
-            <VerificationManager />
-          </CommentSystem>
-        </VerificationProvider>
+        <SubscriptionProvider>
+          <VerificationProvider>
+            <CommentSystem>
+              {children}
+              <VerificationManager />
+              <SubscriptionManager />
+            </CommentSystem>
+          </VerificationProvider>
+        </SubscriptionProvider>
       </body>
     </html>
   );
