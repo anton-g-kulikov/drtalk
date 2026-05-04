@@ -30,7 +30,22 @@ function OnboardingContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [practiceName, setPracticeName] = useState('');
+  const [invites, setInvites] = useState<{email: string, role: string}[]>([
+    { email: '', role: 'admin' },
+    { email: '', role: 'clinical' }
+  ]);
   
+  const addInvite = () => {
+    if (invites.length < 10) {
+      setInvites([...invites, { email: '', role: 'clinical' }]);
+    }
+  };
+
+  const updateInvite = (index: number, field: 'email' | 'role', value: string) => {
+    const newInvites = [...invites];
+    newInvites[index][field] = value;
+    setInvites(newInvites);
+  };
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -335,24 +350,47 @@ function OnboardingContent() {
             <div className="space-y-6">
               <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
               
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
-                  <select className="wireframe-input w-32 appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center">
-                    <option value="admin">Admin</option>
-                    <option value="clinical">Clinical</option>
-                  </select>
-                </div>
-                <div className="flex gap-4">
-                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1 py-4 px-4 text-sm" />
-                  <select className="wireframe-input w-32 appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center" defaultValue="clinical">
-                    <option value="admin">Admin</option>
-                    <option value="clinical">Clinical</option>
-                  </select>
-                </div>
+              <div className="space-y-6">
+                {invites.map((invite, index) => (
+                  <div key={index} className="flex gap-4 items-end">
+                    <div className="flex-1 space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest">Email</label>
+                      <input 
+                        type="email" 
+                        placeholder="colleague@practice.com" 
+                        className="wireframe-input w-full py-4 px-4 text-sm" 
+                        value={invite.email}
+                        onChange={(e) => updateInvite(index, 'email', e.target.value)}
+                      />
+                    </div>
+                    <div className="w-32 space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest">Role Type</label>
+                      <div className="relative">
+                        <select 
+                          value={invite.role}
+                          onChange={(e) => updateInvite(index, 'role', e.target.value)}
+                          className="wireframe-input w-full appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center pr-8"
+                        >
+                          <option value="administrative">Administrative</option>
+                          <option value="clinical">Clinical</option>
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <ChevronRightIcon size={12} className="rotate-90" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
-              <button className="text-[10px] font-black underline uppercase tracking-widest">+ Add Another</button>
+              {invites.length < 10 && (
+                <button 
+                  onClick={addInvite}
+                  className="text-[10px] font-black underline uppercase tracking-widest"
+                >
+                  + Add Another
+                </button>
+              )}
               
               <div className="pt-8 space-y-4">
                 <button 
