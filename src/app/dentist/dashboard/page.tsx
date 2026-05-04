@@ -5,7 +5,7 @@ import { MainLayout } from '@/components/MainLayout';
 import { ArrowUpRight, Clock, GraduationCap, MessageSquare, Plus, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'Completed';
+type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed';
 
 interface SentReferral {
   id: string;
@@ -44,6 +44,15 @@ const sentReferrals: SentReferral[] = [
     status: 'Scheduled',
     lastUpdate: '1d ago',
     nextStep: 'Appointment confirmed for Tuesday',
+  },
+  {
+    id: 'D-1004',
+    patientName: 'John Doe',
+    specialist: 'Metro Orthodontics',
+    type: 'Braces Consultation',
+    status: 'Completed',
+    lastUpdate: '3d ago',
+    nextStep: 'Case closed. Outcome report received.',
   },
 ];
 

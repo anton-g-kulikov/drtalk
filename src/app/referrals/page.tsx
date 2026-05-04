@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/MainLayout";
 import { Search, Filter, AlertCircle, Clock, MoreVertical } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-type ReferralStatus = 'Received' | 'Working on' | 'Processed' | 'Archived';
+type ReferralStatus = 'Pending' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed' | 'Archived';
 
 interface Referral {
   id: string;
@@ -19,19 +19,19 @@ interface Referral {
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 95, status: 'Received', receivedAt: '2h ago', dentist: 'Dr. Smith' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Received', receivedAt: '4h ago', dentist: 'Dr. Jones' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Working on', receivedAt: '1d ago', dentist: 'Dr. Miller' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Processed', receivedAt: '2d ago', dentist: 'Dr. White' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Received', receivedAt: '1h ago', dentist: 'Dr. Black' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Pending', receivedAt: '2h ago', dentist: 'Dr. Smith' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Pending', receivedAt: '4h ago', dentist: 'Dr. Jones' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Accepted', receivedAt: '1d ago', dentist: 'Dr. Miller' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Completed', receivedAt: '2d ago', dentist: 'Dr. White' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Scheduled', receivedAt: '1h ago', dentist: 'Dr. Black' },
 ];
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<ReferralStatus>('Received');
+  const [activeTab, setActiveTab] = useState<ReferralStatus>('Pending');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const tabs: ReferralStatus[] = ['Received', 'Working on', 'Processed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Pending', 'Accepted', 'Scheduled', 'In Progress', 'Completed', 'Archived'];
 
   const filteredReferrals = mockReferrals.filter(r => 
     r.status === activeTab && 
@@ -68,10 +68,10 @@ export default function DashboardPage() {
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
-              { label: 'Received (24h)', value: '12', trend: '+2' },
-              { label: 'In Progress', value: '08', trend: '0' },
-              { label: 'Processed', value: '45', trend: '+5' },
-              { label: 'Avg Time', value: '4.2h', trend: '-0.5h' },
+              { label: 'Pending (24h)', value: '12', trend: '+2' },
+              { label: 'Accepted', value: '08', trend: '0' },
+              { label: 'Scheduled', value: '45', trend: '+5' },
+              { label: 'Total Pipeline', value: '65', trend: '+12' },
             ].map((stat) => (
               <div key={stat.label} className="wireframe-card p-4 space-y-1">
                 <p className="text-[9px] font-bold uppercase text-muted-foreground">{stat.label}</p>
