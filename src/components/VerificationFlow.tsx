@@ -88,7 +88,7 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
                   onClick={onCancel}
                   className="text-[10px] font-black uppercase underline py-2 text-muted-foreground hover:text-black"
                 >
-                  I'll do this later
+                  I&apos;ll do this later
                 </button>
               </div>
             </div>
@@ -179,7 +179,7 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
 
             <div className="space-y-6">
               <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed">
-                Since you've skipped the NPI lookup, please provide your medical licensing details for manual verification.
+                Since you&apos;ve skipped the NPI lookup, please provide your medical licensing details for manual verification.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

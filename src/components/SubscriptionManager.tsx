@@ -130,7 +130,7 @@ export function SubscriptionManager() {
             onClick={() => setShowPaywall(false)}
             className="text-[10px] font-black uppercase underline tracking-[0.2em] opacity-50 hover:opacity-100 transition-all"
           >
-            I'll do this later
+            I&apos;ll do this later
           </button>
         </div>
       </div>
