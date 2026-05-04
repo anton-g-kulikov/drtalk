@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ArrowRight, Building2, Info, LogIn, Plus, Users } from 'lucide-react';
+import { ArrowRight, Building2, LogIn, Plus, Users } from 'lucide-react';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 
 type SpecialistMode = 'login' | 'signup';
@@ -88,17 +89,15 @@ export default function SpecialistEntryPage() {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <label className="text-[10px] font-bold uppercase">Email Address</label>
-                <Info size={12} className="text-muted-foreground" />
+                {mode === 'signup' && (
+                  <CommentMarker 
+                    id="specialist-signup-email"
+                    title="Corporate Email Policy"
+                    description="Personal emails will be checked and discouraged. You may be asked to register with a corporate email, but you can still continue with a Gmail/personal account if a professional one is unavailable."
+                  />
+                )}
               </div>
               <input type="email" placeholder="doctor@specialtypractice.com" className="wireframe-input" />
-              {mode === 'signup' && (
-                <div className="bg-gray-50 border border-black/10 p-2 mt-1">
-                  <p className="text-[8px] uppercase font-bold text-muted-foreground leading-relaxed">
-                    Personal emails will be checked and discouraged. You may be asked to register with a corporate email, 
-                    but you can still continue with a Gmail/personal account if a professional one is unavailable.
-                  </p>
-                </div>
-              )}
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase">Password</label>
