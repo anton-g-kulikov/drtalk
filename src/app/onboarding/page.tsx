@@ -1,7 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronRight, ArrowLeft, CheckCircle2, ShieldCheck, Users, Building2 } from 'lucide-react';
+import { 
+  ChevronRight as ChevronRightIcon, 
+  ArrowLeft as ArrowLeftIcon, 
+  CheckCircle2 as CheckCircle2Icon, 
+  ShieldCheck as ShieldCheckIcon, 
+  Users as UsersIcon, 
+  Building2 as Building2Icon 
+} from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 
@@ -17,7 +24,22 @@ type OnboardingStep =
 export default function OnboardingPage() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
+  const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
   const router = useRouter();
+
+  const dentalTypes = [
+    'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
+    'Oral & Maxillofacial Surgeon', 'Orthodontist', 'Pediatric Dentist', 
+    'Periodontist', 'Prosthodontist', 'Oral Pathologist', 
+    'Dental Anaesthesiology', 'Dental Implant Company'
+  ];
+
+  const medicalTypes = [
+    'Anesthesiology', 'Cardiology', 'Colorectal Surgery', 'Dermatology',
+    'Emergency Medicine', 'Endocrinology', 'Family medicine', 
+    'Gastroenterology', 'Hematology-Oncology', 'Hospitalist', 
+    'Internal medicine', 'Medical Genetics'
+  ];
 
   const nextStep = (next: OnboardingStep) => setStep(next);
 
@@ -115,7 +137,7 @@ export default function OnboardingPage() {
                 onClick={() => nextStep('PRACTICE_DETAILS')}
                 className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Building2 size={48} className="mb-2" />
+                <Building2Icon size={48} className="mb-2" />
                 <div className="space-y-4">
                   <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE SPECIALIST PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
@@ -127,7 +149,7 @@ export default function OnboardingPage() {
                 onClick={() => nextStep('PRACTICE_INVITE')}
                 className="wireframe-card border-dashed hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Users size={48} className="mb-2" />
+                <UsersIcon size={48} className="mb-2" />
                 <div className="space-y-4">
                   <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
@@ -147,7 +169,7 @@ export default function OnboardingPage() {
                 onClick={() => nextStep('ROLE_SELECTION')} 
                 className="w-12 h-12 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all"
               >
-                <ArrowLeft size={20} />
+                <ArrowLeftIcon size={20} />
               </button>
               <div>
                 <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
@@ -164,27 +186,21 @@ export default function OnboardingPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
-                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
-                    <option>Dental</option>
-                    <option>Medical</option>
-                    <option>Other</option>
+                  <select 
+                    value={practiceCategory}
+                    onChange={(e) => setPracticeCategory(e.target.value as any)}
+                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm"
+                  >
+                    <option value="Dental">Dental</option>
+                    <option value="Medical">Medical</option>
                   </select>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
                   <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
-                    <option>Dentist</option>
-                    <option>Dental Laboratory</option>
-                    <option>Dental Radiology</option>
-                    <option>Endodontist</option>
-                    <option>Oral & Maxillofacial Surgeon</option>
-                    <option>Orthodontist</option>
-                    <option>Pediatric Dentist</option>
-                    <option>Periodontist</option>
-                    <option>Prosthodontist</option>
-                    <option>Oral Pathologist</option>
-                    <option>Dental Anaesthesiology</option>
-                    <option>Dental Implant Company</option>
+                    {(practiceCategory === 'Dental' ? dentalTypes : medicalTypes).map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -204,7 +220,7 @@ export default function OnboardingPage() {
                 onClick={() => nextStep('PRACTICE_VERIFY')}
                 className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
-                NEXT STEP <ChevronRight size={18} />
+                NEXT STEP <ChevronRightIcon size={18} />
               </button>
             </div>
           </div>
@@ -215,7 +231,7 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
               <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+                <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Lookup</h1>
@@ -224,7 +240,7 @@ export default function OnboardingPage() {
             </div>
             <div className="wireframe-card bg-gray-50 space-y-4">
               <div className="flex gap-4 items-start">
-                <ShieldCheck className="text-black shrink-0" size={24} />
+                <ShieldCheckIcon className="text-black shrink-0" size={24} />
                 <p className="text-[10px] uppercase font-bold leading-relaxed">
                   Add an NPI now to autofill practice information. Owner verification happens later when PHI/referral processing is triggered.
                 </p>
@@ -244,7 +260,7 @@ export default function OnboardingPage() {
               onClick={() => nextStep('PRACTICE_INVITE')}
               className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm flex items-center justify-center gap-2"
             >
-              Save & Continue <ChevronRight size={16} />
+              Save & Continue <ChevronRightIcon size={16} />
             </button>
           </div>
         );
@@ -254,7 +270,7 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
               <button onClick={() => nextStep('PRACTICE_VERIFY')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+                <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
@@ -297,7 +313,7 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-sm text-center">
             <div className="flex justify-center">
               <div className="w-20 h-20 rounded-full border-4 border-black flex items-center justify-center">
-                <CheckCircle2 size={48} />
+                <CheckCircle2Icon size={48} />
               </div>
             </div>
             <div className="space-y-2">
