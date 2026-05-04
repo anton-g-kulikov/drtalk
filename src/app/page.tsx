@@ -85,13 +85,6 @@ export default function LandingPage() {
           </section>
         </div>
 
-        <div className="wireframe-card p-4 bg-gray-50">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <p className="text-[9px] uppercase font-bold text-muted-foreground">Dentist: sends referrals and tracks outcomes</p>
-            <p className="text-[9px] uppercase font-bold text-muted-foreground">Specialist: receives referrals and coordinates care</p>
-            <p className="text-[9px] uppercase font-bold text-muted-foreground">Shared: Learning Hub access and resource creation</p>
-          </div>
-        </div>
       </div>
     </main>
   );
