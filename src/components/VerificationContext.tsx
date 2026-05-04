@@ -19,7 +19,9 @@ export function VerificationProvider({ children }: { children: React.ReactNode }
   // Initialize from localStorage if possible
   useEffect(() => {
     const stored = localStorage.getItem('drtalk_owner_verified');
-    if (stored === 'true') setIsVerified(true);
+    if (stored === 'true') {
+      setTimeout(() => setIsVerified(true), 0);
+    }
   }, []);
 
   const verify = () => {

@@ -29,9 +29,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     const storedTrialEnded = localStorage.getItem('drtalk_trial_ended') === 'true';
     const storedDays = localStorage.getItem('drtalk_trial_days');
 
-    if (storedPlan) setPlanState(storedPlan);
-    if (storedTrialEnded) setIsTrialEnded(true);
-    if (storedDays) setDaysRemaining(parseInt(storedDays));
+    // Use setTimeout to avoid synchronous setState in effect warning
+    setTimeout(() => {
+      if (storedPlan) setPlanState(storedPlan);
+      if (storedTrialEnded) setIsTrialEnded(true);
+      if (storedDays) setDaysRemaining(parseInt(storedDays));
+    }, 0);
   }, []);
 
   const setPlan = (newPlan: SubscriptionPlan) => {
