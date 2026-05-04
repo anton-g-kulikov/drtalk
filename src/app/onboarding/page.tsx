@@ -1,22 +1,69 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ChevronRight, ArrowLeft, CheckCircle2, ShieldCheck, Users, Building2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { 
+  ChevronRight as ChevronRightIcon, 
+  ArrowLeft as ArrowLeftIcon, 
+  CheckCircle2 as CheckCircle2Icon, 
+  ShieldCheck as ShieldCheckIcon, 
+  Users as UsersIcon, 
+  Building2 as Building2Icon 
+} from 'lucide-react';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 type OnboardingStep = 
   | 'AUTH' 
   | 'VERIFY' 
   | 'ROLE_SELECTION' 
   | 'PRACTICE_DETAILS' 
+  | 'JOIN_PRACTICE'
   | 'PRACTICE_VERIFY' 
   | 'PRACTICE_INVITE' 
   | 'SUCCESS';
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
+  const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
+  const searchParams = useSearchParams();
+  const [email, setEmail] = useState(searchParams.get('email') || '');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+
+  const [invites, setInvites] = useState<{email: string, role: string}[]>([
+    { email: '', role: 'admin' },
+    { email: '', role: 'clinical' }
+  ]);
+  
+  const addInvite = () => {
+    if (invites.length < 10) {
+      setInvites([...invites, { email: '', role: 'clinical' }]);
+    }
+  };
+
+  const updateInvite = (index: number, field: 'email' | 'role', value: string) => {
+    const newInvites = [...invites];
+    newInvites[index][field] = value;
+    setInvites(newInvites);
+  };
   const router = useRouter();
+
+  const dentalTypes = [
+    'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
+    'Oral & Maxillofacial Surgeon', 'Orthodontist', 'Pediatric Dentist', 
+    'Periodontist', 'Prosthodontist', 'Oral Pathologist', 
+    'Dental Anaesthesiology', 'Dental Implant Company'
+  ];
+
+  const medicalTypes = [
+    'Anesthesiology', 'Cardiology', 'Colorectal Surgery', 'Dermatology',
+    'Emergency Medicine', 'Endocrinology', 'Family medicine', 
+    'Gastroenterology', 'Hematology-Oncology', 'Hospitalist', 
+    'Internal medicine', 'Medical Genetics'
+  ];
 
   const nextStep = (next: OnboardingStep) => setStep(next);
 
@@ -26,13 +73,26 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6 w-full max-w-sm">
             <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Specialist Account</h1>
-              <p className="text-xs text-muted-foreground uppercase">{isLogin ? 'Login to manage your practice' : 'Create account to create or join a practice'}</p>
+              <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">drTalk Account</h1>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Create account to create or join a practice</p>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Email Address</label>
-                <input type="email" placeholder="doctor@practice.com" className="wireframe-input" />
+                <div className="flex items-center gap-2">
+                  <label className="text-[10px] font-bold uppercase">Email Address</label>
+                  <CommentMarker 
+                    id="onboarding-email-policy"
+                    title="Corporate Email Policy"
+                    description="Personal emails will be checked and discouraged. The system will ask users to register with a corporate email, but they would still be able to continue with a Gmail/personal account if a professional one is unavailable."
+                  />
+                </div>
+                <input 
+                  type="email" 
+                  placeholder="doctor@practice.com" 
+                  className="wireframe-input" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Password</label>
@@ -42,25 +102,35 @@ export default function OnboardingPage() {
                 <div className="flex gap-4">
                   <div className="space-y-1 flex-1">
                     <label className="text-[10px] font-bold uppercase">First Name</label>
-                    <input type="text" className="wireframe-input" />
+                    <input 
+                      type="text" 
+                      className="wireframe-input" 
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
                   </div>
                   <div className="space-y-1 flex-1">
                     <label className="text-[10px] font-bold uppercase">Last Name</label>
-                    <input type="text" className="wireframe-input" />
+                    <input 
+                      type="text" 
+                      className="wireframe-input" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
                   </div>
                 </div>
               )}
               <button 
                 onClick={() => nextStep('VERIFY')}
-                className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm mt-4"
+                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
               >
                 {isLogin ? 'Login' : 'Create Account'}
               </button>
             </div>
-            <p className="text-center text-[10px] uppercase font-bold text-muted-foreground">
+            <p className="text-center text-[10px] uppercase font-black tracking-tighter">
               {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
               <span 
-                className="text-black cursor-pointer underline" 
+                className="text-black cursor-pointer underline ml-1" 
                 onClick={() => setIsLogin(!isLogin)}
               >
                 {isLogin ? 'Sign Up' : 'Login'}
@@ -97,31 +167,35 @@ export default function OnboardingPage() {
 
       case 'ROLE_SELECTION':
         return (
-          <div className="space-y-8 w-full max-w-2xl">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-bold uppercase tracking-tighter">Welcome to drTalk</h1>
-              <p className="text-xs text-muted-foreground uppercase">Create a specialist practice or join your existing team.</p>
+          <div className="space-y-12 w-full max-w-4xl px-4">
+            <div className="text-center space-y-3">
+              <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A SPECIALIST PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div 
                 onClick={() => nextStep('PRACTICE_DETAILS')}
-                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4"
+                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Building2 size={32} />
-                <h3 className="font-bold uppercase text-lg">Create Specialist Practice</h3>
-                <p className="text-xs uppercase leading-relaxed opacity-70">
-                  Set up a specialist profile to receive referrals and coordinate patient communication.
-                </p>
+                <Building2Icon size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE SPECIALIST PRACTICE</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Set up a specialist profile to receive referrals and coordinate patient communication.
+                  </p>
+                </div>
               </div>
               <div
-                onClick={() => nextStep('PRACTICE_INVITE')}
-                className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-8 space-y-4 border-dashed"
+                onClick={() => nextStep('JOIN_PRACTICE')}
+                className="wireframe-card border-dashed hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
-                <Users size={32} />
-                <h3 className="font-bold uppercase text-lg">Join Existing Practice</h3>
-                <p className="text-xs uppercase leading-relaxed opacity-70">
-                  Enter with an invite code or request access from a practice administrator.
-                </p>
+                <UsersIcon size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Enter with an invite code or request access from a practice administrator.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -129,43 +203,178 @@ export default function OnboardingPage() {
 
       case 'PRACTICE_DETAILS':
         return (
-          <div className="space-y-8 w-full max-w-lg">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('ROLE_SELECTION')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+          <div className="space-y-10 w-full max-w-2xl px-4">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => nextStep('ROLE_SELECTION')} 
+                className="w-12 h-12 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all"
+              >
+                <ArrowLeftIcon size={20} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">Specialist Practice Details</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 1 of 3</p>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 2</p>
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Practice Name</label>
-                <input type="text" placeholder="Valley Endodontics" className="wireframe-input" />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-[120px_1fr] gap-6">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Type</label>
-                  <select className="wireframe-input appearance-none bg-transparent">
-                    <option>Specialist</option>
+                  <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
+                  <div className="relative">
+                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                      <option>CA</option>
+                      <option>NY</option>
+                      <option>TX</option>
+                      <option>FL</option>
+                      <option>WA</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <ChevronRightIcon size={12} className="rotate-90" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                    <CommentMarker 
+                      id="onboarding-practice-search"
+                      title="Practice Search"
+                      description="Practice name will work as search/filter after first 3 letters suggesting users to select a practice from drtalk db."
+                    />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="Valley Endodontics" 
+                    className="wireframe-input py-4 px-4 text-sm" 
+                    value={practiceName}
+                    onChange={(e) => setPracticeName(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
+                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
+                  <select 
+                    value={practiceCategory}
+                    onChange={(e) => setPracticeCategory(e.target.value as any)}
+                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm"
+                  >
+                    <option value="Dental">Dental</option>
+                    <option value="Medical">Medical</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">City</label>
-                  <input type="text" className="wireframe-input" />
+                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
+                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                    {(practiceCategory === 'Dental' ? dentalTypes : medicalTypes).map(type => (
+                      <option key={type} value={type}>{type}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Full Address</label>
-                <input type="text" className="wireframe-input" />
-              </div>
+
               <button 
-                onClick={() => nextStep('PRACTICE_VERIFY')}
-                className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm mt-4 flex items-center justify-center gap-2"
+                onClick={() => nextStep('PRACTICE_INVITE')}
+                className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
-                Next Step <ChevronRight size={16} />
+                NEXT STEP <ChevronRightIcon size={18} />
               </button>
+            </div>
+          </div>
+        );
+
+      case 'JOIN_PRACTICE':
+        return (
+          <div className="space-y-10 w-full max-w-2xl px-4">
+            <div className="flex items-center gap-6">
+              <button 
+                onClick={() => nextStep('ROLE_SELECTION')} 
+                className="w-12 h-12 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all"
+              >
+                <ArrowLeftIcon size={20} />
+              </button>
+              <div>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">JOIN EXISTING PRACTICE</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">REQUEST ACCESS TO YOUR TEAM</p>
+              </div>
+            </div>
+
+            <div className="space-y-12">
+              {/* Option 1: Invite Code */}
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">OPTION 1: ENTER INVITE CODE</label>
+                  <input type="text" placeholder="X-782-K9L" className="wireframe-input py-6 text-center text-2xl font-black tracking-[0.5em] uppercase" />
+                </div>
+                <button 
+                  onClick={() => nextStep('SUCCESS')}
+                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                >
+                  JOIN WITH CODE
+                </button>
+              </div>
+
+              {/* Separator */}
+              <div className="relative flex items-center justify-center">
+                <div className="absolute w-full border-t border-black border-dashed"></div>
+                <span className="relative bg-white px-4 text-xs font-black uppercase italic">OR</span>
+              </div>
+
+              {/* Option 2: Search & Request */}
+              <div className="space-y-6">
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">OPTION 2: FIND YOUR PRACTICE & REQUEST ACCESS</p>
+                <div className="grid grid-cols-[120px_1fr] gap-6">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
+                    <div className="relative">
+                      <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                        <option>CA</option>
+                        <option>NY</option>
+                        <option>TX</option>
+                        <option>FL</option>
+                        <option>WA</option>
+                      </select>
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <ChevronRightIcon size={12} className="rotate-90" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                      <CommentMarker 
+                        id="join-practice-search"
+                        title="Practice Search"
+                        description="Start typing your practice name. We'll suggest matches from the drTalk database after 3 letters."
+                      />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="Search practice name..." 
+                      className="wireframe-input py-4 px-4 text-sm" 
+                    />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => nextStep('SUCCESS')}
+                  className="wireframe-button w-full border-2 border-black py-4 uppercase text-sm font-black tracking-widest hover:bg-black hover:text-white transition-all"
+                >
+                  REQUEST ACCESS
+                </button>
+              </div>
             </div>
           </div>
         );
@@ -175,7 +384,7 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
               <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+                <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Lookup</h1>
@@ -184,7 +393,7 @@ export default function OnboardingPage() {
             </div>
             <div className="wireframe-card bg-gray-50 space-y-4">
               <div className="flex gap-4 items-start">
-                <ShieldCheck className="text-black shrink-0" size={24} />
+                <ShieldCheckIcon className="text-black shrink-0" size={24} />
                 <p className="text-[10px] uppercase font-bold leading-relaxed">
                   Add an NPI now to autofill practice information. Owner verification happens later when PHI/referral processing is triggered.
                 </p>
@@ -204,7 +413,7 @@ export default function OnboardingPage() {
               onClick={() => nextStep('PRACTICE_INVITE')}
               className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm flex items-center justify-center gap-2"
             >
-              Save & Continue <ChevronRight size={16} />
+              Save & Continue <ChevronRightIcon size={16} />
             </button>
           </div>
         );
@@ -213,26 +422,62 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_VERIFY')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
+              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 3 of 3</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 2</p>
               </div>
             </div>
-            <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase text-muted-foreground">Invite clinical staff, administrators, or enter an invite code</p>
-              {[1, 2].map((i) => (
-                <div key={i} className="flex gap-2">
-                  <input type="email" placeholder="colleague@practice.com" className="wireframe-input flex-1" />
-                  <select className="wireframe-input w-32 appearance-none bg-transparent text-[10px] font-bold uppercase">
-                    <option>Clinical</option>
-                    <option>Admin</option>
-                  </select>
+            <div className="space-y-6">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff or administrators to your practice</p>
+              
+              <div className="space-y-6">
+                {/* Column Headers */}
+                <div className="flex gap-4 px-1">
+                  <label className="flex-1 text-[10px] font-black uppercase tracking-widest">Email</label>
+                  <label className="w-32 text-[10px] font-black uppercase tracking-widest">Role Type</label>
                 </div>
-              ))}
-              <button className="text-[10px] font-bold underline uppercase">+ Add Another</button>
+
+                <div className="space-y-4">
+                  {invites.map((invite, index) => (
+                    <div key={index} className="flex gap-4 items-center">
+                      <div className="flex-1">
+                        <input 
+                          type="email" 
+                          placeholder="colleague@practice.com" 
+                          className="wireframe-input w-full py-4 px-4 text-sm" 
+                          value={invite.email}
+                          onChange={(e) => updateInvite(index, 'email', e.target.value)}
+                        />
+                      </div>
+                      <div className="w-32 relative">
+                        <select 
+                          value={invite.role}
+                          onChange={(e) => updateInvite(index, 'role', e.target.value)}
+                          className="wireframe-input w-full appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center pr-8"
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="clinical">Clinical</option>
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <ChevronRightIcon size={12} className="rotate-90" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {invites.length < 10 && (
+                <button 
+                  onClick={addInvite}
+                  className="text-[10px] font-black underline uppercase tracking-widest"
+                >
+                  + Add Another
+                </button>
+              )}
               
               <div className="pt-8 space-y-4">
                 <button 
@@ -257,20 +502,20 @@ export default function OnboardingPage() {
           <div className="space-y-8 w-full max-w-sm text-center">
             <div className="flex justify-center">
               <div className="w-20 h-20 rounded-full border-4 border-black flex items-center justify-center">
-                <CheckCircle2 size={48} />
+                <CheckCircle2Icon size={48} />
               </div>
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Success!</h1>
               <p className="text-xs text-muted-foreground uppercase leading-relaxed">
-                Your specialist practice is set up.<br />You can now receive and process referrals.
+                Your practice account is set up.<br />You can now collaborate and manage referrals.
               </p>
             </div>
             <button 
               onClick={() => router.push('/dashboard')}
-              className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm"
+              className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >
-              Go to Specialist Dashboard
+              Go to Dashboard
             </button>
           </div>
         );
@@ -282,20 +527,20 @@ export default function OnboardingPage() {
       {renderStep()}
       
       {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].includes(step) && (
+      {['PRACTICE_DETAILS', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
         <div className="fixed bottom-12 flex gap-2">
-          {['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].map((s, i) => (
-            <div 
-              key={s} 
-              className={`h-1 w-12 transition-all ${
-                ['PRACTICE_DETAILS', 'PRACTICE_VERIFY', 'PRACTICE_INVITE'].indexOf(step) >= i 
-                  ? 'bg-black' 
-                  : 'bg-gray-200'
-              }`} 
-            />
-          ))}
+          <div className="h-1 w-12 bg-black transition-all" />
+          <div className={`h-1 w-12 transition-all ${['PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
         </div>
       )}
     </main>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center font-bold uppercase tracking-widest">Loading...</div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ArrowRight, Building2, LogIn, Plus, Users } from 'lucide-react';
+import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 
 type SpecialistMode = 'login' | 'signup';
@@ -73,33 +74,36 @@ export default function SpecialistEntryPage() {
           </div>
 
           <div className="space-y-4">
-            {mode === 'signup' && (
-              <div className="grid grid-cols-2 gap-3">
+            {mode === 'login' ? (
+              <>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">First Name</label>
-                  <input className="wireframe-input" />
+                  <label className="text-[10px] font-bold uppercase">Email Address</label>
+                  <input type="email" placeholder="doctor@specialtypractice.com" className="wireframe-input" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Last Name</label>
-                  <input className="wireframe-input" />
+                  <label className="text-[10px] font-bold uppercase">Password</label>
+                  <input type="password" placeholder="........" className="wireframe-input" />
                 </div>
-              </div>
-            )}
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase">Email Address</label>
-              <input type="email" placeholder="doctor@specialtypractice.com" className="wireframe-input" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] font-bold uppercase">Password</label>
-              <input type="password" placeholder="........" className="wireframe-input" />
-            </div>
-            {mode === 'signup' && (
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Practice Setup</label>
-                <select className="wireframe-input appearance-none bg-transparent">
-                  <option>Create new specialist practice</option>
-                  <option>Join existing specialist practice</option>
-                </select>
+              </>
+            ) : (
+              <div className="space-y-6 py-4">
+                <div className="space-y-2">
+                  <p className="text-xs font-bold uppercase">New to drTalk?</p>
+                  <p className="text-[10px] uppercase text-muted-foreground leading-relaxed">
+                    Set up your specialist account to begin receiving referrals and collaborating with dentist practices.
+                  </p>
+                </div>
+                <div className="bg-gray-50 border border-black/10 p-4 space-y-3">
+                  <h4 className="text-[10px] font-black uppercase tracking-widest">Onboarding Process:</h4>
+                  <ul className="space-y-2">
+                    {['Account Creation', 'Email Verification', 'Practice Setup'].map((s, i) => (
+                      <li key={s} className="flex items-center gap-2 text-[9px] font-bold uppercase">
+                        <span className="w-4 h-4 border border-black flex items-center justify-center bg-white">{i + 1}</span>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             )}
           </div>
@@ -108,7 +112,7 @@ export default function SpecialistEntryPage() {
             onClick={() => router.push(mode === 'signup' ? '/onboarding' : '/dashboard')}
             className="wireframe-button w-full bg-black text-white py-4 text-[10px] uppercase font-black flex items-center justify-center gap-2"
           >
-            {mode === 'login' ? 'Enter Specialist Dashboard' : 'Continue Practice Setup'}
+            {mode === 'login' ? 'Enter Specialist Dashboard' : 'Start Specialist Onboarding'}
             {mode === 'login' ? <LogIn size={14} /> : <ArrowRight size={14} />}
           </button>
         </section>

@@ -4,8 +4,9 @@ import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { Search, Filter, AlertCircle, Clock, MoreVertical } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 
-type ReferralStatus = 'Pending' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed' | 'Archived';
+type ReferralStatus = 'Received' | 'Working on' | 'Processed' | 'Archived';
 
 interface Referral {
   id: string;
@@ -20,21 +21,32 @@ interface Referral {
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Pending', receivedAt: '2h ago', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Pending', receivedAt: '4h ago', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Accepted', receivedAt: '1d ago', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Completed', receivedAt: '2d ago', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Scheduled', receivedAt: '1h ago', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Received', receivedAt: '2h ago', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Received', receivedAt: '4h ago', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Working on', receivedAt: '1d ago', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Processed', receivedAt: '2d ago', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Working on', receivedAt: '1h ago', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
 ];
 
+import { useVerification } from '@/components/VerificationContext';
+
 export default function ReferralsPage() {
+  const { isVerified, setShowVerification } = useVerification();
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<ReferralStatus>('Pending');
+  const [activeTab, setActiveTab] = useState<ReferralStatus>('Received');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const tabs: ReferralStatus[] = ['Pending', 'Accepted', 'Scheduled', 'In Progress', 'Completed', 'Archived'];
+  const handleReferralClick = (id: string) => {
+    if (!isVerified) {
+      setShowVerification(true);
+    } else {
+      router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
+    }
+  };
+
+  const tabs: ReferralStatus[] = ['Received', 'Working on', 'Processed', 'Archived'];
 
   const filteredReferrals = mockReferrals.filter(r => 
     r.status === activeTab && 
@@ -45,13 +57,13 @@ export default function ReferralsPage() {
   const getConfidenceColor = (score: number) => {
     if (score >= 90) return 'text-black';
     if (score >= 60) return 'text-gray-500';
-    return 'text-red-600 font-black italic';
+    return 'text-black font-black italic opacity-60';
   };
 
   const getConfidenceLabel = (score: number) => {
     if (score >= 90) return 'High';
     if (score >= 60) return 'Medium';
-    return 'Low Confidence';
+    return 'Review Required';
   };
 
   return (
@@ -60,7 +72,10 @@ export default function ReferralsPage() {
         {/* Top Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+              <CommentMarker id="referrals-list" title="Referrals Page" description="The list of all practice referrals." />
+            </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               {isDentist 
                 ? 'Track specialist progress and coordinate patient care'
@@ -78,9 +93,9 @@ export default function ReferralsPage() {
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
-              { label: isDentist ? 'Sent (24h)' : 'Pending (24h)', value: '12', trend: '+2' },
-              { label: 'Accepted', value: '08', trend: '0' },
-              { label: 'Scheduled', value: '45', trend: '+5' },
+              { label: isDentist ? 'Sent (24h)' : 'Received (24h)', value: '12', trend: '+2' },
+              { label: 'Working on', value: '08', trend: '0' },
+              { label: 'Processed', value: '45', trend: '+5' },
               { label: 'Total Pipeline', value: '65', trend: '+12' },
             ].map((stat) => (
               <div key={stat.label} className="wireframe-card p-4 space-y-1">
@@ -108,7 +123,7 @@ export default function ReferralsPage() {
                         : 'text-muted-foreground hover:text-black'
                     }`}
                   >
-                    {tab}
+                    {tab === 'Received' ? 'Received (Review)' : tab === 'Working on' ? 'Working on (In progress)' : tab}
                     {activeTab === tab && (
                       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" />
                     )}
@@ -151,7 +166,7 @@ export default function ReferralsPage() {
                 filteredReferrals.map((referral) => (
                   <div 
                     key={referral.id} 
-                    onClick={() => router.push(isDentist ? '/dentist/channels' : `/referrals/${referral.id}`)}
+                    onClick={() => handleReferralClick(referral.id)}
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
@@ -178,9 +193,6 @@ export default function ReferralsPage() {
                             <div className={`text-[10px] uppercase font-bold ${getConfidenceColor(referral.confidence)}`}>
                               {getConfidenceLabel(referral.confidence)} ({referral.confidence}%)
                             </div>
-                            {referral.confidence < 60 && (
-                              <AlertCircle size={12} className="text-red-600" />
-                            )}
                           </div>
                         </div>
                       )}

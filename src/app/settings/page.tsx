@@ -1,37 +1,47 @@
 "use client";
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
 
+import { CommentMarker } from "@/components/Comments/CommentMarker";
+
 export default function SettingsPage() {
+  const router = useRouter();
   const pathname = usePathname();
-  const isDentist = pathname.startsWith('/dentist');
+  const isDentist = pathname.includes('/dentist');
+  console.log('SettingsPage: isDentist =', isDentist, 'pathname =', pathname);
 
   const sections = [
-    { icon: User, label: isDentist ? 'Practice Profile' : 'Practice Profile', desc: isDentist ? 'Manage practice details and referral preferences.' : 'Manage specialist details, locations, and clinical specialties.' },
-    { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.' },
-    { icon: Shield, label: 'PHI & Access Control', desc: 'Manage team permissions and patient communication safeguards.' },
-    ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.' }]),
-    { icon: HelpCircle, label: 'Support & Docs', desc: 'Access help articles or contact drTalk support.' },
+    { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: '#' },
+    { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: '#' },
+    { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
+    ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.', href: '#' }]),
   ];
 
   return (
-    <MainLayout title="Practice">
+    <MainLayout title="Practice Settings">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-1">
-          <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
-            {isDentist ? 'Dentist Practice' : 'Specialist Practice'}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
+              Practice Settings
+            </h2>
+            <CommentMarker id="settings-main" title="Practice Settings" description="Global practice configuration and team access." />
+          </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-            {isDentist ? 'Practice management and referral preferences' : 'Practice management, team access, and referral operations'}
+            Practice management, team access, and referral operations
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
           {sections.map((section) => (
-            <div key={section.label} className="wireframe-card p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50 cursor-pointer transition-all group">
+            <div 
+              key={section.label} 
+              onClick={() => section.href !== '#' && router.push(section.href)}
+              className="wireframe-card p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50 cursor-pointer transition-all group"
+            >
               <div className="flex items-center gap-4 sm:gap-6 w-full">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-2 border-black flex items-center justify-center shrink-0 group-hover:bg-black group-hover:text-white transition-all">
                   <section.icon size={20} className="sm:w-6 sm:h-6" />
@@ -48,11 +58,8 @@ export default function SettingsPage() {
           ))}
         </div>
 
-        <div className="pt-8 border-t-2 border-black border-dashed flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="pt-8 border-t-2 border-black border-dashed">
           <p className="text-[8px] font-bold uppercase text-muted-foreground italic">Platform Version: Prototype 1.0.4-BW</p>
-          <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 w-full sm:w-auto">
-            Save All Changes
-          </button>
         </div>
       </div>
     </MainLayout>

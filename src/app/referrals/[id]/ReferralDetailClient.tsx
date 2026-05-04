@@ -2,16 +2,29 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
   AlertTriangle, Send, MoreHorizontal 
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
+import { useSubscription } from '@/components/SubscriptionContext';
 
 export default function ReferralDetailClient() {
   const router = useRouter();
   const params = useParams();
+  const { isTrialEnded, setShowPaywall } = useSubscription();
   const [isEditorMode, setIsEditorMode] = useState(false);
+
+  const handleProcessReferral = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+    } else {
+      // Logic for processing referral
+      alert("Referral Processed Successfully!");
+      router.push('/referrals');
+    }
+  };
 
   // Mock data for the specific referral
   const referral = {
@@ -38,7 +51,10 @@ export default function ReferralDetailClient() {
           </button>
           <div className="space-y-1">
             <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
-            <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+              <CommentMarker id="referral-page-detail" title="Referral Detail Page" description="The full-page detailed view of a referral." />
+            </div>
           </div>
         </div>
 
@@ -50,10 +66,10 @@ export default function ReferralDetailClient() {
             
             {/* AI Warning Banner */}
             {referral.confidence < 60 && (
-              <div className="wireframe-card border-red-600 bg-red-50 p-6 flex gap-5 items-start">
-                <AlertTriangle className="text-red-600 shrink-0" size={28} />
+              <div className="wireframe-card border-black bg-zinc-50 p-6 flex gap-5 items-start">
+                <AlertTriangle className="text-black shrink-0" size={28} />
                 <div className="flex-1">
-                  <p className="text-[11px] font-black uppercase text-red-600 tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[11px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1 font-medium">
                     Please verify all information before processing. Manual review required for clinical accuracy.
                   </p>
@@ -119,7 +135,10 @@ export default function ReferralDetailClient() {
             </div>
 
             <div className="pt-8 sm:pt-16 flex flex-col sm:flex-row gap-4 sm:gap-6">
-              <button className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto">
+              <button 
+                onClick={handleProcessReferral}
+                className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto"
+              >
                 Process Referral <Send size={14} />
               </button>
               <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto">

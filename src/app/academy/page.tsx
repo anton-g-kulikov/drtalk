@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   GraduationCap, Star, 
   PlayCircle, Users, 
@@ -94,7 +95,10 @@ export default function LearningHubPage() {
         <div className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-1">
-              <h3 className="text-2xl font-bold uppercase tracking-tighter">Learning Channels</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="text-2xl font-bold uppercase tracking-tighter">Learning Channels</h3>
+                <CommentMarker id="learning-hub" title="Learning Hub" description="Educational resources and channels." />
+              </div>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest italic">Shared by dentists, specialists, educators, and vendors</p>
             </div>
             <div className="flex border-2 border-black p-1 bg-white overflow-x-auto no-scrollbar">

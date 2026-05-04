@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   description: "Interactive Prototype",
 };
 
+import { VerificationProvider } from "@/components/VerificationContext";
+import { VerificationManager } from "@/components/VerificationManager";
+import { SubscriptionProvider } from "@/components/SubscriptionContext";
+import { SubscriptionManager } from "@/components/SubscriptionManager";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -15,9 +20,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <CommentSystem>
-          {children}
-        </CommentSystem>
+        <SubscriptionProvider>
+          <VerificationProvider>
+            <CommentSystem>
+              {children}
+              <VerificationManager />
+              <SubscriptionManager />
+            </CommentSystem>
+          </VerificationProvider>
+        </SubscriptionProvider>
       </body>
     </html>
   );

@@ -25,42 +25,39 @@ const mockNetwork: NetworkPractice[] = [
   { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
   { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
   { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
-  { id: '6', name: 'Sunshine Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '7', name: 'Desert Bloom Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
-  { id: '8', name: 'Mountain View Family Dental', type: 'Dentist', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ', status: 'Suggested', verified: false },
+  { id: '9', name: 'Phoenix Children\'s Dentistry', type: 'Specialist', specialty: 'Pediatric Dentistry', location: 'Phoenix, AZ', status: 'Suggested', verified: true },
 ];
 
-export default function NetworkPage() {
+export default function DentistNetworkPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'connected' | 'nearby'>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredNetwork = mockNetwork.filter(p => {
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
     if (activeTab === 'nearby' && p.status !== 'Nearby') return false;
-    const searchStr = searchQuery.toLowerCase();
-    return p.name.toLowerCase().includes(searchStr) || 
-           p.specialty.toLowerCase().includes(searchStr) ||
-           p.type.toLowerCase().includes(searchStr);
+    return p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           p.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           p.type.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
-    <MainLayout title="Practice Network">
+    <MainLayout title="Specialist Network">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div className="space-y-1">
               <div className="flex items-center gap-3">
-                <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Practice Network</h2>
-                <CommentMarker id="practice-network" title="Practice Network" description="Directory of trusted clinical partners." />
+                <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter italic">Specialist Network</h2>
+                <CommentMarker id="dentist-network" title="Specialist Network" description="Find and connect with clinical specialists." />
               </div>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Connect, Collaborate, and Refer with Trusted Partners</p>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Discover trusted specialists to refer your patients to</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
               <div className="relative flex-1 sm:flex-none">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input 
                   type="text" 
-                  placeholder="SEARCH DIRECTORY..." 
+                  placeholder="SEARCH SPECIALISTS..." 
                   className="wireframe-input pl-10 py-2.5 text-[10px] w-full md:w-64 shadow-sm"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -84,7 +81,7 @@ export default function NetworkPage() {
                     activeTab === tab ? 'text-black' : 'text-muted-foreground hover:text-black'
                   }`}
                 >
-                  {tab === 'all' ? 'Directory' : tab === 'connected' ? 'My Network' : 'Nearby Practices'}
+                  {tab === 'all' ? 'Directory' : tab === 'connected' ? 'My Network' : 'Nearby Specialists'}
                   {activeTab === tab && (
                     <div className="absolute bottom-[-2px] left-0 right-0 h-[2.5px] bg-black" />
                   )}
@@ -129,7 +126,7 @@ export default function NetworkPage() {
 
                   <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
                     <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                      {practice.type === 'Dentist' ? 'Connect' : 'Send Referral'}
+                      Send Referral
                     </button>
                     <button className="wireframe-button p-2 hover:bg-white transition-all">
                       <MessageCircle size={14} />
@@ -147,7 +144,7 @@ export default function NetworkPage() {
                   <UserPlus size={24} className="text-muted-foreground" />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Colleague</h4>
+                  <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Specialist</h4>
                   <p className="text-[8px] uppercase text-muted-foreground leading-relaxed">
                     Is your favorite specialist not on drTalk yet? Invite them to join your network.
                   </p>

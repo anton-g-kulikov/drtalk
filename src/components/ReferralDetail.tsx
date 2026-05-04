@@ -6,6 +6,7 @@ import {
   AlertTriangle, CheckCircle2, MoreHorizontal, User, 
   Calendar, Phone, Mail, Paperclip 
 } from 'lucide-react';
+import { CommentMarker } from "./Comments/CommentMarker";
 
 interface ReferralDetailProps {
   referral: any;
@@ -33,8 +34,13 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
               <X size={24} />
             </button>
             <div>
-              <h2 className="text-xl font-bold uppercase tracking-tighter leading-none">{referral.patientName}</h2>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">Ref ID: {referral.id}000X — {referral.status}</p>
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-bold uppercase tracking-tighter leading-none">{referral.patientName}</h2>
+                <CommentMarker id="referral-detail" title="Referral Detail" description="Detailed view of a specific referral." />
+              </div>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">
+                Ref ID: {referral.id}000X — {referral.status === 'Received' ? 'Received (Review)' : referral.status === 'Working on' ? 'Working on (In progress)' : referral.status}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -42,7 +48,7 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
               Forward
             </button>
             <button className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2">
-              Process Referral
+              Mark as Processed
             </button>
           </div>
         </div>
@@ -55,10 +61,10 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
             
             {/* AI Warning Banner */}
             {referral.confidence < 60 && (
-              <div className="wireframe-card border-red-600 bg-red-50 p-4 flex gap-4 items-start">
-                <AlertTriangle className="text-red-600 shrink-0" size={24} />
+              <div className="wireframe-card border-black bg-zinc-50 p-4 flex gap-4 items-start">
+                <AlertTriangle className="text-black shrink-0" size={24} />
                 <div className="flex-1">
-                  <p className="text-[10px] font-black uppercase text-red-600 tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[10px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1">
                     Some fields were extracted from a {referral.source} with low confidence. Please verify all information before processing.
                   </p>

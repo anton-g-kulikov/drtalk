@@ -59,6 +59,8 @@ const sentReferrals: SentReferral[] = [
   },
 ];
 
+import { CommentMarker } from "@/components/Comments/CommentMarker";
+
 export default function DentistDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -76,7 +78,10 @@ export default function DentistDashboardPage() {
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter italic">Dentist Practice Dashboard</h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tighter italic">Dashboard</h2>
+              <CommentMarker id="dashboard-dentist" title="Dentist Dashboard" description="The main overview for dentist practices." />
+            </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Refer patients, track specialist progress, and coordinate care across your network.
             </p>
@@ -120,7 +125,7 @@ export default function DentistDashboardPage() {
             {/* Requires Attention Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
-                <AlertCircle size={18} className="text-red-600" />
+                <AlertCircle size={18} className="text-black" />
                 <h3 className="font-bold uppercase text-xs tracking-widest">Requires Attention (2)</h3>
               </div>
               
@@ -132,11 +137,11 @@ export default function DentistDashboardPage() {
                   <div 
                     key={i} 
                     onClick={() => router.push(item.reason === 'Unfinished Draft' ? '/dentist/referral' : '/dentist/channels')}
-                    className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-red-50 cursor-pointer border-red-600 group transition-all"
+                    className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-zinc-100 cursor-pointer border-black group transition-all"
                   >
                     <div className="space-y-1">
                       <p className="font-bold uppercase text-xs">{item.patient}</p>
-                      <p className="text-[10px] uppercase text-red-600 font-bold">{item.reason}</p>
+                      <p className="text-[10px] uppercase text-black font-bold">{item.reason}</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <span className="text-[8px] uppercase font-bold text-muted-foreground">{item.type}</span>
@@ -214,7 +219,7 @@ export default function DentistDashboardPage() {
                 <ActionCard 
                   label="Find Specialist" 
                   desc="Browse the drTalk network" 
-                  onClick={() => router.push('/dentist/referrals')}
+                  onClick={() => router.push('/dentist/network')}
                 />
                 <ActionCard 
                   label="Practice Setup" 

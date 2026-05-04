@@ -1,18 +1,23 @@
 'use client';
-
+// Navigation components
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X } from 'lucide-react';
+import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug } from 'lucide-react';
+import { useVerification } from './VerificationContext';
+import { useSubscription } from './SubscriptionContext';
 
 export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const pathname = usePathname();
+  const { reset: resetVerification } = useVerification();
+  const { endTrial, resetSubscription } = useSubscription();
   const isDentist = pathname.startsWith('/dentist');
   const navItems = isDentist
     ? [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
         { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
         { icon: MessageSquare, label: 'Channels', href: '/dentist/channels' },
+        { icon: Users, label: 'Network', href: '/dentist/network' },
         { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
       ]
     : [
@@ -81,6 +86,35 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           );
         })}
       </nav>
+
+      {/* Debug Controls */}
+      <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2 px-3 mb-2">
+          <Bug size={12} />
+          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
+        </div>
+        <div className="space-y-1">
+          <button 
+            onClick={resetVerification}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            Reset Verification
+          </button>
+          <button 
+            onClick={endTrial}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            End Trial
+          </button>
+          <button 
+            onClick={resetSubscription}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            Reset Subscription
+          </button>
+        </div>
+      </div>
+
       <div className="p-4 border-t-2 border-black space-y-2">
         <Link
           href={isDentist ? '/dentist/settings' : '/settings'}
@@ -162,7 +196,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
                 { label: 'View Profile', href: isDentist ? '/dentist/settings' : '/settings' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
                 ...(!isDentist ? [{ label: 'Billing & Usage', href: '/settings' }] : []),
-                { label: 'Sign Out', href: '/', color: 'text-red-600' },
+                { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link
                   key={i}
