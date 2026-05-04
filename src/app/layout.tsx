@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CommentSystem } from "@/components/Comments";
 
 export const metadata: Metadata = {
   title: "drtalk Platform",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <CommentSystem>
+          {children}
+        </CommentSystem>
       </body>
     </html>
   );
