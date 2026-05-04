@@ -11,15 +11,14 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const navItems = isDentist
     ? [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
-        { icon: FileText, label: 'Sent Referrals', href: '/dentist/referrals' },
-        { icon: MessageSquare, label: 'Messages', href: '/dentist/messages' },
+        { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
+        { icon: MessageSquare, label: 'Channels', href: '/dentist/channels' },
         { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
       ]
     : [
         { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        { icon: FileText, label: 'Received Referrals', href: '/referrals' },
+        { icon: FileText, label: 'Referrals', href: '/referrals' },
         { icon: MessageSquare, label: 'Channels', href: '/channels' },
-        { icon: Settings, label: 'Practice', href: '/settings' },
         { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
         { icon: Users, label: 'Network', href: '/network' },
       ];
@@ -82,14 +81,18 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           );
         })}
       </nav>
-      <div className="p-4 border-t-2 border-black space-y-4">
+      <div className="p-4 border-t-2 border-black space-y-2">
         <Link
-          href="/"
+          href={isDentist ? '/dentist/settings' : '/settings'}
           onClick={onClose}
-          className="w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all hover:bg-gray-100"
+          className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
+            pathname === (isDentist ? '/dentist/settings' : '/settings')
+              ? 'bg-black text-white'
+              : 'hover:bg-gray-100'
+          }`}
         >
-          <Users size={18} />
-          Switch Role
+          <Settings size={18} />
+          Practice
         </Link>
         <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
           {isDentist ? 'Dentist Track' : 'Specialist Track'} / Prototype 1.1
@@ -107,7 +110,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
   const accountName = isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist';
   const accountEmail = isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com';
   const roleLabel = isDentist ? 'Dentist Account' : 'Practice Admin';
-  const statusLabel = isDentist ? 'Tracking Enabled' : 'Specialist Practice';
+  const statusLabel = isDentist ? 'Dentist Practice' : 'Specialist Practice';
 
   return (
     <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
@@ -156,9 +159,9 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
                 <p className="text-[8px] text-muted-foreground uppercase tracking-tighter">{accountEmail}</p>
               </div>
               {[
-                { label: 'View Profile', href: isDentist ? '/dentist/dashboard' : '/settings' },
-                { icon: Settings, label: isDentist ? 'Referral Preferences' : 'Practice Settings', href: isDentist ? '/dentist/dashboard' : '/settings' },
-                { label: isDentist ? 'Learning Resources' : 'Billing & Usage', href: isDentist ? '/dentist/academy' : '/settings' },
+                { label: 'View Profile', href: isDentist ? '/dentist/settings' : '/settings' },
+                { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
+                ...(!isDentist ? [{ label: 'Billing & Usage', href: '/settings' }] : []),
                 { label: 'Sign Out', href: '/', color: 'text-red-600' },
               ].map((item, i) => (
                 <Link

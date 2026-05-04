@@ -66,7 +66,7 @@ export default function DentistEntryPage() {
             Browse Learning Hub <GraduationCap size={14} />
           </button>
           <button
-            onClick={() => router.push('/dentist/messages')}
+            onClick={() => router.push('/dentist/channels')}
             className="wireframe-button py-4 text-[10px] uppercase font-black flex items-center justify-center gap-2"
           >
             Preview Specialist Messages <MessageSquare size={14} />
