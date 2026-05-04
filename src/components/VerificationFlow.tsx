@@ -51,11 +51,6 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest max-w-sm mx-auto leading-relaxed">
                 Practice owner verification is required to process referrals and access PHI.
               </p>
-              <div className="pt-4 border-t border-black border-dashed">
-                <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed italic">
-                  Once verified, all Clinical personnel in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
-                </p>
-              </div>
             </div>
 
             <div className="space-y-4">
@@ -63,12 +58,18 @@ export function VerificationFlow({ onComplete, onCancel }: VerificationFlowProps
                 <div className="flex gap-4 items-start">
                   <ShieldCheckIcon size={24} className="shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-[10px] font-black uppercase tracking-tight">HIPAA COMPLIANCE GATEWAY</p>
+                    <p className="text-[10px] font-black uppercase tracking-tight">HIPAA COMPLIANCE</p>
                     <p className="text-[10px] text-muted-foreground uppercase leading-relaxed font-bold">
                       This one-time verification ensures that sensitive patient data is only handled by authorized medical professionals.
                     </p>
                   </div>
                 </div>
+              </div>
+
+              <div className="pt-2">
+                <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed italic text-center px-4">
+                  Once verified, all Clinical personnel in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 gap-3">
