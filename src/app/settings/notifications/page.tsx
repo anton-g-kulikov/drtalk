@@ -43,10 +43,16 @@ export default function NotificationsPage() {
             <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
               Referral Notifications
             </h2>
-            <CommentMarker id="notifications-main" title="Notifications" description="Configure intake alerts and processing delays." />
+            <CommentMarker 
+              id={isDentist ? "notifications-dentist" : "notifications-main"} 
+              title={isDentist ? "Dentist Notifications" : "Specialist Notifications"} 
+              description={isDentist ? "Configure referral submission alerts for patients." : "Configure intake alerts and processing delays."} 
+            />
           </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-            Configure automated alerts for the referral lifecycle
+            {isDentist 
+              ? 'Configure automated alerts for the referral submission hand-off'
+              : 'Configure automated alerts for the referral intake pipeline'}
           </p>
         </div>
 
@@ -55,85 +61,97 @@ export default function NotificationsPage() {
             <div className="flex items-center gap-3 border-b-2 border-black pb-4">
               <Bell size={24} />
               <div>
-                <h3 className="font-bold uppercase tracking-tight">Trigger: "Process Referral"</h3>
-                <p className="text-[10px] text-muted-foreground uppercase">System actions triggered when a referral is processed</p>
+                <h3 className="font-bold uppercase tracking-tight">
+                  Trigger: {isDentist ? '"Submit Referral"' : '"Process Referral"'}
+                </h3>
+                <p className="text-[10px] text-muted-foreground uppercase">
+                  {isDentist 
+                    ? 'System actions triggered when your practice sends a new referral'
+                    : 'System actions triggered when you process an incoming referral'}
+                </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-8">
-              {/* Dentist (Sender) Section */}
-              <div className="space-y-6">
-                <h4 className="font-bold uppercase text-sm border-b border-black border-dashed pb-2">Dentist (Referral Sender) Notifications</h4>
+              {/* Dentist (Sender) / Internal Section */}
+              {!isDentist && (
                 <div className="space-y-6">
-                  
-                  {/* DrTalk User */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div>
-                        <p className="text-xs font-bold uppercase">DrTalk User</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Configure transports for registered users</p>
+                  <h4 className="font-bold uppercase text-sm border-b border-black border-dashed pb-2">
+                    {isDentist ? 'Internal / Staff Notifications' : 'Dentist (Referral Sender) Notifications'}
+                  </h4>
+                  <div className="space-y-6">
+                    
+                    {/* DrTalk User / Internal Staff */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div>
+                          <p className="text-xs font-bold uppercase">{isDentist ? 'Internal Staff' : 'DrTalk User'}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">
+                            {isDentist ? 'Configure submission alerts for your team' : 'Configure transports for registered users'}
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={drTalkUserEnabled} onChange={(e) => setDrTalkUserEnabled(e.target.checked)} />
+                          <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                        </label>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={drTalkUserEnabled} onChange={(e) => setDrTalkUserEnabled(e.target.checked)} />
-                        <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
-                      </label>
+                      {drTalkUserEnabled && (
+                        <div className="pl-4 space-y-2 border-l-2 border-black ml-4">
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={drTalkUserInApp} onChange={(e) => setDrTalkUserInApp(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase">In-App Message</span>
+                          </label>
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={drTalkUserEmail} onChange={(e) => setDrTalkUserEmail(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase">Email</span>
+                          </label>
+                        </div>
+                      )}
                     </div>
-                    {drTalkUserEnabled && (
-                      <div className="pl-4 space-y-2 border-l-2 border-black ml-4">
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input type="checkbox" checked={drTalkUserInApp} onChange={(e) => setDrTalkUserInApp(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">In-App Message</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input type="checkbox" checked={drTalkUserEmail} onChange={(e) => setDrTalkUserEmail(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Email</span>
-                        </label>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Non-User */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div>
-                        <p className="text-xs font-bold uppercase">Non-User</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Secure Email Confirmation</p>
+                    {/* Non-User */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div>
+                          <p className="text-xs font-bold uppercase">Non-User</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Secure Email Confirmation</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={nonUserEnabled} onChange={(e) => setNonUserEnabled(e.target.checked)} />
+                          <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                        </label>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={nonUserEnabled} onChange={(e) => setNonUserEnabled(e.target.checked)} />
-                        <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
-                      </label>
                     </div>
-                  </div>
 
-                  {/* Fax/Email Sender */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
-                      <div>
-                        <p className="text-xs font-bold uppercase">Fax/Email Sender</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Configure transports for external senders</p>
+                    {/* Fax/Email Sender */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div>
+                          <p className="text-xs font-bold uppercase">Fax/Email Sender</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Configure transports for external senders</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" checked={faxSenderEnabled} onChange={(e) => setFaxSenderEnabled(e.target.checked)} />
+                          <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
+                        </label>
                       </div>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" className="sr-only peer" checked={faxSenderEnabled} onChange={(e) => setFaxSenderEnabled(e.target.checked)} />
-                        <div className="w-9 h-5 bg-white peer-focus:outline-none border-2 border-black peer-checked:bg-black after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-black peer-checked:after:bg-white after:border-2 after:border-black after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"></div>
-                      </label>
+                      {faxSenderEnabled && (
+                        <div className="pl-4 space-y-2 border-l-2 border-black ml-4">
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={faxSenderFaxBack} onChange={(e) => setFaxSenderFaxBack(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase">Fax-back</span>
+                          </label>
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" checked={faxSenderSecureEmail} onChange={(e) => setFaxSenderSecureEmail(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
+                            <span className="text-[10px] font-bold uppercase">Secure Email</span>
+                          </label>
+                        </div>
+                      )}
                     </div>
-                    {faxSenderEnabled && (
-                      <div className="pl-4 space-y-2 border-l-2 border-black ml-4">
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input type="checkbox" checked={faxSenderFaxBack} onChange={(e) => setFaxSenderFaxBack(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Fax-back</span>
-                        </label>
-                        <label className="flex items-center gap-3 cursor-pointer">
-                          <input type="checkbox" checked={faxSenderSecureEmail} onChange={(e) => setFaxSenderSecureEmail(e.target.checked)} className="border-black rounded-none accent-black w-4 h-4" />
-                          <span className="text-[10px] font-bold uppercase">Secure Email</span>
-                        </label>
-                      </div>
-                    )}
-                  </div>
 
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Patient Section */}
               <div className="space-y-6 pt-4">
@@ -143,7 +161,11 @@ export default function NotificationsPage() {
                     <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
                       <div>
                         <p className="text-xs font-bold uppercase">Patient</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Configure transports for patient alerts</p>
+                        <p className="text-[10px] text-muted-foreground uppercase">
+                          {isDentist 
+                            ? 'Configure "Referral Sent" confirmation for the patient' 
+                            : 'Configure "Intake Received" alert for the patient'}
+                        </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" className="sr-only peer" checked={patientEnabled} onChange={(e) => setPatientEnabled(e.target.checked)} />
@@ -168,53 +190,55 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          <div className="wireframe-card p-6 space-y-6">
-            <div className="flex items-center gap-3 border-b-2 border-black pb-4">
-              <ShieldAlert size={24} />
-              <div>
-                <h3 className="font-bold uppercase tracking-tight">Safety Mechanism</h3>
-                <p className="text-[10px] text-muted-foreground uppercase">Delay notifications to allow for corrections</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Clock size={16} />
-                  <p className="text-sm font-bold uppercase">Optional Delay Before Notifications</p>
+          {!isDentist && (
+            <div className="wireframe-card p-6 space-y-6">
+              <div className="flex items-center gap-3 border-b-2 border-black pb-4">
+                <ShieldAlert size={24} />
+                <div>
+                  <h3 className="font-bold uppercase tracking-tight">Safety Mechanism</h3>
+                  <p className="text-[10px] text-muted-foreground uppercase">Delay notifications to allow for corrections</p>
                 </div>
-                <p className="text-[10px] text-muted-foreground uppercase max-w-md">
-                  Allows undo or correction after accidental processing. Notifications will be held for the specified duration.
-                </p>
               </div>
 
-              <div className="flex items-center gap-4 bg-gray-50 p-3 border-2 border-black shrink-0">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={delayEnabled} 
-                    onChange={(e) => setDelayEnabled(e.target.checked)}
-                    className="border-black rounded-none w-4 h-4 accent-black"
-                  />
-                  <span className="text-xs font-bold uppercase">Enable Delay</span>
-                </label>
-                
-                {delayEnabled && (
-                  <div className="flex items-center gap-2 pl-4 border-l-2 border-black">
-                    <select 
-                      value={delayMinutes} 
-                      onChange={(e) => setDelayMinutes(Number(e.target.value))}
-                      className="border-2 border-black p-1 text-xs font-bold uppercase bg-white outline-none cursor-pointer"
-                    >
-                      <option value={5}>5 Min</option>
-                      <option value={10}>10 Min</option>
-                      <option value={15}>15 Min</option>
-                    </select>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Clock size={16} />
+                    <p className="text-sm font-bold uppercase">Optional Delay Before Notifications</p>
                   </div>
-                )}
+                  <p className="text-[10px] text-muted-foreground uppercase max-w-md">
+                    Allows undo or correction after accidental processing. Notifications will be held for the specified duration.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 bg-gray-50 p-3 border-2 border-black shrink-0">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={delayEnabled} 
+                      onChange={(e) => setDelayEnabled(e.target.checked)}
+                      className="border-black rounded-none w-4 h-4 accent-black"
+                    />
+                    <span className="text-xs font-bold uppercase">Enable Delay</span>
+                  </label>
+                  
+                  {delayEnabled && (
+                    <div className="flex items-center gap-2 pl-4 border-l-2 border-black">
+                      <select 
+                        value={delayMinutes} 
+                        onChange={(e) => setDelayMinutes(Number(e.target.value))}
+                        className="border-2 border-black p-1 text-xs font-bold uppercase bg-white outline-none cursor-pointer"
+                      >
+                        <option value={5}>5 Min</option>
+                        <option value={10}>10 Min</option>
+                        <option value={15}>15 Min</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
         </div>
 

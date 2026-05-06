@@ -1,3 +1,3 @@
-import NotificationsPage from '../../settings/notifications/page';
+import NotificationsPage from '../../../settings/notifications/page';
 
 export default NotificationsPage;
