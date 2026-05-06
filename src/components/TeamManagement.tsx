@@ -12,7 +12,7 @@ import {
   ArrowRightLeft as ArrowRightLeftIcon,
   Lock as LockIcon
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
@@ -27,7 +27,7 @@ interface TeamMember {
   name: string;
   email: string;
   role: MemberRole;
-  phiStatus: PhiStatus;
+  hasPhiAccess: boolean;
   joinedAt: string;
   specialty?: string;
 }
@@ -41,10 +41,10 @@ interface JoinRequest {
 }
 
 const mockTeam: TeamMember[] = [
-  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', phiStatus: 'Verified', joinedAt: 'Mar 2024', specialty: 'Endodontics' },
-  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', phiStatus: 'Restricted', joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', phiStatus: 'Granted', joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', phiStatus: 'Pending', joinedAt: 'May 2024', specialty: 'Periodontics' },
+  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', hasPhiAccess: true, joinedAt: 'Mar 2024', specialty: 'Endodontics' },
+  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', hasPhiAccess: false, joinedAt: 'Mar 2024' },
+  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
+  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
 ];
 
 const mockRequests: JoinRequest[] = [
@@ -56,6 +56,7 @@ const mockRequests: JoinRequest[] = [
 
 export function TeamManagement({ backPath }: { backPath: string }) {
   const router = useRouter();
+  const pathname = usePathname();
   const { isVerified, reset, setShowVerification } = useVerification();
   const [team, setTeam] = useState<TeamMember[]>(mockTeam);
   const [requests, setRequests] = useState<JoinRequest[]>(mockRequests);
@@ -69,7 +70,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
       name: request.name,
       email: request.email,
       role: request.role,
-      phiStatus: 'Pending',
+      hasPhiAccess: request.role === 'Clinical',
       joinedAt: 'May 2024'
     };
     setTeam([...team, newMember]);
@@ -81,10 +82,9 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   };
 
   const getPhiStatus = (member: TeamMember): PhiStatus => {
-    if (member.role === 'Owner') return isVerified ? 'Verified' : 'Pending';
-    if (member.role === 'Administrative') return 'Restricted';
-    if (member.role === 'Clinical') return isVerified ? 'Granted' : 'Pending';
-    return 'Pending';
+    if (!isVerified) return 'Pending';
+    if (member.role === 'Owner') return 'Verified';
+    return member.hasPhiAccess ? 'Granted' : 'Restricted';
   };
 
   const getPhiBadge = (status: PhiStatus) => {
@@ -269,7 +269,10 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                             <ArrowRightLeftIcon size={14} /> Transfer Ownership
                           </button>
                         )}
-                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2">
+                        <button 
+                          onClick={() => router.push(`${pathname}/${member.id}`)}
+                          className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2"
+                        >
                           Edit Member
                         </button>
                         <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-black">
