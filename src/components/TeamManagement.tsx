@@ -29,11 +29,24 @@ interface TeamMember {
   specialty?: string;
 }
 
+interface JoinRequest {
+  id: string;
+  name: string;
+  email: string;
+  role: MemberRole;
+  requestedAt: string;
+}
+
 const mockTeam: TeamMember[] = [
   { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', phiStatus: 'Verified', joinedAt: 'Mar 2024', specialty: 'Endodontics' },
   { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', phiStatus: 'Restricted', joinedAt: 'Mar 2024' },
   { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', phiStatus: 'Granted', joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
   { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', phiStatus: 'Pending', joinedAt: 'May 2024', specialty: 'Periodontics' },
+];
+
+const mockRequests: JoinRequest[] = [
+  { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Clinical', requestedAt: '2 hours ago' },
+  { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Administrative', requestedAt: '5 hours ago' },
 ];
 
 import { CommentMarker } from "@/components/Comments/CommentMarker";
@@ -42,9 +55,27 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   const router = useRouter();
   const { isVerified, reset, setShowVerification } = useVerification();
   const [team, setTeam] = useState<TeamMember[]>(mockTeam);
+  const [requests, setRequests] = useState<JoinRequest[]>(mockRequests);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [newOwnerId, setNewOwnerId] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const approveRequest = (request: JoinRequest) => {
+    const newMember: TeamMember = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: request.name,
+      email: request.email,
+      role: request.role,
+      phiStatus: 'Pending',
+      joinedAt: 'May 2024'
+    };
+    setTeam([...team, newMember]);
+    setRequests(requests.filter(r => r.id !== request.id));
+  };
+
+  const denyRequest = (id: string) => {
+    setRequests(requests.filter(r => r.id !== id));
+  };
 
   const getPhiStatus = (member: TeamMember): PhiStatus => {
     if (member.role === 'Owner') return isVerified ? 'Verified' : 'Pending';
@@ -128,6 +159,60 @@ export function TeamManagement({ backPath }: { backPath: string }) {
             >
               Verify Now
             </button>
+          </div>
+        )}
+
+        {/* Join Requests Section */}
+        {requests.length > 0 && (
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <UsersIcon size={20} />
+              <h2 className="text-xl font-black uppercase tracking-tighter italic leading-none">Pending Join Requests</h2>
+              <span className="bg-black text-white text-[10px] px-2 py-0.5 font-bold rounded-full">{requests.length}</span>
+              <CommentMarker 
+                id="join-request-logic"
+                title="Join Request Permissions"
+                description="We suggest granting administrative personnel the ability to confirm the joining of admin role type users, while all medical personnel should be confirmed only by the practice owner, as this grants them access to PHI."
+              />
+            </div>
+            
+            <div className="space-y-3">
+              {requests.map((request) => (
+                <div key={request.id} className="wireframe-card p-5 bg-white flex flex-col sm:grid sm:grid-cols-12 items-center gap-4 border-black border-2 border-dashed">
+                  <div className="col-span-4 w-full">
+                    <p className="font-black uppercase text-xs tracking-tight">{request.name}</p>
+                    <p className="text-[10px] text-muted-foreground lowercase truncate">{request.email}</p>
+                  </div>
+                  <div className="col-span-2 w-full">
+                    <span className="text-[10px] font-black uppercase px-2 py-1 border-2 border-black bg-white">
+                      {request.role}
+                    </span>
+                  </div>
+                  <div className="col-span-3 w-full">
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground italic">Requested {request.requestedAt}</p>
+                  </div>
+                  <div className="col-span-3 w-full flex justify-end gap-3">
+                    <button 
+                      onClick={() => approveRequest(request)}
+                      className="text-[10px] font-black uppercase bg-black text-white px-4 py-2 hover:opacity-80 transition-opacity"
+                    >
+                      Confirm
+                    </button>
+                    <button 
+                      onClick={() => denyRequest(request.id)}
+                      className="text-[10px] font-black uppercase border-2 border-black px-4 py-2 hover:bg-gray-100 transition-colors"
+                    >
+                      Ignore
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Divider */}
+            <div className="py-4">
+              <div className="border-t-2 border-black border-dashed opacity-20" />
+            </div>
           </div>
         )}
 
