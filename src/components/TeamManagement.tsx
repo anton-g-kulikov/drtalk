@@ -15,6 +15,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
+import { CommentMarker } from "@/components/Comments/CommentMarker";
+
+const generateId = () => Math.random().toString(36).substr(2, 9);
 
 type MemberRole = 'Owner' | 'Administrative' | 'Clinical';
 type PhiStatus = 'Verified' | 'Granted' | 'Pending' | 'Restricted';
@@ -49,7 +52,7 @@ const mockRequests: JoinRequest[] = [
   { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Administrative', requestedAt: '5 hours ago' },
 ];
 
-import { CommentMarker } from "@/components/Comments/CommentMarker";
+
 
 export function TeamManagement({ backPath }: { backPath: string }) {
   const router = useRouter();
@@ -62,7 +65,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
 
   const approveRequest = (request: JoinRequest) => {
     const newMember: TeamMember = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateId(),
       name: request.name,
       email: request.email,
       role: request.role,

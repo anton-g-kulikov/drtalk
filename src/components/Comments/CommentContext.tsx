@@ -3,6 +3,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
 export type Comment = {
   id: string;
   text: string;
@@ -114,7 +116,7 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
 
   const addComment = async (markerId: string, text: string) => {
     // Optimistic update
-    const tempId = Math.random().toString(36).substr(2, 9);
+    const tempId = generateId();
     const optimisticComment: Comment = {
       id: tempId,
       text,
