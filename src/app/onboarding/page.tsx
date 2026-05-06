@@ -7,7 +7,8 @@ import {
   CheckCircle2 as CheckCircle2Icon, 
   ShieldCheck as ShieldCheckIcon, 
   Users as UsersIcon, 
-  Building2 as Building2Icon 
+  Building2 as Building2Icon,
+  AlertTriangle as AlertTriangleIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -32,6 +33,13 @@ function OnboardingContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+
+  const isPersonalEmail = React.useMemo(() => {
+    if (!email || !email.includes('@')) return false;
+    const domain = email.split('@')[1].toLowerCase();
+    const personalDomains = ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'icloud.com', 'aol.com', 'live.com'];
+    return personalDomains.includes(domain);
+  }, [email]);
 
   const [invites, setInvites] = useState<{email: string, role: string}[]>([
     { email: '', role: 'admin' },
@@ -93,6 +101,14 @@ function OnboardingContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                {isPersonalEmail && !isLogin && (
+                  <div className="flex gap-3 items-start p-3 mt-2 bg-gray-50 border border-black border-dashed">
+                    <AlertTriangleIcon size={16} className="mt-0.5 shrink-0 text-black" />
+                    <p className="text-[10px] uppercase font-bold leading-relaxed text-black">
+                      Please use your corporate email address. Accounts with personal emails will require additional verification.
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Password</label>
