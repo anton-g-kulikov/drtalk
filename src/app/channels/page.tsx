@@ -19,12 +19,14 @@ interface Channel {
   lastMessage: string;
   unreadCount?: number;
   memberCount: number;
+  isVerified?: boolean;
 }
 
 const mockChannels: Channel[] = [
   { id: '1', name: 'clinical-team', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
   { id: '3', name: 'Valley Endodontics', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice.', memberCount: 2 },
+  { id: '6', name: 'Beverly Hills Dental', type: 'inter-practice', lastMessage: 'Waiting for verification.', memberCount: 1, isVerified: false },
   { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Appointment confirmed.', memberCount: 2 },
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];
@@ -179,36 +181,44 @@ export default function ChannelsPage() {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
-              <Message
-                user="Dr. Smith"
-                text="Just finished the X-rays for Alice. Sending them over to the clinical-team channel now."
-                time="10:24 AM"
-                type="other"
-              />
+              {activeChannel.type === 'internal' && (
+                <>
+                  <Message user="Nurse Joy" text="Did anyone review the morning labs yet?" time="09:15 AM" type="other" />
+                  <Message user="Me" text="I'm on it. Should be done in 10 minutes." time="09:20 AM" type="self" transport="App" />
+                  <Message user="Dr. Smith" text="Thanks, let me know if there's anything urgent." time="09:25 AM" type="other" />
+                </>
+              )}
+              {activeChannel.type === 'inter-practice' && (
+                <>
+                  <Message user="Valley Endodontics" text="Pano image uploaded for Alice Cooper. Let us know if you need more angles." time="10:24 AM" type="other" />
+                  <Message user="Me" text="Received. Looks like a clear case for retreatment. Sending referral over now." time="11:05 AM" type="self" transport="App" />
+                  {activeChannel.isVerified === false && (
+                    <div className="flex justify-center p-4">
+                      <div className="bg-gray-100 border border-black border-dashed p-4 max-w-sm text-center">
+                        <p className="text-[10px] font-bold uppercase italic text-muted-foreground">
+                          Note: This practice is unverified. Patient PHI sharing is restricted until the practice owner completes verification.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              {activeChannel.type === 'patient' && (
+                <>
+                  <Message user="Alice Cooper" text="Is there any prep I need to do before my appointment?" time="11:15 AM" type="other" transport="SMS" />
+                  <Message user="Me" text="Just avoid eating 2 hours before the procedure. We will send a formal prep guide to your email shortly." time="11:20 AM" type="self" transport="Email" />
+                  <Message user="Alice Cooper" text="Got it, thank you!" time="11:25 AM" type="other" transport="SMS" />
+                </>
+              )}
+              {activeChannel.type === 'public' && (
+                <>
+                  <Message user="System" text="Welcome to the drTalk network! Here you can find updates and connect with other providers." time="Yesterday" type="other" />
+                  <Message user="Admin" text="New clinical guidelines for 2024 have been posted in the resources section." time="08:00 AM" type="other" />
+                </>
+              )}
               <div className="flex justify-center">
-                <span className="text-[8px] font-bold uppercase bg-gray-200 px-3 py-1 text-muted-foreground">Today</span>
+                <span className="text-[8px] font-bold uppercase bg-gray-200 px-3 py-1 text-muted-foreground">End of history</span>
               </div>
-              <Message
-                user="Me"
-                text="Received. Looking at tooth #14 now. Looks like a clear case for retreatment."
-                time="11:05 AM"
-                type="self"
-                transport="App"
-              />
-              <Message
-                user="Alice Cooper"
-                text="Is there any prep I need to do before my appointment?"
-                time="11:15 AM"
-                type="other"
-                transport="SMS"
-              />
-              <Message
-                user="Me"
-                text="Just avoid eating 2 hours before the procedure. We will send a formal prep guide to your email shortly."
-                time="11:20 AM"
-                type="self"
-                transport="Email"
-              />
             </div>
 
             {/* Message Input */}
@@ -216,7 +226,7 @@ export default function ChannelsPage() {
               <div className="wireframe-card p-4 space-y-4">
                 <textarea
                   placeholder={`MESSAGE #${activeChannel.name}...`}
-                  className="w-full bg-transparent border-none focus:ring-0 text-xs uppercase resize-none h-12"
+                  className="w-full bg-transparent border-none focus:ring-0 text-xs resize-none h-12"
                 />
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
                   <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
@@ -296,13 +306,23 @@ function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActiv
         {channel.type === 'public' && <Lock size={12} />}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-baseline">
-          <p className="text-[10px] font-bold uppercase truncate">{channel.name}</p>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <p className="text-[10px] font-bold uppercase truncate">{channel.name}</p>
+            {channel.isVerified === false && (
+              <span 
+                className={`text-[6px] px-1 font-black uppercase whitespace-nowrap cursor-help ${isActive ? 'bg-white text-black' : 'bg-gray-200 text-black'}`}
+                title="Practice owner isn't verified yet"
+              >
+                UNVERIFIED
+              </span>
+            )}
+          </div>
           {channel.unreadCount && !isActive && (
             <span className="bg-black text-white text-[8px] px-1 rounded-full">{channel.unreadCount}</span>
           )}
         </div>
-        <p className={`text-[8px] truncate uppercase font-medium ${isActive ? 'text-gray-400' : 'text-muted-foreground'}`}>
+        <p className={`text-[8px] truncate font-medium ${isActive ? 'text-gray-400' : 'text-muted-foreground'}`}>
           {channel.lastMessage}
         </p>
       </div>
@@ -320,7 +340,7 @@ function Message({ user, text, time, type, transport }: { user: string, text: st
         <span className="text-[8px] text-muted-foreground uppercase font-bold">{time}</span>
         {isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">You</span>}
       </div>
-      <div className={`max-w-md wireframe-card p-3 text-xs uppercase leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'
+      <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'
         }`}>
         {text}
         {transport && (
