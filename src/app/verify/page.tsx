@@ -1,15 +1,15 @@
 "use client";
 
 import { VerificationFlow } from "@/components/VerificationFlow";
-import { useVerification } from "@/components/VerificationContext";
+import { useVerification, UserRole } from "@/components/VerificationContext";
 import { useRouter } from "next/navigation";
 
 export default function VerifyPage() {
   const { verify } = useVerification();
   const router = useRouter();
 
-  const handleComplete = () => {
-    verify();
+  const handleComplete = (role: UserRole) => {
+    verify(role);
     router.push("/dashboard");
   };
 

@@ -11,10 +11,12 @@ import {
   Lock as LockIcon
 } from 'lucide-react';
 
-type VerificationStep = 'INTRO' | 'NPI_LOOKUP' | 'MANUAL_DETAILS' | 'PERSONA' | 'SUCCESS';
+import { UserRole } from './VerificationContext';
+
+type VerificationStep = 'INTRO' | 'CHOOSE_ROLE' | 'NPI_LOOKUP' | 'MANUAL_DETAILS' | 'PERSONA' | 'SUCCESS';
 
 interface VerificationFlowProps {
-  onComplete: () => void;
+  onComplete: (role: UserRole) => void;
   onCancel: () => void;
   isModal?: boolean;
 }
@@ -24,6 +26,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
   const [npi, setNpi] = useState('');
   const [isNpiLoading, setIsNpiLoading] = useState(false);
   const [npiResult, setNpiResult] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole>('owner');
   const [manualDetails, setManualDetails] = useState({
     name: '',
     specialty: '',
@@ -80,7 +83,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
 
               <div className="grid grid-cols-1 gap-3">
                 <button 
-                  onClick={() => setStep('NPI_LOOKUP')}
+                  onClick={() => setStep('CHOOSE_ROLE')}
                   className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
                 >
                   Start Verification <ChevronRightIcon size={18} />
@@ -96,11 +99,60 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
           </div>
         );
 
-      case 'NPI_LOOKUP':
+      case 'CHOOSE_ROLE':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex items-center gap-4">
               <button onClick={() => setStep('INTRO')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeftIcon size={16} />
+              </button>
+              <div>
+                <h1 className="text-2xl font-bold uppercase tracking-tighter italic leading-none">Choose Your Role</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold">Requirement for practice setup</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { id: 'owner', label: 'Practice Owner (Doctor)', desc: 'I am the licensed professional responsible for this practice.' },
+                { id: 'clinical', label: 'Clinical Personnel', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                { id: 'admin', label: 'Administrative Personnel', desc: 'I manage office operations and scheduling.' }
+              ].map((role) => (
+                <button
+                  key={role.id}
+                  onClick={() => setSelectedRole(role.id as UserRole)}
+                  className={`wireframe-card w-full p-6 text-left transition-all ${
+                    selectedRole === role.id 
+                      ? 'bg-black text-white' 
+                      : 'bg-white hover:bg-gray-50'
+                  }`}
+                >
+                  <p className="font-black uppercase text-sm tracking-tight mb-1">{role.label}</p>
+                  <p className={`text-[10px] uppercase font-bold leading-relaxed ${
+                    selectedRole === role.id ? 'text-gray-400' : 'text-muted-foreground'
+                  }`}>
+                    {role.desc}
+                  </p>
+                </button>
+              ))}
+
+              <div className="pt-4">
+                <button 
+                  onClick={() => setStep('NPI_LOOKUP')}
+                  className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest w-full"
+                >
+                  Continue <ChevronRightIcon size={18} className="inline ml-2" />
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'NPI_LOOKUP':
+        return (
+          <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setStep('CHOOSE_ROLE')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
@@ -300,7 +352,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
             </div>
 
             <button 
-              onClick={onComplete}
+              onClick={() => onComplete(selectedRole)}
               className="wireframe-button bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] w-full"
             >
               Continue to Practice
