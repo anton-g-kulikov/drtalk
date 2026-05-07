@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
-      setShowVerification(true);
+      router.push('/verify');
     } else {
       router.push(`/referrals/${id}`);
     }
@@ -46,7 +46,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <button
-                onClick={() => setShowVerification(true)}
+                onClick={() => router.push('/verify')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
               >
                 Verify Identity Now

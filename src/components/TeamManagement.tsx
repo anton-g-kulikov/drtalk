@@ -157,7 +157,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               </div>
             </div>
             <button 
-              onClick={() => setShowVerification(true)}
+              onClick={() => router.push('/verify')}
               className="text-[10px] font-black uppercase underline hover:text-muted-foreground transition-colors"
             >
               Verify Now

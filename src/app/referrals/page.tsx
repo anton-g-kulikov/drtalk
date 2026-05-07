@@ -40,7 +40,7 @@ export default function ReferralsPage() {
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
-      setShowVerification(true);
+      router.push('/verify');
     } else {
       router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
     }
