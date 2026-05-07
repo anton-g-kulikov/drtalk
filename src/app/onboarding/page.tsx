@@ -52,15 +52,6 @@ function OnboardingContent() {
     { email: '', role: 'clinical' }
   ]);
 
-  // Handle owner row prepending if user is not an owner
-  useEffect(() => {
-    if (step === 'PRACTICE_INVITE') {
-      const hasOwnerInvite = invites.some(i => i.role === 'owner');
-      if (userRole !== 'owner' && !hasOwnerInvite) {
-        setInvites([{ email: '', role: 'owner' }, ...invites]);
-      }
-    }
-  }, [step, userRole, invites]);
   
   const addInvite = () => {
     if (invites.length < 10) {
@@ -242,7 +233,15 @@ function OnboardingContent() {
 
               <div className="pt-4">
                 <button 
-                  onClick={() => nextStep('PRACTICE_INVITE')}
+                  onClick={() => {
+                    if (userRole !== 'owner') {
+                      const hasOwnerInvite = invites.some(i => i.role === 'owner');
+                      if (!hasOwnerInvite) {
+                        setInvites([{ email: '', role: 'owner' }, ...invites]);
+                      }
+                    }
+                    nextStep('PRACTICE_INVITE');
+                  }}
                   className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest w-full"
                 >
                   Continue <ChevronRightIcon size={18} className="inline ml-2" />
