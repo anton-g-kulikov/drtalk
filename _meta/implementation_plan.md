@@ -1,56 +1,49 @@
-# Implementation Plan: drTalk B&W Interactive Prototype
+# Implementation Snapshot
 
-This plan outlines the steps to build a high-fidelity interactive prototype of the drTalk platform using a black-and-white wireframe aesthetic.
+This file now reflects the current implementation state instead of the original greenfield build checklist.
 
-## 1. Project Initialization & Foundation
-- [ ] Bootstrap Next.js project with TypeScript and Tailwind CSS.
-- [ ] Define B&W Design System in `globals.css` (wireframe borders, mono-spaced or clean sans-serif fonts, high-contrast states).
-- [ ] Implement Main Layout with Navigation Sidebar (icons from mockups).
-- [ ] Set up basic routing (Dashboard, Referrals, Settings, Login).
+## What Exists
 
-## 1.5. Main Screen & Navigation
-- [ ] **Left Navigation**: Collapsible sidebar with icons for Dashboard, Referrals, Channels, and Settings.
-- [ ] **Header**: Persistent top bar showing the current Practice Title and a User Menu (profile, logout).
-- [ ] **Breadcrumbs**: Simple navigation indicators for nested views.
+### Foundation
 
-## 2. Onboarding Experience
-- [ ] **Step 1: Auth**: Login and Sign-up screens.
-- [ ] **Step 2: Verification**: Email verification code entry.
-- [ ] **Step 3: Role Selection**: Welcome screen with "Create Practice" vs "Join Team".
-- [ ] **Step 4: Practice Setup**: 3-step wizard (Details -> NPI/License Verification -> Invite Team).
+- Next.js App Router application with static export enabled
+- global layout wiring for comments, verification, and subscription state
+- Tailwind-based black-and-white prototype styling system
 
-## 3. Referrals (Activity Center) Management
-- [ ] **Dashboard**: High-level metrics (Referrals Received, Capture Rate, Conversion).
-- [ ] **Referral Pipeline**: Tabbed table view (Received, Working on, Processed, Archived).
-- [ ] **Filtering & Search**: Mock filtering and search functionality.
-- [ ] **Confidence Scoring**: UI indicators for AI confidence levels.
+### Product Flows
 
-## 4. Referral Detail & Collaboration
-- [ ] **Detail Modal**: Side-panel or modal showing patient info and attachments grid.
-- [ ] **Communication**: Right-side comments panel for internal discussion.
-- [ ] **Status Control**: Workflow transitions (Move to In Progress, Complete, etc.).
-- [ ] **AI Correction**: "Low Confidence" banner and Editor Mode for data refinement.
+- public landing flow for dentist vs specialist entry
+- guest referral intake flow
+- account onboarding and practice-creation flow
+- owner verification / credential flow
+- specialist workspace flow
+- dentist workspace flow
+- team/PHI management flow
+- network and learning hub discovery flows
 
-## 5. External/Guest Referral Flow
-- [ ] **Landing Page**: Simplified entry for guest referrals.
-- [ ] **Guest Form**: 3-part form (Patient Info, Case Details, Attachments).
-- [ ] **Post-Submission**: Confirmation screen with "Create Account" upsell.
+### State and Integration
 
-## 6. Channels and Communication
-- [ ] **Internal Channels**: Communication within a practice (e.g., General, Clinical, Admin).
-- [ ] **Inter-practice Channels**: Direct messaging between different practices.
-- [ ] **Patient Channels**: Secure SMS/Email communication per patient.
-- [ ] **Public Channels**: Open discovery channels for non-PHI discussion.
-- [ ] **Messaging UI**: Chat interface with message history, status indicators, and transport types (App, SMS, Email).
+- browser-local persistence for verification and subscription states
+- Supabase integration for contextual reviewer comments
+- hard-coded mock entities for dashboards, referrals, channels, team members, and directories
 
-## 7. Polish & Interaction
-- [ ] Add transitions between states.
-- [ ] Ensure responsive layout.
-- [ ] Final audit against mockup PDFs.
+## Current Implementation Boundaries
 
-## Tech Stack
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS (Wireframe theme)
-- **Icons**: Lucide React (or similar)
-- **State**: React Context or Zustand (for prototype persistence)
+- the app is a frontend prototype, not a production workflow system
+- most actions update local component state only
+- only the comments feature performs live network-backed reads/writes
+- role behavior is partially inferred from pathname instead of a normalized domain/session model
+
+## Near-Term Implementation Priorities
+
+1. Resolve the current ESLint `react-hooks/set-state-in-effect` failures in onboarding and verification initialization.
+2. Add automated coverage for route rendering and context-driven gates.
+3. Consolidate mock data into stable fixtures.
+4. Decide whether placeholder actions should remain decorative or become prototype-complete.
+5. Improve code separation if the prototype keeps expanding.
+
+## Documentation Ownership
+
+- use [_meta/system-documentation.md](/Users/antonkulikov/Projects/drtalk/_meta/system-documentation.md) for evergreen technical behavior
+- use [_meta/project-task-list.md](/Users/antonkulikov/Projects/drtalk/_meta/project-task-list.md) for status and remaining work
+- use [test/test-documentation.md](/Users/antonkulikov/Projects/drtalk/test/test-documentation.md) for verification approach
