@@ -34,7 +34,7 @@ const mockChannels: Channel[] = [
 export default function ChannelsPage() {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
-  
+
   // Filter channels based on role
   const displayedChannels = mockChannels.filter(c => {
     if (isDentist && c.type === 'patient') return false;
@@ -52,7 +52,7 @@ export default function ChannelsPage() {
           {/* Channels List Sidebar */}
           <div className={`${showChannelList ? 'fixed inset-0 z-50' : 'hidden'} lg:relative lg:flex lg:w-80 border-r-2 border-black flex-col bg-white overflow-hidden`}>
             {showChannelList && (
-              <button 
+              <button
                 onClick={() => setShowChannelList(false)}
                 className="absolute right-4 top-4 p-2 lg:hidden z-10"
               >
@@ -83,14 +83,14 @@ export default function ChannelsPage() {
                 </div>
                 <div className="space-y-1">
                   {displayedChannels.filter(c => c.type === 'internal').map(c => (
-                    <ChannelItem 
-                      key={c.id} 
-                      channel={c} 
-                      isActive={activeChannel.id === c.id} 
+                    <ChannelItem
+                      key={c.id}
+                      channel={c}
+                      isActive={activeChannel.id === c.id}
                       onClick={() => {
                         setActiveChannel(c);
                         setShowChannelList(false);
-                      }} 
+                      }}
                     />
                   ))}
                 </div>
@@ -104,14 +104,14 @@ export default function ChannelsPage() {
                 </div>
                 <div className="space-y-1">
                   {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
-                    <ChannelItem 
-                      key={c.id} 
-                      channel={c} 
-                      isActive={activeChannel.id === c.id} 
+                    <ChannelItem
+                      key={c.id}
+                      channel={c}
+                      isActive={activeChannel.id === c.id}
                       onClick={() => {
                         setActiveChannel(c);
                         setShowChannelList(false);
-                      }} 
+                      }}
                     />
                   ))}
                 </div>
@@ -133,14 +133,14 @@ export default function ChannelsPage() {
 
                   <div className="space-y-1">
                     {displayedChannels.filter(c => c.type === 'patient').map(c => (
-                      <ChannelItem 
-                        key={c.id} 
-                        channel={c} 
-                        isActive={activeChannel.id === c.id} 
+                      <ChannelItem
+                        key={c.id}
+                        channel={c}
+                        isActive={activeChannel.id === c.id}
                         onClick={() => {
                           setActiveChannel(c);
                           setShowChannelList(false);
-                        }} 
+                        }}
                       />
                     ))}
                   </div>
@@ -154,7 +154,7 @@ export default function ChannelsPage() {
             {/* Chat Header */}
             <div className="h-16 bg-white border-b-2 border-black flex items-center justify-between px-4 sm:px-6 shrink-0">
               <div className="flex items-center gap-3">
-                <button 
+                <button
                   onClick={() => setShowChannelList(true)}
                   className="p-2 -ml-2 lg:hidden hover:bg-gray-100 transition-colors"
                 >
@@ -245,7 +245,7 @@ export default function ChannelsPage() {
                                 <div className="w-1 h-1 bg-white" />
                               </div>
                               <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
-                                <span className="text-[8px] font-black uppercase">Both (App + SMS)</span>
+                                <span className="text-[8px] font-black uppercase">Both (Email + SMS)</span>
                               </div>
                             </label>
                             <label className="flex items-center gap-1.5 cursor-pointer group">
@@ -310,7 +310,7 @@ function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActiv
           <div className="flex items-center gap-1.5 min-w-0">
             <p className="text-[10px] font-bold uppercase truncate">{channel.name}</p>
             {channel.isVerified === false && (
-              <span 
+              <span
                 className={`text-[6px] px-1 font-black uppercase whitespace-nowrap cursor-help ${isActive ? 'bg-white text-black' : 'bg-gray-200 text-black'}`}
                 title="Practice owner isn't verified yet"
               >
