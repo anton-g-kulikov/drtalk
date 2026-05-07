@@ -8,15 +8,20 @@ import {
   ShieldCheck as ShieldCheckIcon, 
   Users as UsersIcon, 
   Building2 as Building2Icon,
-  AlertTriangle as AlertTriangleIcon
+  AlertTriangle as AlertTriangleIcon,
+  UserCircle as UserCircleIcon,
+  Stethoscope as StethoscopeIcon,
+  Shield as ShieldIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
+import { useVerification, UserRole } from '@/components/VerificationContext';
 
 type OnboardingStep = 
   | 'AUTH' 
   | 'VERIFY' 
+  | 'USER_ROLE'
   | 'ROLE_SELECTION' 
   | 'PRACTICE_DETAILS' 
   | 'JOIN_PRACTICE'
@@ -27,6 +32,7 @@ type OnboardingStep =
 function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>('owner');
   const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
@@ -45,6 +51,16 @@ function OnboardingContent() {
     { email: '', role: 'admin' },
     { email: '', role: 'clinical' }
   ]);
+
+  // Handle owner row prepending if user is not an owner
+  useEffect(() => {
+    if (step === 'PRACTICE_INVITE') {
+      const hasOwnerInvite = invites.some(i => i.role === 'owner');
+      if (userRole !== 'owner' && !hasOwnerInvite) {
+        setInvites([{ email: '', role: 'owner' }, ...invites]);
+      }
+    }
+  }, [step, userRole, invites]);
   
   const addInvite = () => {
     if (invites.length < 10) {
@@ -58,6 +74,7 @@ function OnboardingContent() {
     setInvites(newInvites);
   };
   const router = useRouter();
+  const { verify } = useVerification();
 
   const dentalTypes = [
     'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
@@ -181,6 +198,60 @@ function OnboardingContent() {
           </div>
         );
 
+      case 'USER_ROLE':
+        return (
+          <div className="space-y-8 w-full max-w-lg animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="flex items-center gap-4">
+              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+                <ArrowLeftIcon size={16} />
+              </button>
+              <div>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">Who are you?</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 3</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                { id: 'owner', label: 'Practice Owner (Doctor)', icon: StethoscopeIcon, desc: 'I am the licensed professional responsible for this practice.' },
+                { id: 'clinical', label: 'Clinical Personnel', icon: UserCircleIcon, desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                { id: 'admin', label: 'Administrative Personnel', icon: ShieldIcon, desc: 'I manage office operations and scheduling.' }
+              ].map((role) => (
+                <button
+                  key={role.id}
+                  onClick={() => setUserRole(role.id as UserRole)}
+                  className={`wireframe-card w-full p-6 text-left transition-all flex gap-6 items-center ${
+                    userRole === role.id 
+                      ? 'bg-black text-white border-black' 
+                      : 'bg-white hover:bg-gray-50 border-black'
+                  }`}
+                >
+                  <div className={`p-3 border-2 ${userRole === role.id ? 'border-white bg-white/10' : 'border-black bg-gray-50'}`}>
+                    <role.icon size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-black uppercase text-sm tracking-tight mb-1">{role.label}</p>
+                    <p className={`text-[10px] uppercase font-bold leading-relaxed ${
+                      userRole === role.id ? 'text-gray-400' : 'text-muted-foreground'
+                    }`}>
+                      {role.desc}
+                    </p>
+                  </div>
+                </button>
+              ))}
+
+              <div className="pt-4">
+                <button 
+                  onClick={() => nextStep('PRACTICE_INVITE')}
+                  className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest w-full"
+                >
+                  Continue <ChevronRightIcon size={18} className="inline ml-2" />
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'ROLE_SELECTION':
         return (
           <div className="space-y-12 w-full max-w-4xl px-4">
@@ -229,7 +300,7 @@ function OnboardingContent() {
               </button>
               <div>
                 <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 2</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 3</p>
               </div>
             </div>
             
@@ -303,7 +374,7 @@ function OnboardingContent() {
               </div>
 
               <button 
-                onClick={() => nextStep('PRACTICE_INVITE')}
+                onClick={() => nextStep('USER_ROLE')}
                 className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
                 NEXT STEP <ChevronRightIcon size={18} />
@@ -438,12 +509,12 @@ function OnboardingContent() {
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => nextStep('USER_ROLE')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 2</p>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 3 OF 3</p>
               </div>
             </div>
             <div className="space-y-6">
@@ -474,6 +545,7 @@ function OnboardingContent() {
                           onChange={(e) => updateInvite(index, 'role', e.target.value)}
                           className="wireframe-input w-full appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center pr-8"
                         >
+                          <option value="owner">Owner</option>
                           <option value="admin">Admin</option>
                           <option value="clinical">Clinical</option>
                         </select>
@@ -528,7 +600,10 @@ function OnboardingContent() {
               </p>
             </div>
             <button 
-              onClick={() => router.push('/dashboard')}
+              onClick={() => {
+                verify(userRole);
+                router.push('/dashboard');
+              }}
               className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >
               Go to Dashboard
@@ -543,9 +618,10 @@ function OnboardingContent() {
       {renderStep()}
       
       {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
+      {['PRACTICE_DETAILS', 'USER_ROLE', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
         <div className="fixed bottom-12 flex gap-2">
           <div className="h-1 w-12 bg-black transition-all" />
+          <div className={`h-1 w-12 transition-all ${['USER_ROLE', 'PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
           <div className={`h-1 w-12 transition-all ${['PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
         </div>
       )}
