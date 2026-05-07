@@ -29,17 +29,19 @@ export function VerificationProvider({ children }: { children: React.ReactNode }
     const storedRole = localStorage.getItem('drtalk_user_role') as UserRole | null;
     const storedHasOwner = localStorage.getItem('drtalk_has_practice_owner');
 
-    if (stored === 'true') {
-      setTimeout(() => setIsVerified(true), 0);
-    }
-    if (storedRole) {
-      setUserRole(storedRole);
-    }
-    if (storedHasOwner === 'false') {
-      setHasPracticeOwner(false);
-    } else {
-      setHasPracticeOwner(true);
-    }
+    setTimeout(() => {
+      if (stored === 'true') {
+        setIsVerified(true);
+      }
+      if (storedRole) {
+        setUserRole(storedRole);
+      }
+      if (storedHasOwner === 'false') {
+        setHasPracticeOwner(false);
+      } else {
+        setHasPracticeOwner(true);
+      }
+    }, 0);
   }, []);
 
   const verify = (role: UserRole = 'owner') => {
