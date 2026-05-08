@@ -257,7 +257,7 @@ function OnboardingContent() {
           <div className="space-y-12 w-full max-w-4xl px-4">
             <div className="text-center space-y-3">
               <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
-              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A SPECIALIST PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div 
@@ -266,9 +266,9 @@ function OnboardingContent() {
               >
                 <Building2Icon size={48} className="mb-2" />
                 <div className="space-y-4">
-                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE SPECIALIST PRACTICE</h3>
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
-                    Set up a specialist profile to receive referrals and coordinate patient communication.
+                    Set up a profile to receive referrals and coordinate patient communication.
                   </p>
                 </div>
               </div>
@@ -314,7 +314,7 @@ function OnboardingContent() {
                 <ArrowLeftIcon size={20} />
               </button>
               <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">PRACTICE DETAILS</h1>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 3</p>
               </div>
             </div>

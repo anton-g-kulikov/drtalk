@@ -83,7 +83,7 @@ export default function DashboardPage() {
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
-              <CommentMarker id="dashboard-specialist" title="Specialist Dashboard" description="The main overview for specialist practices." />
+              <CommentMarker id="dashboard-practice" title="Practice Dashboard" description="The main overview for the practice workspace." />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Receive referrals, process cases, coordinate with dentists, and manage patient communication.
