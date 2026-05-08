@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { ArrowRight, Building2, LogIn, Plus, Users } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
+import { useVerification } from '@/components/VerificationContext';
 
 type SpecialistMode = 'login' | 'signup';
 
 export default function SpecialistEntryPage() {
   const [mode, setMode] = useState<SpecialistMode>('login');
   const router = useRouter();
+  const { verify } = useVerification();
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-8">
@@ -109,7 +111,14 @@ export default function SpecialistEntryPage() {
           </div>
 
           <button
-            onClick={() => router.push(mode === 'signup' ? '/onboarding' : '/dashboard')}
+            onClick={() => {
+              if (mode === 'login') {
+                verify('owner');
+                router.push('/dashboard');
+              } else {
+                router.push('/onboarding');
+              }
+            }}
             className="wireframe-button w-full bg-black text-white py-4 text-[10px] uppercase font-black flex items-center justify-center gap-2"
           >
             {mode === 'login' ? 'Enter Specialist Dashboard' : 'Start Onboarding'}
