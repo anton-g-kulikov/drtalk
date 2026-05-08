@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Search, Filter, AlertCircle, Clock, MoreVertical } from 'lucide-react';
+import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
@@ -83,14 +83,20 @@ export default function ReferralsPage() {
             </p>
           </div>
           {!isDentist ? (
-            <div className="flex flex-col items-end gap-1.5 text-right">
-              <div className="flex items-center gap-3">
-                <span className="text-[8px] font-black uppercase bg-black text-white px-2 py-0.5 tracking-widest">Direct Intake Email</span>
-                <p className="text-[11px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</p>
+            <div className="flex flex-col items-end gap-2 text-right">
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Direct Intake Email:</span>
+                <span className="text-[10px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</span>
+                <button className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1">
+                  <Copy size={12} />
+                </button>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Public Referral URL:</span>
                 <span className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight">drtalk.com/valleyendodontics</span>
+                <button className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1">
+                  <Copy size={12} />
+                </button>
               </div>
             </div>
           ) : (
