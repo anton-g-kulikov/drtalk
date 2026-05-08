@@ -42,11 +42,52 @@ export default function ReferralsPage() {
     if (!isVerified) {
       router.push('/verify');
     } else {
-      router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
+      const referral = mockReferrals.find(r => r.id === id);
+      if (isDentist && referral) {
+        router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`);
+      } else {
+        router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
+      }
     }
   };
 
   const tabs: ReferralStatus[] = ['Received', 'Working on', 'Processed', 'Archived'];
+
+  const getTabLabel = (tab: ReferralStatus) => {
+    if (isDentist) {
+      switch (tab) {
+        case 'Received': return 'SENT';
+        case 'Working on': return 'IN PROGRESS';
+        case 'Processed': return 'COMPLETED';
+        default: return tab.toUpperCase();
+      }
+    } else {
+      switch (tab) {
+        case 'Received': return 'RECEIVED (REVIEW)';
+        case 'Working on': return 'WORKING ON (IN PROGRESS)';
+        case 'Processed': return 'PROCESSED';
+        default: return tab.toUpperCase();
+      }
+    }
+  };
+
+  const getStats = () => {
+    if (isDentist) {
+      return [
+        { label: 'Sent (30d)', value: '12', trend: '+2' },
+        { label: 'In Progress', value: '08', trend: '0' },
+        { label: 'Completed', value: '45', trend: '+5' },
+        { label: 'Total Pipeline', value: '65', trend: '+12' },
+      ];
+    } else {
+      return [
+        { label: 'Received (24h)', value: '12', trend: '+2' },
+        { label: 'Working on', value: '08', trend: '0' },
+        { label: 'Processed', value: '45', trend: '+5' },
+        { label: 'Total Pipeline', value: '65', trend: '+12' },
+      ];
+    }
+  };
 
   const filteredReferrals = mockReferrals.filter(r => 
     r.status === activeTab && 
@@ -78,7 +119,7 @@ export default function ReferralsPage() {
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               {isDentist 
-                ? 'Track specialist progress and coordinate patient care'
+                ? 'TRACK REFERRALS PROGRESS AND COORDINATE PATIENT CARE'
                 : 'Specialist intake pipeline and case processing workflow'}
             </p>
           </div>
@@ -111,12 +152,7 @@ export default function ReferralsPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { label: isDentist ? 'Sent (24h)' : 'Received (24h)', value: '12', trend: '+2' },
-              { label: 'Working on', value: '08', trend: '0' },
-              { label: 'Processed', value: '45', trend: '+5' },
-              { label: 'Total Pipeline', value: '65', trend: '+12' },
-            ].map((stat) => (
+            {getStats().map((stat) => (
               <div key={stat.label} className="wireframe-card p-4 space-y-1">
                 <p className="text-[9px] font-bold uppercase text-muted-foreground">{stat.label}</p>
                 <div className="flex items-baseline gap-2">
@@ -142,7 +178,7 @@ export default function ReferralsPage() {
                         : 'text-muted-foreground hover:text-black'
                     }`}
                   >
-                    {tab === 'Received' ? 'Received (Review)' : tab === 'Working on' ? 'Working on (In progress)' : tab}
+                    {getTabLabel(tab)}
                     {activeTab === tab && (
                       <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" />
                     )}

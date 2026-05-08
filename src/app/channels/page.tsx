@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import {
@@ -41,8 +41,20 @@ export default function ChannelsPage() {
     return true;
   });
 
+  const searchParams = useSearchParams();
+  const practiceParam = searchParams.get('practice');
+
   const [activeChannel, setActiveChannel] = useState(displayedChannels[0]);
   const [showChannelList, setShowChannelList] = useState(false);
+
+  React.useEffect(() => {
+    if (practiceParam) {
+      const channel = displayedChannels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase());
+      if (channel) {
+        setActiveChannel(channel);
+      }
+    }
+  }, [practiceParam, displayedChannels]);
 
   return (
     <MainLayout title="Channels" noPadding>

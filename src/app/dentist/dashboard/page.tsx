@@ -184,12 +184,18 @@ export default function DentistDashboardPage() {
               
               <div className="space-y-3">
                 {[
-                  { id: '1005', patient: 'Sarah Jenkins', reason: 'Unfinished Draft', type: 'Endodontic' },
-                  { id: '1002', patient: 'Marco Reyes', reason: 'Missing Pano Image', type: 'Extraction' },
+                  { id: '1005', patient: 'Sarah Jenkins', reason: 'Unfinished Draft', type: 'Endodontic', specialist: 'Valley Endodontics' },
+                  { id: '1002', patient: 'Marco Reyes', reason: 'Missing Pano Image', type: 'Extraction', specialist: 'Downtown Oral Surgery' },
                 ].map((item, i) => (
                   <div 
                     key={i} 
-                    onClick={() => router.push(item.reason === 'Unfinished Draft' ? '/dentist/referral' : '/dentist/channels')}
+                    onClick={() => {
+                      if (item.reason === 'Unfinished Draft') {
+                        router.push('/dentist/referral');
+                      } else {
+                        router.push(`/dentist/channels?practice=${encodeURIComponent(item.specialist)}`);
+                      }
+                    }}
                     className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-zinc-100 cursor-pointer border-black group transition-all"
                   >
                     <div className="space-y-1">
@@ -225,7 +231,11 @@ export default function DentistDashboardPage() {
 
               <div className="space-y-3">
                 {filteredReferrals.map((referral) => (
-                  <div key={referral.id} className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer" onClick={() => router.push('/dentist/channels')}>
+                  <div 
+                    key={referral.id} 
+                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer" 
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                       <div className="md:col-span-4">
                         <p className="text-xs font-black uppercase">{referral.patientName}</p>
@@ -289,8 +299,15 @@ export default function DentistDashboardPage() {
                 <h3 className="font-bold uppercase text-xs tracking-widest">Specialist Conversations</h3>
               </div>
               <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => router.push('/dentist/channels')}>
+                {[
+                  { id: 1, name: 'Valley Endodontics' },
+                  { id: 2, name: 'Downtown Oral Surgery' }
+                ].map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" 
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(item.name)}`)}
+                  >
                     <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">VE</div>
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex justify-between items-baseline">
