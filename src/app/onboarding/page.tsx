@@ -40,6 +40,11 @@ function OnboardingContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+  const [city, setCity] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [fullAddress, setFullAddress] = useState('');
+  const [selectedState, setSelectedState] = useState('CA');
+
 
   const isPersonalEmail = React.useMemo(() => {
     if (!email || !email.includes('@')) return false;
@@ -320,11 +325,26 @@ function OnboardingContent() {
             </div>
             
             <div className="space-y-6">
-              <div className="grid grid-cols-[120px_1fr] gap-6">
+              {/* Location Group */}
+              <div className="grid grid-cols-[1fr_100px_120px] gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input 
+                    type="text" 
+                    placeholder="Beverly Hills" 
+                    className="wireframe-input py-4 px-4 text-sm" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
                   <div className="relative">
-                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                    <select 
+                      value={selectedState}
+                      onChange={(e) => setSelectedState(e.target.value)}
+                      className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8"
+                    >
                       <option>CA</option>
                       <option>NY</option>
                       <option>TX</option>
@@ -337,35 +357,29 @@ function OnboardingContent() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
-                    <CommentMarker 
-                      id="onboarding-practice-search"
-                      title="Practice Search"
-                      description="Practice name will work as search/filter after first 3 letters suggesting users to select a practice from drtalk db."
-                    />
-                  </div>
+                  <label className="text-[10px] font-black uppercase tracking-widest">ZIP CODE</label>
                   <input 
                     type="text" 
-                    placeholder="Valley Endodontics" 
+                    placeholder="90210" 
                     className="wireframe-input py-4 px-4 text-sm" 
-                    value={practiceName}
-                    onChange={(e) => setPracticeName(e.target.value)}
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
-                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
-                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
-                </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
+                <input 
+                  type="text" 
+                  placeholder="123 Dental Way, Ste 100" 
+                  className="wireframe-input py-4 px-4 text-sm" 
+                  value={fullAddress}
+                  onChange={(e) => setFullAddress(e.target.value)}
+                />
               </div>
 
+              {/* Categorization Group */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
@@ -386,6 +400,18 @@ function OnboardingContent() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              {/* Name at the end */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                <input 
+                  type="text" 
+                  placeholder="Valley Endodontics" 
+                  className="wireframe-input py-4 px-4 text-sm" 
+                  value={practiceName}
+                  onChange={(e) => setPracticeName(e.target.value)}
+                />
               </div>
 
               <button 
