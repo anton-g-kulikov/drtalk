@@ -83,7 +83,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
 
               <div className="grid grid-cols-1 gap-3">
                 <button 
-                  onClick={() => setStep('CHOOSE_ROLE')}
+                  onClick={() => setStep('NPI_LOOKUP')}
                   className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
                 >
                   Start Verification <ChevronRightIcon size={18} />
@@ -152,41 +152,32 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex items-center gap-4">
-              <button onClick={() => setStep('CHOOSE_ROLE')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => setStep('INTRO')} className="w-10 h-10 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Validation</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold">Step 1 of 2: Confirm Credentials</p>
+                <h1 className="text-2xl font-black uppercase tracking-tighter leading-none">NPI VALIDATION</h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1 tracking-widest">STEP 1 OF 2: CONFIRM CREDENTIALS</p>
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest">NATIONAL PROVIDER IDENTIFIER</label>
-                <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="10-DIGIT NPI" 
-                    className="wireframe-input flex-1 py-4 px-4 text-sm font-mono" 
-                    value={npi}
-                    onChange={(e) => setNpi(e.target.value)}
-                  />
-                  <button 
-                    onClick={handleNpiSearch}
-                    disabled={isNpiLoading}
-                    className="wireframe-button px-6 bg-black text-white disabled:opacity-50"
-                  >
-                    {isNpiLoading ? '...' : <SearchIcon size={18} />}
-                  </button>
-                </div>
-                <p className="text-[8px] text-muted-foreground uppercase font-bold italic mt-1">
-                  Optional: Entering your NPI will help us pre-fill your professional details.
+                <input 
+                  type="text" 
+                  placeholder="10-DIGIT NPI" 
+                  className="wireframe-input w-full py-4 px-4 text-sm font-mono tracking-widest" 
+                  value={npi}
+                  onChange={(e) => setNpi(e.target.value)}
+                />
+                <p className="text-[9px] font-bold uppercase text-muted-foreground mt-3 leading-relaxed">
+                  OPTIONAL: ENTERING YOUR NPI WILL HELP US PRE-FILL YOUR PROFESSIONAL DETAILS.
                 </p>
               </div>
 
               {npiResult && (
-                <div className="wireframe-card p-6 border-black bg-white space-y-4 animate-in zoom-in-95 duration-300">
+                <div className="wireframe-card p-6 border-2 border-black bg-white space-y-4 animate-in zoom-in-95 duration-300">
                   <p className="text-[10px] font-black uppercase tracking-widest border-b border-black pb-2">Registry Match Found</p>
                   <div className="grid grid-cols-1 gap-2">
                     <div>
@@ -205,13 +196,23 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
                 </div>
               )}
 
-              <div className="flex flex-col gap-4">
+              <div className="space-y-6 pt-4">
                 <button 
-                  onClick={() => setStep(npiResult ? 'PERSONA' : 'MANUAL_DETAILS')}
-                  className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                  onClick={npiResult ? () => setStep('PERSONA') : handleNpiSearch}
+                  disabled={!npi && !npiResult}
+                  className="wireframe-button bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] w-full disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                 >
-                  {npiResult ? 'Confirm & Continue' : 'Provide Details Manually'}
+                  {npiResult ? 'CONFIRM & CONTINUE' : 'LOOK UP AND FILL IN'}
                 </button>
+                
+                <div className="text-center">
+                  <button 
+                    onClick={() => setStep('MANUAL_DETAILS')}
+                    className="text-[10px] font-black uppercase underline text-muted-foreground hover:text-black transition-all tracking-widest"
+                  >
+                    PROVIDE DETAILS MANUALLY
+                  </button>
+                </div>
               </div>
             </div>
           </div>
