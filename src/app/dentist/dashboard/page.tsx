@@ -300,22 +300,22 @@ export default function DentistDashboardPage() {
               </div>
               <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
                 {[
-                  { id: 1, name: 'Valley Endodontics' },
-                  { id: 2, name: 'Downtown Oral Surgery' }
+                  { id: 1, name: 'Valley Endodontics', msg: 'Regarding Alice Cooper: pano received.', initials: 'VE' },
+                  { id: 2, name: 'Downtown Oral Surgery', msg: 'Requesting pano image for Marco Reyes.', initials: 'DO' }
                 ].map((item) => (
                   <div 
                     key={item.id} 
                     className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" 
                     onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(item.name)}`)}
                   >
-                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">VE</div>
+                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex justify-between items-baseline">
-                        <p className="text-[9px] font-bold uppercase truncate">{i === 1 ? 'Valley Endodontics' : 'Downtown Oral Surgery'}</p>
+                        <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
                         <span className="text-[7px] text-muted-foreground uppercase shrink-0">15m ago</span>
                       </div>
                       <p className="text-[9px] uppercase truncate opacity-70 italic">
-                        {i === 1 ? 'Regarding Alice Cooper: pano received.' : 'Requesting pano image for Marco Reyes.'}
+                        {item.msg}
                       </p>
                     </div>
                   </div>
