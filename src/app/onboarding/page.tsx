@@ -11,7 +11,8 @@ import {
   AlertTriangle as AlertTriangleIcon,
   UserCircle as UserCircleIcon,
   Stethoscope as StethoscopeIcon,
-  Shield as ShieldIcon
+  Shield as ShieldIcon,
+  GraduationCap as GraduationCapIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -258,7 +259,7 @@ function OnboardingContent() {
               <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A SPECIALIST PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div 
                 onClick={() => nextStep('PRACTICE_DETAILS')}
                 className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
@@ -280,6 +281,21 @@ function OnboardingContent() {
                   <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
                     Enter with an invite code or request access from a practice administrator.
+                  </p>
+                </div>
+              </div>
+              <div
+                onClick={() => {
+                  setUserRole('individual');
+                  nextStep('SUCCESS');
+                }}
+                className="wireframe-card border-dotted hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
+              >
+                <GraduationCapIcon size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">INDIVIDUAL LEARNING HUB</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Access the Learning Hub to view courses and educational content without a practice.
                   </p>
                 </div>
               </div>
@@ -595,17 +611,19 @@ function OnboardingContent() {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Success!</h1>
               <p className="text-xs text-muted-foreground uppercase leading-relaxed">
-                Your practice account is set up.<br />You can now collaborate and manage referrals.
+                {userRole === 'individual' 
+                  ? 'Your learning account is ready. You can now access the Learning Hub.' 
+                  : 'Your practice account is set up. You can now collaborate and manage referrals.'}
               </p>
             </div>
             <button 
               onClick={() => {
                 verify(userRole);
-                router.push('/dashboard');
+                router.push(userRole === 'individual' ? '/academy' : '/dashboard');
               }}
               className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >
-              Go to Dashboard
+              Go to {userRole === 'individual' ? 'Learning Hub' : 'Dashboard'}
             </button>
           </div>
         );

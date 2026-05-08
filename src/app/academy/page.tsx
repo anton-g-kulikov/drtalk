@@ -6,8 +6,10 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   GraduationCap, Star, 
   PlayCircle, Users, 
-  Award, ArrowRight, PlusCircle 
+  Award, ArrowRight, PlusCircle, Building2 as Building2Icon
 } from 'lucide-react';
+import { useVerification } from '@/components/VerificationContext';
+import { useRouter } from 'next/navigation';
 
 interface HubChannel {
   id: string;
@@ -65,31 +67,58 @@ const mockLearningHub: HubChannel[] = [
 
 export default function LearningHubPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'ce' | 'mentorship' | 'tech'>('all');
+  const { userRole } = useVerification();
+  const router = useRouter();
 
   return (
     <MainLayout title="Learning Hub">
       <div className="max-w-6xl mx-auto space-y-12">
         
-        {/* Hero Section */}
-        <div className="wireframe-card bg-black text-white p-6 sm:p-12 space-y-6 relative overflow-hidden">
-          <div className="relative z-10 space-y-4 max-w-2xl">
-            <h2 className="text-2xl sm:text-4xl font-bold uppercase tracking-tighter italic leading-none">
-              Grow and monetize your audience on Education channels.
-            </h2>
-            <p className="text-[10px] sm:text-xs uppercase leading-relaxed opacity-80 font-medium">
-              Public materials are open to everyone. Any drTalk account can create resources, host a channel, or publish CE content.
-            </p>
-            <div className="pt-4 flex flex-col sm:flex-row gap-4">
-              <button className="bg-white text-black px-8 py-3 text-[10px] font-black uppercase hover:bg-gray-200 transition-all w-full sm:w-auto">
-                Create Resource
-              </button>
-              <button className="border-2 border-white px-8 py-3 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all w-full sm:w-auto">
-                Browse Public Materials
-              </button>
+        {/* Practice Nudge Banner for Individuals */}
+        {userRole === 'individual' && (
+          <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500 border-dashed">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
+                <Building2Icon className="text-black" size={24} />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Ready to create a practice?</h3>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                  Take the next step. Create a professional practice profile to start receiving referrals, managing PHI, and collaborating with your team.
+                </p>
+              </div>
             </div>
+            <button
+              onClick={() => router.push('/onboarding')}
+              className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+            >
+              Setup Practice Now
+            </button>
           </div>
-          <GraduationCap size={200} className="absolute right-[-40px] sm:right-[-20px] bottom-[-60px] sm:bottom-[-40px] opacity-10 rotate-12" />
-        </div>
+        )}
+        
+        {/* Hero Section */}
+        {userRole !== 'individual' && (
+          <div className="wireframe-card bg-black text-white p-6 sm:p-12 space-y-6 relative overflow-hidden">
+            <div className="relative z-10 space-y-4 max-w-2xl">
+              <h2 className="text-2xl sm:text-4xl font-bold uppercase tracking-tighter italic leading-none">
+                Grow and monetize your audience on Education channels.
+              </h2>
+              <p className="text-[10px] sm:text-xs uppercase leading-relaxed opacity-80 font-medium">
+                Public materials are open to everyone. Any drTalk account can create resources, host a channel, or publish CE content.
+              </p>
+              <div className="pt-4 flex flex-col sm:flex-row gap-4">
+                <button className="bg-white text-black px-8 py-3 text-[10px] font-black uppercase hover:bg-gray-200 transition-all w-full sm:w-auto">
+                  Create Resource
+                </button>
+                <button className="border-2 border-white px-8 py-3 text-[10px] font-black uppercase hover:bg-white hover:text-black transition-all w-full sm:w-auto">
+                  Browse Public Materials
+                </button>
+              </div>
+            </div>
+            <GraduationCap size={200} className="absolute right-[-40px] sm:right-[-20px] bottom-[-60px] sm:bottom-[-40px] opacity-10 rotate-12" />
+          </div>
+        )}
 
         {/* Discovery Hub */}
         <div className="space-y-8">
@@ -169,30 +198,32 @@ export default function LearningHubPage() {
         </div>
 
         {/* Vendor Showcase */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="wireframe-card p-8 bg-black text-white space-y-4">
-            <PlusCircle size={24} />
-            <h4 className="font-bold uppercase text-xs tracking-widest border-b border-white/40 pb-2">Create</h4>
-            <p className="text-[10px] uppercase leading-relaxed font-medium text-white/75">
-              Publish a resource, start a public channel, or build a paid learning product from any account role.
-            </p>
-            <button className="text-[9px] font-black uppercase underline">Start Resource</button>
+        {userRole !== 'individual' && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="wireframe-card p-8 bg-black text-white space-y-4">
+              <PlusCircle size={24} />
+              <h4 className="font-bold uppercase text-xs tracking-widest border-b border-white/40 pb-2">Create</h4>
+              <p className="text-[10px] uppercase leading-relaxed font-medium text-white/75">
+                Publish a resource, start a public channel, or build a paid learning product from any account role.
+              </p>
+              <button className="text-[9px] font-black uppercase underline">Start Resource</button>
+            </div>
+            <div className="wireframe-card p-8 bg-gray-50 space-y-4">
+              <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Mentorship</h4>
+              <p className="text-[10px] uppercase leading-relaxed font-medium">
+                Direct access to board-certified specialists for case reviews and clinical guidance.
+              </p>
+              <button className="text-[9px] font-black uppercase underline">View All Mentors</button>
+            </div>
+            <div className="wireframe-card p-8 bg-gray-50 space-y-4">
+              <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Vendors</h4>
+              <p className="text-[10px] uppercase leading-relaxed font-medium">
+                Latest technology updates, digital workflows, and instant support from equipment specialists.
+              </p>
+              <button className="text-[9px] font-black uppercase underline">Partner Directory</button>
+            </div>
           </div>
-          <div className="wireframe-card p-8 bg-gray-50 space-y-4">
-            <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Mentorship</h4>
-            <p className="text-[10px] uppercase leading-relaxed font-medium">
-              Direct access to board-certified specialists for case reviews and clinical guidance.
-            </p>
-            <button className="text-[9px] font-black uppercase underline">View All Mentors</button>
-          </div>
-          <div className="wireframe-card p-8 bg-gray-50 space-y-4">
-            <h4 className="font-bold uppercase text-xs tracking-widest border-b border-black pb-2">Vendors</h4>
-            <p className="text-[10px] uppercase leading-relaxed font-medium">
-              Latest technology updates, digital workflows, and instant support from equipment specialists.
-            </p>
-            <button className="text-[9px] font-black uppercase underline">Partner Directory</button>
-          </div>
-        </div>
+        )}
       </div>
     </MainLayout>
   );
