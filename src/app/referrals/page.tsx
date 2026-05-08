@@ -82,12 +82,25 @@ export default function ReferralsPage() {
                 : 'Specialist intake pipeline and case processing workflow'}
             </p>
           </div>
-          <button 
-            onClick={() => router.push(isDentist ? '/dentist/referral' : '#')}
-            className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto"
-          >
-            {isDentist ? 'New Referral' : 'Configure Referral Link'}
-          </button>
+          {!isDentist ? (
+            <div className="flex flex-col items-end gap-1.5 text-right">
+              <div className="flex items-center gap-3">
+                <span className="text-[8px] font-black uppercase bg-black text-white px-2 py-0.5 tracking-widest">Direct Intake Email</span>
+                <p className="text-[11px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Public Referral URL:</span>
+                <span className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight">drtalk.com/valleyendodontics</span>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={() => router.push('/dentist/referral')}
+              className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto"
+            >
+              New Referral
+            </button>
+          )}
         </div>
 
           {/* Quick Stats */}
