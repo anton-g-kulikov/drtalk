@@ -12,7 +12,8 @@ import {
   UserCircle as UserCircleIcon,
   Stethoscope as StethoscopeIcon,
   Shield as ShieldIcon,
-  GraduationCap as GraduationCapIcon
+  GraduationCap as GraduationCapIcon,
+  Search as SearchIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -26,7 +27,6 @@ type OnboardingStep =
   | 'ROLE_SELECTION' 
   | 'PRACTICE_DETAILS' 
   | 'JOIN_PRACTICE'
-  | 'PRACTICE_VERIFY' 
   | 'PRACTICE_INVITE' 
   | 'SUCCESS';
 
@@ -197,61 +197,58 @@ function OnboardingContent() {
 
       case 'USER_ROLE':
         return (
-          <div className="space-y-8 w-full max-w-lg animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeftIcon size={16} />
-              </button>
-              <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">Who are you?</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 3</p>
+          <div className="w-full max-w-lg animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="border-4 border-black bg-white p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] space-y-10">
+              <div className="flex items-center gap-4">
+                <button onClick={() => nextStep('PRACTICE_DETAILS')} className="w-10 h-10 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                  <ArrowLeftIcon size={16} />
+                </button>
+                <div>
+                  <h1 className="text-3xl font-black uppercase tracking-tighter leading-none italic">CHOOSE YOUR ROLE</h1>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1 tracking-widest">REQUIREMENT FOR PRACTICE SETUP</p>
+                </div>
               </div>
-            </div>
 
-            <div className="space-y-4">
-              {[
-                { id: 'owner', label: 'Practice Owner (Doctor)', icon: StethoscopeIcon, desc: 'I am the licensed professional responsible for this practice.' },
-                { id: 'clinical', label: 'Clinical Personnel', icon: UserCircleIcon, desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
-                { id: 'admin', label: 'Administrative Personnel', icon: ShieldIcon, desc: 'I manage office operations and scheduling.' }
-              ].map((role) => (
-                <button
-                  key={role.id}
-                  onClick={() => setUserRole(role.id as UserRole)}
-                  className={`wireframe-card w-full p-6 text-left transition-all flex gap-6 items-center ${
-                    userRole === role.id 
-                      ? 'bg-black text-white border-black' 
-                      : 'bg-white hover:bg-gray-50 border-black'
-                  }`}
-                >
-                  <div className={`p-3 border-2 ${userRole === role.id ? 'border-white bg-white/10' : 'border-black bg-gray-50'}`}>
-                    <role.icon size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-black uppercase text-sm tracking-tight mb-1">{role.label}</p>
+              <div className="space-y-4">
+                {[
+                  { id: 'owner', label: 'Practice Owner (Doctor)', desc: 'I am the licensed professional responsible for this practice.' },
+                  { id: 'clinical', label: 'Clinical Personnel', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                  { id: 'admin', label: 'Administrative Personnel', desc: 'I manage office operations and scheduling.' }
+                ].map((role) => (
+                  <button
+                    key={role.id}
+                    onClick={() => setUserRole(role.id as UserRole)}
+                    className={`wireframe-card w-full p-8 text-left transition-all flex flex-col gap-1 border-2 ${
+                      userRole === role.id 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-white hover:bg-gray-50 border-black'
+                    }`}
+                  >
+                    <p className="font-black uppercase text-base tracking-tight">{role.label}</p>
                     <p className={`text-[10px] uppercase font-bold leading-relaxed ${
                       userRole === role.id ? 'text-gray-400' : 'text-muted-foreground'
                     }`}>
                       {role.desc}
                     </p>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
 
-              <div className="pt-4">
-                <button 
-                  onClick={() => {
-                    if (userRole !== 'owner') {
-                      const hasOwnerInvite = invites.some(i => i.role === 'owner');
-                      if (!hasOwnerInvite) {
-                        setInvites([{ email: '', role: 'owner' }, ...invites]);
+                <div className="pt-6">
+                  <button 
+                    onClick={() => {
+                      if (userRole !== 'owner') {
+                        const hasOwnerInvite = invites.some(i => i.role === 'owner');
+                        if (!hasOwnerInvite) {
+                          setInvites([{ email: '', role: 'owner' }, ...invites]);
+                        }
                       }
-                    }
-                    nextStep('PRACTICE_INVITE');
-                  }}
-                  className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest w-full"
-                >
-                  Continue <ChevronRightIcon size={18} className="inline ml-2" />
-                </button>
+                      nextStep('PRACTICE_INVITE');
+                    }}
+                    className="wireframe-button bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] w-full flex items-center justify-center gap-2"
+                  >
+                    CONTINUE <ChevronRightIcon size={20} />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -320,7 +317,6 @@ function OnboardingContent() {
               </button>
               <div>
                 <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">PRACTICE DETAILS</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 3</p>
               </div>
             </div>
             
@@ -507,44 +503,6 @@ function OnboardingContent() {
           </div>
         );
 
-      case 'PRACTICE_VERIFY':
-        return (
-          <div className="space-y-8 w-full max-w-lg">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeftIcon size={16} />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Lookup</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 2 of 3</p>
-              </div>
-            </div>
-            <div className="wireframe-card bg-gray-50 space-y-4">
-              <div className="flex gap-4 items-start">
-                <ShieldCheckIcon className="text-black shrink-0" size={24} />
-                <p className="text-[10px] uppercase font-bold leading-relaxed">
-                  Add an NPI now to autofill practice information. Owner verification happens later when PHI/referral processing is triggered.
-                </p>
-              </div>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">National Provider Identifier (Optional)</label>
-                  <input type="text" placeholder="10-digit number" className="wireframe-input bg-white" />
-                </div>
-                <div className="p-4 border border-black border-dashed text-center">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Registry match preview</p>
-                  <button className="text-[10px] font-bold underline uppercase">Use Autofilled Practice Data</button>
-                </div>
-              </div>
-            </div>
-            <button 
-              onClick={() => nextStep('PRACTICE_INVITE')}
-              className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm flex items-center justify-center gap-2"
-            >
-              Save & Continue <ChevronRightIcon size={16} />
-            </button>
-          </div>
-        );
 
       case 'PRACTICE_INVITE':
         return (
@@ -555,7 +513,6 @@ function OnboardingContent() {
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 3 OF 3</p>
               </div>
             </div>
             <div className="space-y-6">
@@ -660,14 +617,6 @@ function OnboardingContent() {
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
       {renderStep()}
       
-      {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'USER_ROLE', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
-        <div className="fixed bottom-12 flex gap-2">
-          <div className="h-1 w-12 bg-black transition-all" />
-          <div className={`h-1 w-12 transition-all ${['USER_ROLE', 'PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
-          <div className={`h-1 w-12 transition-all ${['PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
-        </div>
-      )}
     </main>
   );
 }
