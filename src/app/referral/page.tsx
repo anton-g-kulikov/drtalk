@@ -259,12 +259,7 @@ export default function GuestReferralPage() {
               </div>
 
               <div className="pt-8 space-y-4 border-t-2 border-black">
-                <div className="flex items-start gap-3">
-                  <Shield size={18} className="shrink-0" />
-                  <p className="text-[8px] font-bold uppercase leading-relaxed text-muted-foreground">
-                    By submitting, you agree that this data will be stored securely and processed in accordance with HIPAA regulations.
-                  </p>
-                </div>
+
                 <button 
                   onClick={() => nextStep('SUCCESS')}
                   className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] transition-all"
@@ -296,8 +291,8 @@ export default function GuestReferralPage() {
             <div className="wireframe-card bg-gray-50 space-y-6 p-8">
               <div className="space-y-2">
                 <h3 className="text-sm font-bold uppercase tracking-tighter">Join the drTalk Network</h3>
-                <p className="text-[10px] uppercase leading-relaxed text-muted-foreground">
-                  Log in or create a dentist account to track status updates and communicate with the specialist team.
+                <p className="text-[10px] leading-relaxed text-red-600">
+                  <span className="font-bold underline decoration-red-600">Are you still using email, fax and voice mail?</span> Your patients deserve better! Eliminate operational friction, increase patient case acceptance and track your patients through specialty care with drtalk. Set up your team today with 3 easy steps...
                 </p>
               </div>
               <button 

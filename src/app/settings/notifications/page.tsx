@@ -66,7 +66,7 @@ export default function NotificationsPage() {
                 </h3>
                 <p className="text-[10px] text-muted-foreground uppercase">
                   {isDentist 
-                    ? 'System actions triggered when your practice sends a new referral'
+                    ? 'System actions triggered when your practice sends a referral'
                     : 'System actions triggered when you process an incoming referral'}
                 </p>
               </div>
