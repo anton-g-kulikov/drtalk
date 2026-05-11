@@ -13,7 +13,8 @@ import {
   Stethoscope as StethoscopeIcon,
   Shield as ShieldIcon,
   GraduationCap as GraduationCapIcon,
-  Search as SearchIcon
+  Search as SearchIcon,
+  Plus as PlusIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -94,79 +95,117 @@ function OnboardingContent() {
     switch (step) {
       case 'AUTH':
         return (
-          <div className="space-y-6 w-full max-w-sm">
-            <div className="text-center space-y-2">
-              <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">drTalk Account</h1>
-              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Create account to create or join a practice</p>
-            </div>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <label className="text-[10px] font-bold uppercase">Email Address</label>
-                  <CommentMarker 
-                    id="onboarding-email-policy"
-                    title="Corporate Email Policy"
-                    description="Personal emails will be checked and discouraged. The system will ask users to register with a corporate email, but they would still be able to continue with a Gmail/personal account if a professional one is unavailable."
-                  />
+          <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch animate-in fade-in duration-500">
+            <section className="wireframe-card p-8 sm:p-10 bg-black text-white flex flex-col justify-between">
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <p className="text-[10px] uppercase font-black tracking-widest text-white/60">drTalk Referral Network</p>
+                  <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight">
+                    Coordinate care. Strengthen your network.
+                  </h2>
+                  <p className="text-[11px] uppercase leading-relaxed font-bold text-white/70">
+                    Modernize how your practice communicates. Send and receive referrals in real-time, replacing phone tag and fax with seamless clinical coordination.
+                  </p>
                 </div>
-                <input 
-                  type="email" 
-                  placeholder="doctor@practice.com" 
-                  className="wireframe-input" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                {isPersonalEmail && !isLogin && (
-                  <div className="flex gap-3 items-start p-3 mt-2 bg-gray-50 border border-black border-dashed">
-                    <AlertTriangleIcon size={16} className="mt-0.5 shrink-0 text-black" />
-                    <p className="text-[10px] uppercase font-bold leading-relaxed text-black">
-                      Please use your corporate email address. Accounts with personal emails will require additional verification.
-                    </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    { icon: Building2Icon, title: 'Practice Setup', desc: 'Go live today' },
+                    { icon: UsersIcon, title: 'Care Coordination', desc: 'Track every patient' },
+                    { icon: PlusIcon, title: 'Learning Hub', desc: 'Clinical resources' },
+                  ].map((feature) => (
+                    <div key={feature.title} className="border border-white/20 p-4 space-y-3">
+                      <feature.icon size={20} className="text-white/80" />
+                      <div>
+                        <p className="text-[9px] uppercase font-black">{feature.title}</p>
+                        <p className="text-[8px] uppercase font-bold text-white/50">{feature.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-8 pt-6 border-t border-white/20 border-dashed">
+                <p className="text-[9px] uppercase font-bold text-white/40 italic">Connect. Coordinate. Elevate your practice.</p>
+              </div>
+            </section>
+
+            <section className="wireframe-card p-8 sm:p-10 flex flex-col justify-center space-y-8">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">
+                  {isLogin ? 'Welcome Back' : 'Create Account'}
+                </h1>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  {isLogin ? 'Log in to your practice workspace' : 'Join the referral network today'}
+                </p>
+              </div>
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <label className="text-[10px] font-bold uppercase">Email Address</label>
+                    <CommentMarker 
+                      id="onboarding-email-policy"
+                      title="Corporate Email Policy"
+                      description="Personal emails will be checked and discouraged."
+                    />
+                  </div>
+                  <input 
+                    type="email" 
+                    placeholder="doctor@practice.com" 
+                    className="wireframe-input" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  {isPersonalEmail && !isLogin && (
+                    <div className="flex gap-3 items-start p-3 mt-2 bg-gray-50 border border-black border-dashed">
+                      <AlertTriangleIcon size={16} className="mt-0.5 shrink-0 text-black" />
+                      <p className="text-[10px] uppercase font-bold leading-relaxed text-black">
+                        Please use your corporate email address.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Password</label>
+                  <input type="password" placeholder="••••••••" className="wireframe-input" />
+                </div>
+                {!isLogin && (
+                  <div className="flex gap-4">
+                    <div className="space-y-1 flex-1">
+                      <label className="text-[10px] font-bold uppercase">First Name</label>
+                      <input 
+                        type="text" 
+                        className="wireframe-input" 
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1 flex-1">
+                      <label className="text-[10px] font-bold uppercase">Last Name</label>
+                      <input 
+                        type="text" 
+                        className="wireframe-input" 
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                      />
+                    </div>
                   </div>
                 )}
+                <button 
+                  onClick={() => nextStep('VERIFY')}
+                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
+                >
+                  {isLogin ? 'Login' : 'Create Account'}
+                </button>
               </div>
-              <div className="space-y-1">
-                <label className="text-[10px] font-bold uppercase">Password</label>
-                <input type="password" placeholder="••••••••" className="wireframe-input" />
-              </div>
-              {!isLogin && (
-                <div className="flex gap-4">
-                  <div className="space-y-1 flex-1">
-                    <label className="text-[10px] font-bold uppercase">First Name</label>
-                    <input 
-                      type="text" 
-                      className="wireframe-input" 
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1 flex-1">
-                    <label className="text-[10px] font-bold uppercase">Last Name</label>
-                    <input 
-                      type="text" 
-                      className="wireframe-input" 
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                    />
-                  </div>
-                </div>
-              )}
-              <button 
-                onClick={() => nextStep('VERIFY')}
-                className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
-              >
-                {isLogin ? 'Login' : 'Create Account'}
-              </button>
-            </div>
-            <p className="text-center text-[10px] uppercase font-black tracking-tighter">
-              {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
-              <span 
-                className="text-black cursor-pointer underline ml-1" 
-                onClick={() => setIsLogin(!isLogin)}
-              >
-                {isLogin ? 'Sign Up' : 'Login'}
-              </span>
-            </p>
+              <p className="text-center text-[10px] uppercase font-black tracking-tighter">
+                {isLogin ? "Don't have an account?" : "Already have an account?"} {' '}
+                <span 
+                  className="text-black cursor-pointer underline ml-1" 
+                  onClick={() => setIsLogin(!isLogin)}
+                >
+                  {isLogin ? 'Sign Up' : 'Login'}
+                </span>
+              </p>
+            </section>
           </div>
         );
 
