@@ -13,6 +13,7 @@ type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCES
 export default function GuestReferralPage() {
   const [step, setStep] = useState<ReferralStep>('IDENTIFY');
   const [email, setEmail] = useState('');
+  const [doctorName, setDoctorName] = useState('');
   const [practiceName, setPracticeName] = useState('');
   const router = useRouter();
 
@@ -45,6 +46,16 @@ export default function GuestReferralPage() {
                     className="wireframe-input" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
+                  <input 
+                    type="text" 
+                    placeholder="Dr. Smith" 
+                    className="wireframe-input" 
+                    value={doctorName}
+                    onChange={(e) => setDoctorName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">

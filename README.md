@@ -1,91 +1,146 @@
-# drTalk Platform Prototype
+# drTalk Prototype
 
-This repository contains a high-fidelity, interactive prototype of the drTalk platform, featuring a professional black-and-white "wireframe" aesthetic. It is designed to demonstrate core workflows including onboarding, referral management, clinical collaboration, and practice networking.
+`drTalk` is a high-fidelity product prototype for dental referral workflows. The app models two main tracks:
 
-## 🚀 Live Prototype
-The prototype is automatically deployed and accessible at:
-**[https://prototype.drtalk.com](https://prototype.drtalk.com)**
+- dentist users who create referrals and monitor specialist follow-up
+- specialist practices that intake referrals, coordinate care, and manage patient communication
 
-## ✨ Key Features
+This repository currently represents a static-exported frontend prototype. Most workflow data is mocked in the client. The live comment panel is the only feature wired to Supabase.
 
-### 1. Referral Management (Activity Center)
-A comprehensive system for tracking and processing clinical referrals with specialized views for both Sending and Receiving practices.
-- **Specialist Pipeline**: 4-stage processing: `Received`, `Working on`, `Processed`, and `Archived`.
-- **Dentist Tracking**: Status updates for sent cases: `Draft`, `Sent`, `Accepted`, `Scheduled`, `In Progress`, and `Completed`.
-- **Referral Detail View**: Full patient context, attachments, and clinical history.
-- **AI-Assisted Processing**: UI indicators for data extraction confidence and manual correction banners.
+## Current Prototype Scope
 
-### 2. Clinical Communication (Channels)
-Secure, context-aware messaging for clinical teams.
-- **Internal Channels**: Dedicated spaces for practice-wide discussion.
-- **Case-Specific Chat**: Communication tied directly to specific patient referrals.
-- **Inter-Practice Hubs**: Seamless collaboration between dentists and specialists.
+- landing page that branches into dentist and specialist tracks
+- guest referral submission flow at `/referral`
+- account and practice onboarding flow at `/onboarding`
+- owner verification gate at `/verify`
+- specialist dashboard, referrals queue, referral detail, channels, network, learning hub, and settings flows
+- dentist dashboard, referral creation, sent-referral tracking, channels, network, learning hub, and settings flows
+- team and PHI access management screens
+- subscription trial/paywall prototype for specialist practices
+- contextual feedback markers with a Supabase-backed side panel
 
-### 3. Practice Network & Directory
-A searchable ecosystem for finding and connecting with clinical partners.
-- **Specialist Network**: For dentists to find, vet, and refer patients to specialists.
-- **Dentist Network**: For specialists to discover and manage relationships with referring practices.
-- **Bidirectional Connections**: Streamlined "Connect" and "Refer" workflows.
+## Architecture Summary
 
-### 4. Learning Hub (Academy)
-Integrated educational module for continuous professional development and practice growth.
+- framework: `Next.js 16` App Router
+- language: `TypeScript`
+- styling: `Tailwind CSS`
+- icons: `lucide-react`
+- data model: hard-coded mock data for most product surfaces
+- persisted prototype state: browser `localStorage`
+- comments backend: `@supabase/supabase-js`
+- deployment target: static export via `next build` to `out/`
 
-### 5. Multi-Role Dashboard
-Tailored experiences for different clinical roles:
-- **Dentist Dashboard**: Focus on outgoing referrals, patient capture, and clinical networking.
-- **Specialist Dashboard**: Focus on incoming case volume, processing efficiency, and referring partner management.
+More durable system notes live in [_meta/system-documentation.md](/Users/antonkulikov/Projects/drtalk/_meta/system-documentation.md).
 
-### 6. Prototype Feedback System
-Integrated real-time commenting system using **Supabase**.
-- **Contextual Annotations**: Feedback markers placed throughout the UI.
-- **Anonymous Participation**: Allows viewers to leave feedback without formal accounts.
+## Key Runtime Behaviors
 
-## 🎨 Design Aesthetic
-- **Wireframe Aesthetic**: High-contrast B&W theme to focus on workflow and architecture.
-- **Mobile First**: Fully optimized for Desktop, Tablet, and Mobile viewports.
-- **Interactive Transitions**: Smooth UI state changes and modal-based workflows.
+- verification state is stored locally and gates referral processing / PHI access
+- subscription state is stored locally and drives the trial banner and paywall modal
+- navigation labels and some page copy adapt based on whether the pathname is under `/dentist`
+- comment markers open a shared review panel and read/write comment threads from Supabase
+- if Supabase env vars are missing, the app still renders but comment requests target a placeholder client
 
-## 🛠 Tech Stack
-- **Framework**: Next.js 15+ (App Router)
-- **Styling**: Tailwind CSS
-- **Icons**: Lucide React
-- **Persistence**: Supabase (for prototype feedback)
-- **Deployment**: GitHub Pages (Static Export)
+## Repository Layout
 
-## 📂 Project Structure
-- `src/app/`: Core application routes and layouts.
-- `src/components/`: Reusable UI components and specialized modules (Comments, Navigation).
-- `src/lib/`: Shared utilities, types, and API clients.
-- `_meta/`: Design documentation, implementation plans, and domain models.
+- `src/app` route files and layouts
+- `src/components` shared UI, comments, verification, subscription, and team-management components
+- `src/lib` small client utilities such as Supabase initialization
+- `_meta` product, system, and project-status documentation
+- `test` test-status and verification notes
+- `out` generated static export output
 
-## 🏁 Getting Started
+## Local Setup
 
 ### Prerequisites
-- Node.js 18+
+
+- Node.js `20+`
 - npm
 
-### Installation
+### Install
+
 ```bash
 npm install
 ```
 
-### Development
+### Environment
+
+The comment system expects these public environment variables:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+You can start from [`.env.example`](/Users/antonkulikov/Projects/drtalk/.env.example).
+
+### Run
+
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-### Build & Export
+Open [http://localhost:3000](http://localhost:3000).
+
+### Checks
+
 ```bash
+npm run lint
 npm run build
 ```
-The static export will be generated in the `out/` directory.
 
-## 📖 Documentation
-Detailed project documentation and research are available in the `/_meta` directory:
-- `implementation_plan.md`: Detailed implementation steps.
-- `project-task-list.md`: Current progress and roadmap.
-- `schema.json`: Data models.
-- `drtalk_ Objects and Roles model.md`: Detailed domain model.
-- `drtalk_ Progressive Onboarding v2.md`: Onboarding logic.
-- `drtalk_ Referrals&Activity Center.md`: Referral processing details.
+The static export is written to `out/`.
+
+## Route Map
+
+Public entry points:
+
+- `/`
+- `/referral`
+- `/onboarding`
+- `/verify`
+- `/specialist`
+- `/dentist`
+
+Specialist routes:
+
+- `/dashboard`
+- `/referrals`
+- `/referrals/[id]`
+- `/channels`
+- `/network`
+- `/academy`
+- `/settings`
+- `/settings/notifications`
+- `/dashboard/settings/team`
+- `/dashboard/settings/team/[id]`
+
+Dentist routes:
+
+- `/dentist/dashboard`
+- `/dentist/referral`
+- `/dentist/referrals`
+- `/dentist/channels`
+- `/dentist/network`
+- `/dentist/academy`
+- `/dentist/settings`
+- `/dentist/settings/notifications`
+- `/dentist/settings/team`
+- `/dentist/settings/team/[id]`
+
+## Known Limitations
+
+- no automated test suite is checked into the repo yet
+- most business entities are mocked inline in page/component files
+- several actions are intentionally non-persistent or placeholder-only
+- some routes model product intent rather than complete backend behavior
+- the prototype is heavily client-side and is not suitable for production PHI handling
+
+## Documentation
+
+- [_meta/system-documentation.md](/Users/antonkulikov/Projects/drtalk/_meta/system-documentation.md): current technical behavior and ownership boundaries
+- [_meta/project-task-list.md](/Users/antonkulikov/Projects/drtalk/_meta/project-task-list.md): delivered scope and remaining work
+- [_meta/implementation_plan.md](/Users/antonkulikov/Projects/drtalk/_meta/implementation_plan.md): implementation snapshot and near-term focus
+- [test/test-documentation.md](/Users/antonkulikov/Projects/drtalk/test/test-documentation.md): current verification approach and gaps
+- [_meta/drtalk_ Objects and Roles model.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Objects and Roles model.md>): domain model notes
+- [_meta/drtalk_ Progressive Onboarding v2.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Progressive Onboarding v2.md>): onboarding concept notes
+- [_meta/drtalk_ Referrals&Activity Center.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Referrals&Activity Center.md>): referral workflow concept notes

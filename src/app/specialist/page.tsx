@@ -4,12 +4,14 @@ import React, { useState } from 'react';
 import { ArrowRight, Building2, LogIn, Plus, Users } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
+import { useVerification } from '@/components/VerificationContext';
 
 type SpecialistMode = 'login' | 'signup';
 
 export default function SpecialistEntryPage() {
   const [mode, setMode] = useState<SpecialistMode>('login');
   const router = useRouter();
+  const { verify } = useVerification();
 
   return (
     <main className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-8">
@@ -64,7 +66,7 @@ export default function SpecialistEntryPage() {
 
           <div className="space-y-2">
             <h2 className="text-2xl font-black uppercase tracking-tighter">
-              {mode === 'login' ? 'Specialist Login' : 'Create Specialist Workspace'}
+              {mode === 'login' ? 'Specialist Login' : 'Create Practice Workspace'}
             </h2>
             <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed">
               {mode === 'login'
@@ -90,7 +92,7 @@ export default function SpecialistEntryPage() {
                 <div className="space-y-2">
                   <p className="text-xs font-bold uppercase">New to drTalk?</p>
                   <p className="text-[10px] uppercase text-muted-foreground leading-relaxed">
-                    Set up your specialist account to begin receiving referrals and collaborating with dentist practices.
+                    Set up your practice account to begin receiving referrals and collaborating with dentist practices.
                   </p>
                 </div>
                 <div className="bg-gray-50 border border-black/10 p-4 space-y-3">
@@ -109,10 +111,17 @@ export default function SpecialistEntryPage() {
           </div>
 
           <button
-            onClick={() => router.push(mode === 'signup' ? '/onboarding' : '/dashboard')}
+            onClick={() => {
+              if (mode === 'login') {
+                verify('owner');
+                router.push('/dashboard');
+              } else {
+                router.push('/onboarding');
+              }
+            }}
             className="wireframe-button w-full bg-black text-white py-4 text-[10px] uppercase font-black flex items-center justify-center gap-2"
           >
-            {mode === 'login' ? 'Enter Specialist Dashboard' : 'Start Specialist Onboarding'}
+            {mode === 'login' ? 'Enter Specialist Dashboard' : 'Start Onboarding'}
             {mode === 'login' ? <LogIn size={14} /> : <ArrowRight size={14} />}
           </button>
         </section>

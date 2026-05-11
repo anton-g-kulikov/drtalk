@@ -10,16 +10,6 @@
   --muted-foreground: #6b7280;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --border: #ffffff;
-    --muted: #1f2937;
-    --muted-foreground: #9ca3af;
-  }
-}
-
 body {
   color: var(--foreground);
   background: var(--background);

@@ -2,14 +2,14 @@
 // Navigation components
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug, Building2 as Building2Icon } from 'lucide-react';
 import { useVerification } from './VerificationContext';
 import { useSubscription } from './SubscriptionContext';
 
 export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const pathname = usePathname();
-  const { reset: resetVerification } = useVerification();
+  const { userRole, reset: resetVerification, setNoOwnerYet } = useVerification();
   const { endTrial, resetSubscription } = useSubscription();
   const isDentist = pathname.startsWith('/dentist');
   const navItems = isDentist
@@ -27,6 +27,10 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
         { icon: Users, label: 'Network', href: '/network' },
       ];
+  
+  const filteredNavItems = userRole === 'individual'
+    ? navItems.filter(item => item.label === 'Learning Hub')
+    : navItems;
 
   return (
     <div className={`w-64 h-full border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'hidden lg:flex'}`}>
@@ -42,7 +46,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         <h2 className="font-bold text-xl uppercase tracking-tighter italic">drTalk</h2>
       </div>
       <nav className="flex-1 p-4 space-y-2">
-        {navItems.filter(item => item.label !== 'Learning Hub').map((item) => {
+        {filteredNavItems.filter(item => item.label !== 'Learning Hub').map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -67,7 +71,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         </div>
 
         {/* Learning Hub Section */}
-        {navItems.filter(item => item.label === 'Learning Hub').map((item) => {
+        {filteredNavItems.filter(item => item.label === 'Learning Hub').map((item) => {
           const isActive = pathname === item.href;
           return (
             <Link
@@ -94,6 +98,12 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
         </div>
         <div className="space-y-1">
+          <button 
+            onClick={setNoOwnerYet}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            No Owner Yet
+          </button>
           <button 
             onClick={resetVerification}
             className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
@@ -123,13 +133,13 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
             pathname === (isDentist ? '/dentist/settings' : '/settings')
               ? 'bg-black text-white'
               : 'hover:bg-gray-100'
-          }`}
+          } ${userRole === 'individual' ? 'hidden' : ''}`}
         >
           <Settings size={18} />
           Practice
         </Link>
         <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
-          {isDentist ? 'Dentist Track' : 'Specialist Track'} / Prototype 1.1
+          {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.1
         </p>
       </div>
     </div>
@@ -140,11 +150,12 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
-  const workspaceName = isDentist ? 'Sunshine Dental' : 'Valley Endodontics';
+  const { userRole } = useVerification();
+  const workspaceName = userRole === 'individual' ? 'My Account' : (isDentist ? 'Sunshine Dental' : 'Valley Endodontics');
   const accountName = isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist';
   const accountEmail = isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com';
-  const roleLabel = isDentist ? 'Dentist Account' : 'Practice Admin';
-  const statusLabel = isDentist ? 'Dentist Practice' : 'Specialist Practice';
+  const roleLabel = userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Account' : 'Practice Admin');
+  const statusLabel = userRole === 'individual' ? 'Learning Hub' : (isDentist ? 'Dentist Practice' : 'Specialist Practice');
 
   return (
     <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
@@ -214,3 +225,4 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
     </header>
   );
 };
+

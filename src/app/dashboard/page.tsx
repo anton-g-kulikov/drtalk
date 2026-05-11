@@ -14,11 +14,11 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isVerified, setShowVerification } = useVerification();
+  const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
-      setShowVerification(true);
+      router.push('/verify');
     } else {
       router.push(`/referrals/${id}`);
     }
@@ -46,10 +46,33 @@ export default function DashboardPage() {
                 </div>
               </div>
               <button
-                onClick={() => setShowVerification(true)}
+                onClick={() => router.push('/verify')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
               >
                 Verify Identity Now
+              </button>
+            </div>
+          )}
+
+          {/* Practice Owner Nudge */}
+          {isVerified && !hasPracticeOwner && (
+            <div className="wireframe-card border-black bg-white p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500 border-dashed">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-gray-50">
+                  <Users className="text-black" size={24} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Practice Owner Required</h3>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                    This practice does not have a verified owner yet. Please invite a doctor to verify their identity and unlock full clinical capabilities.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/dashboard/settings/team')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+              >
+                Invite Practice Owner
               </button>
             </div>
           )}
@@ -60,7 +83,7 @@ export default function DashboardPage() {
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
-              <CommentMarker id="dashboard-specialist" title="Specialist Dashboard" description="The main overview for specialist practices." />
+              <CommentMarker id="dashboard-practice" title="Practice Dashboard" description="The main overview for the practice workspace." />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Receive referrals, process cases, coordinate with dentists, and manage patient communication.

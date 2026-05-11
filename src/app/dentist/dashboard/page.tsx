@@ -8,6 +8,8 @@ import {
   TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap
 } from 'lucide-react';
 
+import { useVerification } from '@/components/VerificationContext';
+
 type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed';
 
 interface SentReferral {
@@ -64,6 +66,7 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 export default function DentistDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+  const { isVerified, hasPracticeOwner } = useVerification();
 
   const filteredReferrals = sentReferrals.filter((referral) =>
     referral.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,6 +77,56 @@ export default function DentistDashboardPage() {
   return (
     <MainLayout title="Dentist Dashboard">
       <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Status Banners */}
+        <div className="space-y-4">
+          
+          {/* Verification Alert */}
+          {!isVerified && (
+            <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
+                  <AlertCircle className="text-black" size={24} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                    Practice owner verification is required to refer patients and access PHI.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/verify')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+              >
+                Verify Identity Now
+              </button>
+            </div>
+          )}
+
+          {/* Practice Owner Nudge */}
+          {isVerified && !hasPracticeOwner && (
+            <div className="wireframe-card border-black bg-white p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500 border-dashed">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-gray-50">
+                  <Users className="text-black" size={24} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Practice Owner Required</h3>
+                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
+                    This practice does not have a verified owner yet. Please invite a doctor to verify their identity and unlock full clinical capabilities.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => router.push('/dentist/settings')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+              >
+                Invite Practice Owner
+              </button>
+            </div>
+          )}
+        </div>
         
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
@@ -131,12 +184,18 @@ export default function DentistDashboardPage() {
               
               <div className="space-y-3">
                 {[
-                  { id: '1005', patient: 'Sarah Jenkins', reason: 'Unfinished Draft', type: 'Endodontic' },
-                  { id: '1002', patient: 'Marco Reyes', reason: 'Missing Pano Image', type: 'Extraction' },
+                  { id: '1005', patient: 'Sarah Jenkins', reason: 'Unfinished Draft', type: 'Endodontic', specialist: 'Valley Endodontics' },
+                  { id: '1002', patient: 'Marco Reyes', reason: 'Missing Pano Image', type: 'Extraction', specialist: 'Downtown Oral Surgery' },
                 ].map((item, i) => (
                   <div 
                     key={i} 
-                    onClick={() => router.push(item.reason === 'Unfinished Draft' ? '/dentist/referral' : '/dentist/channels')}
+                    onClick={() => {
+                      if (item.reason === 'Unfinished Draft') {
+                        router.push('/dentist/referral');
+                      } else {
+                        router.push(`/dentist/channels?practice=${encodeURIComponent(item.specialist)}`);
+                      }
+                    }}
                     className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-zinc-100 cursor-pointer border-black group transition-all"
                   >
                     <div className="space-y-1">
@@ -172,7 +231,11 @@ export default function DentistDashboardPage() {
 
               <div className="space-y-3">
                 {filteredReferrals.map((referral) => (
-                  <div key={referral.id} className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer" onClick={() => router.push('/dentist/channels')}>
+                  <div 
+                    key={referral.id} 
+                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer" 
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
+                  >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                       <div className="md:col-span-4">
                         <p className="text-xs font-black uppercase">{referral.patientName}</p>
@@ -236,16 +299,23 @@ export default function DentistDashboardPage() {
                 <h3 className="font-bold uppercase text-xs tracking-widest">Specialist Conversations</h3>
               </div>
               <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => router.push('/dentist/channels')}>
-                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">VE</div>
+                {[
+                  { id: 1, name: 'Valley Endodontics', msg: 'Regarding Alice Cooper: pano received.', initials: 'VE' },
+                  { id: 2, name: 'Downtown Oral Surgery', msg: 'Requesting pano image for Marco Reyes.', initials: 'DO' }
+                ].map((item) => (
+                  <div 
+                    key={item.id} 
+                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" 
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(item.name)}`)}
+                  >
+                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex justify-between items-baseline">
-                        <p className="text-[9px] font-bold uppercase truncate">{i === 1 ? 'Valley Endodontics' : 'Downtown Oral Surgery'}</p>
+                        <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
                         <span className="text-[7px] text-muted-foreground uppercase shrink-0">15m ago</span>
                       </div>
                       <p className="text-[9px] uppercase truncate opacity-70 italic">
-                        {i === 1 ? 'Regarding Alice Cooper: pano received.' : 'Requesting pano image for Marco Reyes.'}
+                        {item.msg}
                       </p>
                     </div>
                   </div>

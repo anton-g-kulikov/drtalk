@@ -7,36 +7,57 @@ import {
   CheckCircle2 as CheckCircle2Icon, 
   ShieldCheck as ShieldCheckIcon, 
   Users as UsersIcon, 
-  Building2 as Building2Icon 
+  Building2 as Building2Icon,
+  AlertTriangle as AlertTriangleIcon,
+  UserCircle as UserCircleIcon,
+  Stethoscope as StethoscopeIcon,
+  Shield as ShieldIcon,
+  GraduationCap as GraduationCapIcon,
+  Search as SearchIcon
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
+import { useVerification, UserRole } from '@/components/VerificationContext';
 
 type OnboardingStep = 
   | 'AUTH' 
   | 'VERIFY' 
+  | 'USER_ROLE'
   | 'ROLE_SELECTION' 
   | 'PRACTICE_DETAILS' 
   | 'JOIN_PRACTICE'
-  | 'PRACTICE_VERIFY' 
   | 'PRACTICE_INVITE' 
   | 'SUCCESS';
 
 function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
+  const [userRole, setUserRole] = useState<UserRole>('owner');
   const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+  const [city, setCity] = useState('');
+  const [zipCode, setZipCode] = useState('');
+  const [fullAddress, setFullAddress] = useState('');
+  const [selectedState, setSelectedState] = useState('CA');
+
+
+  const isPersonalEmail = React.useMemo(() => {
+    if (!email || !email.includes('@')) return false;
+    const domain = email.split('@')[1].toLowerCase();
+    const personalDomains = ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'icloud.com', 'aol.com', 'live.com'];
+    return personalDomains.includes(domain);
+  }, [email]);
 
   const [invites, setInvites] = useState<{email: string, role: string}[]>([
     { email: '', role: 'admin' },
     { email: '', role: 'clinical' }
   ]);
+
   
   const addInvite = () => {
     if (invites.length < 10) {
@@ -50,6 +71,7 @@ function OnboardingContent() {
     setInvites(newInvites);
   };
   const router = useRouter();
+  const { verify } = useVerification();
 
   const dentalTypes = [
     'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
@@ -93,6 +115,14 @@ function OnboardingContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
+                {isPersonalEmail && !isLogin && (
+                  <div className="flex gap-3 items-start p-3 mt-2 bg-gray-50 border border-black border-dashed">
+                    <AlertTriangleIcon size={16} className="mt-0.5 shrink-0 text-black" />
+                    <p className="text-[10px] uppercase font-bold leading-relaxed text-black">
+                      Please use your corporate email address. Accounts with personal emails will require additional verification.
+                    </p>
+                  </div>
+                )}
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Password</label>
@@ -165,23 +195,82 @@ function OnboardingContent() {
           </div>
         );
 
+      case 'USER_ROLE':
+        return (
+          <div className="w-full max-w-lg animate-in fade-in slide-in-from-right-4 duration-500">
+            <div className="border-4 border-black bg-white p-8 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] space-y-10">
+              <div className="flex items-center gap-4">
+                <button onClick={() => nextStep('PRACTICE_DETAILS')} className="w-10 h-10 border-2 border-black flex items-center justify-center hover:bg-black hover:text-white transition-all">
+                  <ArrowLeftIcon size={16} />
+                </button>
+                <div>
+                  <h1 className="text-3xl font-black uppercase tracking-tighter leading-none italic">CHOOSE YOUR ROLE</h1>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1 tracking-widest">REQUIREMENT FOR PRACTICE SETUP</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { id: 'owner', label: 'Practice Owner (Doctor)', desc: 'I am the licensed professional responsible for this practice.' },
+                  { id: 'clinical', label: 'Clinical Personnel', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                  { id: 'admin', label: 'Administrative Personnel', desc: 'I manage office operations and scheduling.' }
+                ].map((role) => (
+                  <button
+                    key={role.id}
+                    onClick={() => setUserRole(role.id as UserRole)}
+                    className={`wireframe-card w-full p-8 text-left transition-all flex flex-col gap-1 border-2 ${
+                      userRole === role.id 
+                        ? 'bg-black text-white border-black' 
+                        : 'bg-white hover:bg-gray-50 border-black'
+                    }`}
+                  >
+                    <p className="font-black uppercase text-base tracking-tight">{role.label}</p>
+                    <p className={`text-[10px] uppercase font-bold leading-relaxed ${
+                      userRole === role.id ? 'text-gray-400' : 'text-muted-foreground'
+                    }`}>
+                      {role.desc}
+                    </p>
+                  </button>
+                ))}
+
+                <div className="pt-6">
+                  <button 
+                    onClick={() => {
+                      if (userRole !== 'owner') {
+                        const hasOwnerInvite = invites.some(i => i.role === 'owner');
+                        if (!hasOwnerInvite) {
+                          setInvites([{ email: '', role: 'owner' }, ...invites]);
+                        }
+                      }
+                      nextStep('PRACTICE_INVITE');
+                    }}
+                    className="wireframe-button bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] w-full flex items-center justify-center gap-2"
+                  >
+                    CONTINUE <ChevronRightIcon size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'ROLE_SELECTION':
         return (
           <div className="space-y-12 w-full max-w-4xl px-4">
             <div className="text-center space-y-3">
               <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
-              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A SPECIALIST PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div 
                 onClick={() => nextStep('PRACTICE_DETAILS')}
                 className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
               >
                 <Building2Icon size={48} className="mb-2" />
                 <div className="space-y-4">
-                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE SPECIALIST PRACTICE</h3>
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">CREATE PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
-                    Set up a specialist profile to receive referrals and coordinate patient communication.
+                    Set up a profile to receive referrals and coordinate patient communication.
                   </p>
                 </div>
               </div>
@@ -194,6 +283,21 @@ function OnboardingContent() {
                   <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
                     Enter with an invite code or request access from a practice administrator.
+                  </p>
+                </div>
+              </div>
+              <div
+                onClick={() => {
+                  setUserRole('individual');
+                  nextStep('SUCCESS');
+                }}
+                className="wireframe-card border-dotted hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
+              >
+                <GraduationCapIcon size={48} className="mb-2" />
+                <div className="space-y-4">
+                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">INDIVIDUAL LEARNING HUB</h3>
+                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
+                    Access the Learning Hub to view courses and educational content without a practice.
                   </p>
                 </div>
               </div>
@@ -212,17 +316,31 @@ function OnboardingContent() {
                 <ArrowLeftIcon size={20} />
               </button>
               <div>
-                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">SPECIALIST PRACTICE DETAILS</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 1 OF 2</p>
+                <h1 className="text-3xl font-black uppercase tracking-tighter leading-none">PRACTICE DETAILS</h1>
               </div>
             </div>
             
             <div className="space-y-6">
-              <div className="grid grid-cols-[120px_1fr] gap-6">
+              {/* Location Group */}
+              <div className="grid grid-cols-[1fr_100px_120px] gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input 
+                    type="text" 
+                    placeholder="Beverly Hills" 
+                    className="wireframe-input py-4 px-4 text-sm" 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
                   <div className="relative">
-                    <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8">
+                    <select 
+                      value={selectedState}
+                      onChange={(e) => setSelectedState(e.target.value)}
+                      className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8"
+                    >
                       <option>CA</option>
                       <option>NY</option>
                       <option>TX</option>
@@ -235,35 +353,29 @@ function OnboardingContent() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
-                    <CommentMarker 
-                      id="onboarding-practice-search"
-                      title="Practice Search"
-                      description="Practice name will work as search/filter after first 3 letters suggesting users to select a practice from drtalk db."
-                    />
-                  </div>
+                  <label className="text-[10px] font-black uppercase tracking-widest">ZIP CODE</label>
                   <input 
                     type="text" 
-                    placeholder="Valley Endodontics" 
+                    placeholder="90210" 
                     className="wireframe-input py-4 px-4 text-sm" 
-                    value={practiceName}
-                    onChange={(e) => setPracticeName(e.target.value)}
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
-                  <input type="text" placeholder="Beverly Hills" className="wireframe-input py-4 px-4 text-sm" />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
-                  <input type="text" placeholder="123 Dental Way, Ste 100" className="wireframe-input py-4 px-4 text-sm" />
-                </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
+                <input 
+                  type="text" 
+                  placeholder="123 Dental Way, Ste 100" 
+                  className="wireframe-input py-4 px-4 text-sm" 
+                  value={fullAddress}
+                  onChange={(e) => setFullAddress(e.target.value)}
+                />
               </div>
 
+              {/* Categorization Group */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
@@ -286,8 +398,20 @@ function OnboardingContent() {
                 </div>
               </div>
 
+              {/* Name at the end */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                <input 
+                  type="text" 
+                  placeholder="Valley Endodontics" 
+                  className="wireframe-input py-4 px-4 text-sm" 
+                  value={practiceName}
+                  onChange={(e) => setPracticeName(e.target.value)}
+                />
+              </div>
+
               <button 
-                onClick={() => nextStep('PRACTICE_INVITE')}
+                onClick={() => nextStep('USER_ROLE')}
                 className="wireframe-button w-full bg-black text-white py-5 uppercase text-sm font-black tracking-[0.2em] mt-4 flex items-center justify-center gap-2"
               >
                 NEXT STEP <ChevronRightIcon size={18} />
@@ -379,55 +503,16 @@ function OnboardingContent() {
           </div>
         );
 
-      case 'PRACTICE_VERIFY':
-        return (
-          <div className="space-y-8 w-full max-w-lg">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeftIcon size={16} />
-              </button>
-              <div>
-                <h1 className="text-2xl font-bold uppercase tracking-tighter">NPI Lookup</h1>
-                <p className="text-[10px] text-muted-foreground uppercase">Step 2 of 3</p>
-              </div>
-            </div>
-            <div className="wireframe-card bg-gray-50 space-y-4">
-              <div className="flex gap-4 items-start">
-                <ShieldCheckIcon className="text-black shrink-0" size={24} />
-                <p className="text-[10px] uppercase font-bold leading-relaxed">
-                  Add an NPI now to autofill practice information. Owner verification happens later when PHI/referral processing is triggered.
-                </p>
-              </div>
-              <div className="space-y-4 pt-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">National Provider Identifier (Optional)</label>
-                  <input type="text" placeholder="10-digit number" className="wireframe-input bg-white" />
-                </div>
-                <div className="p-4 border border-black border-dashed text-center">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Registry match preview</p>
-                  <button className="text-[10px] font-bold underline uppercase">Use Autofilled Practice Data</button>
-                </div>
-              </div>
-            </div>
-            <button 
-              onClick={() => nextStep('PRACTICE_INVITE')}
-              className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm flex items-center justify-center gap-2"
-            >
-              Save & Continue <ChevronRightIcon size={16} />
-            </button>
-          </div>
-        );
 
       case 'PRACTICE_INVITE':
         return (
           <div className="space-y-8 w-full max-w-lg">
             <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('PRACTICE_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => nextStep('USER_ROLE')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>
                 <h1 className="text-2xl font-bold uppercase tracking-tighter">Invite Your Team</h1>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">STEP 2 OF 2</p>
               </div>
             </div>
             <div className="space-y-6">
@@ -458,6 +543,7 @@ function OnboardingContent() {
                           onChange={(e) => updateInvite(index, 'role', e.target.value)}
                           className="wireframe-input w-full appearance-none bg-transparent py-4 px-4 text-[10px] font-black uppercase tracking-widest text-center pr-8"
                         >
+                          <option value="owner">Owner</option>
                           <option value="admin">Admin</option>
                           <option value="clinical">Clinical</option>
                         </select>
@@ -508,14 +594,19 @@ function OnboardingContent() {
             <div className="space-y-2">
               <h1 className="text-3xl font-bold uppercase tracking-tighter">Success!</h1>
               <p className="text-xs text-muted-foreground uppercase leading-relaxed">
-                Your practice account is set up.<br />You can now collaborate and manage referrals.
+                {userRole === 'individual' 
+                  ? 'Your learning account is ready. You can now access the Learning Hub.' 
+                  : 'Your practice account is set up. You can now collaborate and manage referrals.'}
               </p>
             </div>
             <button 
-              onClick={() => router.push('/dashboard')}
+              onClick={() => {
+                verify(userRole);
+                router.push(userRole === 'individual' ? '/academy' : '/dashboard');
+              }}
               className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >
-              Go to Dashboard
+              Go to {userRole === 'individual' ? 'Learning Hub' : 'Dashboard'}
             </button>
           </div>
         );
@@ -526,13 +617,6 @@ function OnboardingContent() {
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-8">
       {renderStep()}
       
-      {/* Progress Footer for setup steps */}
-      {['PRACTICE_DETAILS', 'PRACTICE_INVITE', 'JOIN_PRACTICE'].includes(step) && (
-        <div className="fixed bottom-12 flex gap-2">
-          <div className="h-1 w-12 bg-black transition-all" />
-          <div className={`h-1 w-12 transition-all ${['PRACTICE_INVITE', 'SUCCESS'].includes(step) ? 'bg-black' : 'bg-gray-200'}`} />
-        </div>
-      )}
     </main>
   );
 }
