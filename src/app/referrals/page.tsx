@@ -21,11 +21,11 @@ interface Referral {
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Received', receivedAt: '2h ago', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Received', receivedAt: '4h ago', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Working on', receivedAt: '1d ago', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Processed', receivedAt: '2d ago', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Working on', receivedAt: '1h ago', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
 ];
 
 import { useVerification } from '@/components/VerificationContext';
@@ -77,14 +77,12 @@ export default function ReferralsPage() {
         { label: 'Sent (30d)', value: '12', trend: '+2' },
         { label: 'In Progress', value: '08', trend: '0' },
         { label: 'Completed', value: '45', trend: '+5' },
-        { label: 'Total Pipeline', value: '65', trend: '+12' },
       ];
     } else {
       return [
         { label: 'Received (24h)', value: '12', trend: '+2' },
         { label: 'Working on', value: '08', trend: '0' },
         { label: 'Processed', value: '45', trend: '+5' },
-        { label: 'Total Pipeline', value: '65', trend: '+12' },
       ];
     }
   };
@@ -145,7 +143,7 @@ export default function ReferralsPage() {
               onClick={() => router.push('/dentist/referral')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto"
             >
-              New Referral
+              Send a Referral
             </button>
           )}
         </div>
@@ -254,7 +252,7 @@ export default function ReferralsPage() {
                       <div className="col-span-2">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock size={12} />
-                          <span className="text-[10px] font-bold uppercase">{referral.receivedAt}</span>
+                          <span className="text-[10px] font-bold uppercase whitespace-pre-line">{referral.receivedAt}</span>
                         </div>
                       </div>
                       <div className="col-span-1 text-right">
