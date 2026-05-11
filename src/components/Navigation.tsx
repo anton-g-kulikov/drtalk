@@ -91,39 +91,65 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         })}
       </nav>
 
-      {/* Debug Controls */}
-      <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
+      {/* Switch Prototype Menu */}
+      <div className="px-4 py-2 border-t border-black border-dashed">
         <div className="flex items-center gap-2 px-3 mb-2">
-          <Bug size={12} />
-          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
+          <Building2Icon size={12} />
+          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Switch Prototype</p>
         </div>
         <div className="space-y-1">
-          <button 
-            onClick={setNoOwnerYet}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          <Link 
+            href="/dentist/dashboard"
+            onClick={onClose}
+            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${isDentist ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
           >
-            No Owner Yet
-          </button>
-          <button 
-            onClick={resetVerification}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            Dentist Practice
+          </Link>
+          <Link 
+            href="/dashboard"
+            onClick={onClose}
+            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${!isDentist ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
           >
-            Reset Verification
-          </button>
-          <button 
-            onClick={endTrial}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            End Trial
-          </button>
-          <button 
-            onClick={resetSubscription}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            Reset Subscription
-          </button>
+            Specialist Practice
+          </Link>
         </div>
       </div>
+
+      {/* Debug Controls */}
+      {!isDentist && (
+        <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-2 px-3 mb-2">
+            <Bug size={12} />
+            <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
+          </div>
+          <div className="space-y-1">
+            <button 
+              onClick={setNoOwnerYet}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              No Owner Yet
+            </button>
+            <button 
+              onClick={resetVerification}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              Reset Verification
+            </button>
+            <button 
+              onClick={endTrial}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              End Trial
+            </button>
+            <button 
+              onClick={resetSubscription}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              Reset Subscription
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="p-4 border-t-2 border-black space-y-2">
         <Link
