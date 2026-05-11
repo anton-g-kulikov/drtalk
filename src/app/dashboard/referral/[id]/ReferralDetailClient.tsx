@@ -124,7 +124,7 @@ export default function ReferralDetailClient() {
                   </div>
                 </section>
                 <section className="space-y-6">
-                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Clinical Source</h4>
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                   <div className="space-y-5">
                     <DataField label="Referring Dentist" value={referral.dentist} />
                     <DataField label="Input Channel" value={referral.source} />
@@ -134,14 +134,11 @@ export default function ReferralDetailClient() {
 
               <div className="space-y-10">
                 <section className="space-y-6">
-                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Clinical Narrative</h4>
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Reason for Referral</h4>
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[9px] font-bold uppercase text-muted-foreground tracking-tighter">Reason for Referral</label>
-                      <p className="text-xs uppercase leading-relaxed font-bold italic">
-                        Patient experiencing persistent pain in the upper left molar (tooth #14). Requires immediate endodontic evaluation for possible retreatment of root canal.
-                      </p>
-                    </div>
+                    <p className="text-xs uppercase leading-relaxed font-bold italic">
+                      Patient experiencing persistent pain in the upper left molar (tooth #14). Requires immediate endodontic evaluation for possible retreatment of root canal.
+                    </p>
                   </div>
                 </section>
                 <section className="space-y-6">
