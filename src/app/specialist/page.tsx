@@ -19,23 +19,26 @@ export default function SpecialistEntryPage() {
         <section className="wireframe-card p-8 sm:p-10 bg-black text-white flex flex-col justify-between">
           <div className="space-y-8">
             <div className="space-y-3">
-              <p className="text-[10px] uppercase font-black tracking-widest text-white/60">Specialist Prototype</p>
+              <p className="text-[10px] uppercase font-black tracking-widest text-white/60">drTalk Specialist Network</p>
               <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">
-                Manage referrals, practice operations, and care channels.
+                Eliminate leakage. Maximize referral capture.
               </h1>
               <p className="text-[11px] uppercase leading-relaxed font-bold text-white/70">
-                Specialists receive referrals, process cases, talk with dentists, and manage patient SMS/email communication from the practice workspace.
+                Modernize your practice coordination. Engage with referring dentists in real-time and replace outdated phone tag, voicemail, and fax.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { icon: Building2, label: 'Practice Setup' },
-                { icon: Users, label: 'Referral Intake' },
-                { icon: Plus, label: 'Learning Resources' },
+                { icon: Building2, label: 'Practice Setup', sub: 'Get started' },
+                { icon: Users, label: 'Referral Intake', sub: 'Capture more cases' },
+                { icon: Plus, label: 'Learning Resources', sub: 'Educate your partners' },
               ].map((item) => (
                 <div key={item.label} className="border border-white/40 p-4 space-y-3">
-                  <item.icon size={20} />
-                  <p className="text-[9px] uppercase font-black">{item.label}</p>
+                  <item.icon size={20} className="text-white/80" />
+                  <div>
+                    <p className="text-[9px] uppercase font-black">{item.label}</p>
+                    <p className="text-[8px] uppercase font-bold text-white/50">{item.sub}</p>
+                  </div>
                 </div>
               ))}
             </div>
