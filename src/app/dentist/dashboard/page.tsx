@@ -29,7 +29,7 @@ const sentReferrals: SentReferral[] = [
     specialist: 'Valley Endodontics',
     type: 'Endodontic Consultation',
     status: 'Accepted',
-    lastUpdate: '15m ago',
+    lastUpdate: '10:05 AM\n05/11/2026',
     nextStep: 'Specialist scheduling patient',
   },
   {
@@ -38,7 +38,7 @@ const sentReferrals: SentReferral[] = [
     specialist: 'Downtown Oral Surgery',
     type: 'Extraction Evaluation',
     status: 'Sent',
-    lastUpdate: '2h ago',
+    lastUpdate: '08:20 AM\n05/11/2026',
     nextStep: 'Waiting for specialist review',
   },
   {
@@ -47,7 +47,7 @@ const sentReferrals: SentReferral[] = [
     specialist: 'Arizona Periodontics',
     type: 'Periodontal Surgery',
     status: 'Scheduled',
-    lastUpdate: '1d ago',
+    lastUpdate: '10:20 AM\n05/10/2026',
     nextStep: 'Appointment confirmed for Tuesday',
   },
   {
@@ -56,7 +56,7 @@ const sentReferrals: SentReferral[] = [
     specialist: 'Metro Orthodontics',
     type: 'Braces Consultation',
     status: 'Completed',
-    lastUpdate: '3d ago',
+    lastUpdate: '10:20 AM\n05/08/2026',
     nextStep: 'Case closed. Outcome report received.',
   },
 ];
@@ -144,7 +144,7 @@ export default function DentistDashboardPage() {
               onClick={() => router.push('/dentist/referral')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none"
             >
-              New Referral <Plus size={14} />
+              Send a Referral <Plus size={14} />
             </button>
           </div>
         </div>
@@ -251,7 +251,7 @@ export default function DentistDashboardPage() {
                         </span>
                       </div>
                       <div className="md:col-span-2 flex items-center justify-end gap-2 text-muted-foreground">
-                        <span className="text-[9px] uppercase font-bold">{referral.lastUpdate}</span>
+                        <span className="text-[9px] uppercase font-bold whitespace-pre-line text-right">{referral.lastUpdate}</span>
                         <ArrowUpRight size={14} />
                       </div>
                     </div>
@@ -275,7 +275,7 @@ export default function DentistDashboardPage() {
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
                 <ActionCard 
-                  label="New Referral" 
+                  label="Send a Referral" 
                   desc="Initiate a patient transfer" 
                   onClick={() => router.push('/dentist/referral')}
                 />
@@ -312,7 +312,7 @@ export default function DentistDashboardPage() {
                     <div className="flex-1 space-y-1 min-w-0">
                       <div className="flex justify-between items-baseline">
                         <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                        <span className="text-[7px] text-muted-foreground uppercase shrink-0">15m ago</span>
+                        <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right">10:05 AM{"\n"}05/11/2026</span>
                       </div>
                       <p className="text-[9px] uppercase truncate opacity-70 italic">
                         {item.msg}
