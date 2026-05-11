@@ -35,12 +35,12 @@ export default function NetworkPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredNetwork = mockNetwork.filter(p => {
+    if (p.type !== 'Dentist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
     if (activeTab === 'nearby' && p.status !== 'Nearby') return false;
     const searchStr = searchQuery.toLowerCase();
     return p.name.toLowerCase().includes(searchStr) || 
-           p.specialty.toLowerCase().includes(searchStr) ||
-           p.type.toLowerCase().includes(searchStr);
+           p.specialty.toLowerCase().includes(searchStr);
   });
 
   return (

@@ -33,11 +33,11 @@ export default function DentistNetworkPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredNetwork = mockNetwork.filter(p => {
+    if (p.type !== 'Specialist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
     if (activeTab === 'nearby' && p.status !== 'Nearby') return false;
     return p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-           p.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           p.type.toLowerCase().includes(searchQuery.toLowerCase());
+           p.specialty.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
   return (
@@ -126,7 +126,7 @@ export default function DentistNetworkPage() {
 
                   <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
                     <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                      Send Referral
+                      {practice.status === 'Connected' ? 'Send Referral' : 'Refer & Connect'}
                     </button>
                     <button className="wireframe-button p-2 hover:bg-white transition-all">
                       <MessageCircle size={14} />
