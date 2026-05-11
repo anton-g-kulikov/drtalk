@@ -119,11 +119,18 @@ export default function ReferralDetailClient() {
                 </section>
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Attachments (3)</h4>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="aspect-square border-2 border-black border-dashed flex flex-col items-center justify-center p-3 group hover:bg-black hover:text-white cursor-pointer transition-all">
-                        <FileText size={20} className="group-hover:scale-110 transition-transform" />
-                        <span className="text-[7px] font-black mt-3 uppercase tracking-tighter">View_Scan_{i}.dcm</span>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'VIEW_SCAN_1.DCM', type: 'DICOM', size: '12.4 MB' },
+                      { name: 'VIEW_SCAN_2.DCM', type: 'DICOM', size: '8.2 MB' },
+                      { name: 'VIEW_SCAN_3.DCM', type: 'DICOM', size: '10.1 MB' },
+                    ].map((file, i) => (
+                      <div key={i} className="flex items-center gap-3 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group cursor-pointer transition-all">
+                        <FileText size={18} className="shrink-0" />
+                        <div className="flex flex-col flex-1 overflow-hidden">
+                          <span className="text-[10px] font-bold uppercase tracking-tight truncate">{file.name}</span>
+                          <span className="text-[8px] font-bold uppercase text-muted-foreground group-hover:text-white/70">{file.type} • {file.size}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
