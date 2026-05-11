@@ -100,20 +100,20 @@ function OnboardingContent() {
               <div className="space-y-8">
                 <div className="space-y-3">
                   <p className="text-[10px] uppercase font-black tracking-widest text-white/60">drTalk Referral Network</p>
-                  <h2 className="text-4xl font-black uppercase tracking-tighter italic leading-tight">
-                    Coordinate care. Strengthen your network.
+                  <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-tight">
+                    Modernize your referal process and practice communication
                   </h2>
                   <p className="text-[11px] uppercase leading-relaxed font-bold text-white/70">
-                    Modernize how your practice communicates. Send and receive referrals in real-time, replacing phone tag and fax with seamless clinical coordination.
+                    No more phone tag, voice mails, emails and fax
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {[
-                    { icon: Building2Icon, title: 'Practice Setup', desc: 'Go live today' },
-                    { icon: UsersIcon, title: 'Care Coordination', desc: 'Track every patient' },
-                    { icon: PlusIcon, title: 'Learning Hub', desc: 'Clinical resources' },
+                    { icon: Building2Icon, title: 'Setup Practice', desc: 'Go live today' },
+                    { icon: UsersIcon, title: 'Track every Referral', desc: 'Real-time visibility' },
+                    { icon: PlusIcon, title: 'Connect and coordinate', desc: 'Seamless care' },
                   ].map((feature) => (
-                    <div key={feature.title} className="border border-white/20 p-4 space-y-3">
+                    <div key={feature.title} className="border border-white/20 p-4 space-y-3 flex flex-col justify-between">
                       <feature.icon size={20} className="text-white/80" />
                       <div>
                         <p className="text-[9px] uppercase font-black">{feature.title}</p>
