@@ -32,7 +32,7 @@ export default function ReferralDetailClient() {
     patientName: 'Alice Cooper',
     type: 'Endodontic Consultation',
     source: 'Email',
-    confidence: 55,
+    completion: 55,
     status: 'Received',
     receivedAt: '08:20 AM\n05/11/2026',
     dentist: 'Dr. Smith'
@@ -64,12 +64,12 @@ export default function ReferralDetailClient() {
           {/* Main Info */}
           <div className="flex-1 p-6 sm:p-10 space-y-10 border-b-2 md:border-b-0 md:border-r-2 border-black">
             
-            {/* AI Warning Banner */}
-            {referral.confidence < 60 && (
+            {/* Data Warning Banner */}
+            {referral.completion < 60 && (
               <div className="wireframe-card border-black bg-zinc-50 p-6 flex gap-5 items-start">
                 <AlertTriangle className="text-black shrink-0" size={28} />
                 <div className="flex-1">
-                  <p className="text-[11px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[11px] font-black uppercase text-black tracking-tighter">Incomplete Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1 font-medium">
                     Please verify all information before processing. Manual review required for clinical accuracy.
                   </p>
@@ -159,7 +159,7 @@ export default function ReferralDetailClient() {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
-                  Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via AI Pipeline.
+                  Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via Digital Intake Pipeline.
                 </div>
               </div>
               <div className="space-y-2">

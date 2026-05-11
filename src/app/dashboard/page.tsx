@@ -135,8 +135,8 @@ export default function DashboardPage() {
 
               <div className="space-y-3">
                 {[
-                  { id: '2', patient: 'Bob Marley', reason: 'Low Confidence (45%)', type: 'Extraction' },
-                  { id: '5', patient: 'Eve Online', reason: 'Low Confidence (30%)', type: 'Periodontal' },
+                  { id: '2', patient: 'Bob Marley', reason: 'Incomplete Data (45%)', type: 'Extraction' },
+                  { id: '5', patient: 'Eve Online', reason: 'Incomplete Data (30%)', type: 'Periodontal' },
                   { id: '1', patient: 'Charlie Brown', reason: 'Missing Attachment', type: 'Endodontic' },
                 ].map((item, i) => (
                   <div
