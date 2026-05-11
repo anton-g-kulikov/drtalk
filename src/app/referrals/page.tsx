@@ -208,7 +208,7 @@ export default function ReferralsPage() {
               <div className={isDentist ? "col-span-4" : "col-span-3"}>Patient / Case Type</div>
               <div className="col-span-2">Source / ID</div>
               <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
-              {!isDentist && <div className="col-span-2 text-right">Data Completion</div>}
+              {!isDentist && <div className="col-span-2">Data Completion</div>}
               <div className="col-span-2">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
