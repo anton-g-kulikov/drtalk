@@ -24,7 +24,7 @@ export default function ReferralDetailClient() {
     type: 'Endodontic Consultation',
     source: 'Email',
     confidence: 55,
-    receivedAt: '2h ago',
+    receivedAt: '08:20 AM\n05/11/2026',
     dentist: 'Dr. Smith'
   };
 
@@ -177,7 +177,7 @@ export default function ReferralDetailClient() {
               <div className="space-y-2">
                 <div className="flex justify-between items-baseline">
                   <p className="text-[9px] font-black uppercase">System</p>
-                  <p className="text-[8px] text-muted-foreground uppercase">2h ago</p>
+                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
                   Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via AI Pipeline.
@@ -188,7 +188,7 @@ export default function ReferralDetailClient() {
                 <div className="space-y-2">
                   <div className="flex justify-between items-baseline">
                     <p className="text-[9px] font-black uppercase">Specialist Team</p>
-                    <p className="text-[8px] text-muted-foreground uppercase">Just now</p>
+                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">Just now{"\n"}05/11/2026</p>
                   </div>
                   <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
                     Case status updated to <span className="font-black">{currentStatus}</span>.

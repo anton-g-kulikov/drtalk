@@ -168,18 +168,21 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
             {/* Message Feed */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
               {[
-                { user: 'System', text: 'Referral received from Dr. Smith via Email.', time: '2h ago', type: 'system' },
-                { user: 'Dr. John Doe', text: 'Looks like we need to schedule this ASAP. Check for tooth #14 history.', time: '1h ago', type: 'user' },
-                { user: 'Sarah (Admin)', text: 'Requested previous treatment records from Dr. Smith.', time: '15m ago', type: 'user' },
+                { user: 'System', text: 'Referral received from Dr. Smith via Email.', time: '08:20 AM\n05/11/2026', type: 'system' },
+                { user: 'Dr. John Doe', text: 'Looks like we need to schedule this ASAP. Check for tooth #14 history.', time: '09:20 AM\n05/11/2026', type: 'user' },
+                { user: 'Sarah (Admin)', text: 'Requested previous treatment records from Dr. Smith.', time: '10:05 AM\n05/11/2026', type: 'user' },
               ].map((msg, i) => (
                 <div key={i} className={`space-y-1 ${msg.type === 'system' ? 'text-center py-2' : ''}`}>
                   {msg.type === 'system' ? (
-                    <span className="text-[8px] font-bold uppercase text-muted-foreground bg-gray-200 px-2 py-0.5">{msg.text}</span>
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="text-[8px] font-bold uppercase text-muted-foreground bg-gray-200 px-2 py-0.5">{msg.text}</span>
+                      <span className="text-[7px] text-muted-foreground uppercase">{msg.time.replace('\n', ' ')}</span>
+                    </div>
                   ) : (
                     <>
                       <div className="flex justify-between items-baseline">
                         <span className="text-[9px] font-bold uppercase">{msg.user}</span>
-                        <span className="text-[8px] text-muted-foreground">{msg.time}</span>
+                        <span className="text-[8px] text-muted-foreground whitespace-pre-line text-right">{msg.time}</span>
                       </div>
                       <div className="wireframe-card p-2 text-[10px] uppercase leading-tight bg-white">
                         {msg.text}
