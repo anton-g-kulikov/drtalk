@@ -35,6 +35,7 @@ function OnboardingContent() {
   const [isLogin, setIsLogin] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('owner');
   const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
+  const [practiceType, setPracticeType] = useState('Orthodontist');
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [firstName, setFirstName] = useState('');
@@ -381,8 +382,12 @@ function OnboardingContent() {
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
                   <select 
                     value={practiceCategory}
-                    onChange={(e) => setPracticeCategory(e.target.value as any)}
-                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm"
+                    onChange={(e) => {
+                      const newCategory = e.target.value as 'Dental' | 'Medical';
+                      setPracticeCategory(newCategory);
+                      setPracticeType(newCategory === 'Dental' ? dentalTypes[0] : medicalTypes[0]);
+                    }}
+                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full"
                   >
                     <option value="Dental">Dental</option>
                     <option value="Medical">Medical</option>
@@ -390,7 +395,11 @@ function OnboardingContent() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
-                  <select className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm">
+                  <select 
+                    value={practiceType}
+                    onChange={(e) => setPracticeType(e.target.value)}
+                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full"
+                  >
                     {(practiceCategory === 'Dental' ? dentalTypes : medicalTypes).map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
