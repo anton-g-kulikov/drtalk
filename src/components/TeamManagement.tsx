@@ -48,8 +48,8 @@ const mockTeam: TeamMember[] = [
 ];
 
 const mockRequests: JoinRequest[] = [
-  { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Clinical', requestedAt: '2 hours ago' },
-  { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Administrative', requestedAt: '5 hours ago' },
+  { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Clinical', requestedAt: '08:20 AM\n05/11/2026' },
+  { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Administrative', requestedAt: '05:20 AM\n05/11/2026' },
 ];
 
 
@@ -192,7 +192,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                     </span>
                   </div>
                   <div className="col-span-3 w-full">
-                    <p className="text-[10px] font-bold uppercase text-muted-foreground italic">Requested {request.requestedAt}</p>
+                    <p className="text-[10px] font-bold uppercase text-muted-foreground italic whitespace-pre-line text-right">Requested {request.requestedAt}</p>
                   </div>
                   <div className="col-span-3 w-full flex justify-end gap-3">
                     <button 

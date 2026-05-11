@@ -177,7 +177,7 @@ export default function DashboardPage() {
                     <div className="flex-1 space-y-1">
                       <div className="flex justify-between items-baseline">
                         <p className="text-[10px] font-bold uppercase">{i === 1 ? 'Dr. Smith (Dentist)' : 'Alice Cooper (Patient)'}</p>
-                        <span className="text-[8px] text-muted-foreground uppercase">15m ago</span>
+                        <span className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">10:05 AM{"\n"}05/11/2026</span>
                       </div>
                       <p className="text-[10px] uppercase truncate opacity-70 italic">
                         {i === 1 ? 'Regarding Alice Cooper: please confirm pano image received.' : 'Patient asked about appointment preparation via SMS.'}
