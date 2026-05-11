@@ -59,14 +59,14 @@ export const ReferralDetail = ({ referral, onClose }: ReferralDetailProps) => {
           {/* Main Info Column */}
           <div className="flex-1 overflow-y-auto p-8 space-y-8 border-r-2 border-black">
             
-            {/* AI Warning Banner */}
-            {referral.confidence < 60 && (
+            {/* Data Warning Banner */}
+            {referral.completion < 60 && (
               <div className="wireframe-card border-black bg-zinc-50 p-4 flex gap-4 items-start">
                 <AlertTriangle className="text-black shrink-0" size={24} />
                 <div className="flex-1">
-                  <p className="text-[10px] font-black uppercase text-black tracking-tighter">Low Confidence Data Extraction</p>
+                  <p className="text-[10px] font-black uppercase text-black tracking-tighter">Incomplete Data Extraction</p>
                   <p className="text-[10px] uppercase leading-relaxed mt-1">
-                    Some fields were extracted from a {referral.source} with low confidence. Please verify all information before processing.
+                    Some clinical data is missing or partial. Please verify all information before processing.
                   </p>
                   <button 
                     onClick={() => setIsEditorMode(true)}

@@ -13,7 +13,7 @@ interface Referral {
   patientName: string;
   type: string;
   source: 'Email' | 'Fax' | 'Web' | 'App';
-  confidence: number;
+  completion: number;
   status: ReferralStatus;
   receivedAt: string;
   dentist: string;
@@ -21,11 +21,11 @@ interface Referral {
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', confidence: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', confidence: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', confidence: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', confidence: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', confidence: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
 ];
 
 import { useVerification } from '@/components/VerificationContext';
@@ -93,16 +93,16 @@ export default function ReferralsPage() {
      r.type.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
-  const getConfidenceColor = (score: number) => {
+  const getCompletionColor = (score: number) => {
     if (score >= 90) return 'text-black';
     if (score >= 60) return 'text-gray-500';
     return 'text-black font-black italic opacity-60';
   };
 
-  const getConfidenceLabel = (score: number) => {
-    if (score >= 90) return 'High';
-    if (score >= 60) return 'Medium';
-    return 'Review Required';
+  const getCompletionLabel = (score: number) => {
+    if (score >= 90) return 'Verified';
+    if (score >= 60) return 'Partial Data';
+    return 'Incomplete Data';
   };
 
   return (
@@ -208,7 +208,7 @@ export default function ReferralsPage() {
               <div className={isDentist ? "col-span-4" : "col-span-3"}>Patient / Case Type</div>
               <div className="col-span-2">Source / ID</div>
               <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
-              {!isDentist && <div className="col-span-2">AI Confidence</div>}
+              {!isDentist && <div className="col-span-2 text-right">Data Completion</div>}
               <div className="col-span-2">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
@@ -243,8 +243,8 @@ export default function ReferralsPage() {
                       {!isDentist && (
                         <div className="col-span-2">
                           <div className="flex items-center gap-2">
-                            <div className={`text-[10px] uppercase font-bold ${getConfidenceColor(referral.confidence)}`}>
-                              {getConfidenceLabel(referral.confidence)} ({referral.confidence}%)
+                            <div className={`text-[10px] uppercase font-bold ${getCompletionColor(referral.completion)}`}>
+                              {getCompletionLabel(referral.completion)} ({referral.completion}%)
                             </div>
                           </div>
                         </div>
