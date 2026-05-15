@@ -9,7 +9,7 @@ import { useSubscription } from './SubscriptionContext';
 
 export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const pathname = usePathname();
-  const { userRole, reset: resetVerification, setNoOwnerYet } = useVerification();
+  const { userRole, reset: resetVerification, setNoOwnerYet, verify } = useVerification();
   const { endTrial, resetSubscription } = useSubscription();
   const isDentist = pathname.startsWith('/dentist');
   const navItems = isDentist
@@ -100,17 +100,33 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         <div className="space-y-1">
           <Link 
             href="/dentist/dashboard"
-            onClick={onClose}
-            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${isDentist ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+            onClick={() => {
+              if (userRole === 'individual') verify('owner');
+              if (onClose) onClose();
+            }}
+            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
           >
             Dentist Practice
           </Link>
           <Link 
             href="/dashboard"
-            onClick={onClose}
-            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${!isDentist ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+            onClick={() => {
+              if (userRole === 'individual') verify('owner');
+              if (onClose) onClose();
+            }}
+            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${!isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
           >
             Specialist Practice
+          </Link>
+          <Link 
+            href="/academy"
+            onClick={() => {
+              verify('individual');
+              if (onClose) onClose();
+            }}
+            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${userRole === 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+          >
+            Individual Learner
           </Link>
         </div>
       </div>
@@ -180,7 +196,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
   const workspaceName = userRole === 'individual' ? 'My Account' : (isDentist ? 'Sunshine Dental' : 'Valley Endodontics');
   const accountName = isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist';
   const accountEmail = isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com';
-  const roleLabel = userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Account' : 'Practice Admin');
+  const roleLabel = userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin');
   const statusLabel = userRole === 'individual' ? 'Learning Hub' : (isDentist ? 'Dentist Practice' : 'Specialist Practice');
 
   return (
