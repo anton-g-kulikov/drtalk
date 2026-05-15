@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-export type UserRole = 'owner' | 'clinical' | 'admin' | 'individual';
+export type UserRole = 'owner' | 'team' | 'admin' | 'individual';
 
 interface VerificationContextType {
   isVerified: boolean;
