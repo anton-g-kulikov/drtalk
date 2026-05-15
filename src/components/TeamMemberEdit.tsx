@@ -13,7 +13,7 @@ import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
-type MemberRole = 'Owner' | 'Administrative' | 'Clinical';
+type MemberRole = 'Owner' | 'Practice Admin' | 'Team Member';
 type PhiStatus = 'Verified' | 'Granted' | 'Pending' | 'Restricted';
 
 interface TeamMember {
@@ -28,9 +28,9 @@ interface TeamMember {
 
 const mockTeam: TeamMember[] = [
   { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', hasPhiAccess: true, joinedAt: 'Mar 2024', specialty: 'Endodontics' },
-  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', hasPhiAccess: false, joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
+  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Practice Admin', hasPhiAccess: false, joinedAt: 'Mar 2024' },
+  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
+  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
 ];
 
 export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backPath: string }) {
@@ -56,7 +56,7 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
     setMember({ 
       ...member, 
       role,
-      hasPhiAccess: role === 'Clinical' ? true : member.hasPhiAccess
+      hasPhiAccess: role === 'Team Member' ? true : member.hasPhiAccess
     });
   };
 
@@ -80,7 +80,7 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
                 <CommentMarker 
                   id="team-member-page" 
                   title="Team Member Settings" 
-                  description="Practice owners can independently manage roles and PHI access for each team member. Clinical roles have PHI access enabled by default." 
+                  description="Practice owners can independently manage roles and PHI access for each team member. Team members have PHI access enabled by default." 
                 />
               </div>
               <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-2">{member.email}</p>
@@ -113,7 +113,7 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
                   <CheckCircle2Icon size={16} />
                 </div>
               ) : (
-                (['Administrative', 'Clinical'] as MemberRole[]).map((role) => (
+                (['Practice Admin', 'Team Member'] as MemberRole[]).map((role) => (
                   <button
                     key={role}
                     onClick={() => handleSetRole(role)}
@@ -126,8 +126,8 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest">{role}</p>
                       <p className={`text-[9px] uppercase mt-1 ${member.role === role ? 'text-gray-300' : 'text-muted-foreground'}`}>
-                        {role === 'Administrative' && 'Billing, scheduling & intake.'}
-                        {role === 'Clinical' && 'Patient care & clinical notes.'}
+                        {role === 'Practice Admin' && 'Billing, scheduling & intake.'}
+                        {role === 'Team Member' && 'Patient care & clinical notes.'}
                       </p>
                     </div>
                     {member.role === role && <CheckCircle2Icon size={16} />}

@@ -19,7 +19,7 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-type MemberRole = 'Owner' | 'Administrative' | 'Clinical';
+type MemberRole = 'Owner' | 'Practice Admin' | 'Team Member';
 type PhiStatus = 'Verified' | 'Granted' | 'Pending' | 'Restricted';
 
 interface TeamMember {
@@ -42,14 +42,14 @@ interface JoinRequest {
 
 const mockTeam: TeamMember[] = [
   { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', hasPhiAccess: true, joinedAt: 'Mar 2024', specialty: 'Endodontics' },
-  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Administrative', hasPhiAccess: false, joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Clinical', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
+  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Practice Admin', hasPhiAccess: false, joinedAt: 'Mar 2024' },
+  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
+  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
 ];
 
 const mockRequests: JoinRequest[] = [
-  { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Clinical', requestedAt: '08:20 AM\n05/11/2026' },
-  { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Administrative', requestedAt: '05:20 AM\n05/11/2026' },
+  { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Team Member', requestedAt: '08:20 AM\n05/11/2026' },
+  { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Practice Admin', requestedAt: '05:20 AM\n05/11/2026' },
 ];
 
 
@@ -70,7 +70,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
       name: request.name,
       email: request.email,
       role: request.role,
-      hasPhiAccess: request.role === 'Clinical',
+      hasPhiAccess: request.role === 'Team Member',
       joinedAt: 'May 2024'
     };
     setTeam([...team, newMember]);
@@ -106,7 +106,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
     // Simulate ownership transfer
     const updatedTeam = team.map(m => {
       if (m.id === newOwnerId) return { ...m, role: 'Owner' as MemberRole };
-      if (m.role === 'Owner') return { ...m, role: 'Clinical' as MemberRole };
+      if (m.role === 'Owner') return { ...m, role: 'Team Member' as MemberRole };
       return m;
     });
     
@@ -117,7 +117,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
     reset();
   };
 
-  const clinicalStaff = team.filter(m => m.role === 'Clinical');
+  const teamMembers = team.filter(m => m.role === 'Team Member');
 
   return (
     <MainLayout title="TEAM, ROLES & ACCESS CONTROL">
@@ -136,7 +136,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               </div>
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-12">
-              Manage practice ownership, clinical permissions, and PHI access safeguards.
+              Manage practice ownership, team member permissions, and PHI access safeguards.
             </p>
           </div>
           <button className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-4 flex items-center gap-2 font-black tracking-widest">
@@ -175,7 +175,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               <CommentMarker 
                 id="join-request-logic"
                 title="Join Request Permissions"
-                description="We suggest granting administrative personnel the ability to confirm the joining of admin role type users, while all medical personnel should be confirmed only by the practice owner, as this grants them access to PHI."
+                description="We suggest granting practice admins the ability to confirm the joining of admin role type users, while all team members should be confirmed only by the practice owner, as this grants them access to PHI."
               />
             </div>
             
@@ -297,7 +297,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                 </div>
                 <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Transfer Ownership</h2>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
-                  Select a clinical team member to become the new practice lead.
+                  Select a team member to become the new practice lead.
                 </p>
               </div>
 
@@ -309,9 +309,9 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                     onChange={(e) => setNewOwnerId(e.target.value)}
                     className="wireframe-input w-full py-4 px-4 text-sm appearance-none bg-transparent"
                   >
-                    <option value="">Choose clinical staff...</option>
-                    {clinicalStaff.map(m => (
-                      <option key={m.id} value={m.id}>{m.name} ({m.specialty || 'Clinical'})</option>
+                    <option value="">Choose team member...</option>
+                    {teamMembers.map(m => (
+                      <option key={m.id} value={m.id}>{m.name} ({m.specialty || 'Team Member'})</option>
                     ))}
                   </select>
                 </div>
@@ -320,7 +320,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                   <div className="flex gap-4 items-start">
                     <LockIcon size={20} className="shrink-0" />
                     <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed">
-                      IMPORTANT: The new owner must undergo personal verification to restore PHI access. You will be reassigned as clinical staff.
+                      IMPORTANT: The new owner must undergo personal verification to restore PHI access. You will be reassigned as a team member.
                     </p>
                   </div>
                 </div>
