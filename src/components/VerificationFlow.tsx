@@ -77,7 +77,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
 
               <div className="pt-2">
                 <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed italic text-center px-4">
-                  Once verified, all Clinical personnel in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
+                  Once verified, all team members in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
                 </p>
               </div>
 
@@ -114,9 +114,9 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
 
             <div className="space-y-4">
               {[
-                { id: 'owner', label: 'Practice Owner (Doctor)', desc: 'I am the licensed professional responsible for this practice.' },
-                { id: 'clinical', label: 'Clinical Personnel', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
-                { id: 'admin', label: 'Administrative Personnel', desc: 'I manage office operations and scheduling.' }
+                { id: 'owner', label: 'Practice Owner', desc: 'I am the licensed professional responsible for this practice.' },
+                { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' }
               ].map((role) => (
                 <button
                   key={role.id}
@@ -341,7 +341,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
                 {[
                   'Access to Patient Health Information (PHI)',
                   'Direct intake from external referral links',
-                  'PHI delegation to clinical staff members',
+                  'PHI delegation to team members',
                   'Secure patient messaging (SMS/Email)'
                 ].map((item, i) => (
                   <li key={i} className="flex gap-2 items-center text-[10px] font-bold uppercase">

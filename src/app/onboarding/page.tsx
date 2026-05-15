@@ -57,13 +57,13 @@ function OnboardingContent() {
 
   const [invites, setInvites] = useState<{email: string, role: string}[]>([
     { email: '', role: 'admin' },
-    { email: '', role: 'clinical' }
+    { email: '', role: 'team' }
   ]);
 
   
   const addInvite = () => {
     if (invites.length < 10) {
-      setInvites([...invites, { email: '', role: 'clinical' }]);
+      setInvites([...invites, { email: '', role: 'team' }]);
     }
   };
 
@@ -251,9 +251,9 @@ function OnboardingContent() {
 
               <div className="space-y-4">
                 {[
-                  { id: 'owner', label: 'Practice Owner (Doctor)', desc: 'I am the licensed professional responsible for this practice.' },
-                  { id: 'clinical', label: 'Clinical Personnel', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
-                  { id: 'admin', label: 'Administrative Personnel', desc: 'I manage office operations and scheduling.' }
+                  { id: 'owner', label: 'Practice Owner', desc: 'I am the licensed professional responsible for this practice.' },
+                  { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
+                  { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' }
                 ].map((role) => (
                   <button
                     key={role.id}
@@ -564,7 +564,7 @@ function OnboardingContent() {
               </div>
             </div>
             <div className="space-y-6">
-              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite clinical staff or administrators to your practice</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Invite team members or practice admins to your practice</p>
               
               <div className="space-y-6">
                 {/* Column Headers */}
@@ -593,7 +593,7 @@ function OnboardingContent() {
                         >
                           <option value="owner">Owner</option>
                           <option value="admin">Admin</option>
-                          <option value="clinical">Clinical</option>
+                          <option value="team">Team Member</option>
                         </select>
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
                           <ChevronRightIcon size={12} className="rotate-90" />
