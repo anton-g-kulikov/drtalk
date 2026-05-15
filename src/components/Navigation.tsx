@@ -14,20 +14,20 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const isDentist = pathname.startsWith('/dentist');
   const navItems = isDentist
     ? [
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
-        { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
-        { icon: MessageSquare, label: 'Channels', href: '/dentist/channels' },
-        { icon: Users, label: 'Network', href: '/dentist/network' },
-        { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
-      ]
+      { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
+      { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
+      { icon: MessageSquare, label: 'Channels', href: '/dentist/channels' },
+      { icon: Users, label: 'Network', href: '/dentist/network' },
+      { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
+    ]
     : [
-        { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
-        { icon: FileText, label: 'Referrals', href: '/referrals' },
-        { icon: MessageSquare, label: 'Channels', href: '/channels' },
-        { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
-        { icon: Users, label: 'Network', href: '/network' },
-      ];
-  
+      { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
+      { icon: FileText, label: 'Referrals', href: '/referrals' },
+      { icon: MessageSquare, label: 'Channels', href: '/channels' },
+      { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
+      { icon: Users, label: 'Network', href: '/network' },
+    ];
+
   const filteredNavItems = userRole === 'individual'
     ? navItems.filter(item => item.label === 'Learning Hub')
     : navItems;
@@ -35,7 +35,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   return (
     <div className={`w-64 h-full border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'hidden lg:flex'}`}>
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="absolute right-4 top-4 p-2 lg:hidden"
         >
@@ -53,11 +53,10 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
               key={item.label}
               href={item.href}
               onClick={onClose}
-              className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
-                isActive 
-                  ? 'bg-black text-white' 
+              className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${isActive
+                  ? 'bg-black text-white'
                   : 'hover:bg-gray-100'
-              }`}
+                }`}
             >
               <item.icon size={18} />
               {item.label}
@@ -78,11 +77,10 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
               key={item.label}
               href={item.href}
               onClick={onClose}
-              className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
-                isActive 
-                  ? 'bg-black text-white' 
+              className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${isActive
+                  ? 'bg-black text-white'
                   : 'hover:bg-gray-100'
-              }`}
+                }`}
             >
               <item.icon size={18} />
               {item.label}
@@ -98,7 +96,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Switch Prototype</p>
         </div>
         <div className="space-y-1">
-          <Link 
+          <Link
             href="/dentist/dashboard"
             onClick={() => {
               if (userRole === 'individual') verify('owner');
@@ -108,7 +106,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           >
             Dentist Practice
           </Link>
-          <Link 
+          <Link
             href="/dashboard"
             onClick={() => {
               if (userRole === 'individual') verify('owner');
@@ -118,7 +116,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           >
             Specialist Practice
           </Link>
-          <Link 
+          <Link
             href="/academy"
             onClick={() => {
               verify('individual');
@@ -139,25 +137,25 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
             <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
           </div>
           <div className="space-y-1">
-            <button 
+            <button
               onClick={setNoOwnerYet}
               className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
             >
               No Owner Yet
             </button>
-            <button 
+            <button
               onClick={resetVerification}
               className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
             >
               Reset Verification
             </button>
-            <button 
+            <button
               onClick={endTrial}
               className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
             >
               End Trial
             </button>
-            <button 
+            <button
               onClick={resetSubscription}
               className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
             >
@@ -171,11 +169,10 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         <Link
           href={isDentist ? '/dentist/settings' : '/settings'}
           onClick={onClose}
-          className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${
-            pathname === (isDentist ? '/dentist/settings' : '/settings')
+          className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${pathname === (isDentist ? '/dentist/settings' : '/settings')
               ? 'bg-black text-white'
               : 'hover:bg-gray-100'
-          } ${userRole === 'individual' ? 'hidden' : ''}`}
+            } ${userRole === 'individual' ? 'hidden' : ''}`}
         >
           <Settings size={18} />
           Practice
@@ -203,7 +200,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
     <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
       <div className="flex items-center gap-2 sm:gap-4">
         {onMenuClick && (
-          <button 
+          <button
             onClick={onMenuClick}
             className="p-2 -ml-2 lg:hidden hover:bg-gray-100 transition-colors"
           >
@@ -223,10 +220,9 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
       <div className="flex items-center gap-3 sm:gap-6">
         <div className="hidden md:flex gap-4 border-r-2 border-black pr-6 mr-2">
           <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Support</div>
-          <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Docs</div>
         </div>
-        
-        <div 
+
+        <div
           className="flex items-center gap-3 cursor-pointer group relative"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
