@@ -977,45 +977,28 @@ function ChannelsContent() {
             </div>
 
             <div className="space-y-4">
-              {/* Option 1: Quick Attach Mock Files */}
-              <div>
-                <label className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block mb-2">
-                  Option 1: Quick Select Mock Template
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {mockAttachments.map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        setCustomDocName(item.name);
-                        setCustomDocType(item.type);
-                        setCustomDocSize(item.size);
-                      }}
-                      className={`p-2 border-2 text-left transition-all ${
-                        customDocName === item.name 
-                          ? 'border-black bg-black text-white' 
-                          : 'border-black hover:bg-gray-100 bg-white text-black'
-                      }`}
-                    >
-                      <p className="text-[8px] font-black uppercase truncate">{item.name}</p>
-                      <p className="text-[6px] font-bold uppercase opacity-80 mt-0.5">{item.size} • {item.type.toUpperCase()}</p>
-                    </button>
-                  ))}
-                </div>
+              {/* Premium Drag and Drop / Click Zone */}
+              <div 
+                onClick={() => {
+                  // Premium interactive mock file attachment
+                  setCustomDocName('SURGERY_REPORT_COOPER.PDF');
+                  setCustomDocType('pdf');
+                  setCustomDocSize('2.1 MB');
+                  triggerToast("File 'SURGERY_REPORT_COOPER.PDF' attached successfully!");
+                }}
+                className="border-2 border-dashed border-black p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-black/5 cursor-pointer transition-all gap-2 text-center"
+              >
+                <Upload size={24} className="text-black" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-black">
+                  Attach Document
+                </span>
+                <span className="text-[7px] font-bold text-muted-foreground uppercase">
+                  Click to browse files or drag and drop here
+                </span>
               </div>
 
-              <div className="flex items-center justify-between text-[8px] font-bold text-gray-400 uppercase py-1">
-                <div className="h-[1px] bg-black/10 flex-1" />
-                <span className="px-2">OR</span>
-                <div className="h-[1px] bg-black/10 flex-1" />
-              </div>
-
-              {/* Option 2: Custom Document Form */}
+              {/* Form Input for Details */}
               <div className="space-y-3">
-                <label className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
-                  Option 2: Input Custom File Details
-                </label>
-                
                 <div>
                   <span className="text-[7px] font-black uppercase block mb-1 text-black">Document Name</span>
                   <input
@@ -1061,16 +1044,16 @@ function ChannelsContent() {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
                 }}
-                className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-2 hover:bg-gray-100 font-bold"
+                className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-2 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDirectUpload}
                 disabled={!customDocName.trim()}
-                className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-2 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all"
+                className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-2 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
               >
-                Send Document <Send size={10} />
+                <Send size={10} /> Send Document
               </button>
             </div>
           </div>
