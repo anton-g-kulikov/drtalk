@@ -22,10 +22,10 @@
 - [ ] Add a structured route-level QA pass for mobile and desktop breakpoints
 - [ ] Separate product-domain state from view components if the prototype continues to grow
 
-## Active Task: Send Document Feature on Dentist Dashboard
+## Active Task: Send Document Feature on Dentist Dashboard (Completed)
 
-- **Goal**: Add a "Send Document" button to the dentist dashboard that opens a structured form to select a connected practice and an optional referral, and allows file attachment/upload.
-- **Success Criteria**:
+- [x] **Goal**: Add a "Send Document" button to the dentist dashboard that opens a structured form to select a connected practice and an optional referral, and allows file attachment/upload.
+- [x] **Success Criteria**:
   1. A second button "Send Document" next to "Send a Referral" on the Dentist Dashboard.
   2. The button opens a modal similar to the "Attach Document" modal in the inter-practice chat.
   3. The modal contains a "Connected Practice" dropdown listing all inter-practice connections.
@@ -33,12 +33,12 @@
   5. The referral dropdown automatically filters based on selected practice, or selecting a referral auto-selects its practice.
   6. The modal contains the premium file attachment/upload zone, patient information fields, and custom message field.
   7. Clicking "Send Document" validates inputs, simulates a secure document transfer, triggers a toast success notification, and adds the document/message to the mock channel history.
-- **In Scope**:
+- [x] **In Scope**:
   - Dentist dashboard UI modifications.
   - New "Send Document Modal" component or inline modal.
   - Dropdown selection logic for connected practices and referrals.
   - Integration with existing mock state/messages/documents.
-- **Out of Scope**:
+- [x] **Out of Scope**:
   - Real file uploads to a backend (uses existing premium mock/file-selection behavior).
   - Real database persistence.
 
