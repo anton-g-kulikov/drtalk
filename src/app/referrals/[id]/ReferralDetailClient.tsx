@@ -5,14 +5,14 @@ import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
-  AlertTriangle, Send, MoreHorizontal 
+  AlertTriangle, Send, MoreHorizontal,
+  MessageSquare, Users
 } from 'lucide-react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 
-export default function ReferralDetailClient() {
+export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
-  const params = useParams();
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [isEditorMode, setIsEditorMode] = useState(false);
 
@@ -28,7 +28,7 @@ export default function ReferralDetailClient() {
 
   // Mock data for the specific referral
   const referral = {
-    id: params.id,
+    id: id,
     patientName: 'Alice Cooper',
     type: 'Endodontic Consultation',
     source: 'Email',
@@ -134,6 +134,12 @@ export default function ReferralDetailClient() {
                       </div>
                     ))}
                   </div>
+                  <button 
+                    onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                    className="w-full mt-4 wireframe-button border-2 border-black border-dashed hover:border-solid hover:bg-black hover:text-white transition-all text-[10px] uppercase py-3 flex items-center justify-center gap-2 font-black tracking-wider bg-white text-black"
+                  >
+                    Send Additional Documents Back <Send size={12} />
+                  </button>
                 </section>
               </div>
             </div>
@@ -145,7 +151,13 @@ export default function ReferralDetailClient() {
               >
                 Process Referral <Send size={14} />
               </button>
-              <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto">
+              <button 
+                onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto bg-white text-black font-black"
+              >
+                Continue Communication <MessageSquare size={14} />
+              </button>
+              <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto bg-white text-black">
                 Archive Case
               </button>
             </div>
@@ -157,6 +169,19 @@ export default function ReferralDetailClient() {
               <h3 className="font-bold uppercase text-xs tracking-widest">Case Activity</h3>
             </div>
             <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+              <div className="space-y-2">
+                <div className="flex justify-between items-baseline">
+                  <p className="text-[9px] font-black uppercase text-black">Practice Communication</p>
+                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">ACTIVE NOW</p>
+                </div>
+                <div 
+                  onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                  className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white border-dashed border-2 border-black hover:bg-black hover:text-white cursor-pointer transition-all flex items-center justify-between gap-3 group shadow-sm"
+                >
+                  <span className="font-medium">Click here to reply to <span className="font-black underline">Dr. Smith</span> / share post-op reports or additional scans.</span>
+                  <MessageSquare size={14} className="shrink-0 text-black group-hover:text-white" />
+                </div>
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between items-baseline">
                   <p className="text-[9px] font-black uppercase">System</p>
