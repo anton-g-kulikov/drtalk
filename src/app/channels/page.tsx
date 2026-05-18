@@ -165,7 +165,7 @@ function ChannelsContent() {
       if (pathname.startsWith('/dentist') && c.type === 'patient') return false;
       return true;
     });
-    
+
     if (practiceParam) {
       const channel = defaultChannels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase());
       if (channel) return channel;
@@ -293,23 +293,23 @@ function ChannelsContent() {
 
     setAttachedFiles(prev => [...prev, newFile]);
     triggerToast(`Attached "${file.name}" successfully!`);
-    
+
     // Clear input value so same file can be uploaded again
     e.target.value = '';
   };
 
   const handleDirectUpload = () => {
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
+
     // Prepare documents to share. If we have attachedFiles, use those. 
     // Otherwise fallback to single custom file as backup
     let filesToShare: Omit<SharedDocument, 'id'>[] = [];
-    
+
     if (attachedFiles.length > 0) {
       filesToShare = attachedFiles;
     } else if (customDocName.trim()) {
-      const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`) 
-        ? customDocName.toLowerCase() 
+      const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`)
+        ? customDocName.toLowerCase()
         : `${customDocName.toLowerCase()}.${customDocType}`;
       filesToShare = [{
         channelId: activeChannel.id,
@@ -339,7 +339,7 @@ function ChannelsContent() {
     // Create message objects
     const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
       let messageText = `Directly shared document: ${newDoc.name}`;
-      
+
       // Associate patient information if provided (on the first document in the batch)
       if (index === 0) {
         if (patientFirstName || patientLastName) {
@@ -403,9 +403,9 @@ function ChannelsContent() {
       return { type: msg.type, user: msg.user };
     }
     if (isDentist) {
-      return { 
-        type: msg.type, 
-        user: msg.user === 'Valley Endodontics' ? 'Valley Endodontics' : msg.user 
+      return {
+        type: msg.type,
+        user: msg.user === 'Valley Endodontics' ? 'Valley Endodontics' : msg.user
       };
     } else {
       if (msg.type === 'self') {
@@ -568,23 +568,21 @@ function ChannelsContent() {
           {/* Connected Practice Tab Switcher */}
           {activeChannel.type === 'inter-practice' && (
             <div className="h-10 bg-white border-b-2 border-black flex px-6 shrink-0 gap-4">
-              <button 
+              <button
                 onClick={() => setActiveTab('messages')}
-                className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${
-                  activeTab === 'messages' 
-                    ? 'border-black text-black font-black' 
-                    : 'border-transparent text-muted-foreground hover:text-black'
-                }`}
+                className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'messages'
+                  ? 'border-black text-black font-black'
+                  : 'border-transparent text-muted-foreground hover:text-black'
+                  }`}
               >
                 Messages
               </button>
-              <button 
+              <button
                 onClick={() => setActiveTab('documents')}
-                className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${
-                  activeTab === 'documents' 
-                    ? 'border-black text-black font-black' 
-                    : 'border-transparent text-muted-foreground hover:text-black'
-                }`}
+                className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'documents'
+                  ? 'border-black text-black font-black'
+                  : 'border-transparent text-muted-foreground hover:text-black'
+                  }`}
               >
                 Documents
               </button>
@@ -600,12 +598,12 @@ function ChannelsContent() {
                   {(messages[activeChannel.id] || []).map((msg) => {
                     const mapped = getMessageRoleAndUser(msg);
                     return (
-                      <Message 
+                      <Message
                         key={msg.id}
-                        user={mapped.user} 
-                        text={msg.text} 
-                        time={msg.time} 
-                        type={mapped.type} 
+                        user={mapped.user}
+                        text={msg.text}
+                        time={msg.time}
+                        type={mapped.type}
                         transport={msg.transport}
                         document={msg.document ? {
                           ...msg.document,
@@ -677,8 +675,8 @@ function ChannelsContent() {
                           >
                             <div className="w-5 h-5 border border-black flex items-center justify-center shrink-0">
                               {item.type === 'pdf' ? <FileText size={10} /> :
-                               item.type === 'image' ? <Image size={10} /> :
-                               <Paperclip size={10} />}
+                                item.type === 'image' ? <Image size={10} /> :
+                                  <Paperclip size={10} />}
                             </div>
                             <div className="min-w-0">
                               <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
@@ -702,13 +700,13 @@ function ChannelsContent() {
                         <div className="flex items-center gap-2 text-black">
                           <div className="w-6 h-6 border border-black flex items-center justify-center bg-black text-white shrink-0">
                             {attachedDoc.type === 'pdf' ? <FileText size={12} /> :
-                             attachedDoc.type === 'image' ? <Image size={12} /> :
-                             <Paperclip size={12} />}
+                              attachedDoc.type === 'image' ? <Image size={12} /> :
+                                <Paperclip size={12} />}
                           </div>
                           <span className="text-[10px] font-bold uppercase">{attachedDoc.name} ({attachedDoc.size})</span>
                         </div>
-                        <button 
-                          onClick={() => setAttachedDoc(null)} 
+                        <button
+                          onClick={() => setAttachedDoc(null)}
                           className="p-1 hover:bg-black hover:text-white border border-black transition-colors text-black"
                         >
                           <X size={10} />
@@ -730,8 +728,8 @@ function ChannelsContent() {
                     />
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
                       <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
-                        <button 
-                          onClick={() => setShowAttachmentDrawer(!showAttachmentDrawer)} 
+                        <button
+                          onClick={() => setShowAttachmentDrawer(!showAttachmentDrawer)}
                           className={`hover:text-black transition-colors p-1 ${showAttachmentDrawer ? 'bg-black text-white' : ''}`}
                           title="Attach Document"
                         >
@@ -785,7 +783,7 @@ function ChannelsContent() {
                           </>
                         )}
                       </div>
-                      <button 
+                      <button
                         onClick={handleSendMessage}
                         className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 flex items-center justify-center gap-2 w-full sm:w-auto hover:bg-white hover:text-black transition-all"
                       >
@@ -820,7 +818,7 @@ function ChannelsContent() {
                         className="wireframe-input pl-9 py-1.5 text-[9px] outline-none text-black font-bold uppercase"
                       />
                       {docSearchQuery && (
-                        <button 
+                        <button
                           onClick={() => setDocSearchQuery('')}
                           className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-black text-gray-400"
                         >
@@ -829,7 +827,7 @@ function ChannelsContent() {
                       )}
                     </div>
 
-                    <button 
+                    <button
                       onClick={() => setShowDirectUploadModal(true)}
                       className="wireframe-button bg-black text-white text-[9px] uppercase px-4 py-1.5 flex items-center gap-1.5 font-black whitespace-nowrap hover:bg-white hover:text-black transition-all"
                     >
@@ -854,15 +852,15 @@ function ChannelsContent() {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {filteredDocuments.map((doc) => (
-                        <div 
+                        <div
                           key={doc.id}
                           className="wireframe-card p-4 flex flex-col justify-between bg-white border-2 border-black hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
                         >
                           <div className="flex items-start gap-4">
                             <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
                               {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
-                               doc.type === 'image' ? <Image size={20} className="text-black" /> :
-                               <Paperclip size={20} className="text-black" />}
+                                doc.type === 'image' ? <Image size={20} className="text-black" /> :
+                                  <Paperclip size={20} className="text-black" />}
                             </div>
                             <div className="min-w-0 flex-1">
                               <h4 className="text-[11px] font-black uppercase tracking-tight truncate text-black" title={doc.name}>
@@ -878,13 +876,13 @@ function ChannelsContent() {
                           </div>
 
                           <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
-                            <button 
+                            <button
                               onClick={() => setPreviewDocument(doc)}
                               className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
                             >
                               <Eye size={10} /> View
                             </button>
-                            <button 
+                            <button
                               onClick={() => handleDownloadDocument(doc.name)}
                               className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
                             >
@@ -911,8 +909,8 @@ function ChannelsContent() {
                 <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-black text-white font-bold">Document Viewer</span>
                 <h3 className="text-sm font-black uppercase tracking-tight mt-1 text-black">{previewDocument.name}</h3>
               </div>
-              <button 
-                onClick={() => setPreviewDocument(null)} 
+              <button
+                onClick={() => setPreviewDocument(null)}
                 className="wireframe-button px-2.5 py-1 text-[9px] font-bold uppercase bg-white text-black border-black hover:bg-black hover:text-white"
               >
                 Close View
@@ -929,12 +927,12 @@ function ChannelsContent() {
                     <span>ID: DRT-9842</span>
                     <span>PANO X-RAY</span>
                   </div>
-                  
+
                   {/* SVG Pano drawing */}
                   <svg viewBox="0 0 400 200" className="w-full h-auto text-white">
                     {/* Jaw curve */}
                     <path d="M 40 160 Q 200 200 360 160" fill="none" stroke="#333" strokeWidth="6" strokeDasharray="5,5" />
-                    
+
                     {/* Upper teeth */}
                     <g transform="translate(0, 40)" fill="none" stroke="#eee" strokeWidth="2">
                       <path d="M 50 40 Q 60 5 70 40" />
@@ -956,7 +954,7 @@ function ChannelsContent() {
                       <path d="M 305 40 Q 315 5 325 40" />
                       <path d="M 330 40 Q 340 5 350 40" />
                     </g>
-                    
+
                     {/* Lower teeth */}
                     <g transform="translate(0, 110)" fill="none" stroke="#eee" strokeWidth="2">
                       <path d="M 50 0 Q 60 35 70 0" />
@@ -973,7 +971,7 @@ function ChannelsContent() {
                       <path d="M 330 0 Q 340 35 350 0" />
                     </g>
                   </svg>
-                  
+
                   <div className="w-full text-center text-[7px] text-gray-500 font-bold uppercase mt-3">
                     Valley Endodontics • Digital Radiograph System v4.1
                   </div>
@@ -985,7 +983,7 @@ function ChannelsContent() {
                     <h4 className="text-xs font-black uppercase tracking-widest">DRTALK SECURE PATIENT REFERRAL</h4>
                     <p className="text-[7px] font-bold text-muted-foreground uppercase">CLINICAL DOCUMENTATION PORTAL</p>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 text-[8px] uppercase mb-4">
                     <div className="space-y-1.5">
                       <p><span className="font-bold text-gray-500">FROM PRACTICE:</span> {activeChannel.name === 'Valley Endodontics' ? 'Beverly Hills Dental' : 'Valley Endodontics'}</p>
@@ -1036,7 +1034,7 @@ function ChannelsContent() {
               <span className="text-[8px] font-bold text-muted-foreground uppercase">
                 File details: {previewDocument.size} • {previewDocument.type.toUpperCase()} Format • Secure Storage ID: {previewDocument.id}
               </span>
-              <button 
+              <button
                 onClick={() => {
                   setPreviewDocument(null);
                   triggerToast(`Downloading "${previewDocument.name}"...`);
@@ -1056,12 +1054,12 @@ function ChannelsContent() {
           <div className="bg-white border-4 border-black p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
             <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
               <h3 className="text-xs font-black uppercase tracking-widest text-black">Send Document to {activeChannel.name}</h3>
-              <button 
+              <button
                 onClick={() => {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
                   setAttachedFiles([]);
-                }} 
+                }}
                 className="hover:text-black text-black"
               >
                 <X size={16} />
@@ -1085,7 +1083,7 @@ function ChannelsContent() {
                             <p className="text-[6px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
                           </div>
                         </div>
-                        <button 
+                        <button
                           onClick={() => {
                             setAttachedFiles(prev => {
                               const remaining = prev.filter(f => f.id !== file.id);
@@ -1113,19 +1111,19 @@ function ChannelsContent() {
               {/* Premium Drag and Drop / Click Zone */}
               <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
                 {/* Hidden native input */}
-                <input 
-                  type="file" 
-                  id="modal-file-input" 
-                  className="hidden" 
+                <input
+                  type="file"
+                  id="modal-file-input"
+                  className="hidden"
                   onChange={handleRealFileSelect}
                 />
-                
+
                 {/* Visual click trigger for native upload */}
-                <div 
-                  onClick={() => document.getElementById('modal-file-input')?.click()} 
-                  className="absolute inset-0 z-0" 
+                <div
+                  onClick={() => document.getElementById('modal-file-input')?.click()}
+                  className="absolute inset-0 z-0"
                 />
-                
+
                 <Upload size={20} className="text-black z-10" />
                 <span className="text-[9px] font-black uppercase tracking-wider text-black z-10">
                   Attach Document
@@ -1133,41 +1131,41 @@ function ChannelsContent() {
                 <span className="text-[6px] font-bold text-muted-foreground uppercase z-10">
                   Click to browse files or drag and drop here
                 </span>
-                
+
                 {/* Mock upload trigger */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    
+
                     const mockFiles = [
-                      { 
-                        name: 'SURGERY_REPORT_COOPER.PDF', 
-                        type: 'pdf' as const, 
+                      {
+                        name: 'SURGERY_REPORT_COOPER.PDF',
+                        type: 'pdf' as const,
                         size: '2.1 MB',
                         patient: { first: 'John', last: 'Cooper', dob: '05/14/1988', msg: 'Hi, here is the surgery report for John Cooper post-extraction.' }
                       },
-                      { 
-                        name: 'PANO_XRAY_REVISION.PNG', 
-                        type: 'image' as const, 
+                      {
+                        name: 'PANO_XRAY_REVISION.PNG',
+                        type: 'image' as const,
                         size: '4.8 MB',
                         patient: { first: 'Sarah', last: 'Jenkins', dob: '11/22/1992', msg: 'Hi, sending over the post-op panoramic radiograph for Sarah.' }
                       },
-                      { 
-                        name: 'CT_SCAN_MANDIBLE.ZIP', 
-                        type: 'zip' as const, 
+                      {
+                        name: 'CT_SCAN_MANDIBLE.ZIP',
+                        type: 'zip' as const,
                         size: '12.4 MB',
                         patient: { first: 'Robert', last: 'Chen', dob: '08/03/1975', msg: 'Full mandibular CBCT volume for Robert Chen.' }
                       },
-                      { 
-                        name: 'CLINICAL_SUMMARY_VALLEY.PDF', 
-                        type: 'pdf' as const, 
+                      {
+                        name: 'CLINICAL_SUMMARY_VALLEY.PDF',
+                        type: 'pdf' as const,
                         size: '1.1 MB',
                         patient: { first: 'Emily', last: 'Taylor', dob: '03/30/2001', msg: 'Valley Endodontics clinical notes for Emily Taylor.' }
                       }
                     ];
-                    
+
                     const choice = mockFiles[attachedFiles.length % mockFiles.length];
-                    
+
                     setCustomDocName(choice.name);
                     setCustomDocType(choice.type);
                     setCustomDocSize(choice.size);
@@ -1175,7 +1173,7 @@ function ChannelsContent() {
                     setPatientLastName(choice.patient.last);
                     setPatientDob(choice.patient.dob);
                     setUploadMessage(choice.patient.msg);
-                    
+
                     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const newFile = {
                       id: 'temp_' + Math.random().toString(36).substring(2, 9),
@@ -1200,7 +1198,7 @@ function ChannelsContent() {
               {/* Premium Patient Association Fields */}
               <div className="border-t border-black pt-3 space-y-3">
                 <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
-                  Patient Association (Optional)
+                  Patient Information
                 </span>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -1238,10 +1236,10 @@ function ChannelsContent() {
                     />
                     <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                       <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2"/>
-                        <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/>
-                        <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/>
-                        <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2" />
+                        <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2" />
+                        <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2" />
                       </svg>
                     </div>
                   </div>
@@ -1346,14 +1344,14 @@ function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActiv
   );
 }
 
-function Message({ 
-  user, 
-  text, 
-  time, 
-  type, 
+function Message({
+  user,
+  text,
+  time,
+  type,
   transport,
-  document 
-}: { 
+  document
+}: {
   user: string;
   text: string;
   time: string;
@@ -1373,25 +1371,23 @@ function Message({
       <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'
         }`}>
         {text && <div>{text}</div>}
-        
+
         {document && (
-          <div className={`mt-3 p-3 border-2 flex items-center justify-between gap-4 transition-all ${
-            isSelf ? 'border-white bg-black text-white' : 'border-black bg-white text-black'
-          }`}>
+          <div className={`mt-3 p-3 border-2 flex items-center justify-between gap-4 transition-all ${isSelf ? 'border-white bg-black text-white' : 'border-black bg-white text-black'
+            }`}>
             <div className="flex items-center gap-3 min-w-0">
-              <div className={`w-8 h-8 border-2 flex items-center justify-center shrink-0 ${
-                isSelf ? 'border-white' : 'border-black'
-              }`}>
+              <div className={`w-8 h-8 border-2 flex items-center justify-center shrink-0 ${isSelf ? 'border-white' : 'border-black'
+                }`}>
                 {document.type === 'pdf' ? <FileText size={16} /> :
-                 document.type === 'image' ? <Image size={16} /> :
-                 <Paperclip size={16} />}
+                  document.type === 'image' ? <Image size={16} /> :
+                    <Paperclip size={16} />}
               </div>
               <div className="min-w-0">
                 <p className="text-[9px] font-bold uppercase truncate">{document.name}</p>
                 <p className="text-[7px] uppercase font-bold opacity-60 mt-0.5">{document.size}</p>
               </div>
             </div>
-            
+
             <span className="text-[6px] font-black uppercase tracking-wider px-1.5 py-0.5 border border-dashed select-none opacity-80 border-current">
               Attached Document
             </span>
