@@ -146,6 +146,7 @@ function ChannelsContent() {
   const [customDocName, setCustomDocName] = useState('');
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
   const [customDocSize, setCustomDocSize] = useState('1.5 MB');
+  const [attachedFiles, setAttachedFiles] = useState<SharedDocument[]>([]);
 
   // Filter channels based on role
   const displayedChannels = React.useMemo(() => {
@@ -244,30 +245,95 @@ function ChannelsContent() {
     triggerToast(attachedDoc ? "Message sent with document!" : "Message sent!");
   };
 
-  const handleDirectUpload = () => {
-    if (!customDocName.trim()) return;
+  const updateLastAttachedFile = (updatedFields: Partial<SharedDocument>) => {
+    setAttachedFiles(prev => {
+      if (prev.length === 0) return prev;
+      const copy = [...prev];
+      copy[copy.length - 1] = {
+        ...copy[copy.length - 1],
+        ...updatedFields
+      };
+      return copy;
+    });
+  };
 
+  const handleRealFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+    if (extension === 'pdf') type = 'pdf';
+    else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
+    else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
+
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    const formattedSize = parseFloat(sizeMB) > 0.1 ? `${sizeMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+
+    // Automatically fill form fields!
+    setCustomDocName(file.name);
+    setCustomDocType(type);
+    setCustomDocSize(formattedSize);
+
+    // Automatically attach to list!
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const docId = 'd_' + Math.random().toString(36).substring(2, 9);
-    
-    // Add extension if not present
-    const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`) 
-      ? customDocName.toLowerCase() 
-      : `${customDocName.toLowerCase()}.${customDocType}`;
-
-    const newDoc: SharedDocument = {
-      id: docId,
+    const newFile: SharedDocument = {
+      id: 'temp_' + Math.random().toString(36).substring(2, 9),
       channelId: activeChannel.id,
-      name: formattedName,
-      size: customDocSize || '1.5 MB',
-      type: customDocType,
+      name: file.name,
+      size: formattedSize,
+      type: type,
       sentBy: 'Me',
       sentAt: 'Today, ' + timeString
     };
 
-    setDocuments(prev => [...prev, newDoc]);
+    setAttachedFiles(prev => [...prev, newFile]);
+    triggerToast(`Attached "${file.name}" successfully!`);
+    
+    // Clear input value so same file can be uploaded again
+    e.target.value = '';
+  };
 
-    const newMessage: MessageItem = {
+  const handleDirectUpload = () => {
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    
+    // Prepare documents to share. If we have attachedFiles, use those. 
+    // Otherwise fallback to single custom file as backup
+    let filesToShare: Omit<SharedDocument, 'id'>[] = [];
+    
+    if (attachedFiles.length > 0) {
+      filesToShare = attachedFiles;
+    } else if (customDocName.trim()) {
+      const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`) 
+        ? customDocName.toLowerCase() 
+        : `${customDocName.toLowerCase()}.${customDocType}`;
+      filesToShare = [{
+        channelId: activeChannel.id,
+        name: formattedName,
+        size: customDocSize || '1.5 MB',
+        type: customDocType,
+        sentBy: 'Me',
+        sentAt: 'Today, ' + timeString
+      }];
+    }
+
+    if (filesToShare.length === 0) return;
+
+    // Convert to final SharedDocument array with unique IDs
+    const finalDocs: SharedDocument[] = filesToShare.map(file => ({
+      id: 'd_' + Math.random().toString(36).substring(2, 9),
+      channelId: activeChannel.id,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      sentBy: 'Me',
+      sentAt: 'Today, ' + timeString
+    }));
+
+    setDocuments(prev => [...prev, ...finalDocs]);
+
+    // Create message objects
+    const newMessages: MessageItem[] = finalDocs.map(newDoc => ({
       id: 'm_' + Math.random().toString(36).substring(2, 9),
       user: 'Me',
       text: `Directly shared document: ${newDoc.name}`,
@@ -275,26 +341,27 @@ function ChannelsContent() {
       type: 'self',
       transport: 'App',
       document: newDoc
-    };
+    }));
 
     setMessages(prev => ({
       ...prev,
-      [activeChannel.id]: [...(prev[activeChannel.id] || []), newMessage]
+      [activeChannel.id]: [...(prev[activeChannel.id] || []), ...newMessages]
     }));
 
     setChannels(prev => prev.map(c => {
       if (c.id === activeChannel.id) {
         return {
           ...c,
-          lastMessage: `Shared document: ${newDoc.name}`
+          lastMessage: `Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''}: ${finalDocs[0].name}`
         };
       }
       return c;
     }));
 
+    setAttachedFiles([]);
     setCustomDocName('');
     setShowDirectUploadModal(false);
-    triggerToast(`"${newDoc.name}" uploaded and shared!`);
+    triggerToast(`Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''} successfully!`);
   };
 
   const handleDownloadDocument = (name: string) => {
@@ -969,6 +1036,7 @@ function ChannelsContent() {
                 onClick={() => {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
+                  setAttachedFiles([]);
                 }} 
                 className="hover:text-black text-black"
               >
@@ -977,24 +1045,106 @@ function ChannelsContent() {
             </div>
 
             <div className="space-y-4">
+              {/* Attached Files List */}
+              {attachedFiles.length > 0 && (
+                <div className="space-y-2 border-b border-black border-dashed pb-3">
+                  <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
+                    Attached Files ({attachedFiles.length})
+                  </span>
+                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                    {attachedFiles.map((file) => (
+                      <div key={file.id} className="flex items-center justify-between p-2 border-2 border-black bg-zinc-50">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText size={12} className="shrink-0 text-black" />
+                          <div className="truncate">
+                            <p className="text-[8px] font-black uppercase truncate">{file.name}</p>
+                            <p className="text-[6px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setAttachedFiles(prev => {
+                              const remaining = prev.filter(f => f.id !== file.id);
+                              if (remaining.length === 0) {
+                                setCustomDocName('');
+                              } else {
+                                const last = remaining[remaining.length - 1];
+                                setCustomDocName(last.name);
+                                setCustomDocType(last.type);
+                                setCustomDocSize(last.size);
+                              }
+                              return remaining;
+                            });
+                          }}
+                          className="text-black hover:text-red-600 p-0.5 transition-colors"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Premium Drag and Drop / Click Zone */}
-              <div 
-                onClick={() => {
-                  // Premium interactive mock file attachment
-                  setCustomDocName('SURGERY_REPORT_COOPER.PDF');
-                  setCustomDocType('pdf');
-                  setCustomDocSize('2.1 MB');
-                  triggerToast("File 'SURGERY_REPORT_COOPER.PDF' attached successfully!");
-                }}
-                className="border-2 border-dashed border-black p-6 flex flex-col items-center justify-center bg-gray-50 hover:bg-black/5 cursor-pointer transition-all gap-2 text-center"
-              >
-                <Upload size={24} className="text-black" />
-                <span className="text-[10px] font-black uppercase tracking-wider text-black">
+              <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
+                {/* Hidden native input */}
+                <input 
+                  type="file" 
+                  id="modal-file-input" 
+                  className="hidden" 
+                  onChange={handleRealFileSelect}
+                />
+                
+                {/* Visual click trigger for native upload */}
+                <div 
+                  onClick={() => document.getElementById('modal-file-input')?.click()} 
+                  className="absolute inset-0 z-0" 
+                />
+                
+                <Upload size={20} className="text-black z-10" />
+                <span className="text-[9px] font-black uppercase tracking-wider text-black z-10">
                   Attach Document
                 </span>
-                <span className="text-[7px] font-bold text-muted-foreground uppercase">
+                <span className="text-[6px] font-bold text-muted-foreground uppercase z-10">
                   Click to browse files or drag and drop here
                 </span>
+                
+                {/* Mock upload trigger */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    
+                    const mockFiles = [
+                      { name: 'SURGERY_REPORT_COOPER.PDF', type: 'pdf' as const, size: '2.1 MB' },
+                      { name: 'PANO_XRAY_REVISION.PNG', type: 'image' as const, size: '4.8 MB' },
+                      { name: 'CT_SCAN_MANDIBLE.ZIP', type: 'zip' as const, size: '12.4 MB' },
+                      { name: 'CLINICAL_SUMMARY_VALLEY.PDF', type: 'pdf' as const, size: '1.1 MB' }
+                    ];
+                    
+                    const choice = mockFiles[attachedFiles.length % mockFiles.length];
+                    
+                    setCustomDocName(choice.name);
+                    setCustomDocType(choice.type);
+                    setCustomDocSize(choice.size);
+                    
+                    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const newFile = {
+                      id: 'temp_' + Math.random().toString(36).substring(2, 9),
+                      channelId: activeChannel.id,
+                      name: choice.name,
+                      size: choice.size,
+                      type: choice.type,
+                      sentBy: 'Me',
+                      sentAt: 'Today, ' + timeString
+                    };
+                    setAttachedFiles(prev => [...prev, newFile]);
+                    triggerToast(`Mock attached "${choice.name}" successfully!`);
+                  }}
+                  className="relative z-10 mt-1 px-3 py-1 bg-black text-white hover:bg-gray-800 text-[6px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
+                >
+                  Quick attach mock scan
+                </button>
               </div>
 
               {/* Form Input for Details */}
@@ -1005,7 +1155,10 @@ function ChannelsContent() {
                     type="text"
                     placeholder="E.G. SCAN_REPORT.PDF"
                     value={customDocName}
-                    onChange={(e) => setCustomDocName(e.target.value)}
+                    onChange={(e) => {
+                      setCustomDocName(e.target.value);
+                      updateLastAttachedFile({ name: e.target.value });
+                    }}
                     className="wireframe-input py-1.5 text-[9px] uppercase font-bold text-black border-black"
                   />
                 </div>
@@ -1015,7 +1168,11 @@ function ChannelsContent() {
                     <span className="text-[7px] font-black uppercase block mb-1 text-black">File Type</span>
                     <select
                       value={customDocType}
-                      onChange={(e) => setCustomDocType(e.target.value as any)}
+                      onChange={(e) => {
+                        const val = e.target.value as any;
+                        setCustomDocType(val);
+                        updateLastAttachedFile({ type: val });
+                      }}
                       className="wireframe-input py-1 text-[9px] uppercase font-bold text-black border-black bg-white"
                     >
                       <option value="pdf">PDF Document</option>
@@ -1030,7 +1187,10 @@ function ChannelsContent() {
                       type="text"
                       placeholder="1.5 MB"
                       value={customDocSize}
-                      onChange={(e) => setCustomDocSize(e.target.value)}
+                      onChange={(e) => {
+                        setCustomDocSize(e.target.value);
+                        updateLastAttachedFile({ size: e.target.value });
+                      }}
                       className="wireframe-input py-1 text-[9px] uppercase font-bold text-black border-black"
                     />
                   </div>
@@ -1043,6 +1203,7 @@ function ChannelsContent() {
                 onClick={() => {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
+                  setAttachedFiles([]);
                 }}
                 className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-2 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
               >
@@ -1050,7 +1211,7 @@ function ChannelsContent() {
               </button>
               <button
                 onClick={handleDirectUpload}
-                disabled={!customDocName.trim()}
+                disabled={attachedFiles.length === 0 && !customDocName.trim()}
                 className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-2 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
               >
                 <Send size={10} /> Send Document
