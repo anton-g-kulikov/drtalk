@@ -8,7 +8,7 @@ import {
   Search, Hash, Lock, Users, Send,
   Paperclip, Smile, MoreHorizontal,
   Smartphone, Mail, AppWindow,
-  FileText, Image, X, Eye, Download, Plus
+  FileText, Image, X, Eye, Download, Plus, Upload
 } from 'lucide-react';
 
 type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public';
