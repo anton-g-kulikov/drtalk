@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import { 
-  ChevronRight, ArrowLeft, CheckCircle2, 
-  Upload, FileText, X, Shield, Lock 
+import {
+  ChevronRight, ArrowLeft, CheckCircle2,
+  Upload, FileText, X, Shield, Lock
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
@@ -27,7 +27,7 @@ export default function GuestReferralPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <h1 className="text-3xl font-bold uppercase tracking-tighter">Refer to</h1>
-                <CommentMarker 
+                <CommentMarker
                   id="referral-target-practice"
                   title="Target Practice"
                   description="Target practice is pre-filled since you used a special practice link."
@@ -35,41 +35,42 @@ export default function GuestReferralPage() {
               </div>
               <p className="text-xl font-black uppercase italic tracking-tighter">Sunshine Dental</p>
             </div>
-            
+
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Enter email</label>
-                  <input 
-                    type="email" 
-                    placeholder="dr.smith@example.com" 
-                    className="wireframe-input" 
+                  <label className="text-[10px] font-bold uppercase">Enter your email</label>
+                  <input
+                    type="email"
+                    placeholder="dr.smith@example.com"
+                    className="wireframe-input"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Dr. Smith" 
-                    className="wireframe-input" 
-                    value={doctorName}
-                    onChange={(e) => setDoctorName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Your practice name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Smith Dental Care" 
-                    className="wireframe-input" 
+                  <input
+                    type="text"
+                    placeholder="Smith Dental Care"
+                    className="wireframe-input"
                     value={practiceName}
                     onChange={(e) => setPracticeName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Select Doctor</label>
+                  <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
+                  <input
+                    type="text"
+                    placeholder="Dr. Smith"
+                    className="wireframe-input"
+                    value={doctorName}
+                    onChange={(e) => setDoctorName(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase">Select Specialist or Receiving doctor</label>
                   <select className="wireframe-input bg-white appearance-none cursor-pointer">
                     <option value="">Select a doctor</option>
                     <option value="1">Dr. John Taylor</option>
@@ -79,16 +80,16 @@ export default function GuestReferralPage() {
               </div>
 
               <div className="space-y-4">
-                <button 
+                <button
                   onClick={() => nextStep('PATIENT')}
                   className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
                 >
                   Continue to Patient Details <ChevronRight size={16} />
                 </button>
-                
+
                 <div className="text-center pt-4 border-t border-black border-dashed">
                   <p className="text-[10px] font-bold uppercase text-muted-foreground mb-2">Already have an account?</p>
-                  <button 
+                  <button
                     onClick={() => nextStep('LOGIN')}
                     className="text-xs font-black uppercase underline hover:text-black transition-colors"
                   >
@@ -121,7 +122,7 @@ export default function GuestReferralPage() {
                   <input type="password" placeholder="••••••••" className="wireframe-input" />
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => nextStep('PATIENT')}
                 className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
               >
@@ -145,7 +146,7 @@ export default function GuestReferralPage() {
                 </p>
               </div>
             </div>
-            
+
             <div className="space-y-6">
               <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">1. Patient Information</h3>
               <div className="space-y-4">
@@ -168,7 +169,7 @@ export default function GuestReferralPage() {
                   <input type="text" placeholder="Delta Dental" className="wireframe-input" />
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => nextStep('CASE')}
                 className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm mt-4 flex items-center justify-center gap-2"
               >
@@ -193,9 +194,9 @@ export default function GuestReferralPage() {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Reason for Referral</label>
-                  <textarea 
-                    placeholder="Describe the clinical needs, specific teeth, or symptoms..." 
-                    className="wireframe-input h-32 py-3 resize-none" 
+                  <textarea
+                    placeholder="Describe the clinical needs, specific teeth, or symptoms..."
+                    className="wireframe-input h-32 py-3 resize-none"
                   />
                 </div>
                 <div className="space-y-1">
@@ -210,7 +211,7 @@ export default function GuestReferralPage() {
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => nextStep('DOCS')}
                 className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm mt-4 flex items-center justify-center gap-2"
               >
@@ -260,7 +261,7 @@ export default function GuestReferralPage() {
 
               <div className="pt-8 space-y-4 border-t-2 border-black">
 
-                <button 
+                <button
                   onClick={() => nextStep('SUCCESS')}
                   className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] transition-all"
                 >
@@ -295,13 +296,13 @@ export default function GuestReferralPage() {
                   <span className="font-bold underline decoration-red-600">Are you still using email, fax and voice mail?</span> Your patients deserve better! Eliminate operational friction, increase patient case acceptance and track your patients through specialty care with drtalk. Set up your team today with 3 easy steps...
                 </p>
               </div>
-              <button 
+              <button
                 onClick={() => router.push(`/onboarding?email=${encodeURIComponent(email)}&practice=${encodeURIComponent(practiceName)}`)}
                 className="wireframe-button w-full bg-black text-white py-3 uppercase text-xs font-black"
               >
                 Track This Referral
               </button>
-              <button 
+              <button
                 onClick={() => router.push('/')}
                 className="text-[10px] font-bold uppercase underline text-muted-foreground hover:text-black"
               >
@@ -321,16 +322,15 @@ export default function GuestReferralPage() {
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-8 font-sans border-t-[12px] border-black">
       {renderStep()}
-      
+
       {/* Step Indicator */}
       {step !== 'SUCCESS' && (
         <div className="fixed bottom-12 flex gap-4 items-center">
           {['IDENTIFY', 'PATIENT', 'CASE', 'DOCS'].map((s, i) => (
             <div key={s} className="flex items-center gap-2">
-              <div 
-                className={`w-3 h-3 border-2 border-black transition-all ${
-                  (['IDENTIFY', 'PATIENT', 'CASE', 'DOCS'].indexOf(step) >= i) || (step === 'LOGIN' && i === 0) ? 'bg-black' : 'bg-transparent'
-                }`}
+              <div
+                className={`w-3 h-3 border-2 border-black transition-all ${(['IDENTIFY', 'PATIENT', 'CASE', 'DOCS'].indexOf(step) >= i) || (step === 'LOGIN' && i === 0) ? 'bg-black' : 'bg-transparent'
+                  }`}
               />
               {i < 3 && <div className="w-8 h-0.5 bg-black/20" />}
             </div>
