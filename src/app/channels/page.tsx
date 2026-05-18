@@ -147,6 +147,10 @@ function ChannelsContent() {
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
   const [customDocSize, setCustomDocSize] = useState('1.5 MB');
   const [attachedFiles, setAttachedFiles] = useState<SharedDocument[]>([]);
+  const [patientFirstName, setPatientFirstName] = useState('');
+  const [patientLastName, setPatientLastName] = useState('');
+  const [patientDob, setPatientDob] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
 
   // Filter channels based on role
   const displayedChannels = React.useMemo(() => {
@@ -333,15 +337,31 @@ function ChannelsContent() {
     setDocuments(prev => [...prev, ...finalDocs]);
 
     // Create message objects
-    const newMessages: MessageItem[] = finalDocs.map(newDoc => ({
-      id: 'm_' + Math.random().toString(36).substring(2, 9),
-      user: 'Me',
-      text: `Directly shared document: ${newDoc.name}`,
-      time: timeString,
-      type: 'self',
-      transport: 'App',
-      document: newDoc
-    }));
+    const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
+      let messageText = `Directly shared document: ${newDoc.name}`;
+      
+      // Associate patient information if provided (on the first document in the batch)
+      if (index === 0) {
+        if (patientFirstName || patientLastName) {
+          const patientName = `${patientFirstName} ${patientLastName}`.trim();
+          messageText += `\nAssociated Patient: ${patientName}`;
+          if (patientDob) messageText += ` (DOB: ${patientDob})`;
+        }
+        if (uploadMessage.trim()) {
+          messageText += `\nMessage: ${uploadMessage.trim()}`;
+        }
+      }
+
+      return {
+        id: 'm_' + Math.random().toString(36).substring(2, 9),
+        user: 'Me',
+        text: messageText,
+        time: timeString,
+        type: 'self',
+        transport: 'App',
+        document: newDoc
+      };
+    });
 
     setMessages(prev => ({
       ...prev,
@@ -360,6 +380,10 @@ function ChannelsContent() {
 
     setAttachedFiles([]);
     setCustomDocName('');
+    setPatientFirstName('');
+    setPatientLastName('');
+    setPatientDob('');
+    setUploadMessage('');
     setShowDirectUploadModal(false);
     triggerToast(`Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''} successfully!`);
   };
@@ -1116,10 +1140,30 @@ function ChannelsContent() {
                     e.stopPropagation();
                     
                     const mockFiles = [
-                      { name: 'SURGERY_REPORT_COOPER.PDF', type: 'pdf' as const, size: '2.1 MB' },
-                      { name: 'PANO_XRAY_REVISION.PNG', type: 'image' as const, size: '4.8 MB' },
-                      { name: 'CT_SCAN_MANDIBLE.ZIP', type: 'zip' as const, size: '12.4 MB' },
-                      { name: 'CLINICAL_SUMMARY_VALLEY.PDF', type: 'pdf' as const, size: '1.1 MB' }
+                      { 
+                        name: 'SURGERY_REPORT_COOPER.PDF', 
+                        type: 'pdf' as const, 
+                        size: '2.1 MB',
+                        patient: { first: 'John', last: 'Cooper', dob: '05/14/1988', msg: 'Hi, here is the surgery report for John Cooper post-extraction.' }
+                      },
+                      { 
+                        name: 'PANO_XRAY_REVISION.PNG', 
+                        type: 'image' as const, 
+                        size: '4.8 MB',
+                        patient: { first: 'Sarah', last: 'Jenkins', dob: '11/22/1992', msg: 'Hi, sending over the post-op panoramic radiograph for Sarah.' }
+                      },
+                      { 
+                        name: 'CT_SCAN_MANDIBLE.ZIP', 
+                        type: 'zip' as const, 
+                        size: '12.4 MB',
+                        patient: { first: 'Robert', last: 'Chen', dob: '08/03/1975', msg: 'Full mandibular CBCT volume for Robert Chen.' }
+                      },
+                      { 
+                        name: 'CLINICAL_SUMMARY_VALLEY.PDF', 
+                        type: 'pdf' as const, 
+                        size: '1.1 MB',
+                        patient: { first: 'Emily', last: 'Taylor', dob: '03/30/2001', msg: 'Valley Endodontics clinical notes for Emily Taylor.' }
+                      }
                     ];
                     
                     const choice = mockFiles[attachedFiles.length % mockFiles.length];
@@ -1127,6 +1171,10 @@ function ChannelsContent() {
                     setCustomDocName(choice.name);
                     setCustomDocType(choice.type);
                     setCustomDocSize(choice.size);
+                    setPatientFirstName(choice.patient.first);
+                    setPatientLastName(choice.patient.last);
+                    setPatientDob(choice.patient.dob);
+                    setUploadMessage(choice.patient.msg);
                     
                     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const newFile = {
@@ -1196,6 +1244,68 @@ function ChannelsContent() {
                   </div>
                 </div>
               </div>
+
+              {/* Premium Patient Association Fields */}
+              <div className="border-t border-black pt-3 space-y-3">
+                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
+                  Patient Association (Optional)
+                </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-[7px] font-black uppercase block mb-1 text-black">Patient first name</span>
+                    <input
+                      type="text"
+                      placeholder="Enter patient first name"
+                      value={patientFirstName}
+                      onChange={(e) => setPatientFirstName(e.target.value)}
+                      className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full"
+                    />
+                  </div>
+                  <div>
+                    <span className="text-[7px] font-black uppercase block mb-1 text-black">Patient last name</span>
+                    <input
+                      type="text"
+                      placeholder="Enter patient last name"
+                      value={patientLastName}
+                      onChange={(e) => setPatientLastName(e.target.value)}
+                      className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[7px] font-black uppercase block mb-1 text-black">Date of birth</span>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      placeholder="MM/DD/YYYY"
+                      value={patientDob}
+                      onChange={(e) => setPatientDob(e.target.value)}
+                      className="wireframe-input py-1.5 pr-8 text-[9px] font-bold text-black border-black bg-white w-full"
+                    />
+                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
+                      <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/>
+                        <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/>
+                        <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-[7px] font-black uppercase block mb-1 text-black">Message</span>
+                  <textarea
+                    placeholder="Enter message"
+                    value={uploadMessage}
+                    rows={2}
+                    onChange={(e) => setUploadMessage(e.target.value)}
+                    className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full resize-none"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6 pt-4 border-t-2 border-black">
@@ -1204,6 +1314,10 @@ function ChannelsContent() {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
                   setAttachedFiles([]);
+                  setPatientFirstName('');
+                  setPatientLastName('');
+                  setPatientDob('');
+                  setUploadMessage('');
                 }}
                 className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-2 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
               >
