@@ -18,7 +18,35 @@ import {
   mockChannels, 
   SharedDocument, 
   MessageItem 
-} from '@/app/channels/page.tsx';
+} from '@/app/channels/page';
+
+// Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
+function getNewId(prefix: string): string {
+  return `${prefix}-${Date.now()}`;
+}
+
+function getFormattedDateTime(): string {
+  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('en-US');
+}
+
+function getFormattedTimeOnly(): string {
+  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function getFormattedDateOnly(): string {
+  return new Date().toLocaleDateString('en-US');
+}
+
+function addSharedDocumentToDb(newDoc: SharedDocument) {
+  initialDocuments.push(newDoc);
+}
+
+function addMessageToDb(channelId: string, newMsg: MessageItem) {
+  if (!initialMessages[channelId]) {
+    initialMessages[channelId] = [];
+  }
+  initialMessages[channelId].push(newMsg);
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -88,11 +116,11 @@ export default function DashboardPage() {
     if (!selectedDocument) return;
     
     const newReferral: ReferralItem = {
-      id: Date.now().toString(),
+      id: getNewId('ref'),
       patient: convertPatientName || 'NEW PATIENT',
       type: convertReferralType,
       source: selectedDocument.sender,
-      date: new Date().toLocaleDateString('en-US'),
+      date: getFormattedDateOnly(),
       status: 'new_processing',
       detail: `Converted from: ${selectedDocument.name}`
     };
@@ -226,17 +254,17 @@ export default function DashboardPage() {
     
     // 1. Construct Shared Document item
     const newDoc: SharedDocument = {
-      id: 'shared-' + Date.now(),
+      id: getNewId('shared'),
       channelId,
       name: docName,
       size: customDocSize,
       type: customDocType as 'pdf' | 'image' | 'zip' | 'doc',
       sentBy: 'Valley Endodontics (Specialist)',
-      sentAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('en-US')
+      sentAt: getFormattedDateTime()
     };
 
     // 2. Add to active shared docs
-    initialDocuments.push(newDoc);
+    addSharedDocumentToDb(newDoc);
 
     // 3. Add Message item to communication logs
     const patientSnippet = patientFirstName || patientLastName 
@@ -245,16 +273,16 @@ export default function DashboardPage() {
     const noteSnippet = uploadMessage ? `\nNote: ${uploadMessage}` : '';
 
     const newMsg: MessageItem = {
-      id: 'msg-' + Date.now(),
+      id: getNewId('msg'),
       user: 'Valley Endodontics',
       text: `Shared a document: ${docName}${patientSnippet}${noteSnippet}`,
-      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      time: getFormattedTimeOnly(),
       type: 'self',
       transport: 'App',
       document: newDoc
     };
 
-    initialMessages.push(newMsg);
+    addMessageToDb(channelId, newMsg);
     
     setIsSendDocOpen(false);
     

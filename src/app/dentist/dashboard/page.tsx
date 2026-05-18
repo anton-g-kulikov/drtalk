@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { 
   AlertCircle, MessageSquare, ArrowUpRight, 
   TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap,
-  Upload, X, Eye, Paperclip, Image, Lock
+  Upload, X, Eye, Paperclip, Lock
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
@@ -17,6 +17,18 @@ import {
   SharedDocument, 
   MessageItem 
 } from '@/app/channels/page';
+
+// Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
+function addSharedDocumentsToDb(newDocs: SharedDocument[]) {
+  initialDocuments.push(...newDocs);
+}
+
+function addMessagesToDb(channelId: string, newMsgs: MessageItem[]) {
+  if (!initialMessages[channelId]) {
+    initialMessages[channelId] = [];
+  }
+  initialMessages[channelId].push(...newMsgs);
+}
 
 type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed';
 
@@ -276,7 +288,7 @@ export default function DentistDashboardPage() {
       sentAt: 'Today, ' + timeString
     }));
 
-    initialDocuments.push(...finalDocs);
+    addSharedDocumentsToDb(finalDocs);
 
     const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
       let messageText = `Directly shared document: ${newDoc.name}`;
@@ -307,10 +319,7 @@ export default function DentistDashboardPage() {
       };
     });
 
-    if (!initialMessages[channelId]) {
-      initialMessages[channelId] = [];
-    }
-    initialMessages[channelId].push(...newMessages);
+    addMessagesToDb(channelId, newMessages);
 
     const practiceName = selectedPractice;
 

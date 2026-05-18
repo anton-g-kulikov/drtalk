@@ -8,7 +8,7 @@ import {
   Search, Hash, Lock, Users, Send,
   Paperclip, Smile, MoreHorizontal,
   Smartphone, Mail, AppWindow,
-  FileText, Image, X, Eye, Download, Plus, Upload
+  FileText, Image as ImageIcon, X, Eye, Download, Plus, Upload
 } from 'lucide-react';
 
 export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public';
@@ -675,7 +675,7 @@ function ChannelsContent() {
                           >
                             <div className="w-5 h-5 border border-black flex items-center justify-center shrink-0">
                               {item.type === 'pdf' ? <FileText size={10} /> :
-                                item.type === 'image' ? <Image size={10} /> :
+                                item.type === 'image' ? <ImageIcon size={10} /> :
                                   <Paperclip size={10} />}
                             </div>
                             <div className="min-w-0">
@@ -700,7 +700,7 @@ function ChannelsContent() {
                         <div className="flex items-center gap-2 text-black">
                           <div className="w-6 h-6 border border-black flex items-center justify-center bg-black text-white shrink-0">
                             {attachedDoc.type === 'pdf' ? <FileText size={12} /> :
-                              attachedDoc.type === 'image' ? <Image size={12} /> :
+                              attachedDoc.type === 'image' ? <ImageIcon size={12} /> :
                                 <Paperclip size={12} />}
                           </div>
                           <span className="text-[10px] font-bold uppercase">{attachedDoc.name} ({attachedDoc.size})</span>
@@ -859,7 +859,7 @@ function ChannelsContent() {
                           <div className="flex items-start gap-4">
                             <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
                               {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
-                                doc.type === 'image' ? <Image size={20} className="text-black" /> :
+                                doc.type === 'image' ? <ImageIcon size={20} className="text-black" /> :
                                   <Paperclip size={20} className="text-black" />}
                             </div>
                             <div className="min-w-0 flex-1">
@@ -1379,7 +1379,7 @@ function Message({
               <div className={`w-8 h-8 border-2 flex items-center justify-center shrink-0 ${isSelf ? 'border-white' : 'border-black'
                 }`}>
                 {document.type === 'pdf' ? <FileText size={16} /> :
-                  document.type === 'image' ? <Image size={16} /> :
+                  document.type === 'image' ? <ImageIcon size={16} /> :
                     <Paperclip size={16} />}
               </div>
               <div className="min-w-0">
