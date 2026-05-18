@@ -1195,60 +1195,7 @@ function ChannelsContent() {
                 </button>
               </div>
 
-              {/* Form Input for Details - ONLY show if a document is attached/uploaded */}
-              {attachedFiles.length > 0 && (
-                <div className="space-y-3 p-3 border-2 border-black bg-gray-50/50">
-                  <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
-                    Document Metadata (Edit Last Uploaded)
-                  </span>
-                  <div>
-                    <span className="text-[7px] font-black uppercase block mb-1 text-black">Document Name</span>
-                    <input
-                      type="text"
-                      placeholder="E.G. SCAN_REPORT.PDF"
-                      value={customDocName}
-                      onChange={(e) => {
-                        setCustomDocName(e.target.value);
-                        updateLastAttachedFile({ name: e.target.value });
-                      }}
-                      className="wireframe-input py-1.5 text-[9px] uppercase font-bold text-black border-black"
-                    />
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-[7px] font-black uppercase block mb-1 text-black">File Type</span>
-                      <select
-                        value={customDocType}
-                        onChange={(e) => {
-                          const val = e.target.value as any;
-                          setCustomDocType(val);
-                          updateLastAttachedFile({ type: val });
-                        }}
-                        className="wireframe-input py-1 text-[9px] uppercase font-bold text-black border-black bg-white"
-                      >
-                        <option value="pdf">PDF Document</option>
-                        <option value="image">PNG Image</option>
-                        <option value="zip">ZIP Archive</option>
-                        <option value="doc">Word Doc</option>
-                      </select>
-                    </div>
-                    <div>
-                      <span className="text-[7px] font-black uppercase block mb-1 text-black">File Size</span>
-                      <input
-                        type="text"
-                        placeholder="1.5 MB"
-                        value={customDocSize}
-                        onChange={(e) => {
-                          setCustomDocSize(e.target.value);
-                          updateLastAttachedFile({ size: e.target.value });
-                        }}
-                        className="wireframe-input py-1 text-[9px] uppercase font-bold text-black border-black"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {/* Premium Patient Association Fields */}
               <div className="border-t border-black pt-3 space-y-3">
