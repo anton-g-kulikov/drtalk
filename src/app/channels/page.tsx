@@ -11,9 +11,9 @@ import {
   FileText, Image, X, Eye, Download, Plus, Upload
 } from 'lucide-react';
 
-type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public';
+export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public';
 
-interface Channel {
+export interface Channel {
   id: string;
   name: string;
   type: ChannelType;
@@ -23,7 +23,7 @@ interface Channel {
   isVerified?: boolean;
 }
 
-interface SharedDocument {
+export interface SharedDocument {
   id: string;
   channelId: string;
   name: string;
@@ -33,7 +33,7 @@ interface SharedDocument {
   sentAt: string;
 }
 
-interface MessageItem {
+export interface MessageItem {
   id: string;
   user: string;
   text: string;
@@ -43,7 +43,7 @@ interface MessageItem {
   document?: SharedDocument;
 }
 
-const mockChannels: Channel[] = [
+export const mockChannels: Channel[] = [
   { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
   { id: '3', name: 'Valley Endodontics', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice Cooper.', memberCount: 2 },
@@ -55,7 +55,7 @@ const mockChannels: Channel[] = [
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];
 
-const initialDocuments: SharedDocument[] = [
+export const initialDocuments: SharedDocument[] = [
   { id: 'd1', channelId: '3', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' },
   { id: 'd2', channelId: '3', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' },
   { id: 'd7_1', channelId: '7', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
@@ -65,7 +65,7 @@ const initialDocuments: SharedDocument[] = [
   { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' }
 ];
 
-const initialMessages: Record<string, MessageItem[]> = {
+export const initialMessages: Record<string, MessageItem[]> = {
   '1': [
     { id: 'm1_1', user: 'Nurse Joy', text: 'Did anyone review the morning labs yet?', time: '09:15 AM', type: 'other' },
     { id: 'm1_2', user: 'Me', text: "I'm on it. Should be done in 10 minutes.", time: '09:20 AM', type: 'self', transport: 'App' },

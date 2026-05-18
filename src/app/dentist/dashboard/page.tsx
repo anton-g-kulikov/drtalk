@@ -5,10 +5,18 @@ import { MainLayout } from '@/components/MainLayout';
 import { useRouter } from 'next/navigation';
 import { 
   AlertCircle, MessageSquare, ArrowUpRight, 
-  TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap
+  TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap,
+  Upload, X, Eye, Paperclip, Image, Lock
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
+import { 
+  initialDocuments, 
+  initialMessages, 
+  mockChannels, 
+  SharedDocument, 
+  MessageItem 
+} from '@/app/channels/page';
 
 type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed';
 
@@ -67,6 +75,263 @@ export default function DentistDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { isVerified, hasPracticeOwner } = useVerification();
+
+  // Send Document Modal State
+  const [isSendDocOpen, setIsSendDocOpen] = useState(false);
+  const [selectedPractice, setSelectedPractice] = useState('');
+  const [selectedReferral, setSelectedReferral] = useState('');
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastAction, setToastAction] = useState<{ label: string; onClick: () => void } | null>(null);
+  
+  // Direct Upload State Form
+  const [customDocName, setCustomDocName] = useState('');
+  const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
+  const [customDocSize, setCustomDocSize] = useState('1.5 MB');
+  const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
+  const [patientFirstName, setPatientFirstName] = useState('');
+  const [patientLastName, setPatientLastName] = useState('');
+  const [patientDob, setPatientDob] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
+
+  const triggerToast = (msg: string, action?: { label: string; onClick: () => void }) => {
+    setToastMessage(msg);
+    setToastAction(action || null);
+    setTimeout(() => {
+      setToastMessage(null);
+      setToastAction(null);
+    }, 6000);
+  };
+
+  const connectedPractices = React.useMemo(() => {
+    return mockChannels.filter(c => c.type === 'inter-practice');
+  }, []);
+
+  const filteredReferralsForDoc = React.useMemo(() => {
+    if (!selectedPractice) return sentReferrals;
+    return sentReferrals.filter(r => r.specialist === selectedPractice);
+  }, [selectedPractice]);
+
+  const handleSelectReferral = (refId: string) => {
+    setSelectedReferral(refId);
+    if (refId) {
+      const ref = sentReferrals.find(r => r.id === refId);
+      if (ref) {
+        setSelectedPractice(ref.specialist);
+      }
+    }
+  };
+
+  const handleSelectPractice = (practiceName: string) => {
+    setSelectedPractice(practiceName);
+    if (practiceName && selectedReferral) {
+      const ref = sentReferrals.find(r => r.id === selectedReferral);
+      if (ref && ref.specialist !== practiceName) {
+        setSelectedReferral('');
+      }
+    }
+  };
+
+  const handleRealFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const extension = file.name.split('.').pop()?.toLowerCase() || '';
+    let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+    if (extension === 'pdf') type = 'pdf';
+    else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
+    else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
+
+    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+    const formattedSize = parseFloat(sizeMB) > 0.1 ? `${sizeMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+
+    setCustomDocName(file.name);
+    setCustomDocType(type);
+    setCustomDocSize(formattedSize);
+
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newFile = {
+      id: 'temp_' + Math.random().toString(36).substring(2, 9),
+      channelId: '',
+      name: file.name,
+      size: formattedSize,
+      type: type,
+      sentBy: 'Me',
+      sentAt: 'Today, ' + timeString
+    };
+
+    setAttachedFiles(prev => [...prev, newFile]);
+    triggerToast(`Attached "${file.name}" successfully!`);
+    e.target.value = '';
+  };
+
+  const handleAttachMockScan = () => {
+    const mockFiles = [
+      {
+        name: 'SURGERY_REPORT_COOPER.PDF',
+        type: 'pdf' as const,
+        size: '2.1 MB',
+        patient: { first: 'Alice', last: 'Cooper', dob: '12/04/1978', msg: 'Hi, here is the surgery report post-evaluation.' }
+      },
+      {
+        name: 'PANO_XRAY_REVISION.PNG',
+        type: 'image' as const,
+        size: '4.8 MB',
+        patient: { first: 'Marco', last: 'Reyes', dob: '05/14/1988', msg: 'Hi, sending over the post-op panoramic radiograph.' }
+      },
+      {
+        name: 'CT_SCAN_MANDIBLE.ZIP',
+        type: 'zip' as const,
+        size: '12.4 MB',
+        patient: { first: 'Nina', last: 'Patel', dob: '10/20/1990', msg: 'Full mandibular CBCT volume.' }
+      },
+      {
+        name: 'CLINICAL_SUMMARY_VALLEY.PDF',
+        type: 'pdf' as const,
+        size: '1.1 MB',
+        patient: { first: 'John', last: 'Doe', dob: '08/08/1985', msg: 'Valley Endodontics clinical notes.' }
+      }
+    ];
+
+    let choice = mockFiles[attachedFiles.length % mockFiles.length];
+    if (selectedReferral) {
+      const ref = sentReferrals.find(r => r.id === selectedReferral);
+      if (ref) {
+        const parts = ref.patientName.split(' ');
+        const matched = mockFiles.find(f => f.patient.last.toLowerCase() === parts[1]?.toLowerCase());
+        if (matched) {
+          choice = matched;
+        } else {
+          choice = {
+            ...choice,
+            patient: {
+              first: parts[0] || '',
+              last: parts[1] || '',
+              dob: ref.id === 'D-1001' ? '12/04/1978' : ref.id === 'D-1002' ? '05/14/1988' : '10/20/1990',
+              msg: `Document regarding referral ${ref.id} for ${ref.patientName}.`
+            }
+          };
+        }
+      }
+    }
+
+    setCustomDocName(choice.name);
+    setCustomDocType(choice.type);
+    setCustomDocSize(choice.size);
+    setPatientFirstName(choice.patient.first);
+    setPatientLastName(choice.patient.last);
+    setPatientDob(choice.patient.dob);
+    setUploadMessage(choice.patient.msg);
+
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const newFile = {
+      id: 'temp_' + Math.random().toString(36).substring(2, 9),
+      channelId: '',
+      name: choice.name,
+      size: choice.size,
+      type: choice.type,
+      sentBy: 'Me',
+      sentAt: 'Today, ' + timeString
+    };
+    setAttachedFiles(prev => [...prev, newFile]);
+    triggerToast(`Mock attached "${choice.name}" successfully!`);
+  };
+
+  const handleSendDocumentSubmit = () => {
+    if (!selectedPractice) {
+      triggerToast("Please select a connected practice.");
+      return;
+    }
+
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    let filesToShare: any[] = [];
+
+    if (attachedFiles.length > 0) {
+      filesToShare = attachedFiles;
+    } else if (customDocName.trim()) {
+      const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`)
+        ? customDocName.toLowerCase()
+        : `${customDocName.toLowerCase()}.${customDocType}`;
+      filesToShare = [{
+        name: formattedName,
+        size: customDocSize || '1.5 MB',
+        type: customDocType,
+      }];
+    }
+
+    if (filesToShare.length === 0) {
+      triggerToast("Please attach or select at least one document.");
+      return;
+    }
+
+    const matchedChannel = mockChannels.find(c => c.name === selectedPractice);
+    const channelId = matchedChannel ? matchedChannel.id : '3';
+
+    const finalDocs: SharedDocument[] = filesToShare.map(file => ({
+      id: 'd_' + Math.random().toString(36).substring(2, 9),
+      channelId: channelId,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      sentBy: 'Me',
+      sentAt: 'Today, ' + timeString
+    }));
+
+    initialDocuments.push(...finalDocs);
+
+    const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
+      let messageText = `Directly shared document: ${newDoc.name}`;
+
+      if (selectedReferral) {
+        messageText += `\nAssociated Referral: ${selectedReferral}`;
+      }
+
+      if (index === 0) {
+        if (patientFirstName || patientLastName) {
+          const patientName = `${patientFirstName} ${patientLastName}`.trim();
+          messageText += `\nAssociated Patient: ${patientName}`;
+          if (patientDob) messageText += ` (DOB: ${patientDob})`;
+        }
+        if (uploadMessage.trim()) {
+          messageText += `\nMessage: ${uploadMessage.trim()}`;
+        }
+      }
+
+      return {
+        id: 'm_' + Math.random().toString(36).substring(2, 9),
+        user: 'Me',
+        text: messageText,
+        time: timeString,
+        type: 'self',
+        transport: 'App',
+        document: newDoc
+      };
+    });
+
+    if (!initialMessages[channelId]) {
+      initialMessages[channelId] = [];
+    }
+    initialMessages[channelId].push(...newMessages);
+
+    const practiceName = selectedPractice;
+
+    setAttachedFiles([]);
+    setCustomDocName('');
+    setPatientFirstName('');
+    setPatientLastName('');
+    setPatientDob('');
+    setUploadMessage('');
+    setSelectedPractice('');
+    setSelectedReferral('');
+    setIsSendDocOpen(false);
+
+    triggerToast(
+      `Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''} with ${practiceName}!`,
+      {
+        label: "View Chat",
+        onClick: () => router.push(`/dentist/channels?practice=${encodeURIComponent(practiceName)}`)
+      }
+    );
+  };
 
   const filteredReferrals = sentReferrals.filter((referral) =>
     referral.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||

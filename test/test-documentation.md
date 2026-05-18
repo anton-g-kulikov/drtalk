@@ -44,6 +44,16 @@ The project has grown as a high-fidelity product prototype with most behavior im
 - `/dentist/channels`, `/dentist/network`, and `/dentist/academy` render without role regressions
 - `/dentist/settings`, `/dentist/settings/notifications`, and `/dentist/settings/team` render without navigation breaks
 
+### Send Document Flow from Dentist Dashboard
+
+- Click "Send Document" button on `/dentist/dashboard` to verify that the Send Document Modal opens correctly.
+- Verify the list of connected practices in the practice dropdown match the `'inter-practice'` channels.
+- Verify the list of sent referrals in the referral dropdown match the active referrals.
+- Verify that selecting a practice filters the referral dropdown, and selecting a referral auto-fills the practice.
+- Verify that the drag-and-drop zone works (triggers "Quick attach mock scan" or native file browse).
+- Verify that patient info fields (First Name, Last Name, DOB) and custom message can be filled.
+- Verify that clicking "Send Document" triggers a toast notification, closes the modal, and creates a corresponding mock message in that practice's channel.
+
 ### Shared Stateful Behaviors
 
 - resetting verification state changes banner and routing behavior
