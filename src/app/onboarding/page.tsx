@@ -32,11 +32,12 @@ type OnboardingStep =
   | 'SUCCESS';
 
 function OnboardingContent() {
+  const searchParams = useSearchParams();
+  const isIndividualFlow = searchParams.get('type') === 'individual';
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
-  const [userRole, setUserRole] = useState<UserRole>('owner');
+  const [userRole, setUserRole] = useState<UserRole>(isIndividualFlow ? 'individual' : 'owner');
   const [practiceType, setPracticeType] = useState('Dentist');
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -94,20 +95,33 @@ function OnboardingContent() {
             <section className="wireframe-card p-8 sm:p-10 bg-black text-white flex flex-col justify-between">
               <div className="space-y-8">
                 <div className="space-y-3">
-                  <p className="text-[10px] uppercase font-black tracking-widest text-white/60">drTalk Referral Network</p>
+                  <p className="text-[10px] uppercase font-black tracking-widest text-white/60">
+                    {isIndividualFlow ? 'drTalk Learning Hub' : 'drTalk Referral Network'}
+                  </p>
                   <h2 className="text-3xl font-black uppercase tracking-tighter italic leading-tight">
-                    Modernize your referal process and practice communication
+                    {isIndividualFlow 
+                      ? 'Gain instant access to premier learning resources' 
+                      : 'Modernize your referal process and practice communication'}
                   </h2>
                   <p className="text-[11px] uppercase leading-relaxed font-bold text-white/70">
-                    No more phone tag, voice mails, emails and fax
+                    {isIndividualFlow 
+                      ? 'Elevate your professional knowledge with expert dental courses and materials.' 
+                      : 'No more phone tag, voice mails, emails and fax'}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {[
-                    { icon: Building2Icon, title: 'Setup Practice', desc: 'Go live today' },
-                    { icon: UsersIcon, title: 'Track every Referral', desc: 'Real-time visibility' },
-                    { icon: PlusIcon, title: 'Connect and coordinate', desc: 'Seamless care' },
-                  ].map((feature) => (
+                  {(isIndividualFlow 
+                    ? [
+                        { icon: GraduationCapIcon, title: 'Expert Courses', desc: 'Learn at your own pace' },
+                        { icon: ShieldIcon, title: 'CE Credits', desc: 'Earn verified credits' },
+                        { icon: PlusIcon, title: 'Resource Library', desc: 'Guides, videos & templates' },
+                      ]
+                    : [
+                        { icon: Building2Icon, title: 'Setup Practice', desc: 'Go live today' },
+                        { icon: UsersIcon, title: 'Track every Referral', desc: 'Real-time visibility' },
+                        { icon: PlusIcon, title: 'Connect and coordinate', desc: 'Seamless care' },
+                      ]
+                  ).map((feature) => (
                     <div key={feature.title} className="border border-white/20 p-4 space-y-3 flex flex-col justify-between">
                       <feature.icon size={20} className="text-white/80" />
                       <div>
@@ -119,17 +133,21 @@ function OnboardingContent() {
                 </div>
               </div>
               <div className="mt-8 pt-6 border-t border-white/20 border-dashed">
-                <p className="text-[9px] uppercase font-bold text-white/40 italic">Connect. Coordinate. Elevate your practice.</p>
+                <p className="text-[9px] uppercase font-bold text-white/40 italic">
+                  {isIndividualFlow ? 'Learn. Share. Elevate your profession.' : 'Connect. Coordinate. Elevate your practice.'}
+                </p>
               </div>
             </section>
 
             <section className="wireframe-card p-8 sm:p-10 flex flex-col justify-center space-y-8">
               <div className="space-y-2">
                 <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none">
-                  {isLogin ? 'Welcome Back' : 'Create Account'}
+                  {isLogin ? 'Welcome Back' : (isIndividualFlow ? 'Create Learning Account' : 'Create Account')}
                 </h1>
                 <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-                  {isLogin ? 'Log in to your practice workspace' : 'Join the referral network today'}
+                  {isLogin 
+                    ? 'Log in to your practice workspace' 
+                    : (isIndividualFlow ? 'Create your free individual learning hub account' : 'Join the referral network today')}
                 </p>
               </div>
               <div className="space-y-4">
@@ -204,7 +222,14 @@ function OnboardingContent() {
               ))}
             </div>
             <button 
-              onClick={() => nextStep('ROLE_SELECTION')}
+              onClick={() => {
+                if (isIndividualFlow) {
+                  setUserRole('individual');
+                  nextStep('SUCCESS');
+                } else {
+                  nextStep('ROLE_SELECTION');
+                }
+              }}
               className="wireframe-button w-full bg-black text-white py-3 uppercase text-sm"
             >
               Verify & Continue
@@ -276,12 +301,12 @@ function OnboardingContent() {
 
       case 'ROLE_SELECTION':
         return (
-          <div className="space-y-12 w-full max-w-4xl px-4">
+          <div className="space-y-12 w-full max-w-3xl px-4 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="text-center space-y-3">
               <h1 className="text-5xl font-black uppercase tracking-tighter italic leading-none">WELCOME TO DRTALK</h1>
               <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">CREATE A PRACTICE OR JOIN YOUR EXISTING TEAM.</p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div 
                 onClick={() => nextStep('PRACTICE_DETAILS')}
                 className="wireframe-card hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
@@ -303,21 +328,6 @@ function OnboardingContent() {
                   <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">JOIN EXISTING PRACTICE</h3>
                   <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
                     Enter with an invite code or request access from a practice administrator.
-                  </p>
-                </div>
-              </div>
-              <div
-                onClick={() => {
-                  setUserRole('individual');
-                  nextStep('SUCCESS');
-                }}
-                className="wireframe-card border-dotted hover:bg-black hover:text-white cursor-pointer transition-all group p-12 space-y-6 flex flex-col items-start min-h-[320px]"
-              >
-                <GraduationCapIcon size={48} className="mb-2" />
-                <div className="space-y-4">
-                  <h3 className="font-black uppercase text-2xl leading-tight tracking-tighter">INDIVIDUAL LEARNING HUB</h3>
-                  <p className="text-xs uppercase leading-relaxed font-bold opacity-70">
-                    Access the Learning Hub to view courses and educational content without a practice.
                   </p>
                 </div>
               </div>

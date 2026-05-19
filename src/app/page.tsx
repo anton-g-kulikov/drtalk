@@ -79,10 +79,15 @@ export default function LandingPage() {
             </button>
           </div>
 
-          <div className="border-t border-black border-dashed pt-6 flex items-center justify-center gap-2 text-muted-foreground">
+          <button
+            onClick={() => router.push('/onboarding?type=individual')}
+            className="border-t border-black border-dashed pt-6 w-full flex items-center justify-center gap-2 text-muted-foreground hover:text-black transition-colors"
+          >
             <GraduationCap size={14} />
-            <p className="text-[9px] uppercase font-bold">Public Learning Hub resources are open to everyone.</p>
-          </div>
+            <p className="text-[9px] uppercase font-black underline">
+              Ready to learn? Create a free individual account for the Learning Hub →
+            </p>
+          </button>
         </section>
 
         <div className="text-center">
