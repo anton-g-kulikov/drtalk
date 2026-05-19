@@ -115,8 +115,8 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
             <div className="space-y-4">
               {[
                 { id: 'owner', label: 'Practice Owner', desc: 'I am the licensed professional responsible for this practice.' },
-                { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
-                { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' }
+                { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' },
+                { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' }
               ].map((role) => (
                 <button
                   key={role.id}

@@ -35,8 +35,7 @@ function OnboardingContent() {
   const [step, setStep] = useState<OnboardingStep>('AUTH');
   const [isLogin, setIsLogin] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>('owner');
-  const [practiceCategory, setPracticeCategory] = useState<'Dental' | 'Medical'>('Dental');
-  const [practiceType, setPracticeType] = useState('Orthodontist');
+  const [practiceType, setPracticeType] = useState('Dentist');
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
   const [firstName, setFirstName] = useState('');
@@ -48,12 +47,7 @@ function OnboardingContent() {
   const [selectedState, setSelectedState] = useState('CA');
 
 
-  const isPersonalEmail = React.useMemo(() => {
-    if (!email || !email.includes('@')) return false;
-    const domain = email.split('@')[1].toLowerCase();
-    const personalDomains = ['gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'icloud.com', 'aol.com', 'live.com'];
-    return personalDomains.includes(domain);
-  }, [email]);
+
 
   const [invites, setInvites] = useState<{email: string, role: string}[]>([
     { email: '', role: 'admin' },
@@ -75,18 +69,19 @@ function OnboardingContent() {
   const router = useRouter();
   const { verify } = useVerification();
 
-  const dentalTypes = [
-    'Dentist', 'Dental Laboratory', 'Dental Radiology', 'Endodontist', 
-    'Oral & Maxillofacial Surgeon', 'Orthodontist', 'Pediatric Dentist', 
-    'Periodontist', 'Prosthodontist', 'Oral Pathologist', 
-    'Dental Anaesthesiology', 'Dental Implant Company'
-  ];
-
-  const medicalTypes = [
-    'Anesthesiology', 'Cardiology', 'Colorectal Surgery', 'Dermatology',
-    'Emergency Medicine', 'Endocrinology', 'Family medicine', 
-    'Gastroenterology', 'Hematology-Oncology', 'Hospitalist', 
-    'Internal medicine', 'Medical Genetics'
+  const practiceTypes = [
+    'Dentist', 
+    'Dental Laboratory', 
+    'Dental Radiology', 
+    'Endodontist', 
+    'Oral & Maxillofacial Surgeon', 
+    'Orthodontist', 
+    'Pediatric Dentist', 
+    'Periodontist', 
+    'Prosthodontist', 
+    'Oral Pathologist', 
+    'Dental Anaesthesiology', 
+    'Dental Partner'
   ];
 
   const nextStep = (next: OnboardingStep) => setStep(next);
@@ -139,14 +134,7 @@ function OnboardingContent() {
               </div>
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <label className="text-[10px] font-bold uppercase">Email Address</label>
-                    <CommentMarker 
-                      id="onboarding-email-policy"
-                      title="Corporate Email Policy"
-                      description="Personal emails will be checked and discouraged."
-                    />
-                  </div>
+                  <label className="text-[10px] font-bold uppercase">Email Address</label>
                   <input 
                     type="email" 
                     placeholder="doctor@practice.com" 
@@ -154,14 +142,6 @@ function OnboardingContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
-                  {isPersonalEmail && !isLogin && (
-                    <div className="flex gap-3 items-start p-3 mt-2 bg-gray-50 border border-black border-dashed">
-                      <AlertTriangleIcon size={16} className="mt-0.5 shrink-0 text-black" />
-                      <p className="text-[10px] uppercase font-bold leading-relaxed text-black">
-                        Please use your corporate email address.
-                      </p>
-                    </div>
-                  )}
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Password</label>
@@ -252,8 +232,8 @@ function OnboardingContent() {
               <div className="space-y-4">
                 {[
                   { id: 'owner', label: 'Practice Owner', desc: 'I am the licensed professional responsible for this practice.' },
-                  { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' },
-                  { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' }
+                  { id: 'admin', label: 'Practice Admin', desc: 'I manage office operations and scheduling.' },
+                  { id: 'team', label: 'Team Member', desc: 'I provide direct patient care (Dental Assistant, Hygienist, etc).' }
                 ].map((role) => (
                   <button
                     key={role.id}
@@ -415,34 +395,21 @@ function OnboardingContent() {
                 />
               </div>
 
-              {/* Categorization Group */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE CATEGORY</label>
-                  <select 
-                    value={practiceCategory}
-                    onChange={(e) => {
-                      const newCategory = e.target.value as 'Dental' | 'Medical';
-                      setPracticeCategory(newCategory);
-                      setPracticeType(newCategory === 'Dental' ? dentalTypes[0] : medicalTypes[0]);
-                    }}
-                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full"
-                  >
-                    <option value="Dental">Dental</option>
-                    <option value="Medical">Medical</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
+                <div className="relative">
                   <select 
                     value={practiceType}
                     onChange={(e) => setPracticeType(e.target.value)}
-                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full"
+                    className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8"
                   >
-                    {(practiceCategory === 'Dental' ? dentalTypes : medicalTypes).map(type => (
+                    {practiceTypes.map(type => (
                       <option key={type} value={type}>{type}</option>
                     ))}
                   </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <ChevronRightIcon size={12} className="rotate-90" />
+                  </div>
                 </div>
               </div>
 
