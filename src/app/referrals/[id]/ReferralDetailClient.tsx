@@ -37,6 +37,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
   const referral = mockReferrals.find(r => r.id === id) || mockReferrals[0];
   const [practiceName, setPracticeName] = useState(referral.practice);
+  const targetPractice = practiceName && practiceName !== 'unknown' ? practiceName : referral.dentist;
 
   return (
     <MainLayout title="Referral Detail">
@@ -142,7 +143,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     ))}
                   </div>
                   <button 
-                    onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                    onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
                     className="w-full mt-4 wireframe-button border-2 border-black border-dashed hover:border-solid hover:bg-black hover:text-white transition-all text-[10px] uppercase py-3 flex items-center justify-center gap-2 font-black tracking-wider bg-white text-black"
                   >
                     Send Additional Documents Back <Send size={12} />
@@ -159,7 +160,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 Process Referral <Send size={14} />
               </button>
               <button 
-                onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
                 className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto bg-white text-black font-black"
               >
                 Continue Communication <MessageSquare size={14} />
@@ -182,10 +183,10 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">ACTIVE NOW</p>
                 </div>
                 <div 
-                  onClick={() => router.push(`/channels?practice=Valley Endodontics`)}
+                  onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
                   className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white border-dashed border-2 border-black hover:bg-black hover:text-white cursor-pointer transition-all flex items-center justify-between gap-3 group shadow-sm"
                 >
-                  <span className="font-medium">Click here to reply to <span className="font-black underline">Dr. Smith</span> / share post-op reports or additional scans.</span>
+                  <span className="font-medium">Click here to reply to <span className="font-black underline">{referral.dentist}</span> / share post-op reports or additional scans.</span>
                   <MessageSquare size={14} className="shrink-0 text-black group-hover:text-white" />
                 </div>
               </div>
@@ -195,7 +196,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
-                  Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via Digital Intake Pipeline.
+                  Referral received from <span className="font-black underline">{practiceName}</span> and auto-extracted via Digital Intake Pipeline.
                 </div>
               </div>
               <div className="space-y-2">
@@ -204,7 +205,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">09:20 AM{"\n"}05/11/2026</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
-                  Clinical records requested from Dr. Smith&apos;s office. Pending response.
+                  Clinical records requested from {referral.dentist}&apos;s office. Pending response.
                 </div>
               </div>
             </div>

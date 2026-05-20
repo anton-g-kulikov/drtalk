@@ -193,7 +193,7 @@ export default function ReferralDetailClient() {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
                 </div>
                 <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
-                  Referral received from <span className="font-black underline">Alice Cooper</span> and auto-extracted via Digital Intake Pipeline.
+                  Referral received from <span className="font-black underline">{practiceName}</span> and auto-extracted via Digital Intake Pipeline.
                 </div>
               </div>
               
