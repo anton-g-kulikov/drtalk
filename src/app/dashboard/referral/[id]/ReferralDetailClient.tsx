@@ -18,15 +18,17 @@ export default function ReferralDetailClient() {
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>('Received');
 
   // Mock data for the specific referral
-  const referral = {
-    id: params.id,
-    patientName: 'Alice Cooper',
-    type: 'Endodontic Consultation',
-    source: 'Email',
-    completion: 55,
-    receivedAt: '08:20 AM\n05/11/2026',
-    dentist: 'Dr. Smith'
-  };
+  const mockReferrals = [
+    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics' },
+    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown' },
+    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates' },
+    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group' },
+    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental' },
+  ];
+
+  const resolvedId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const referral = mockReferrals.find(r => r.id === resolvedId) || mockReferrals[0];
+  const [practiceName, setPracticeName] = useState(referral.practice);
 
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
@@ -126,8 +128,15 @@ export default function ReferralDetailClient() {
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                   <div className="space-y-5">
-                    <DataField label="Referring Dentist" value={referral.dentist} />
-                    <DataField label="Input Channel" value={referral.source} />
+                     <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} />
+                     <DataField 
+                       label="Referring Practice" 
+                       value={practiceName} 
+                       edit={isEditorMode} 
+                       onChange={setPracticeName}
+                       canEditInline={true}
+                     />
+                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                   </div>
                 </section>
               </div>
@@ -216,14 +225,86 @@ export default function ReferralDetailClient() {
   );
 }
 
-function DataField({ label, value, edit }: { label: string, value: string, edit?: boolean }) {
+function DataField({ 
+  label, 
+  value, 
+  edit, 
+  onChange,
+  canEditInline 
+}: { 
+  label: string, 
+  value: string, 
+  edit?: boolean,
+  onChange?: (val: string) => void,
+  canEditInline?: boolean
+}) {
+  const [isInlineEditing, setIsInlineEditing] = useState(false);
+  const [tempValue, setTempValue] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setTempValue(value);
+  }
+
+  const handleSave = () => {
+    setIsInlineEditing(false);
+    if (onChange) {
+      onChange(tempValue);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setIsInlineEditing(false);
+      setTempValue(value);
+    }
+  };
+
   return (
     <div className="space-y-1">
       <label className="text-[8px] font-bold uppercase text-muted-foreground">{label}</label>
       {edit ? (
-        <input type="text" defaultValue={value} className="wireframe-input py-1 text-xs" />
+        <input 
+          type="text" 
+          value={tempValue} 
+          onChange={(e) => {
+            setTempValue(e.target.value);
+            if (onChange) onChange(e.target.value);
+          }} 
+          className="wireframe-input py-1 text-xs" 
+        />
+      ) : isInlineEditing && canEditInline ? (
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={tempValue}
+            onChange={(e) => setTempValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={handleSave}
+            autoFocus
+            className="wireframe-input py-1 text-xs w-full max-w-xs focus:ring-1 focus:ring-black"
+          />
+          <span className="text-[8px] text-muted-foreground uppercase font-bold">(Enter to save)</span>
+        </div>
       ) : (
-        <p className="font-bold text-xs uppercase">{value}</p>
+        <div 
+          onClick={() => {
+            if (canEditInline) setIsInlineEditing(true);
+          }}
+          className={`group flex items-center gap-2 ${canEditInline ? 'cursor-pointer select-none' : ''}`}
+        >
+          <p className="font-bold text-xs uppercase group-hover:underline">
+            {value}
+          </p>
+          {canEditInline && (
+            <span className="text-[8px] opacity-0 group-hover:opacity-100 text-muted-foreground transition-opacity uppercase font-bold">
+              (Click to edit)
+            </span>
+          )}
+        </div>
       )}
     </div>
   );

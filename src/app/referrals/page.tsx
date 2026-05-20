@@ -18,14 +18,15 @@ interface Referral {
   receivedAt: string;
   dentist: string;
   specialist: string;
+  practice?: string;
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', practice: 'Valley Endodontics' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', practice: 'unknown' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental' },
 ];
 
 import { useVerification } from '@/components/VerificationContext';
@@ -238,6 +239,9 @@ export default function ReferralsPage() {
                       </div>
                       <div className={isDentist ? "col-span-3" : "col-span-2"}>
                         <p className="text-[10px] font-bold uppercase">{isDentist ? referral.specialist : referral.dentist}</p>
+                        {!isDentist && referral.practice && (
+                          <p className="text-[8px] font-black uppercase text-black/50">{referral.practice}</p>
+                        )}
                         <p className="text-[8px] text-muted-foreground uppercase">{isDentist ? 'Specialist' : 'General Dentist'}</p>
                       </div>
                       {!isDentist && (
