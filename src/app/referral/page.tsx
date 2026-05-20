@@ -44,7 +44,7 @@ export default function GuestReferralPage() {
                     type="email"
                     placeholder="dr.smith@example.com"
                     className="wireframe-input"
-                    value={email}
+                    value={email || ''}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
@@ -54,7 +54,7 @@ export default function GuestReferralPage() {
                     type="text"
                     placeholder="Smith Dental Care"
                     className="wireframe-input"
-                    value={practiceName}
+                    value={practiceName || ''}
                     onChange={(e) => setPracticeName(e.target.value)}
                   />
                 </div>
@@ -64,7 +64,7 @@ export default function GuestReferralPage() {
                     type="text"
                     placeholder="Dr. Smith"
                     className="wireframe-input"
-                    value={doctorName}
+                    value={doctorName || ''}
                     onChange={(e) => setDoctorName(e.target.value)}
                   />
                 </div>
