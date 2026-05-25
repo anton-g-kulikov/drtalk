@@ -26,6 +26,14 @@ export default function NotificationsPage() {
 
   const [delayEnabled, setDelayEnabled] = useState(true);
   const [delayMinutes, setDelayMinutes] = useState(5);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
+  };
 
   return (
     <MainLayout title="Referral Notifications">
@@ -243,12 +251,21 @@ export default function NotificationsPage() {
         </div>
 
         <div className="flex justify-end pt-4">
-          <button className="bg-black text-white px-6 py-3 text-xs font-bold uppercase hover:bg-gray-800 transition-colors border-2 border-black">
+          <button 
+            onClick={() => showToast('Changes saved successfully.')}
+            className="bg-black text-white px-6 py-3 text-xs font-bold uppercase hover:bg-gray-800 transition-colors border-2 border-black"
+          >
             Save Changes
           </button>
         </div>
 
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-50 bg-black text-white border-2 border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-bottom-4 duration-300">
+          <p className="text-[10px] font-black uppercase tracking-tight">{toastMessage}</p>
+        </div>
+      )}
     </MainLayout>
   );
 }

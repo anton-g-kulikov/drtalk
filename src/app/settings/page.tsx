@@ -4,14 +4,23 @@ import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
-
+import { useState } from 'react';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { BillingModal } from '@/components/BillingModal';
 
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const isDentist = pathname.includes('/dentist');
-  console.log('SettingsPage: isDentist =', isDentist, 'pathname =', pathname);
+  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
+  };
 
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: '#' },
@@ -39,7 +48,13 @@ export default function SettingsPage() {
           {sections.map((section) => (
             <div 
               key={section.label} 
-              onClick={() => section.href !== '#' && router.push(section.href)}
+              onClick={() => {
+                if (section.label === 'Billing & Plan') {
+                  setIsBillingModalOpen(true);
+                } else if (section.href !== '#') {
+                  router.push(section.href);
+                }
+              }}
               className="wireframe-card p-4 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-gray-50 cursor-pointer transition-all group"
             >
               <div className="flex items-center gap-4 sm:gap-6 w-full">
@@ -62,6 +77,21 @@ export default function SettingsPage() {
           <p className="text-[8px] font-bold uppercase text-muted-foreground italic">Platform Version: Prototype 1.0.4-BW</p>
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-50 bg-black text-white border-2 border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-bottom-4 duration-300">
+          <p className="text-[10px] font-black uppercase tracking-tight">{toastMessage}</p>
+        </div>
+      )}
+
+      <BillingModal 
+        isOpen={isBillingModalOpen} 
+        onClose={() => setIsBillingModalOpen(false)} 
+        onManage={() => {
+          setIsBillingModalOpen(false);
+          showToast("Opening Stripe Customer Portal...");
+        }} 
+      />
     </MainLayout>
   );
 }
