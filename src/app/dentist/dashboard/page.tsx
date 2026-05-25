@@ -82,11 +82,14 @@ const sentReferrals: SentReferral[] = [
 ];
 
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { InviteModal } from '@/components/InviteModal';
 
 export default function DentistDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { isVerified, hasPracticeOwner } = useVerification();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteRole, setInviteRole] = useState('Team Member');
 
   // Send Document Modal State
   const [isSendDocOpen, setIsSendDocOpen] = useState(false);
@@ -393,7 +396,10 @@ export default function DentistDashboardPage() {
                 </div>
               </div>
               <button
-                onClick={() => router.push('/dentist/settings')}
+                onClick={() => {
+                  setInviteRole('Owner');
+                  setIsInviteModalOpen(true);
+                }}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
               >
                 Invite Practice Owner
@@ -869,6 +875,14 @@ export default function DentistDashboardPage() {
           </div>
         </div>
       )}
+      <InviteModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        defaultRole={inviteRole}
+        onSuccess={(email) => {
+          triggerToast(`Invitation sent to ${email}`);
+        }}
+      />
     </MainLayout>
   );
 }

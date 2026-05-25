@@ -16,6 +16,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { InviteModal } from "@/components/InviteModal";
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
@@ -63,6 +64,15 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [newOwnerId, setNewOwnerId] = useState<string>('');
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
+  };
 
   const approveRequest = (request: JoinRequest) => {
     const newMember: TeamMember = {
@@ -139,7 +149,10 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               Manage practice ownership, team member permissions, and PHI access safeguards.
             </p>
           </div>
-          <button className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-4 flex items-center gap-2 font-black tracking-widest">
+          <button 
+            onClick={() => setIsInviteModalOpen(true)}
+            className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-4 flex items-center gap-2 font-black tracking-widest"
+          >
             <UserPlusIcon size={16} /> Invite Member
           </button>
         </div>
@@ -349,6 +362,21 @@ export function TeamManagement({ backPath }: { backPath: string }) {
         )}
 
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-50 bg-black text-white border-2 border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-bottom-4 duration-300">
+          <p className="text-[10px] font-black uppercase tracking-tight">{toastMessage}</p>
+        </div>
+      )}
+
+      <InviteModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        defaultRole="Team Member"
+        onSuccess={(email) => {
+          showToast(`Invitation sent to ${email}`);
+        }}
+      />
     </MainLayout>
   );
 }

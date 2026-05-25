@@ -8,6 +8,7 @@ import {
   UserPlus, ExternalLink, ShieldCheck, 
   Building2, MessageCircle 
 } from 'lucide-react';
+import { InviteModal } from '@/components/InviteModal';
 
 interface NetworkPractice {
   id: string;
@@ -31,6 +32,15 @@ const mockNetwork: NetworkPractice[] = [
 export default function DentistNetworkPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'connected' | 'nearby'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToastMessage(message);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 5000);
+  };
 
   const filteredNetwork = mockNetwork.filter(p => {
     if (p.type !== 'Specialist') return false;
@@ -149,13 +159,31 @@ export default function DentistNetworkPage() {
                     Is your favorite specialist not on drTalk yet? Invite them to join your network.
                   </p>
                 </div>
-                <button className="text-[10px] font-black uppercase underline hover:text-black">
+                <button 
+                  onClick={() => setIsInviteModalOpen(true)}
+                  className="text-[10px] font-black uppercase underline hover:text-black"
+                >
                   Send Invitation
                 </button>
               </div>
             </div>
         </div>
       </div>
+
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 z-50 bg-black text-white border-2 border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-bottom-4 duration-300">
+          <p className="text-[10px] font-black uppercase tracking-tight">{toastMessage}</p>
+        </div>
+      )}
+
+      <InviteModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        defaultRole="Specialist"
+        onSuccess={(email) => {
+          showToast(`Invitation sent to ${email}`);
+        }}
+      />
     </MainLayout>
   );
 }

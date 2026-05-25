@@ -4,13 +4,14 @@ import React, { useState } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import {
   AlertCircle, MessageSquare, ArrowUpRight,
-  TrendingUp, Users, FileText, Send, Upload, X
+  TrendingUp, Users, FileText, Send, Upload, X, UserPlus
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { useVerification } from '@/components/VerificationContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { InviteModal } from '@/components/InviteModal';
 
 import { 
   initialDocuments, 
@@ -51,6 +52,8 @@ function addMessageToDb(channelId: string, newMsg: MessageItem) {
 export default function DashboardPage() {
   const router = useRouter();
   const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [inviteRole, setInviteRole] = useState('Team Member');
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -160,10 +163,12 @@ export default function DashboardPage() {
     setSelectedDocument(null);
   };
 
-  const showToast = (message: string) => {
+  const showToast = (message: string, action?: { label: string; onClick: () => void }) => {
     setToast({ message, type: 'success' });
+    if (action) setToastAction(action);
     setTimeout(() => {
       setToast(null);
+      setToastAction(null);
     }, 5000);
   };
 
@@ -295,14 +300,12 @@ export default function DashboardPage() {
     setUploadMessage('');
 
     // Trigger beautiful toast
-    setToastAction({
+    showToast(`Shared document with ${selectedPractice}!`, {
       label: 'VIEW CHAT',
       onClick: () => {
         router.push(`/channels?practice=${encodeURIComponent(selectedPractice)}`);
       }
     });
-
-    showToast(`Shared document with ${selectedPractice}!`);
   };
 
   return (
@@ -349,9 +352,12 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => router.push('/dashboard/settings/team')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
+              <button 
+                onClick={() => {
+                  setInviteRole('Owner');
+                  setIsInviteModalOpen(true);
+                }}
+                className="text-[10px] font-black uppercase border-2 border-black px-4 py-2 hover:bg-black hover:text-white transition-all whitespace-nowrap"
               >
                 Invite Practice Owner
               </button>
@@ -573,7 +579,10 @@ export default function DashboardPage() {
                 <ActionCard 
                   label="Invite Dentist" 
                   desc="Grow your referral network" 
-                  onClick={() => router.push('/dashboard/invite')}
+                  onClick={() => {
+                    setInviteRole('Specialist');
+                    setIsInviteModalOpen(true);
+                  }}
                 />
                 <ActionCard 
                   label="TEAM, ROLES & ACCESS CONTROL" 
@@ -949,6 +958,14 @@ export default function DashboardPage() {
       )}
 
       </div>
+      <InviteModal 
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        defaultRole={inviteRole}
+        onSuccess={(email) => {
+          showToast(`Invitation sent to ${email}`);
+        }}
+      />
     </MainLayout>
   );
 }
