@@ -63,7 +63,7 @@ export default function SpecialistEntryPage() {
               onClick={() => setMode('signup')}
               className={`flex-1 py-2 text-[10px] uppercase font-black ${mode === 'signup' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
             >
-              Sign Up / Create Practice
+              Create or Join Practice
             </button>
           </div>
 

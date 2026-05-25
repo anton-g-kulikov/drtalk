@@ -30,19 +30,19 @@ export default function LandingPage() {
           <div className="space-y-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest">Email Address</label>
-              <input 
-                type="email" 
-                placeholder="doctor@practice.com" 
-                className="wireframe-input w-full" 
+              <input
+                type="email"
+                placeholder="doctor@practice.com"
+                className="wireframe-input w-full"
                 defaultValue="dentist@practice.com"
               />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase tracking-widest">Password</label>
-              <input 
-                type="password" 
-                placeholder="••••••••" 
-                className="wireframe-input w-full" 
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="wireframe-input w-full"
                 defaultValue="password123"
               />
             </div>
@@ -65,7 +65,7 @@ export default function LandingPage() {
             >
               Enter Dashboard <LogIn size={16} />
             </button>
-            
+
             <div className="relative flex items-center justify-center py-2">
               <div className="absolute w-full border-t border-black border-dashed opacity-20"></div>
               <span className="relative bg-white px-4 text-[9px] font-black uppercase italic text-muted-foreground">OR</span>
@@ -75,7 +75,7 @@ export default function LandingPage() {
               onClick={() => router.push('/onboarding')}
               className="wireframe-button w-full border-2 border-black py-4 text-[11px] uppercase font-black flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-all"
             >
-              Sign Up / Create Practice <ArrowRight size={16} />
+              Create or Join Practice <ArrowRight size={16} />
             </button>
           </div>
 
@@ -91,7 +91,7 @@ export default function LandingPage() {
         </section>
 
         <div className="text-center">
-          <button 
+          <button
             onClick={() => router.push('/dentist/referral')}
             className="text-[10px] uppercase font-black underline hover:text-muted-foreground transition-colors"
           >
