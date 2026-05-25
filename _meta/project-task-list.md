@@ -15,7 +15,7 @@
 
 ## Current Gaps / Next Work
 
-- [ ] Resolve current `npm run lint` failures in onboarding and verification state initialization
+- [x] Resolve current `npm run lint` failures in onboarding and verification state initialization
 - [ ] Add an automated test suite for critical route rendering and context-driven flows
 - [ ] Move inline mock data into shared fixtures or a clearer fake-data layer
 - [ ] Replace placeholder invite, billing, and configuration actions with explicit prototype states or connected backends
