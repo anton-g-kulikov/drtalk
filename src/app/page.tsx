@@ -34,7 +34,7 @@ export default function LandingPage() {
                 type="email"
                 placeholder="doctor@practice.com"
                 className="wireframe-input w-full"
-                defaultValue="dentist@practice.com"
+                defaultValue="specialist@practice.com"
               />
             </div>
             <div className="space-y-1">
@@ -59,7 +59,7 @@ export default function LandingPage() {
             <button
               onClick={() => {
                 verify('owner');
-                router.push('/dentist/dashboard');
+                router.push('/dashboard');
               }}
               className="wireframe-button w-full bg-black text-white py-5 text-[11px] uppercase font-black flex items-center justify-center gap-2 hover:bg-gray-900 transition-all"
             >
@@ -92,7 +92,7 @@ export default function LandingPage() {
 
         <div className="text-center">
           <button
-            onClick={() => router.push('/dentist/referral')}
+            onClick={() => router.push('/referral')}
             className="text-[10px] uppercase font-black underline hover:text-muted-foreground transition-colors"
           >
             Refer a patient without an account
