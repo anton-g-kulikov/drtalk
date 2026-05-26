@@ -83,7 +83,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
 
               <div className="grid grid-cols-1 gap-3">
                 <button 
-                  onClick={() => setStep('NPI_LOOKUP')}
+                  onClick={() => setStep('PERSONA')}
                   className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
                 >
                   Start Verification <ChevronRightIcon size={18} />
@@ -285,7 +285,7 @@ export function VerificationFlow({ onComplete, onCancel, isModal = false }: Veri
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex items-center gap-4">
-              <button onClick={() => setStep(npiResult ? 'NPI_LOOKUP' : 'MANUAL_DETAILS')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
+              <button onClick={() => setStep('INTRO')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
                 <ArrowLeftIcon size={16} />
               </button>
               <div>

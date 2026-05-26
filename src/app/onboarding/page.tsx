@@ -46,6 +46,24 @@ function OnboardingContent() {
   const [zipCode, setZipCode] = useState('');
   const [fullAddress, setFullAddress] = useState('');
   const [selectedState, setSelectedState] = useState('CA');
+  const [isPracticeDetailsLoading, setIsPracticeDetailsLoading] = useState(false);
+  const [showNpiTooltip, setShowNpiTooltip] = useState(false);
+
+  const handlePracticeNameClick = () => {
+    if (isPracticeDetailsLoading || city) return;
+    setIsPracticeDetailsLoading(true);
+    setPracticeName("Valley Endodontics");
+    setTimeout(() => {
+      setCity("Beverly Hills");
+      setSelectedState("CA");
+      setZipCode("90210");
+      setFullAddress("123 Dental Way, Ste 100");
+      setPracticeType("Endodontist");
+      setIsPracticeDetailsLoading(false);
+      setShowNpiTooltip(true);
+      setTimeout(() => setShowNpiTooltip(false), 4000);
+    }, 1200);
+  };
 
 
 
@@ -351,60 +369,32 @@ function OnboardingContent() {
             </div>
             
             <div className="space-y-6">
-              {/* Location Group */}
-              <div className="grid grid-cols-[1fr_100px_120px] gap-6">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
-                  <input 
-                    type="text" 
-                    placeholder="Beverly Hills" 
-                    className="wireframe-input py-4 px-4 text-sm" 
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                  />
+              {/* Practice Name first */}
+              <div className="space-y-1 relative">
+                <div className="flex justify-between items-center">
+                  <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
+                  {isPracticeDetailsLoading && (
+                    <span className="text-[9px] font-bold text-gray-500 animate-pulse uppercase">🔍 Searching NPI Registry...</span>
+                  )}
+                  {showNpiTooltip && (
+                    <span className="text-[9px] font-black text-green-600 uppercase tracking-wider animate-bounce">✓ NPI registry match auto-filled</span>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
-                  <div className="relative">
-                    <select 
-                      value={selectedState}
-                      onChange={(e) => setSelectedState(e.target.value)}
-                      className="wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8"
-                    >
-                      <option>CA</option>
-                      <option>NY</option>
-                      <option>TX</option>
-                      <option>FL</option>
-                      <option>WA</option>
-                    </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <ChevronRightIcon size={12} className="rotate-90" />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-widest">ZIP CODE</label>
-                  <input 
-                    type="text" 
-                    placeholder="90210" 
-                    className="wireframe-input py-4 px-4 text-sm" 
-                    value={zipCode}
-                    onChange={(e) => setZipCode(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest">FULL ADDRESS</label>
                 <input 
                   type="text" 
-                  placeholder="123 Dental Way, Ste 100" 
-                  className="wireframe-input py-4 px-4 text-sm" 
-                  value={fullAddress}
-                  onChange={(e) => setFullAddress(e.target.value)}
+                  placeholder="e.g., Valley Dental Care" 
+                  className="wireframe-input py-4 px-4 text-sm cursor-pointer border-2 hover:border-black transition-all" 
+                  value={practiceName}
+                  onChange={(e) => setPracticeName(e.target.value)}
+                  onClick={handlePracticeNameClick}
+                  onFocus={handlePracticeNameClick}
                 />
+                <p className="text-[9px] uppercase font-bold text-gray-400 mt-1">
+                  💡 Click above to simulate an automatic NPI registry lookup & pre-fill.
+                </p>
               </div>
 
+              {/* Practice Type second */}
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE TYPE</label>
                 <div className="relative">
@@ -423,16 +413,61 @@ function OnboardingContent() {
                 </div>
               </div>
 
-              {/* Name at the end */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest">PRACTICE NAME</label>
-                <input 
-                  type="text" 
-                  placeholder="Valley Endodontics" 
-                  className="wireframe-input py-4 px-4 text-sm" 
-                  value={practiceName}
-                  onChange={(e) => setPracticeName(e.target.value)}
-                />
+              {/* City & State Row */}
+              <div className="grid grid-cols-[1fr_120px] gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">CITY</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., New York" 
+                    className={`wireframe-input py-4 px-4 text-sm transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`} 
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">STATE</label>
+                  <div className="relative">
+                    <select 
+                      value={selectedState}
+                      onChange={(e) => setSelectedState(e.target.value)}
+                      className={`wireframe-input appearance-none bg-transparent py-4 px-4 text-sm w-full pr-8 transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`}
+                    >
+                      <option>CA</option>
+                      <option>NY</option>
+                      <option>TX</option>
+                      <option>FL</option>
+                      <option>WA</option>
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                      <ChevronRightIcon size={12} className="rotate-90" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Address & ZIP Row */}
+              <div className="grid grid-cols-[1fr_120px] gap-6">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">ADDRESS</label>
+                  <input 
+                    type="text" 
+                    placeholder="e.g., 123 Main St, Suite 100" 
+                    className={`wireframe-input py-4 px-4 text-sm transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`} 
+                    value={fullAddress}
+                    onChange={(e) => setFullAddress(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">ZIP</label>
+                  <input 
+                    type="text" 
+                    placeholder="10001" 
+                    className={`wireframe-input py-4 px-4 text-sm transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`} 
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                  />
+                </div>
               </div>
 
               <button 
