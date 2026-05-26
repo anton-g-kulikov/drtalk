@@ -100,128 +100,130 @@ export default function ProfilePage() {
         <div className="space-y-8">
 
           {/* System Predefined / Copyable Channels Card */}
-          <div className="wireframe-card p-6 space-y-6 bg-gray-50 w-full">
-            <div className="flex items-center gap-3 border-b-2 border-black pb-4">
-              <Info size={20} />
-              <div>
-                <h3 className="font-bold uppercase tracking-tight text-sm">System Channels</h3>
-                <p className="text-[9px] text-muted-foreground uppercase">Referral intake credentials</p>
-              </div>
-            </div>
-
-            <div className="space-y-6 divide-y-2 divide-black divide-dashed">
-              
-              {/* Inbox Email */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pb-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <Mail size={14} className="shrink-0" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Inbox Email</span>
-                  </div>
-                  <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Automatic Intake</span>
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                  <div className="flex items-center justify-between gap-4 py-1">
-                    <span className="text-sm font-mono font-bold select-all text-black break-all pb-0.5 border-b border-black">
-                      {inboxEmail}
-                    </span>
-                    <button 
-                      type="button"
-                      onClick={() => handleCopy(inboxEmail, "Inbox Email")}
-                      className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-white"
-                      title="Copy Inbox Email"
-                    >
-                      {copiedField === "Inbox Email" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
-                      <span>{copiedField === "Inbox Email" ? "Copied" : "Copy"}</span>
-                    </button>
-                  </div>
-                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
-                    Faxes and emails forwarded here convert to secure digital referrals automatically.
-                  </p>
+          {!isDentist && (
+            <div className="wireframe-card p-6 space-y-6 bg-gray-50 w-full">
+              <div className="flex items-center gap-3 border-b-2 border-black pb-4">
+                <Info size={20} />
+                <div>
+                  <h3 className="font-bold uppercase tracking-tight text-sm">System Channels</h3>
+                  <p className="text-[9px] text-muted-foreground uppercase">Referral intake credentials</p>
                 </div>
               </div>
 
-              {/* eFax Number */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-6 pb-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <Phone size={14} className="shrink-0" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">eFax Number</span>
+              <div className="space-y-6 divide-y-2 divide-black divide-dashed">
+                
+                {/* Inbox Email */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pb-6">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <Mail size={14} className="shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Inbox Email</span>
+                    </div>
+                    <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Automatic Intake</span>
                   </div>
-                  <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">
-                    {hasProAccess ? 'Predefined' : '🔒 Pro Feature'}
-                  </span>
-                </div>
-                <div className="lg:col-span-2 space-y-3">
-                  {hasProAccess ? (
+                  <div className="lg:col-span-2 space-y-3">
                     <div className="flex items-center justify-between gap-4 py-1">
                       <span className="text-sm font-mono font-bold select-all text-black break-all pb-0.5 border-b border-black">
-                        {efaxNumber}
+                        {inboxEmail}
                       </span>
                       <button 
                         type="button"
-                        onClick={() => handleCopy(efaxNumber, "eFax Number")}
+                        onClick={() => handleCopy(inboxEmail, "Inbox Email")}
                         className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-white"
-                        title="Copy eFax Number"
+                        title="Copy Inbox Email"
                       >
-                        {copiedField === "eFax Number" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
-                        <span>{copiedField === "eFax Number" ? "Copied" : "Copy"}</span>
+                        {copiedField === "Inbox Email" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
+                        <span>{copiedField === "Inbox Email" ? "Copied" : "Copy"}</span>
                       </button>
                     </div>
-                  ) : (
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
+                      Faxes and emails forwarded here convert to secure digital referrals automatically.
+                    </p>
+                  </div>
+                </div>
+
+                {/* eFax Number */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-6 pb-6">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <Phone size={14} className="shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">eFax Number</span>
+                    </div>
+                    <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">
+                      {hasProAccess ? 'Predefined' : '🔒 Pro Feature'}
+                    </span>
+                  </div>
+                  <div className="lg:col-span-2 space-y-3">
+                    {hasProAccess ? (
+                      <div className="flex items-center justify-between gap-4 py-1">
+                        <span className="text-sm font-mono font-bold select-all text-black break-all pb-0.5 border-b border-black">
+                          {efaxNumber}
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => handleCopy(efaxNumber, "eFax Number")}
+                          className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-white"
+                          title="Copy eFax Number"
+                        >
+                          {copiedField === "eFax Number" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
+                          <span>{copiedField === "eFax Number" ? "Copied" : "Copy"}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-between gap-4 py-1">
+                        <span className="text-sm font-mono font-bold text-gray-400 select-none blur-[2px] overflow-hidden whitespace-nowrap">
+                          +1 (310) 555-XXXX
+                        </span>
+                        <button 
+                          type="button"
+                          onClick={() => setShowPaywall(true)}
+                          className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-black text-white hover:bg-white hover:text-black border-2 border-black"
+                          title="Upgrade to Pro to unlock eFax"
+                        >
+                          <Lock size={12} />
+                          <span>Upgrade</span>
+                        </button>
+                      </div>
+                    )}
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
+                      Give this dedicated eFax line to non-drTalk practices to receive direct digital integrations.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Public URL */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-6">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5">
+                      <Globe size={14} className="shrink-0" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Public Referral Link</span>
+                    </div>
+                    <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Active</span>
+                  </div>
+                  <div className="lg:col-span-2 space-y-3">
                     <div className="flex items-center justify-between gap-4 py-1">
-                      <span className="text-sm font-mono font-bold text-gray-400 select-none blur-[2px] overflow-hidden whitespace-nowrap">
-                        +1 (310) 555-XXXX
+                      <span className="text-sm font-mono font-bold select-all text-black break-all pb-0.5 border-b border-black">
+                        {publicUrl}
                       </span>
                       <button 
                         type="button"
-                        onClick={() => setShowPaywall(true)}
-                        className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-black text-white hover:bg-white hover:text-black border-2 border-black"
-                        title="Upgrade to Pro to unlock eFax"
+                        onClick={() => handleCopy(publicUrl, "Public Referral Link")}
+                        className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-white"
+                        title="Copy Public URL"
                       >
-                        <Lock size={12} />
-                        <span>Upgrade</span>
+                        {copiedField === "Public Referral Link" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
+                        <span>{copiedField === "Public Referral Link" ? "Copied" : "Copy"}</span>
                       </button>
                     </div>
-                  )}
-                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
-                    Give this dedicated eFax line to non-drTalk practices to receive direct digital integrations.
-                  </p>
-                </div>
-              </div>
-
-              {/* Public URL */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-6">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1.5">
-                    <Globe size={14} className="shrink-0" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Public Referral Link</span>
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
+                      Embed this link on your public website so referring practices can submit securely without an account.
+                    </p>
                   </div>
-                  <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Active</span>
                 </div>
-                <div className="lg:col-span-2 space-y-3">
-                  <div className="flex items-center justify-between gap-4 py-1">
-                    <span className="text-sm font-mono font-bold select-all text-black break-all pb-0.5 border-b border-black">
-                      {publicUrl}
-                    </span>
-                    <button 
-                      type="button"
-                      onClick={() => handleCopy(publicUrl, "Public Referral Link")}
-                      className="wireframe-button text-[9px] uppercase tracking-widest px-3 py-1.5 flex items-center gap-1 shrink-0 bg-white"
-                      title="Copy Public URL"
-                    >
-                      {copiedField === "Public Referral Link" ? <Check size={12} className="text-green-600 animate-pulse" /> : <Copy size={12} />}
-                      <span>{copiedField === "Public Referral Link" ? "Copied" : "Copy"}</span>
-                    </button>
-                  </div>
-                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal">
-                    Embed this link on your public website so referring practices can submit securely without an account.
-                  </p>
-                </div>
-              </div>
 
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Main Edit Form */}
           <form onSubmit={handleSave} className="wireframe-card p-6 space-y-6 w-full">
