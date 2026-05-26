@@ -42,6 +42,7 @@ function OnboardingContent() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [practiceName, setPracticeName] = useState(searchParams.get('practice') || '');
+  const [phone, setPhone] = useState('');
   const [city, setCity] = useState('');
   const [zipCode, setZipCode] = useState('');
   const [fullAddress, setFullAddress] = useState('');
@@ -58,6 +59,7 @@ function OnboardingContent() {
       setSelectedState("CA");
       setZipCode("90210");
       setFullAddress("123 Dental Way, Ste 100");
+      setPhone("(310) 555-0199");
       setPracticeType("Endodontist");
       setIsPracticeDetailsLoading(false);
       setShowNpiTooltip(true);
@@ -468,6 +470,18 @@ function OnboardingContent() {
                     onChange={(e) => setZipCode(e.target.value)}
                   />
                 </div>
+              </div>
+
+              {/* Phone Row */}
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest">PHONE NUMBER</label>
+                <input 
+                  type="tel" 
+                  placeholder="e.g., (555) 000-0000" 
+                  className={`wireframe-input py-4 px-4 text-sm transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`} 
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
 
               <button 
