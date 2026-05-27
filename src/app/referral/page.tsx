@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import {
   ChevronRight, ArrowLeft, CheckCircle2,
-  Upload, FileText, X, Shield, Lock
+  Upload, FileText, X, Shield, Lock, Download
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,27 @@ export default function GuestReferralPage() {
                 />
               </div>
               <p className="text-xl font-black uppercase italic tracking-tighter">Sunshine Dental</p>
+            </div>
+
+            {/* Printable Referral Sheet Download Helper */}
+            <div className="border-2 border-black p-3.5 flex items-center justify-between gap-3 bg-gray-50">
+              <div className="flex items-center gap-2 min-w-0">
+                <FileText size={16} className="shrink-0 text-black animate-pulse" />
+                <span className="font-bold uppercase tracking-tight text-[9px] truncate">
+                  Need our offline practice referral sheet?
+                </span>
+              </div>
+              <a 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert("Downloading: valley_dental_referral_sheet_v2.pdf (1.4 MB)");
+                }}
+                className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 shrink-0 flex items-center gap-1"
+              >
+                <Download size={10} />
+                <span>Download PDF</span>
+              </a>
             </div>
 
             <div className="space-y-6">
@@ -240,7 +261,20 @@ export default function GuestReferralPage() {
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">3. X-Rays & Records</h3>
+              <div className="flex items-center justify-between border-b-2 border-black pb-2">
+                <h3 className="text-xs font-bold uppercase">3. X-Rays & Records</h3>
+                <a 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    alert("Downloading: valley_dental_referral_sheet_v2.pdf (1.4 MB)");
+                  }}
+                  className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 flex items-center gap-1"
+                >
+                  <Download size={10} />
+                  <span>Download Referral Sheet</span>
+                </a>
+              </div>
               <div className="space-y-6">
                 <div className="border-4 border-black border-dashed p-12 text-center space-y-4 hover:bg-gray-50 transition-all cursor-pointer">
                   <div className="flex justify-center">

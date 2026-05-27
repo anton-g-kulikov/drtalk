@@ -3,7 +3,7 @@
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
-import { User, Bell, Shield, CreditCard, HelpCircle } from 'lucide-react';
+import { User, Bell, Shield, CreditCard, HelpCircle, Inbox } from 'lucide-react';
 import { useState } from 'react';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { BillingModal } from '@/components/BillingModal';
@@ -24,6 +24,7 @@ export default function SettingsPage() {
 
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: isDentist ? '/dentist/settings/profile' : '/settings/profile' },
+    ...(!isDentist ? [{ icon: Inbox, label: 'Referral Intake', desc: 'Configure and copy credentials for inbound email, eFax, and public referral link.', href: '/settings/intake' }] : []),
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
     ...(isDentist ? [] : [{ icon: CreditCard, label: 'Billing & Plan', desc: 'View subscription status for referral processing.', href: '#' }]),
