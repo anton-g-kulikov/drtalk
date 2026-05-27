@@ -208,7 +208,14 @@ function OnboardingContent() {
                   </div>
                 )}
                 <button 
-                  onClick={() => nextStep('VERIFY')}
+                  onClick={() => {
+                    if (isLogin) {
+                      verify(isIndividualFlow ? 'individual' : 'owner');
+                      router.push(isIndividualFlow ? '/academy' : '/dashboard');
+                    } else {
+                      nextStep('VERIFY');
+                    }
+                  }}
                   className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
                 >
                   {isLogin ? 'Login' : 'Create Account'}

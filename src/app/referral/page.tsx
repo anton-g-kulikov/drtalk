@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
+import { useVerification } from '@/components/VerificationContext';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -16,6 +17,7 @@ export default function GuestReferralPage() {
   const [doctorName, setDoctorName] = useState('');
   const [practiceName, setPracticeName] = useState('');
   const router = useRouter();
+  const { verify } = useVerification();
 
   const nextStep = (next: ReferralStep) => setStep(next);
 
@@ -41,6 +43,7 @@ export default function GuestReferralPage() {
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Enter your email</label>
                   <input
+                    key="referral-identify-email"
                     type="email"
                     placeholder="dr.smith@example.com"
                     className="wireframe-input"
@@ -51,6 +54,7 @@ export default function GuestReferralPage() {
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Your practice name</label>
                   <input
+                    key="referral-identify-practice"
                     type="text"
                     placeholder="Smith Dental Care"
                     className="wireframe-input"
@@ -61,6 +65,7 @@ export default function GuestReferralPage() {
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
                   <input
+                    key="referral-identify-doctor"
                     type="text"
                     placeholder="Dr. Smith"
                     className="wireframe-input"
@@ -115,15 +120,18 @@ export default function GuestReferralPage() {
               <div className="space-y-4">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Email</label>
-                  <input type="email" placeholder="your@email.com" className="wireframe-input" />
+                  <input key="referral-login-email" type="email" placeholder="your@email.com" className="wireframe-input" />
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Password</label>
-                  <input type="password" placeholder="••••••••" className="wireframe-input" />
+                  <input key="referral-login-password" type="password" placeholder="••••••••" className="wireframe-input" />
                 </div>
               </div>
               <button
-                onClick={() => nextStep('PATIENT')}
+                onClick={() => {
+                  verify('owner');
+                  nextStep('PATIENT');
+                }}
                 className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
               >
                 Log In & Continue <ChevronRight size={16} />
