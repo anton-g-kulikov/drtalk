@@ -142,6 +142,18 @@ function ChannelsContent() {
   const [showDirectUploadModal, setShowDirectUploadModal] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
 
+  const [showParticipantsModal, setShowParticipantsModal] = useState(false);
+  const [participants, setParticipants] = useState([
+    { id: 'p1', name: 'Dr. John Smith', role: 'Dentist', selected: true },
+    { id: 'p2', name: 'Jane Doe', role: 'Hygienist', selected: true },
+    { id: 'p3', name: 'Mike Johnson', role: 'Assistant', selected: true },
+    { id: 'p4', name: 'Sarah Wilson', role: 'Front Desk', selected: true },
+  ]);
+
+  const toggleParticipant = (id: string) => {
+    setParticipants(prev => prev.map(p => p.id === id ? { ...p, selected: !p.selected } : p));
+  };
+
   // Direct Upload State Form
   const [customDocName, setCustomDocName] = useState('');
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
@@ -579,7 +591,7 @@ function ChannelsContent() {
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
-              <button className="hidden sm:block text-[10px] font-bold uppercase underline">Participants</button>
+              <button onClick={() => setShowParticipantsModal(true)} className="hidden sm:block text-[10px] font-bold uppercase underline">Participants</button>
               <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all">
                 <MoreHorizontal size={18} />
               </button>
@@ -1341,6 +1353,53 @@ function ChannelsContent() {
                 className="flex-1 wireframe-button bg-black text-white border-black text-[10px] uppercase py-2.5 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
               >
                 <Send size={10} /> Send Document
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Participants Management Modal */}
+      {showParticipantsModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
+          <div className="bg-white border-4 border-black p-6 max-w-sm w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
+            <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
+              <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
+                <Users size={16} /> Manage Participants
+              </h3>
+              <button onClick={() => setShowParticipantsModal(false)} className="hover:text-black text-black">
+                <X size={16} />
+              </button>
+            </div>
+            
+            <div className="space-y-2 max-h-[60vh] overflow-y-auto mb-6">
+              {participants.map(p => (
+                <label key={p.id} className="flex items-center justify-between p-2 border-2 border-black hover:bg-gray-50 cursor-pointer transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 border-2 border-black flex items-center justify-center ${p.selected ? 'bg-black' : 'bg-white'}`}>
+                      {p.selected && <div className="w-2 h-2 bg-white" />}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase">{p.name}</p>
+                      <p className="text-[8px] font-bold text-muted-foreground uppercase">{p.role}</p>
+                    </div>
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="hidden"
+                    checked={p.selected}
+                    onChange={() => toggleParticipant(p.id)}
+                  />
+                </label>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t-2 border-black">
+              <button
+                onClick={() => setShowParticipantsModal(false)}
+                className="wireframe-button bg-black text-white border-black text-[10px] uppercase py-2 px-6 font-bold hover:bg-white hover:text-black transition-all"
+              >
+                Done
               </button>
             </div>
           </div>
