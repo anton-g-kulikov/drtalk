@@ -213,8 +213,8 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Patient Details</h4>
                   <div className="space-y-5">
                     <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
-                    <DataField label="Date of Birth" value="MAY 14, 1985" />
-                    <DataField label="Contact Phone" value="(555) 012-3456" />
+                    <DataField label="Date of Birth" value="MAY 14, 1985" edit={isEditorMode} />
+                    <DataField label="Contact Phone" value="(555) 012-3456" edit={isEditorMode} />
                   </div>
                 </section>
                 <section className="space-y-6">
