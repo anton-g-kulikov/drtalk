@@ -151,6 +151,9 @@ function ChannelsContent() {
   const [patientLastName, setPatientLastName] = useState('');
   const [patientDob, setPatientDob] = useState('');
   const [uploadMessage, setUploadMessage] = useState('');
+  const [selectedReferral, setSelectedReferral] = useState('');
+
+
 
   // Filter channels based on role
   const displayedChannels = React.useMemo(() => {
@@ -172,6 +175,19 @@ function ChannelsContent() {
     }
     return defaultChannels[0];
   });
+
+  const channelReferrals = React.useMemo(() => {
+    if (activeChannel.name.includes('Sunshine')) {
+      return [{ id: 'D-1005', patientName: 'Sarah Jenkins', type: 'Endodontic' }];
+    } else if (activeChannel.name.includes('Downtown')) {
+      return [{ id: 'D-1002', patientName: 'Marco Reyes', type: 'Extraction' }];
+    } else if (activeChannel.name.includes('Valley')) {
+      return [{ id: 'D-1001', patientName: 'Alice Cooper', type: 'Endodontic' }];
+    } else if (activeChannel.name.includes('Metro')) {
+      return [{ id: 'D-1003', patientName: 'John Doe', type: 'Orthodontic' }];
+    }
+    return [];
+  }, [activeChannel.name]);
 
   const [showChannelList, setShowChannelList] = useState(false);
 
@@ -340,6 +356,10 @@ function ChannelsContent() {
     const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
       let messageText = `Directly shared document: ${newDoc.name}`;
 
+      if (selectedReferral) {
+        messageText += `\nAssociated Referral: ${selectedReferral}`;
+      }
+
       // Associate patient information if provided (on the first document in the batch)
       if (index === 0) {
         if (patientFirstName || patientLastName) {
@@ -384,6 +404,7 @@ function ChannelsContent() {
     setPatientLastName('');
     setPatientDob('');
     setUploadMessage('');
+    setSelectedReferral('');
     setShowDirectUploadModal(false);
     triggerToast(`Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''} successfully!`);
   };
@@ -1050,15 +1071,22 @@ function ChannelsContent() {
 
       {/* Direct Document Upload / Send Modal */}
       {showDirectUploadModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white border-4 border-black p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
+          <div className="bg-white border-4 border-black p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
-              <h3 className="text-xs font-black uppercase tracking-widest text-black">Send Document to {activeChannel.name}</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
+                <FileText size={16} /> Send Document
+              </h3>
               <button
                 onClick={() => {
                   setShowDirectUploadModal(false);
                   setCustomDocName('');
                   setAttachedFiles([]);
+                  setPatientFirstName('');
+                  setPatientLastName('');
+                  setPatientDob('');
+                  setUploadMessage('');
+                  setSelectedReferral('');
                 }}
                 className="hover:text-black text-black"
               >
@@ -1067,10 +1095,43 @@ function ChannelsContent() {
             </div>
 
             <div className="space-y-4">
+              {/* Field 1: Choice of connected practice (prefilled & disabled) */}
+              <div>
+                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
+                  Connected Practice <span className="text-red-500">*</span>
+                </span>
+                <select
+                  value={activeChannel.name}
+                  disabled
+                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-zinc-100 w-full h-10 cursor-not-allowed focus:ring-0 focus:outline-none opacity-80"
+                >
+                  <option value={activeChannel.name}>{activeChannel.name}</option>
+                </select>
+              </div>
+
+              {/* Field 2: Choice of sent referral (optional) */}
+              <div>
+                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
+                  Associated Referral (Optional)
+                </span>
+                <select
+                  value={selectedReferral}
+                  onChange={(e) => setSelectedReferral(e.target.value)}
+                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none"
+                >
+                  <option value="">NONE / NEW REFERRAL</option>
+                  {channelReferrals.map((referral) => (
+                    <option key={referral.id} value={referral.id}>
+                      {referral.id} - {referral.patientName} ({referral.type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Attached Files List */}
               {attachedFiles.length > 0 && (
                 <div className="space-y-2 border-b border-black border-dashed pb-3">
-                  <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
+                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
                     Attached Files ({attachedFiles.length})
                   </span>
                   <div className="space-y-1.5 max-h-32 overflow-y-auto">
@@ -1079,8 +1140,8 @@ function ChannelsContent() {
                         <div className="flex items-center gap-2 overflow-hidden">
                           <FileText size={12} className="shrink-0 text-black" />
                           <div className="truncate">
-                            <p className="text-[8px] font-black uppercase truncate">{file.name}</p>
-                            <p className="text-[6px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
+                            <p className="text-[10px] font-black uppercase truncate">{file.name}</p>
+                            <p className="text-[8px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
                           </div>
                         </div>
                         <button
@@ -1125,10 +1186,10 @@ function ChannelsContent() {
                 />
 
                 <Upload size={20} className="text-black z-10" />
-                <span className="text-[9px] font-black uppercase tracking-wider text-black z-10">
+                <span className="text-xs font-black uppercase tracking-wider text-black z-10">
                   Attach Document
                 </span>
-                <span className="text-[6px] font-bold text-muted-foreground uppercase z-10">
+                <span className="text-[8px] font-bold text-muted-foreground uppercase z-10">
                   Click to browse files or drag and drop here
                 </span>
 
@@ -1187,7 +1248,7 @@ function ChannelsContent() {
                     setAttachedFiles(prev => [...prev, newFile]);
                     triggerToast(`Mock attached "${choice.name}" successfully!`);
                   }}
-                  className="relative z-10 mt-1 px-3 py-1 bg-black text-white hover:bg-gray-800 text-[6px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
+                  className="relative z-10 mt-1 px-4 py-1.5 bg-black text-white hover:bg-gray-800 text-[8px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
                 >
                   Quick attach mock scan
                 </button>
@@ -1197,42 +1258,42 @@ function ChannelsContent() {
 
               {/* Premium Patient Association Fields */}
               <div className="border-t border-black pt-3 space-y-3">
-                <span className="text-[8px] font-black uppercase text-muted-foreground tracking-wider block">
+                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
                   Patient Information
                 </span>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <span className="text-[7px] font-black uppercase block mb-1 text-black">Patient first name</span>
+                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient first name</span>
                     <input
                       type="text"
                       placeholder="Enter patient first name"
                       value={patientFirstName}
                       onChange={(e) => setPatientFirstName(e.target.value)}
-                      className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full"
+                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
                     />
                   </div>
                   <div>
-                    <span className="text-[7px] font-black uppercase block mb-1 text-black">Patient last name</span>
+                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient last name</span>
                     <input
                       type="text"
                       placeholder="Enter patient last name"
                       value={patientLastName}
                       onChange={(e) => setPatientLastName(e.target.value)}
-                      className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full"
+                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <span className="text-[7px] font-black uppercase block mb-1 text-black">Date of birth</span>
+                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Date of birth</span>
                   <div className="relative">
                     <input
                       type="text"
                       placeholder="MM/DD/YYYY"
                       value={patientDob}
                       onChange={(e) => setPatientDob(e.target.value)}
-                      className="wireframe-input py-1.5 pr-8 text-[9px] font-bold text-black border-black bg-white w-full"
+                      className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
                     />
                     <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                       <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1246,13 +1307,13 @@ function ChannelsContent() {
                 </div>
 
                 <div>
-                  <span className="text-[7px] font-black uppercase block mb-1 text-black">Message</span>
+                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Message</span>
                   <textarea
                     placeholder="Enter message"
                     value={uploadMessage}
                     rows={2}
                     onChange={(e) => setUploadMessage(e.target.value)}
-                    className="wireframe-input py-1.5 text-[9px] font-bold text-black border-black bg-white w-full resize-none"
+                    className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full resize-none focus:ring-0 focus:outline-none"
                   />
                 </div>
               </div>
@@ -1268,15 +1329,16 @@ function ChannelsContent() {
                   setPatientLastName('');
                   setPatientDob('');
                   setUploadMessage('');
+                  setSelectedReferral('');
                 }}
-                className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-2 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
+                className="flex-1 wireframe-button bg-white text-black border-black text-[10px] uppercase py-2.5 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDirectUpload}
                 disabled={attachedFiles.length === 0 && !customDocName.trim()}
-                className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-2 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+                className="flex-1 wireframe-button bg-black text-white border-black text-[10px] uppercase py-2.5 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
               >
                 <Send size={10} /> Send Document
               </button>
