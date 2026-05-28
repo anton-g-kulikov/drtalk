@@ -6,7 +6,7 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
   AlertTriangle, Send, MoreHorizontal,
-  MessageSquare, Users
+  MessageSquare, Users, ChevronDown, Check
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
@@ -17,6 +17,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [isEditorMode, setIsEditorMode] = useState(false);
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
   // Mock data for the specific referral
   const mockReferrals = [
@@ -38,6 +39,28 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     } else {
       alert("Referral Processed Successfully!");
       setCurrentStatus('Processed');
+    }
+  };
+
+  const handleMainNextAction = () => {
+    switch (currentStatus) {
+      case 'Received':
+        setCurrentStatus('Scheduled');
+        break;
+      case 'Scheduled':
+        setCurrentStatus('Working on');
+        break;
+      case 'Working on':
+        handleProcessReferral();
+        break;
+      case 'Processed':
+        setCurrentStatus('Archived');
+        break;
+      case 'Archived':
+        setCurrentStatus('Working on');
+        break;
+      default:
+        break;
     }
   };
 
@@ -79,51 +102,61 @@ export default function ReferralDetailClient({ id }: { id: string }) {
           </div>
 
           {/* Dynamic Actions Row */}
-          <div className="flex flex-wrap items-center gap-3">
-            {currentStatus === 'Received' && (
+          <div className="flex flex-wrap items-center gap-3 relative">
+            <div className="relative flex items-stretch">
+              {/* Left Action Button (Direct One-Click Status Advance) */}
               <button 
-                onClick={() => setCurrentStatus('Scheduled')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+                onClick={handleMainNextAction}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
               >
-                Accept & Schedule <Send size={12} />
+                {currentStatus === 'Received' ? 'Accept & Schedule' :
+                 currentStatus === 'Scheduled' ? 'Confirm & Start Treatment' :
+                 currentStatus === 'Working on' ? 'Process Referral' :
+                 currentStatus === 'Processed' ? 'Archive Case' :
+                 'Reopen Case'}
               </button>
-            )}
 
-            {currentStatus === 'Scheduled' && (
+              {/* Right Dropdown Toggle Segment */}
               <button 
-                onClick={() => setCurrentStatus('Working on')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+                onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                className="wireframe-button bg-black text-white px-3 py-3 flex items-center justify-center border-2 border-black hover:bg-zinc-800 transition-colors rounded-l-none h-11 border-l-zinc-700"
               >
-                Confirm & Start Treatment <Send size={12} />
+                <ChevronDown size={14} className={`transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-            )}
-            
-            {currentStatus === 'Working on' && (
-              <button 
-                onClick={handleProcessReferral}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
-              >
-                Process Referral <Send size={12} />
-              </button>
-            )}
 
-            {currentStatus === 'Processed' && (
-              <button 
-                onClick={() => setCurrentStatus('Archived')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
-              >
-                Archive Case <Send size={12} />
-              </button>
-            )}
-
-            {currentStatus === 'Archived' && (
-              <button 
-                onClick={() => setCurrentStatus('Working on')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
-              >
-                Reopen Case <Send size={12} />
-              </button>
-            )}
+              {isStatusDropdownOpen && (
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 py-1 divide-y divide-black/10 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="px-3 py-1.5 bg-gray-50 border-b border-black">
+                    <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Change Status</p>
+                  </div>
+                  {[
+                    { status: 'Received', label: 'Received (Review)' },
+                    { status: 'Scheduled', label: 'Scheduled' },
+                    { status: 'Working on', label: 'Working on' },
+                    { status: 'Processed', label: 'Processed' },
+                    { status: 'Archived', label: 'Archived' }
+                  ].map((item) => (
+                    <button
+                      key={item.status}
+                      onClick={() => {
+                        if (item.status === 'Processed') {
+                          handleProcessReferral();
+                        } else {
+                          setCurrentStatus(item.status as ReferralStatus);
+                        }
+                        setIsStatusDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase transition-all flex items-center justify-between hover:bg-black hover:text-white ${
+                        currentStatus === item.status ? 'bg-zinc-100 text-black font-black' : 'text-black bg-white'
+                      }`}
+                    >
+                      <span>{item.label}</span>
+                      {currentStatus === item.status && <Check size={10} />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <button 
               onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
