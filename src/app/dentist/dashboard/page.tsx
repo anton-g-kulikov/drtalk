@@ -461,42 +461,6 @@ export default function DentistDashboardPage() {
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
             
-            {/* Requires Attention Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b-2 border-black pb-2">
-                <AlertCircle size={18} className="text-black" />
-                <h3 className="font-bold uppercase text-xs tracking-widest">Requires Attention (2)</h3>
-              </div>
-              
-              <div className="space-y-3">
-                {[
-                  { id: '1005', patient: 'Sarah Jenkins', reason: 'Unfinished Draft', type: 'Endodontic', specialist: 'Valley Endodontics' },
-                  { id: '1002', patient: 'Marco Reyes', reason: 'Missing Pano Image', type: 'Extraction', specialist: 'Downtown Oral Surgery' },
-                ].map((item, i) => (
-                  <div 
-                    key={i} 
-                    onClick={() => {
-                      if (item.reason === 'Unfinished Draft') {
-                        router.push('/dentist/referral');
-                      } else {
-                        router.push(`/dentist/channels?practice=${encodeURIComponent(item.specialist)}`);
-                      }
-                    }}
-                    className="wireframe-card p-4 flex items-center justify-between bg-white hover:bg-zinc-100 cursor-pointer border-black group transition-all"
-                  >
-                    <div className="space-y-1">
-                      <p className="font-bold uppercase text-xs">{item.patient}</p>
-                      <p className="text-[10px] uppercase text-black font-bold">{item.reason}</p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-[8px] uppercase font-bold text-muted-foreground">{item.type}</span>
-                      <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Referral Status Tracker */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-black pb-2">
@@ -556,23 +520,6 @@ export default function DentistDashboardPage() {
           {/* Side Column */}
           <div className="lg:col-span-4 space-y-8">
             
-            {/* Quick Actions */}
-            <div className="space-y-4">
-              <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <ActionCard 
-                  label="Find Specialist" 
-                  desc="Browse the drTalk network" 
-                  onClick={() => router.push('/dentist/network')}
-                />
-                <ActionCard 
-                  label="Practice Setup" 
-                  desc="Manage your dentist profile" 
-                  onClick={() => router.push('/dentist/settings')}
-                />
-              </div>
-            </div>
-
             {/* Specialist Conversations */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
@@ -601,6 +548,23 @@ export default function DentistDashboardPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-4">
+              <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <ActionCard 
+                  label="Find Specialist" 
+                  desc="Browse the drTalk network" 
+                  onClick={() => router.push('/dentist/network')}
+                />
+                <ActionCard 
+                  label="Practice Setup" 
+                  desc="Manage your dentist profile" 
+                  onClick={() => router.push('/dentist/settings')}
+                />
               </div>
             </div>
 
