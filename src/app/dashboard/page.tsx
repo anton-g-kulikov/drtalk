@@ -460,18 +460,36 @@ export default function DashboardPage() {
                         </div>
                         
                         {/* Actions */}
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10">
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={() => handleConvertDocument(doc)}
+                              className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                            >
+                              Convert to Referral
+                            </button>
+                            <button 
+                              onClick={() => handleAttachDocument(doc)}
+                              className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                            >
+                              Attach to existing referral
+                            </button>
+                          </div>
+
                           <button 
-                            onClick={() => handleConvertDocument(doc)}
-                            className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors"
+                            onClick={() => {
+                              const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
+                                ? 'Sunshine Dental'
+                                : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
+                                ? 'Oakridge Dental'
+                                : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
+                                ? 'Westside Pediatric Dentistry'
+                                : 'Sunshine Dental';
+                              router.push(`/channels?practice=${encodeURIComponent(practiceName)}`);
+                            }}
+                            className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
                           >
-                            Convert to Referral
-                          </button>
-                          <button 
-                            onClick={() => handleAttachDocument(doc)}
-                            className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                          >
-                            Attach to existing referral
+                            View & Discuss in Channel <ArrowUpRight size={12} />
                           </button>
                         </div>
                       </div>

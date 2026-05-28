@@ -85,6 +85,21 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from '@/components/InviteModal';
 
 export default function DentistDashboardPage() {
+  interface DocumentItem {
+    id: string;
+    name: string;
+    sender: string;
+    date: string;
+    size: string;
+    channelName: string;
+  }
+
+  const [documents, setDocuments] = useState<DocumentItem[]>([
+    { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics' },
+    { id: 'doc-dentist-2', name: 'TREATMENT_PLAN_REVISION.PDF', sender: 'Downtown Oral Surgery', date: 'Yesterday, 02:15 PM', size: '1.8 MB', channelName: 'Downtown Oral Surgery' },
+    { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics' }
+  ]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
   const { isVerified, hasPracticeOwner } = useVerification();
@@ -461,6 +476,74 @@ export default function DentistDashboardPage() {
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
             
+            {/* Inbox / Unread Section */}
+            <div className="space-y-8">
+              <div className="flex items-center justify-between border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Inbox</h3>
+                </div>
+                <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
+                  {documents.length} NEW ITEMS
+                </span>
+              </div>
+
+              {/* Documents Inbox */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between border-b-2 border-black pb-1">
+                  <h4 className="font-black uppercase text-xs tracking-wider flex items-center gap-2">
+                    <span>New Received Documents</span>
+                    <span className="text-[9px] font-bold text-muted-foreground">({documents.length})</span>
+                  </h4>
+                </div>
+                
+                {documents.length === 0 ? (
+                  <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                    No new documents in inbox
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {documents.map((doc) => (
+                      <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
+                        <div className="flex justify-between items-start">
+                          <div className="flex gap-3">
+                            <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                              <FileText size={20} className="text-black" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-black uppercase text-xs tracking-tight">{doc.name}</p>
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
+                              </div>
+                              <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                <span>Practice: {doc.sender}</span>
+                                <span>•</span>
+                                <span>{doc.size}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
+                          <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                            Discuss and view this document in the inter-practice channel
+                          </span>
+                          <button 
+                            onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
+                            className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
+                          >
+                            View & Discuss in Channel <ArrowUpRight size={12} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Referral Status Tracker */}
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-black pb-2">
