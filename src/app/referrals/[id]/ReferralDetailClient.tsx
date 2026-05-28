@@ -11,20 +11,12 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 
+export type ReferralStatus = 'Received' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
+
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [isEditorMode, setIsEditorMode] = useState(false);
-
-  const handleProcessReferral = () => {
-    if (isTrialEnded) {
-      setShowPaywall(true);
-    } else {
-      // Logic for processing referral
-      alert("Referral Processed Successfully!");
-      router.push('/referrals');
-    }
-  };
 
   // Mock data for the specific referral
   const mockReferrals = [
@@ -36,26 +28,118 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   ];
 
   const referral = mockReferrals.find(r => r.id === id) || mockReferrals[0];
+  const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [practiceName, setPracticeName] = useState(referral.practice);
   const targetPractice = practiceName && practiceName !== 'unknown' ? practiceName : referral.dentist;
+
+  const handleProcessReferral = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+    } else {
+      alert("Referral Processed Successfully!");
+      setCurrentStatus('Processed');
+    }
+  };
+
+  const getStatusColor = (status: ReferralStatus) => {
+    switch (status) {
+      case 'Received': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+      case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
+      case 'Working on': return 'bg-blue-50 text-blue-800 border-blue-200';
+      case 'Processed': return 'bg-green-50 text-green-800 border-green-200';
+      case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
+      default: return 'bg-white';
+    }
+  };
 
   return (
     <MainLayout title="Referral Detail">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Breadcrumbs / Back button */}
-        <div className="flex items-start gap-3 sm:gap-5">
-          <button 
-            onClick={() => router.push('/referrals')}
-            className="mt-1 p-2 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div className="space-y-1">
-            <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
-              <CommentMarker id="referral-page-detail" title="Referral Detail Page" description="The full-page detailed view of a referral." />
+        {/* Top Header / Actions Row */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black pb-6">
+          <div className="flex items-start gap-3 sm:gap-5">
+            <button 
+              onClick={() => router.push('/referrals')}
+              className="mt-1 p-2 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
+            >
+              <ArrowLeft size={16} />
+            </button>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
+                <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
+                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus === 'Working on' ? 'Working on (In progress)' : currentStatus}
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
+                <CommentMarker id="referral-page-detail" title="Referral Detail Page" description="The full-page detailed view of a referral." />
+              </div>
             </div>
+          </div>
+
+          {/* Dynamic Actions Row */}
+          <div className="flex flex-wrap items-center gap-3">
+            {currentStatus === 'Received' && (
+              <button 
+                onClick={() => setCurrentStatus('Scheduled')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+              >
+                Accept & Schedule <Send size={12} />
+              </button>
+            )}
+
+            {currentStatus === 'Scheduled' && (
+              <button 
+                onClick={() => setCurrentStatus('Working on')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+              >
+                Confirm & Start Treatment <Send size={12} />
+              </button>
+            )}
+            
+            {currentStatus === 'Working on' && (
+              <button 
+                onClick={handleProcessReferral}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+              >
+                Process Referral <Send size={12} />
+              </button>
+            )}
+
+            {currentStatus === 'Processed' && (
+              <button 
+                onClick={() => setCurrentStatus('Archived')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+              >
+                Archive Case <Send size={12} />
+              </button>
+            )}
+
+            {currentStatus === 'Archived' && (
+              <button 
+                onClick={() => setCurrentStatus('Working on')}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center gap-2 font-black"
+              >
+                Reopen Case <Send size={12} />
+              </button>
+            )}
+
+            <button 
+              onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
+              className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
+            >
+              Continue Communication <MessageSquare size={12} />
+            </button>
+
+            {currentStatus !== 'Archived' && currentStatus !== 'Processed' && (
+              <button 
+                onClick={() => setCurrentStatus('Archived')}
+                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black"
+              >
+                Archive Case
+              </button>
+            )}
           </div>
         </div>
 
@@ -66,7 +150,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
           <div className="flex-1 p-6 sm:p-10 space-y-10 border-b-2 md:border-b-0 md:border-r-2 border-black">
             
             {/* Data Warning Banner */}
-            {referral.completion < 60 && (
+            {referral.completion < 60 && currentStatus === 'Received' && (
               <div className="wireframe-card border-black bg-zinc-50 p-6 flex gap-5 items-start">
                 <AlertTriangle className="text-black shrink-0" size={28} />
                 <div className="flex-1">
@@ -150,24 +234,6 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </button>
                 </section>
               </div>
-            </div>
-
-            <div className="pt-8 sm:pt-16 flex flex-col sm:flex-row gap-4 sm:gap-6">
-              <button 
-                onClick={handleProcessReferral}
-                className="wireframe-button bg-black text-white text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto"
-              >
-                Process Referral <Send size={14} />
-              </button>
-              <button 
-                onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
-                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[11px] uppercase px-10 py-4 flex items-center justify-center gap-3 w-full sm:w-auto bg-white text-black font-black"
-              >
-                Continue Communication <MessageSquare size={14} />
-              </button>
-              <button className="wireframe-button text-[11px] uppercase px-10 py-4 w-full sm:w-auto bg-white text-black">
-                Archive Case
-              </button>
             </div>
           </div>
 

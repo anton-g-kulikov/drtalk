@@ -6,7 +6,7 @@ import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-r
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
-type ReferralStatus = 'Received' | 'Working on' | 'Processed' | 'Archived';
+type ReferralStatus = 'Received' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
 
 interface Referral {
   id: string;
@@ -52,12 +52,13 @@ export default function ReferralsPage() {
     }
   };
 
-  const tabs: ReferralStatus[] = ['Received', 'Working on', 'Processed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Scheduled', 'Working on', 'Processed', 'Archived'];
 
   const getTabLabel = (tab: ReferralStatus) => {
     if (isDentist) {
       switch (tab) {
         case 'Received': return 'SENT';
+        case 'Scheduled': return 'SCHEDULED';
         case 'Working on': return 'IN PROGRESS';
         case 'Processed': return 'COMPLETED';
         default: return tab.toUpperCase();
@@ -65,6 +66,7 @@ export default function ReferralsPage() {
     } else {
       switch (tab) {
         case 'Received': return 'RECEIVED (REVIEW)';
+        case 'Scheduled': return 'SCHEDULED';
         case 'Working on': return 'WORKING ON (IN PROGRESS)';
         case 'Processed': return 'PROCESSED';
         default: return tab.toUpperCase();
@@ -173,14 +175,11 @@ export default function ReferralsPage() {
                     onClick={() => setActiveTab(tab)}
                     className={`px-4 sm:px-8 py-4 text-[11px] font-bold uppercase transition-all relative whitespace-nowrap ${
                       activeTab === tab 
-                        ? 'text-black' 
-                        : 'text-muted-foreground hover:text-black'
+                        ? 'bg-black text-white' 
+                        : 'text-muted-foreground hover:text-black hover:bg-zinc-50'
                     }`}
                   >
                     {getTabLabel(tab)}
-                    {activeTab === tab && (
-                      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-black" />
-                    )}
                   </button>
                 ))}
               </div>
