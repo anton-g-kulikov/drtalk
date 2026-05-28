@@ -561,11 +561,6 @@ export default function DentistDashboardPage() {
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
                 <ActionCard 
-                  label="Send a Referral" 
-                  desc="Initiate a patient transfer" 
-                  onClick={() => router.push('/dentist/referral')}
-                />
-                <ActionCard 
                   label="Find Specialist" 
                   desc="Browse the drTalk network" 
                   onClick={() => router.push('/dentist/network')}
