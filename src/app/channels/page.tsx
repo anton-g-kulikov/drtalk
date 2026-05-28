@@ -1450,9 +1450,22 @@ function Message({
               </div>
             </div>
 
-            <span className="text-[6px] font-black uppercase tracking-wider px-1.5 py-0.5 border border-dashed select-none opacity-80 border-current">
-              Attached Document
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  alert(`Downloading: ${document.name}`);
+                }}
+                className={`text-[8px] font-black uppercase tracking-wider px-2.5 py-1.5 border-2 transition-all flex items-center gap-1 font-bold ${
+                  isSelf 
+                    ? 'border-white bg-white text-black hover:bg-black hover:text-white' 
+                    : 'border-black bg-black text-white hover:bg-white hover:text-black'
+                }`}
+                title={`Download ${document.name}`}
+              >
+                <Download size={10} /> Download
+              </button>
+            </div>
           </div>
         )}
 
