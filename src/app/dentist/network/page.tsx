@@ -6,7 +6,8 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   Search, Filter, MapPin, 
   UserPlus, ExternalLink, ShieldCheck, 
-  Building2, MessageCircle 
+  Building2, MessageCircle,
+  ArrowUpRight, CheckCircle2, TrendingUp, Users, ChevronDown
 } from 'lucide-react';
 import { InviteModal } from '@/components/InviteModal';
 
@@ -29,8 +30,160 @@ const mockNetwork: NetworkPractice[] = [
   { id: '9', name: 'Phoenix Children\'s Dentistry', type: 'Specialist', specialty: 'Pediatric Dentistry', location: 'Phoenix, AZ', status: 'Suggested', verified: true },
 ];
 
+const mockAnalytics = {
+  '30d': {
+    totalSent: 142,
+    totalProcessed: 128,
+    totalScheduled: 115,
+    conversionRate: 81,
+    patientsReleased: 24,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 45, processed: 42, scheduled: 38, conversion: 84, released: 8 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 62, processed: 58, scheduled: 52, conversion: 83, released: 12 },
+      { id: '3', name: 'Arizona Periodontics', sent: 35, processed: 28, scheduled: 25, conversion: 71, released: 4 }
+    ]
+  },
+  '12m': {
+    totalSent: 1650,
+    totalProcessed: 1580,
+    totalScheduled: 1420,
+    conversionRate: 86,
+    patientsReleased: 310,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 520, processed: 505, scheduled: 480, conversion: 92, released: 115 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 780, processed: 740, scheduled: 650, conversion: 83, released: 142 },
+      { id: '3', name: 'Arizona Periodontics', sent: 350, processed: 335, scheduled: 290, conversion: 82, released: 53 }
+    ]
+  },
+  'this_year': {
+    totalSent: 840,
+    totalProcessed: 790,
+    totalScheduled: 710,
+    conversionRate: 85,
+    patientsReleased: 145,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 260, processed: 250, scheduled: 235, conversion: 90, released: 52 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 410, processed: 380, scheduled: 340, conversion: 83, released: 65 },
+      { id: '3', name: 'Arizona Periodontics', sent: 170, processed: 160, scheduled: 135, conversion: 79, released: 28 }
+    ]
+  },
+  'all_time': {
+    totalSent: 4200,
+    totalProcessed: 3950,
+    totalScheduled: 3550,
+    conversionRate: 85,
+    patientsReleased: 820,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 1250, processed: 1200, scheduled: 1100, conversion: 88, released: 280 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 2100, processed: 1950, scheduled: 1750, conversion: 83, released: 410 },
+      { id: '3', name: 'Arizona Periodontics', sent: 850, processed: 800, scheduled: 700, conversion: 82, released: 130 }
+    ]
+  }
+};
+
+function NetworkAnalytics() {
+  const [timeRange, setTimeRange] = useState<'30d' | '12m' | 'this_year' | 'all_time'>('30d');
+  const data = mockAnalytics[timeRange];
+
+  return (
+    <div className="space-y-6 animate-in fade-in duration-300">
+      <div className="flex justify-between items-center flex-col sm:flex-row gap-4">
+        <h3 className="text-xl font-black uppercase italic tracking-tighter">Network Performance</h3>
+        <div className="relative">
+          <select 
+            value={timeRange} 
+            onChange={(e) => setTimeRange(e.target.value as any)}
+            className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none"
+          >
+            <option value="30d">Last 30 Days</option>
+            <option value="this_year">This Year</option>
+            <option value="12m">Trailing 12 Months</option>
+            <option value="all_time">All Time</option>
+          </select>
+          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+            <ChevronDown size={14} className="text-black" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="wireframe-card p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Total Sent</span>
+            <ArrowUpRight size={16} className="text-black" />
+          </div>
+          <div className="text-4xl font-black">{data.totalSent}</div>
+        </div>
+        
+        <div className="wireframe-card p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Processed / Scheduled</span>
+            <CheckCircle2 size={16} className="text-black" />
+          </div>
+          <div className="text-4xl font-black">{data.totalScheduled} <span className="text-lg text-muted-foreground font-medium">/ {data.totalProcessed}</span></div>
+        </div>
+
+        <div className="wireframe-card p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Conversion Rate</span>
+            <TrendingUp size={16} className="text-black" />
+          </div>
+          <div className="text-4xl font-black">{data.conversionRate}%</div>
+        </div>
+
+        <div className="wireframe-card p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Patients Released</span>
+            <Users size={16} className="text-black" />
+          </div>
+          <div className="text-4xl font-black">{data.patientsReleased}</div>
+        </div>
+      </div>
+
+      <div className="wireframe-card overflow-hidden">
+        <div className="p-4 border-b-2 border-black bg-gray-50 flex items-center justify-between">
+          <h4 className="font-bold uppercase text-sm">Specialist Breakdown</h4>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="border-b-2 border-black text-[10px] uppercase bg-white">
+                <th className="p-4 font-black">Practice Name</th>
+                <th className="p-4 font-black text-right">Sent</th>
+                <th className="p-4 font-black text-right">Processed</th>
+                <th className="p-4 font-black text-right">Scheduled</th>
+                <th className="p-4 font-black">Conversion</th>
+                <th className="p-4 font-black text-right">Released</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.breakdown.map((row, idx) => (
+                <tr key={row.id} className={`text-sm ${idx !== data.breakdown.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors bg-white`}>
+                  <td className="p-4 font-bold">{row.name}</td>
+                  <td className="p-4 text-right font-medium">{row.sent}</td>
+                  <td className="p-4 text-right font-medium">{row.processed}</td>
+                  <td className="p-4 text-right font-medium">{row.scheduled}</td>
+                  <td className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-24 h-2 bg-gray-200 rounded-none border border-black overflow-hidden flex-1 max-w-[120px]">
+                        <div className="h-full bg-black" style={{ width: `${row.conversion}%` }} />
+                      </div>
+                      <span className="text-[10px] font-bold">{row.conversion}%</span>
+                    </div>
+                  </td>
+                  <td className="p-4 text-right font-medium">{row.released}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function DentistNetworkPage() {
-  const [activeTab, setActiveTab] = useState<'all' | 'connected' | 'nearby'>('all');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'all' | 'connected' | 'nearby'>('analytics');
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -81,26 +234,29 @@ export default function DentistNetworkPage() {
 
           {/* Network Content */}
           <div className="space-y-6">
-            {/* Tabs */}
-            <div className="flex border-b-2 border-black overflow-x-auto no-scrollbar">
-              {['all', 'connected', 'nearby'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab as any)}
-                  className={`px-6 sm:px-8 py-3 text-[10px] font-black uppercase transition-all relative whitespace-nowrap ${
-                    activeTab === tab ? 'text-black' : 'text-muted-foreground hover:text-black'
-                  }`}
-                >
-                  {tab === 'all' ? 'Directory' : tab === 'connected' ? 'My Network' : 'Nearby Specialists'}
-                  {activeTab === tab && (
-                    <div className="absolute bottom-[-2px] left-0 right-0 h-[2.5px] bg-black" />
-                  )}
-                </button>
-              ))}
+            {/* Tabs Row */}
+            <div className="border-b-2 border-black">
+              <div className="flex overflow-x-auto no-scrollbar -mb-[2px]">
+                {['analytics', 'all', 'connected', 'nearby'].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab as any)}
+                    className={`px-4 sm:px-8 py-4 text-[11px] font-bold uppercase transition-all relative whitespace-nowrap ${
+                      activeTab === tab 
+                        ? 'bg-black text-white' 
+                        : 'text-muted-foreground hover:text-black hover:bg-zinc-50'
+                    }`}
+                  >
+                    {tab === 'analytics' ? 'Analytics' : tab === 'all' ? 'Directory' : tab === 'connected' ? 'My Network' : 'Nearby Specialists'}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Grid of Practices */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {activeTab === 'analytics' ? (
+              <NetworkAnalytics />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredNetwork.map((practice) => (
                 <div 
                   key={practice.id} 
@@ -167,6 +323,7 @@ export default function DentistNetworkPage() {
                 </button>
               </div>
             </div>
+            )}
         </div>
       </div>
 
