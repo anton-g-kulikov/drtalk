@@ -37,17 +37,16 @@ export default function ProfilePage() {
 
   const practiceTypes = [
     'Dentist',
-    'Dental Laboratory',
-    'Dental Radiology',
+    'Pediatric Dentist',
+    'Orthodontist',
     'Endodontist',
     'Oral & Maxillofacial Surgeon',
-    'Orthodontist',
-    'Pediatric Dentist',
     'Periodontist',
     'Prosthodontist',
+    'Dental Anesthesiologist',
     'Oral Pathologist',
-    'Dental Anaesthesiology',
-    'Dental Partner'
+    'Dental Partner',
+    'Dental Laboratory'
   ];
 
   return (

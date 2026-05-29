@@ -91,19 +91,20 @@ function OnboardingContent() {
   const { verify } = useVerification();
 
   const practiceTypes = [
-    'Dentist', 
-    'Dental Laboratory', 
-    'Dental Radiology', 
-    'Endodontist', 
-    'Oral & Maxillofacial Surgeon', 
-    'Orthodontist', 
-    'Pediatric Dentist', 
-    'Periodontist', 
-    'Prosthodontist', 
-    'Oral Pathologist', 
-    'Dental Anaesthesiology', 
-    'Dental Partner'
+    'Dentist',
+    'Pediatric Dentist',
+    'Orthodontist',
+    'Endodontist',
+    'Oral & Maxillofacial Surgeon',
+    'Periodontist',
+    'Prosthodontist',
+    'Dental Anesthesiologist',
+    'Oral Pathologist',
+    'Dental Partner',
+    'Dental Laboratory'
   ];
+
+  const dentistTypes = ['Dentist', 'Pediatric Dentist', 'Orthodontist'];
 
   const nextStep = (next: OnboardingStep) => setStep(next);
 
@@ -211,7 +212,8 @@ function OnboardingContent() {
                   onClick={() => {
                     if (isLogin) {
                       verify(isIndividualFlow ? 'individual' : 'owner');
-                      router.push(isIndividualFlow ? '/academy' : '/dashboard');
+                      const isDentistEmail = email.toLowerCase().includes('dentist');
+                      router.push(isIndividualFlow ? '/academy' : (isDentistEmail ? '/dentist/dashboard' : '/dashboard'));
                     } else {
                       nextStep('VERIFY');
                     }
@@ -683,7 +685,8 @@ function OnboardingContent() {
             <button 
               onClick={() => {
                 verify(userRole);
-                router.push(userRole === 'individual' ? '/academy' : '/dashboard');
+                const isDentistType = dentistTypes.includes(practiceType);
+                router.push(userRole === 'individual' ? '/academy' : (isDentistType ? '/dentist/dashboard' : '/dashboard'));
               }}
               className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest"
             >

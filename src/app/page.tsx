@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, GraduationCap, LogIn } from 'lucide-react';
 import { useVerification } from '@/components/VerificationContext';
@@ -8,6 +8,7 @@ import { useVerification } from '@/components/VerificationContext';
 export default function LandingPage() {
   const router = useRouter();
   const { verify } = useVerification();
+  const [email, setEmail] = useState("specialist@practice.com");
 
   return (
     <main className="min-h-screen bg-white text-black font-sans p-4 sm:p-10 flex items-center justify-center">
@@ -34,7 +35,8 @@ export default function LandingPage() {
                 type="email"
                 placeholder="doctor@practice.com"
                 className="wireframe-input w-full"
-                defaultValue="specialist@practice.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-1">
@@ -59,7 +61,8 @@ export default function LandingPage() {
             <button
               onClick={() => {
                 verify('owner');
-                router.push('/dashboard');
+                const isDentistEmail = email.toLowerCase().includes('dentist');
+                router.push(isDentistEmail ? '/dentist/dashboard' : '/dashboard');
               }}
               className="wireframe-button w-full bg-black text-white py-5 text-[11px] uppercase font-black flex items-center justify-center gap-2 hover:bg-gray-900 transition-all"
             >
