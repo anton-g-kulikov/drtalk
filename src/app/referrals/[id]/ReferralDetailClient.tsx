@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 
-export type ReferralStatus = 'Received' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
+export type ReferralStatus = 'Received' | 'Accepted' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
 
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
@@ -46,6 +46,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const handleMainNextAction = () => {
     switch (currentStatus) {
       case 'Received':
+        setCurrentStatus('Accepted');
+        break;
+      case 'Accepted':
         setCurrentStatus('Scheduled');
         break;
       case 'Scheduled':
@@ -68,6 +71,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
       case 'Received': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+      case 'Accepted': return 'bg-teal-50 text-teal-800 border-teal-200';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
       case 'Working on': return 'bg-blue-50 text-blue-800 border-blue-200';
       case 'Processed': return 'bg-green-50 text-green-800 border-green-200';
@@ -120,9 +124,10 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 onClick={handleMainNextAction}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
               >
-                {currentStatus === 'Received' ? 'Accept & Schedule' :
+                {currentStatus === 'Received' ? 'Accept Case' :
+                 currentStatus === 'Accepted' ? 'Schedule Appointment' :
                  currentStatus === 'Scheduled' ? 'Confirm & Start Treatment' :
-                 currentStatus === 'Working on' ? 'Process Referral' :
+                 currentStatus === 'Working on' ? 'Complete Treatment' :
                  currentStatus === 'Processed' ? 'Archive Case' :
                  'Reopen Case'}
               </button>
@@ -142,6 +147,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </div>
                   {[
                     { status: 'Received', label: 'Received (Review)' },
+                    { status: 'Accepted', label: 'Accepted' },
                     { status: 'Scheduled', label: 'Scheduled' },
                     { status: 'Working on', label: 'Working on' },
                     { status: 'Processed', label: 'Processed' },

@@ -6,7 +6,7 @@ import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-r
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
-type ReferralStatus = 'Received' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
+type ReferralStatus = 'Received' | 'Accepted' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
 
 interface Referral {
   id: string;
@@ -33,12 +33,26 @@ const mockReferrals: Referral[] = [
 import { useVerification } from '@/components/VerificationContext';
 
 export default function ReferralsPage() {
+  const getCompletionColor = (score: number) => {
+    if (score >= 90) return 'text-black';
+    return 'text-black font-black italic opacity-60';
+  };
+
+  const getCompletionLabel = (score: number) => {
+    return score >= 90 ? 'Complete' : 'Incomplete';
+  };
+
   const { isVerified, setShowVerification } = useVerification();
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ReferralStatus>('Received');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedUrgency, setSelectedUrgency] = useState<string>('All');
+  const [selectedSource, setSelectedSource] = useState<string>('All');
+  const [selectedPracticeFilter, setSelectedPracticeFilter] = useState<string>('All');
+  const [showIncompleteOnly, setShowIncompleteOnly] = useState(false);
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -53,12 +67,13 @@ export default function ReferralsPage() {
     }
   };
 
-  const tabs: ReferralStatus[] = ['Received', 'Scheduled', 'Working on', 'Processed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Working on', 'Processed', 'Archived'];
 
   const getTabLabel = (tab: ReferralStatus) => {
     if (isDentist) {
       switch (tab) {
         case 'Received': return 'SENT';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Working on': return 'IN PROGRESS';
         case 'Processed': return 'COMPLETED';
@@ -67,6 +82,7 @@ export default function ReferralsPage() {
     } else {
       switch (tab) {
         case 'Received': return 'RECEIVED (REVIEW)';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Working on': return 'WORKING ON (IN PROGRESS)';
         case 'Processed': return 'PROCESSED';
@@ -91,23 +107,23 @@ export default function ReferralsPage() {
     }
   };
 
-  const filteredReferrals = mockReferrals.filter(r => 
-    r.status === activeTab && 
-    (r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     r.type.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredReferrals = mockReferrals.filter(r => {
+    const matchesTab = r.status === activeTab;
+    const matchesQuery = r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                         r.type.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesUrgency = selectedUrgency === 'All' || r.urgency === selectedUrgency;
+    const matchesSource = selectedSource === 'All' || r.source === selectedSource;
+    
+    let matchesCompletion = true;
+    if (showIncompleteOnly) {
+      matchesCompletion = getCompletionLabel(r.completion) === 'Incomplete';
+    }
 
-  const getCompletionColor = (score: number) => {
-    if (score >= 90) return 'text-black';
-    if (score >= 60) return 'text-gray-500';
-    return 'text-black font-black italic opacity-60';
-  };
-
-  const getCompletionLabel = (score: number) => {
-    if (score >= 90) return 'Verified';
-    if (score >= 60) return 'Partial Data';
-    return 'Incomplete Data';
-  };
+    const practiceName = isDentist ? r.specialist : r.practice;
+    const matchesPractice = selectedPracticeFilter === 'All' || practiceName === selectedPracticeFilter;
+    
+    return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice;
+  });
 
   return (
     <MainLayout title="Referrals">
@@ -198,11 +214,113 @@ export default function ReferralsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button className="wireframe-button flex items-center justify-center gap-2 px-6 py-2.5 text-[11px] uppercase font-bold">
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`wireframe-button flex items-center justify-center gap-2 px-6 py-2.5 text-[11px] uppercase font-bold transition-colors ${
+                  showFilters || selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All'
+                    ? 'bg-black text-white' 
+                    : 'bg-white text-black'
+                }`}
+              >
                 <Filter size={14} />
-                Filters
+                Filters {(selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All') && '•'}
               </button>
             </div>
+
+            {/* Collapsible Filters Row */}
+            {showFilters && (
+              <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col lg:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
+                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Urgency Filter */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground block">Urgency</label>
+                    <select
+                      value={selectedUrgency}
+                      onChange={(e) => setSelectedUrgency(e.target.value)}
+                      className="wireframe-input py-2 px-3 text-[11px] font-bold text-black border-black bg-white w-full focus:outline-none"
+                    >
+                      <option value="All">ALL URGENCY LEVELS</option>
+                      <option value="Routine">ROUTINE</option>
+                      <option value="Urgent">URGENT</option>
+                      <option value="Emergency">EMERGENCY</option>
+                    </select>
+                  </div>
+
+                  {/* Channel / Source Filter */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground block">Source / Channel</label>
+                    <select
+                      value={selectedSource}
+                      onChange={(e) => setSelectedSource(e.target.value)}
+                      className="wireframe-input py-2 px-3 text-[11px] font-bold text-black border-black bg-white w-full focus:outline-none"
+                    >
+                      <option value="All">ALL SOURCE CHANNELS</option>
+                      <option value="Email">EMAIL</option>
+                      <option value="Fax">FAX</option>
+                      <option value="Web">WEB PORTAL</option>
+                      <option value="App">MOBILE APP</option>
+                    </select>
+                  </div>
+
+                  {/* Practice Filter */}
+                  <div className="space-y-1.5">
+                    <label className="text-[9px] font-black uppercase tracking-wider text-muted-foreground block">
+                      {isDentist ? 'Specialist Practice' : 'Referring Practice'}
+                    </label>
+                    <select
+                      value={selectedPracticeFilter}
+                      onChange={(e) => setSelectedPracticeFilter(e.target.value)}
+                      className="wireframe-input py-2 px-3 text-[11px] font-bold text-black border-black bg-white w-full focus:outline-none"
+                    >
+                      <option value="All">ALL PRACTICES</option>
+                      {Array.from(
+                        new Set(
+                          mockReferrals
+                            .map((r) => (isDentist ? r.specialist : r.practice))
+                            .filter((p): p is string => !!p && p !== 'unknown')
+                        )
+                      ).map((practice) => (
+                        <option key={practice} value={practice}>
+                          {practice.toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Data Completion Filter */}
+                  {!isDentist && (
+                    <div className="space-y-1.5 flex items-end pb-1 select-none">
+                      <label className="flex items-center gap-2.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={showIncompleteOnly}
+                          onChange={(e) => setShowIncompleteOnly(e.target.checked)}
+                          className="w-4 h-4 border-2 border-black rounded-none appearance-none checked:bg-black checked:before:content-['✓'] checked:before:text-white checked:before:text-[10px] checked:before:flex checked:before:items-center checked:before:justify-center cursor-pointer"
+                        />
+                        <span className="text-[10px] font-black uppercase tracking-wider text-black">
+                          Show Incomplete Only
+                        </span>
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                {/* Reset Action */}
+                <div className="flex items-end shrink-0">
+                  <button
+                    onClick={() => {
+                      setSelectedUrgency('All');
+                      setSelectedSource('All');
+                      setShowIncompleteOnly(false);
+                      setSelectedPracticeFilter('All');
+                    }}
+                    className="wireframe-button border-2 border-black border-dashed hover:border-solid hover:bg-black hover:text-white transition-all py-2 px-6 text-[10px] uppercase font-black tracking-widest bg-white text-black h-10 w-full md:w-auto"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
@@ -258,7 +376,7 @@ export default function ReferralsPage() {
                         <div className="col-span-2">
                           <div className="flex items-center gap-2">
                             <div className={`text-[10px] uppercase font-bold ${getCompletionColor(referral.completion)}`}>
-                              {getCompletionLabel(referral.completion)} ({referral.completion}%)
+                              {getCompletionLabel(referral.completion)}
                             </div>
                           </div>
                         </div>
