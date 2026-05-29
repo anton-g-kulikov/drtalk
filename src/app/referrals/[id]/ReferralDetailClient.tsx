@@ -232,12 +232,12 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
                     <DataField 
                       label="Date of Birth" 
-                      value={referral.id === '1' || referral.id === '2' ? '[MISSING - ACTION REQUIRED]' : 'MAY 14, 1985'} 
+                      value={referral.id === '2' ? '[MISSING - ACTION REQUIRED]' : 'MAY 14, 1985'} 
                       edit={isEditorMode} 
                     />
                     <DataField 
                       label="Contact Phone" 
-                      value={referral.id === '1' || referral.id === '5' ? '[MISSING - ACTION REQUIRED]' : '(555) 012-3456'} 
+                      value={referral.id === '5' ? '[MISSING - ACTION REQUIRED]' : '(555) 012-3456'} 
                       edit={isEditorMode} 
                     />
                     <div className="space-y-1.5 pt-2">
@@ -255,14 +255,18 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                   <div className="space-y-5">
-                    <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} />
                     <DataField 
-                       label="Referring Practice" 
-                       value={practiceName} 
-                       edit={isEditorMode} 
-                       onChange={setPracticeName}
-                       canEditInline={true}
-                     />
+                      label="Referring Dentist" 
+                      value={referral.id === '1' ? '[MISSING - ACTION REQUIRED]' : referral.dentist} 
+                      edit={isEditorMode} 
+                    />
+                    <DataField 
+                      label="Referring Practice" 
+                      value={referral.id === '1' || referral.practice === 'unknown' ? '[MISSING - ACTION REQUIRED]' : practiceName} 
+                      edit={isEditorMode} 
+                      onChange={setPracticeName}
+                      canEditInline={true}
+                    />
                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                   </div>
                 </section>
