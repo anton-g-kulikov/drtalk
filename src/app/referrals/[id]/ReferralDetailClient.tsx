@@ -230,8 +230,16 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Patient Details</h4>
                   <div className="space-y-5">
                     <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
-                    <DataField label="Date of Birth" value="MAY 14, 1985" edit={isEditorMode} />
-                    <DataField label="Contact Phone" value="(555) 012-3456" edit={isEditorMode} />
+                    <DataField 
+                      label="Date of Birth" 
+                      value={referral.id === '1' || referral.id === '2' ? '[MISSING - ACTION REQUIRED]' : 'MAY 14, 1985'} 
+                      edit={isEditorMode} 
+                    />
+                    <DataField 
+                      label="Contact Phone" 
+                      value={referral.id === '1' || referral.id === '5' ? '[MISSING - ACTION REQUIRED]' : '(555) 012-3456'} 
+                      edit={isEditorMode} 
+                    />
                     <div className="space-y-1.5 pt-2">
                       <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block">Urgency</label>
                       <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-sm border ${
@@ -422,7 +430,7 @@ function DataField({
           }}
           className={`group flex items-center gap-2 ${canEditInline ? 'cursor-pointer select-none' : ''}`}
         >
-          <p className="font-bold text-xs uppercase group-hover:underline">
+          <p className={`font-bold text-xs uppercase group-hover:underline ${value.includes('MISSING') ? 'text-red-600 bg-red-50 px-2 py-0.5 border border-red-300 rounded-sm inline-block' : ''}`}>
             {value}
           </p>
           {canEditInline && (
