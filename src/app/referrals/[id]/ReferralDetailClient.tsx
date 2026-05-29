@@ -21,15 +21,16 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
   // Mock data for the specific referral
   const mockReferrals = [
-    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email' as const, completion: 55, status: 'Received' as const, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics' },
-    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax' as const, completion: 45, status: 'Received' as const, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown' },
-    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App' as const, completion: 100, status: 'Working on' as const, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates' },
-    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web' as const, completion: 88, status: 'Processed' as const, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group' },
-    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email' as const, completion: 30, status: 'Working on' as const, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental' },
+    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email' as const, completion: 55, status: 'Received' as const, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics', urgency: 'Routine' as const },
+    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax' as const, completion: 45, status: 'Received' as const, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown', urgency: 'Urgent' as const },
+    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App' as const, completion: 100, status: 'Working on' as const, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates', urgency: 'Emergency' as const },
+    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web' as const, completion: 88, status: 'Processed' as const, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group', urgency: 'Routine' as const },
+    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email' as const, completion: 30, status: 'Working on' as const, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental', urgency: 'Routine' as const },
   ];
 
   const referral = mockReferrals.find(r => r.id === id) || mockReferrals[0];
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
+  const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
   const targetPractice = practiceName && practiceName !== 'unknown' ? practiceName : referral.dentist;
 
@@ -93,6 +94,16 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
                   {currentStatus === 'Received' ? 'Received (Review)' : currentStatus === 'Working on' ? 'Working on (In progress)' : currentStatus}
                 </span>
+                {urgency === 'Urgent' && (
+                  <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
+                    Urgent
+                  </span>
+                )}
+                {urgency === 'Emergency' && (
+                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
+                    Emergency
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
@@ -215,6 +226,16 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
                     <DataField label="Date of Birth" value="MAY 14, 1985" edit={isEditorMode} />
                     <DataField label="Contact Phone" value="(555) 012-3456" edit={isEditorMode} />
+                    <div className="space-y-1.5 pt-2">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block">Urgency</label>
+                      <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-sm border ${
+                        urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
+                        urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                        'bg-zinc-100 text-zinc-800 border-zinc-300'
+                      }`}>
+                        {urgency}
+                      </span>
+                    </div>
                   </div>
                 </section>
                 <section className="space-y-6">

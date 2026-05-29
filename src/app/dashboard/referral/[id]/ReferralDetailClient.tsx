@@ -19,15 +19,16 @@ export default function ReferralDetailClient() {
 
   // Mock data for the specific referral
   const mockReferrals = [
-    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics' },
-    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown' },
-    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates' },
-    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group' },
-    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental' },
+    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics', urgency: 'Routine' as const },
+    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown', urgency: 'Urgent' as const },
+    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates', urgency: 'Emergency' as const },
+    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group', urgency: 'Routine' as const },
+    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental', urgency: 'Routine' as const },
   ];
 
   const resolvedId = Array.isArray(params.id) ? params.id[0] : params.id;
   const referral = mockReferrals.find(r => r.id === resolvedId) || mockReferrals[0];
+  const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
 
   const getStatusColor = (status: ReferralStatus) => {
@@ -60,6 +61,16 @@ export default function ReferralDetailClient() {
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
                   {currentStatus === 'Received' ? 'Received (Review)' : currentStatus === 'Working on' ? 'Working on (In progress)' : currentStatus}
                 </span>
+                {urgency === 'Urgent' && (
+                  <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
+                    Urgent
+                  </span>
+                )}
+                {urgency === 'Emergency' && (
+                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
+                    Emergency
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -123,6 +134,16 @@ export default function ReferralDetailClient() {
                     <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
                     <DataField label="Date of Birth" value="MAY 14, 1985" />
                     <DataField label="Contact Phone" value="(555) 012-3456" />
+                    <div className="space-y-1.5 pt-2">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block">Urgency</label>
+                      <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-sm border ${
+                        urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
+                        urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                        'bg-zinc-100 text-zinc-800 border-zinc-300'
+                      }`}>
+                        {urgency}
+                      </span>
+                    </div>
                   </div>
                 </section>
                 <section className="space-y-6">

@@ -40,6 +40,7 @@ interface SentReferral {
   status: SentReferralStatus;
   lastUpdate: string;
   nextStep: string;
+  urgency?: 'Routine' | 'Urgent' | 'Emergency';
 }
 
 const sentReferrals: SentReferral[] = [
@@ -51,6 +52,7 @@ const sentReferrals: SentReferral[] = [
     status: 'Accepted',
     lastUpdate: '10:05 AM\n05/11/2026',
     nextStep: 'Specialist scheduling patient',
+    urgency: 'Routine',
   },
   {
     id: 'D-1002',
@@ -60,6 +62,7 @@ const sentReferrals: SentReferral[] = [
     status: 'Sent',
     lastUpdate: '08:20 AM\n05/11/2026',
     nextStep: 'Waiting for specialist review',
+    urgency: 'Urgent',
   },
   {
     id: 'D-1003',
@@ -69,6 +72,7 @@ const sentReferrals: SentReferral[] = [
     status: 'Scheduled',
     lastUpdate: '10:20 AM\n05/10/2026',
     nextStep: 'Appointment confirmed for Tuesday',
+    urgency: 'Emergency',
   },
   {
     id: 'D-1004',
@@ -78,6 +82,7 @@ const sentReferrals: SentReferral[] = [
     status: 'Completed',
     lastUpdate: '10:20 AM\n05/08/2026',
     nextStep: 'Case closed. Outcome report received.',
+    urgency: 'Routine',
   },
 ];
 
@@ -571,7 +576,15 @@ export default function DentistDashboardPage() {
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                       <div className="md:col-span-4">
-                        <p className="text-xs font-black uppercase">{referral.patientName}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-black uppercase">{referral.patientName}</p>
+                          {referral.urgency === 'Urgent' && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
+                          )}
+                          {referral.urgency === 'Emergency' && (
+                            <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
+                          )}
+                        </div>
                         <p className="text-[9px] uppercase font-bold text-muted-foreground">{referral.type}</p>
                       </div>
                       <div className="md:col-span-4">

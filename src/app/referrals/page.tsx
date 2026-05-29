@@ -19,14 +19,15 @@ interface Referral {
   dentist: string;
   specialist: string;
   practice?: string;
+  urgency?: 'Routine' | 'Urgent' | 'Emergency';
 }
 
 const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', practice: 'Valley Endodontics' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', practice: 'unknown' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental' },
+  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', practice: 'Valley Endodontics', urgency: 'Routine' },
+  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', practice: 'unknown', urgency: 'Urgent' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates', urgency: 'Emergency' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group', urgency: 'Routine' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental', urgency: 'Routine' },
 ];
 
 import { useVerification } from '@/components/VerificationContext';
@@ -205,11 +206,12 @@ export default function ReferralsPage() {
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
-              <div className={isDentist ? "col-span-4" : "col-span-3"}>Patient / Case Type</div>
+              <div className={isDentist ? "col-span-3" : "col-span-2"}>Patient / Case Type</div>
+              <div className={isDentist ? "col-span-2" : "col-span-2"}>Urgency</div>
               <div className="col-span-2">Source / ID</div>
               <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
               {!isDentist && <div className="col-span-2">Data Completion</div>}
-              <div className="col-span-2">{isDentist ? 'Last Update' : 'Received'}</div>
+              <div className="col-span-1">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
 
@@ -223,9 +225,18 @@ export default function ReferralsPage() {
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className={isDentist ? "col-span-4" : "col-span-3"}>
+                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
                         <p className="font-bold uppercase text-xs">{referral.patientName}</p>
                         <p className="text-[10px] text-muted-foreground uppercase">{referral.type}</p>
+                      </div>
+                      <div className={isDentist ? "col-span-2" : "col-span-2"}>
+                        <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-sm border ${
+                          referral.urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
+                          referral.urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                          'bg-zinc-100 text-zinc-800 border-zinc-300'
+                        }`}>
+                          {referral.urgency || 'Routine'}
+                        </span>
                       </div>
                       <div className="col-span-2">
                         <div className="flex items-center gap-2">
@@ -252,10 +263,10 @@ export default function ReferralsPage() {
                           </div>
                         </div>
                       )}
-                      <div className="col-span-2">
+                      <div className="col-span-1">
                         <div className="flex items-center gap-2 text-muted-foreground">
-                          <Clock size={12} />
-                          <span className="text-[10px] font-bold uppercase whitespace-pre-line">{referral.receivedAt}</span>
+                          <Clock size={12} className="shrink-0" />
+                          <span className="text-[10px] font-bold uppercase whitespace-pre-line leading-tight">{referral.receivedAt}</span>
                         </div>
                       </div>
                       <div className="col-span-1 text-right">
