@@ -79,6 +79,7 @@ export default function DashboardPage() {
     date: string;
     status: 'new_processing' | 'new_docs';
     detail: string;
+    urgency?: 'Routine' | 'Urgent' | 'Emergency';
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([
@@ -88,9 +89,9 @@ export default function DashboardPage() {
   ]);
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
-    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Incomplete Data (30%)' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Incomplete Data (45%)' }
+    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Incomplete Data (30%)', urgency: 'Routine' },
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Incomplete Data (45%)', urgency: 'Urgent' }
   ]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
@@ -125,7 +126,8 @@ export default function DashboardPage() {
       source: selectedDocument.sender,
       date: getFormattedDateOnly(),
       status: 'new_processing',
-      detail: `Converted from: ${selectedDocument.name}`
+      detail: `Converted from: ${selectedDocument.name}`,
+      urgency: 'Routine'
     };
 
     setReferrals(prev => [newReferral, ...prev]);
@@ -533,7 +535,18 @@ export default function DashboardPage() {
                             <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
                             <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            {ref.urgency && (
+                              <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
+                                ref.urgency === 'Emergency' 
+                                  ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
+                                  : ref.urgency === 'Urgent' 
+                                  ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
+                                  : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
+                              }`}>
+                                {ref.urgency}
+                              </span>
+                            )}
                             <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
                             <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                           </div>
@@ -569,7 +582,18 @@ export default function DashboardPage() {
                             <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
                             <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            {ref.urgency && (
+                              <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
+                                ref.urgency === 'Emergency' 
+                                  ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
+                                  : ref.urgency === 'Urgent' 
+                                  ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
+                                  : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
+                              }`}>
+                                {ref.urgency}
+                              </span>
+                            )}
                             <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
                             <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                           </div>
