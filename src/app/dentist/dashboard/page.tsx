@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { useRouter } from 'next/navigation';
 import { 
   AlertCircle, MessageSquare, ArrowUpRight, 
   TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap,
-  Upload, X, Eye, Paperclip, Lock
+  Upload, X, Eye, Paperclip, Lock, Archive
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
@@ -97,13 +97,55 @@ export default function DentistDashboardPage() {
     date: string;
     size: string;
     channelName: string;
+    fromChannel?: boolean;
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([
-    { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics' },
-    { id: 'doc-dentist-2', name: 'TREATMENT_PLAN_REVISION.PDF', sender: 'Downtown Oral Surgery', date: 'Yesterday, 02:15 PM', size: '1.8 MB', channelName: 'Downtown Oral Surgery' },
-    { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics' }
+    { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics', fromChannel: true },
+    { id: 'doc-dentist-2', name: 'TREATMENT_PLAN_REVISION.PDF', sender: 'Downtown Oral Surgery', date: 'Yesterday, 02:15 PM', size: '1.8 MB', channelName: 'Downtown Oral Surgery', fromChannel: false },
+    { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics', fromChannel: true }
   ]);
+
+  const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
+  const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
+
+  // Sync with localStorage
+  useEffect(() => {
+    const savedDocs = localStorage.getItem('drtalk_dentist_docs');
+    const savedArchived = localStorage.getItem('drtalk_dentist_archived_docs');
+    if (savedDocs) {
+      try {
+        setDocuments(JSON.parse(savedDocs));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    if (savedArchived) {
+      try {
+        setArchivedDocuments(JSON.parse(savedArchived));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
+
+  const saveDocumentsToStorage = (newDocs: DocumentItem[]) => {
+    setDocuments(newDocs);
+    localStorage.setItem('drtalk_dentist_docs', JSON.stringify(newDocs));
+  };
+
+  const saveArchivedToStorage = (newArchived: DocumentItem[]) => {
+    setArchivedDocuments(newArchived);
+    localStorage.setItem('drtalk_dentist_archived_docs', JSON.stringify(newArchived));
+  };
+
+  const handleArchiveDocument = (doc: DocumentItem) => {
+    const updatedDocs = documents.filter(d => d.id !== doc.id);
+    saveDocumentsToStorage(updatedDocs);
+    const updatedArchived = [doc, ...archivedDocuments];
+    saveArchivedToStorage(updatedArchived);
+    triggerToast(`Archived ${doc.name}!`);
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -496,55 +538,139 @@ export default function DentistDashboardPage() {
               {/* Documents Inbox */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b-2 border-black pb-1">
-                  <h4 className="font-black uppercase text-xs tracking-wider flex items-center gap-2">
-                    <span>New Received Documents</span>
-                    <span className="text-[9px] font-bold text-muted-foreground">({documents.length})</span>
-                  </h4>
+                  <div className="flex items-center gap-4">
+                    <h4 className="font-black uppercase text-xs tracking-wider">
+                      Documents
+                    </h4>
+                    <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => setActiveInboxTab('inbox')} 
+                        className="flex items-center gap-1.5 focus:outline-none group"
+                      >
+                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
+                      </button>
+                      <button 
+                        onClick={() => setActiveInboxTab('archived')} 
+                        className="flex items-center gap-1.5 focus:outline-none group"
+                      >
+                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
                 
-                {documents.length === 0 ? (
-                  <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                    No new documents in inbox
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {documents.map((doc) => (
-                      <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
-                        <div className="flex justify-between items-start">
-                          <div className="flex gap-3">
-                            <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                              <FileText size={20} className="text-black" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p className="font-black uppercase text-xs tracking-tight">{doc.name}</p>
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
+                {activeInboxTab === 'inbox' ? (
+                  documents.length === 0 ? (
+                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                      No new documents in inbox
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {documents.map((doc) => (
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
+                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                                <FileText size={20} className="text-black" />
                               </div>
-                              <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                <span>Practice: {doc.sender}</span>
-                                <span>•</span>
-                                <span>{doc.size}</span>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p 
+                                    onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                                    className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                  >
+                                    {doc.name}
+                                  </p>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
+                                </div>
+                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                  <span>Practice: {doc.sender}</span>
+                                  <span>•</span>
+                                  <span>{doc.size}</span>
+                                </div>
                               </div>
                             </div>
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
                           </div>
-                          <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                          
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
+                            {doc.fromChannel ? (
+                              <>
+                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                                  Discuss and view this document in the inter-practice channel
+                                </span>
+                                <button 
+                                  onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
+                                >
+                                  View & Discuss in Channel <ArrowUpRight size={12} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                                  This document is not associated with an active communication channel
+                                </span>
+                                <button 
+                                  onClick={() => handleArchiveDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
+                                >
+                                  Archive <Archive size={12} />
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
-                        
-                        {/* Actions */}
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
-                          <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                            Discuss and view this document in the inter-practice channel
-                          </span>
-                          <button 
-                            onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
-                            className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
-                          >
-                            View & Discuss in Channel <ArrowUpRight size={12} />
-                          </button>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  archivedDocuments.length === 0 ? (
+                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                      No archived documents
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {archivedDocuments.map((doc) => (
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
+                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                                <FileText size={20} className="text-black" />
+                              </div>
+                              <div>
+                                <p 
+                                  onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                >
+                                  {doc.name}
+                                </p>
+                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                  <span>Practice: {doc.sender}</span>
+                                  <span>•</span>
+                                  <span>{doc.size}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
+                            <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                              This document has been archived from your active inbox
+                            </span>
+                            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
+                              Archived
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )
                 )}
               </div>
             </div>
