@@ -500,24 +500,25 @@ export default function DentistDashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Referrals Sent', value: '09', icon: FileText },
-            { label: 'Referrals scheduled', value: '04', icon: Calendar },
+            { label: 'Referrals Sent', value: '09', icon: FileText, path: '/dentist/referrals?tab=Received' },
+            { label: 'Referrals scheduled', value: '04', icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
             { 
               label: 'Specialty Care Complete', 
               value: (sentReferrals.filter(r => r.status === 'Completed').length).toString().padStart(2, '0'), 
-              icon: FileText 
+              icon: FileText,
+              path: '/dentist/referrals?tab=Completed'
             },
-            { label: '# drtalk connections', value: '15', icon: Users },
+            { label: '# drtalk connections', value: '15', icon: Users, path: '/dentist/network' },
           ].map((stat) => (
-            <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
-              <div className="flex justify-between items-start">
+            <div 
+              key={stat.label} 
+              onClick={() => router.push(stat.path)}
+              className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+            >
+              <stat.icon size={32} className="text-black shrink-0" />
+              <div className="space-y-1">
                 <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-                <stat.icon size={16} className="text-muted-foreground" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tighter flex items-center gap-1.5">
-                  {stat.value}
-                </span>
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
               </div>
             </div>
           ))}

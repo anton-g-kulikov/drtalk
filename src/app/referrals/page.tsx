@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
@@ -53,6 +53,16 @@ export default function ReferralsPage() {
   const [selectedSource, setSelectedSource] = useState<string>('All');
   const [selectedPracticeFilter, setSelectedPracticeFilter] = useState<string>('All');
   const [showIncompleteOnly, setShowIncompleteOnly] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam && ['Received', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
+        setActiveTab(tabParam as ReferralStatus);
+      }
+    }
+  }, []);
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {

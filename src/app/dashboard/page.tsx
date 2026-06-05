@@ -441,18 +441,20 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Referrals received', value: '18', icon: FileText },
-            { label: 'Referrals scheduled', value: '12', icon: Calendar },
-            { label: 'Specialty Care Complete', value: '05', icon: FileText },
-            { label: '# drtalk connections', value: '15', icon: Users },
+            { label: 'Referrals received', value: '18', icon: FileText, path: '/referrals?tab=Received' },
+            { label: 'Referrals scheduled', value: '12', icon: Calendar, path: '/referrals?tab=Scheduled' },
+            { label: 'Specialty Care Complete', value: '05', icon: FileText, path: '/referrals?tab=Completed' },
+            { label: '# drtalk connections', value: '15', icon: Users, path: '/network' },
           ].map((stat) => (
-            <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
-              <div className="flex justify-between items-start">
+            <div 
+              key={stat.label} 
+              onClick={() => router.push(stat.path)}
+              className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+            >
+              <stat.icon size={32} className="text-black shrink-0" />
+              <div className="space-y-1">
                 <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-                <stat.icon size={16} className="text-muted-foreground" />
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tighter">{stat.value}</span>
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
               </div>
             </div>
           ))}
