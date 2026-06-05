@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
@@ -185,10 +186,21 @@ function NetworkAnalytics() {
 }
 
 export default function NetworkPage() {
-  const [activeTab, setActiveTab] = useState<'analytics' | 'all' | 'connected' | 'nearby'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'connected' | 'directory'>('analytics');
+  const [directoryFilter, setDirectoryFilter] = useState<'all' | 'nearby'>('nearby');
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'directory' || tabParam === 'connected' || tabParam === 'analytics') {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -200,7 +212,7 @@ export default function NetworkPage() {
   const filteredNetwork = mockNetwork.filter(p => {
     if (p.type !== 'Dentist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
-    if (activeTab === 'nearby' && p.status !== 'Nearby') return false;
+    if (activeTab === 'directory' && directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
     const searchStr = searchQuery.toLowerCase();
     return p.name.toLowerCase().includes(searchStr) || 
            p.specialty.toLowerCase().includes(searchStr);
@@ -240,7 +252,7 @@ export default function NetworkPage() {
             {/* Tabs Row */}
             <div className="border-b-2 border-black">
               <div className="flex overflow-x-auto no-scrollbar -mb-[2px]">
-                {['analytics', 'all', 'connected', 'nearby'].map((tab) => (
+                {['analytics', 'connected', 'directory'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
@@ -250,7 +262,7 @@ export default function NetworkPage() {
                         : 'text-muted-foreground hover:text-black hover:bg-zinc-50'
                     }`}
                   >
-                    {tab === 'analytics' ? 'Analytics' : tab === 'all' ? 'Directory' : tab === 'connected' ? 'My Network' : 'Nearby Practices'}
+                    {tab === 'analytics' ? 'Analytics' : tab === 'connected' ? 'My Network' : 'Directory'}
                   </button>
                 ))}
               </div>
@@ -259,73 +271,109 @@ export default function NetworkPage() {
             {activeTab === 'analytics' ? (
               <NetworkAnalytics />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredNetwork.map((practice) => (
-                <div 
-                  key={practice.id} 
-                  className="wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full"
-                >
-                  <div className="p-6 space-y-4 flex-1">
-                    <div className="flex justify-between items-start">
-                      <div className="w-12 h-12 border-2 border-black flex items-center justify-center bg-gray-50 group-hover:bg-black group-hover:text-white transition-all">
-                        <Building2 size={24} />
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
-                          practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
-                        }`}>
-                          {practice.status}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-black uppercase text-sm tracking-tight">{practice.name}</h3>
-                        {practice.verified && <ShieldCheck size={14} className="text-black" />}
-                      </div>
-                      <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty} — {practice.type}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin size={12} />
-                      <span className="text-[9px] font-bold uppercase">{practice.location}</span>
-                    </div>
-                  </div>
-
-                  <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
-                    <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                      {practice.type === 'Dentist' ? 'Connect' : 'Send Referral'}
+              <div className="space-y-6">
+                {activeTab === 'directory' && (
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => setDirectoryFilter('all')}
+                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-wider border-2 border-black transition-all ${
+                        directoryFilter === 'all' 
+                          ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' 
+                          : 'bg-white text-black hover:bg-gray-50'
+                      }`}
+                    >
+                      All Practices
                     </button>
-                    <button className="wireframe-button p-2 hover:bg-white transition-all">
-                      <MessageCircle size={14} />
-                    </button>
-                    <button className="wireframe-button p-2 hover:bg-white transition-all">
-                      <ExternalLink size={14} />
+                    <button 
+                      onClick={() => setDirectoryFilter('nearby')}
+                      className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-wider border-2 border-black transition-all ${
+                        directoryFilter === 'nearby' 
+                          ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]' 
+                          : 'bg-white text-black hover:bg-gray-50'
+                      }`}
+                    >
+                      Nearby
                     </button>
                   </div>
-                </div>
-              ))}
+                )}
 
-              {/* Invite Placeholder */}
-              <div className="wireframe-card border-dashed bg-gray-50/30 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full border-2 border-black border-dashed flex items-center justify-center">
-                  <UserPlus size={24} className="text-muted-foreground" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredNetwork.map((practice) => (
+                    <div 
+                      key={practice.id} 
+                      className="wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full"
+                    >
+                      <div className="p-6 space-y-4 flex-1">
+                        <div className="flex justify-between items-start">
+                          <div className="w-12 h-12 border-2 border-black flex items-center justify-center bg-gray-50 group-hover:bg-black group-hover:text-white transition-all">
+                            <Building2 size={24} />
+                          </div>
+                          <div className="flex flex-col items-end">
+                            <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
+                              practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
+                            }`}>
+                              {practice.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-black uppercase text-sm tracking-tight">{practice.name}</h3>
+                            {practice.verified && <ShieldCheck size={14} className="text-black" />}
+                          </div>
+                          <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty} — {practice.type}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MapPin size={12} />
+                          <span className="text-[9px] font-bold uppercase">{practice.location}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
+                        <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
+                          {activeTab === 'directory' 
+                            ? (practice.status === 'Connected' ? 'Connected' : 'Connect') 
+                            : (practice.type === 'Dentist' ? 'Connect' : 'Send Referral')}
+                        </button>
+                        {activeTab !== 'directory' && (
+                          <Link 
+                            href={`/channels?practice=${encodeURIComponent(practice.name)}`}
+                            className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black"
+                          >
+                            <MessageCircle size={14} />
+                          </Link>
+                        )}
+                        <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
+                          <ExternalLink size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Invite Placeholder */}
+                  {activeTab === 'connected' && (
+                    <div className="wireframe-card border-dashed bg-gray-50/30 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                      <div className="w-16 h-16 rounded-full border-2 border-black border-dashed flex items-center justify-center">
+                        <UserPlus size={24} className="text-muted-foreground" />
+                      </div>
+                      <div className="space-y-1">
+                        <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Colleague</h4>
+                        <p className="text-[8px] uppercase text-muted-foreground leading-relaxed">
+                          Is your favorite specialist not on drTalk yet? Invite them to join your network.
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => setIsInviteModalOpen(true)}
+                        className="text-[10px] font-black uppercase underline hover:text-black"
+                      >
+                        Send Invitation
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Colleague</h4>
-                  <p className="text-[8px] uppercase text-muted-foreground leading-relaxed">
-                    Is your favorite specialist not on drTalk yet? Invite them to join your network.
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setIsInviteModalOpen(true)}
-                  className="text-[10px] font-black uppercase underline hover:text-black"
-                >
-                  Send Invitation
-                </button>
               </div>
-            </div>
             )}
         </div>
       </div>

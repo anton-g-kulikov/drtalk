@@ -2,6 +2,7 @@
 
 import React, { Suspense, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import {
@@ -525,7 +526,12 @@ function ChannelsContent() {
             <div className="p-4 border-t border-black border-dashed space-y-3">
               <div className="flex justify-between items-center">
                 <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Connected Practices</p>
-                <button className="text-[8px] font-black uppercase underline hover:text-black">Connect</button>
+                <Link 
+                  href={`${isDentist ? '/dentist' : ''}/network?tab=directory`}
+                  className="text-[8px] font-black uppercase underline hover:text-black"
+                >
+                  Connect
+                </Link>
               </div>
               <div className="space-y-1">
                 {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
