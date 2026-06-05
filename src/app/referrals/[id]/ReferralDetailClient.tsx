@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 
-export type ReferralStatus = 'Received' | 'Accepted' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
+export type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
 
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
@@ -23,9 +23,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const mockReferrals = [
     { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email' as const, completion: 55, status: 'Received' as const, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics', urgency: 'Routine' as const },
     { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax' as const, completion: 45, status: 'Received' as const, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown', urgency: 'Urgent' as const },
-    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App' as const, completion: 100, status: 'Working on' as const, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates', urgency: 'Emergency' as const },
-    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web' as const, completion: 88, status: 'Processed' as const, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group', urgency: 'Routine' as const },
-    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email' as const, completion: 30, status: 'Working on' as const, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental', urgency: 'Routine' as const },
+    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App' as const, completion: 100, status: 'Scheduled' as const, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates', urgency: 'Emergency' as const },
+    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web' as const, completion: 88, status: 'Completed' as const, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group', urgency: 'Routine' as const },
+    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email' as const, completion: 30, status: 'Scheduled' as const, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental', urgency: 'Routine' as const },
   ];
 
   const referral = mockReferrals.find(r => r.id === id) || mockReferrals[0];
@@ -39,29 +39,23 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       setShowPaywall(true);
     } else {
       alert("Referral Processed Successfully!");
-      setCurrentStatus('Processed');
+      setCurrentStatus('Completed');
     }
   };
 
   const handleMainNextAction = () => {
     switch (currentStatus) {
       case 'Received':
-        setCurrentStatus('Accepted');
-        break;
-      case 'Accepted':
         setCurrentStatus('Scheduled');
         break;
       case 'Scheduled':
-        setCurrentStatus('Working on');
-        break;
-      case 'Working on':
         handleProcessReferral();
         break;
-      case 'Processed':
+      case 'Completed':
         setCurrentStatus('Archived');
         break;
       case 'Archived':
-        setCurrentStatus('Working on');
+        setCurrentStatus('Scheduled');
         break;
       default:
         break;
@@ -71,10 +65,8 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
       case 'Received': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
-      case 'Accepted': return 'bg-teal-50 text-teal-800 border-teal-200';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
-      case 'Working on': return 'bg-blue-50 text-blue-800 border-blue-200';
-      case 'Processed': return 'bg-green-50 text-green-800 border-green-200';
+      case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
       default: return 'bg-white';
     }
@@ -96,7 +88,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
-                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus === 'Working on' ? 'Working on (In progress)' : currentStatus}
+                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
                 </span>
                 {urgency === 'Urgent' && (
                   <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
@@ -115,7 +107,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               </div>
             </div>
           </div>
-
+ 
           {/* Dynamic Actions Row */}
           <div className="flex flex-wrap items-center gap-3 relative">
             <div className="relative flex items-stretch">
@@ -124,14 +116,12 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 onClick={handleMainNextAction}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
               >
-                {currentStatus === 'Received' ? 'Accept Case' :
-                 currentStatus === 'Accepted' ? 'Schedule Appointment' :
-                 currentStatus === 'Scheduled' ? 'Confirm & Start Treatment' :
-                 currentStatus === 'Working on' ? 'Complete Treatment' :
-                 currentStatus === 'Processed' ? 'Archive Case' :
+                {currentStatus === 'Received' ? 'Schedule Appointment' :
+                 currentStatus === 'Scheduled' ? 'Complete Treatment' :
+                 currentStatus === 'Completed' ? 'Archive Case' :
                  'Reopen Case'}
               </button>
-
+ 
               {/* Right Dropdown Toggle Segment */}
               <button 
                 onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
@@ -139,7 +129,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               >
                 <ChevronDown size={14} className={`transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-
+ 
               {isStatusDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 py-1 divide-y divide-black/10 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-3 py-1.5 bg-gray-50 border-b border-black">
@@ -147,16 +137,14 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </div>
                   {[
                     { status: 'Received', label: 'Received (Review)' },
-                    { status: 'Accepted', label: 'Accepted' },
                     { status: 'Scheduled', label: 'Scheduled' },
-                    { status: 'Working on', label: 'Working on' },
-                    { status: 'Processed', label: 'Processed' },
+                    { status: 'Completed', label: 'Completed' },
                     { status: 'Archived', label: 'Archived' }
                   ].map((item) => (
                     <button
                       key={item.status}
                       onClick={() => {
-                        if (item.status === 'Processed') {
+                        if (item.status === 'Completed') {
                           handleProcessReferral();
                         } else {
                           setCurrentStatus(item.status as ReferralStatus);
@@ -174,15 +162,15 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 </div>
               )}
             </div>
-
+ 
             <button 
               onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
               className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
             >
               Continue Communication <MessageSquare size={12} />
             </button>
-
-            {currentStatus !== 'Archived' && currentStatus !== 'Processed' && (
+ 
+            {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
               <button 
                 onClick={() => setCurrentStatus('Archived')}
                 className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black"

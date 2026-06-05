@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 
-export type ReferralStatus = 'Received' | 'Working on' | 'Processed' | 'Archived';
+export type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
 
 export default function ReferralDetailClient() {
   const router = useRouter();
@@ -34,8 +34,8 @@ export default function ReferralDetailClient() {
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
       case 'Received': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
-      case 'Working on': return 'bg-blue-50 text-blue-800 border-blue-200';
-      case 'Processed': return 'bg-green-50 text-green-800 border-green-200';
+      case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
+      case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
       default: return 'bg-white';
     }
@@ -59,7 +59,7 @@ export default function ReferralDetailClient() {
                 <h1 className="text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
                 <CommentMarker id="dashboard-referral-detail" title="Dashboard Referral Detail" description="Referral detail view accessible from the dashboard." />
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
-                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus === 'Working on' ? 'Working on (In progress)' : currentStatus}
+                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
                 </span>
                 {urgency === 'Urgent' && (
                   <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
@@ -78,18 +78,18 @@ export default function ReferralDetailClient() {
           <div className="flex gap-2">
             {currentStatus === 'Received' && (
               <button 
-                onClick={() => setCurrentStatus('Working on')}
+                onClick={() => setCurrentStatus('Scheduled')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
               >
-                Accept & Start Working
+                Schedule Appointment
               </button>
             )}
-            {currentStatus === 'Working on' && (
+            {currentStatus === 'Scheduled' && (
               <button 
-                onClick={() => setCurrentStatus('Processed')}
+                onClick={() => setCurrentStatus('Completed')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
               >
-                Mark as Processed
+                Complete Treatment
               </button>
             )}
           </div>

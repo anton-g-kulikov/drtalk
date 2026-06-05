@@ -30,7 +30,7 @@ function addMessagesToDb(channelId: string, newMsgs: MessageItem[]) {
   initialMessages[channelId].push(...newMsgs);
 }
 
-type SentReferralStatus = 'Draft' | 'Sent' | 'Accepted' | 'Scheduled' | 'In Progress' | 'Completed';
+type SentReferralStatus = 'Draft' | 'Sent' | 'Scheduled' | 'Completed';
 
 interface SentReferral {
   id: string;
@@ -49,9 +49,9 @@ const sentReferrals: SentReferral[] = [
     patientName: 'Alice Cooper',
     specialist: 'Valley Endodontics',
     type: 'Endodontic Consultation',
-    status: 'Accepted',
+    status: 'Scheduled',
     lastUpdate: '10:05 AM\n05/11/2026',
-    nextStep: 'Specialist scheduling patient',
+    nextStep: 'Appointment scheduled',
     urgency: 'Routine',
   },
   {
@@ -501,13 +501,13 @@ export default function DentistDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
             { label: 'Referrals Sent', value: '09', icon: FileText },
-            { label: 'Referrals Accepted', value: '07', icon: Clock },
             { label: 'Referrals scheduled', value: '04', icon: Calendar },
             { 
               label: 'Specialty Care Complete', 
               value: (sentReferrals.filter(r => r.status === 'Completed').length).toString().padStart(2, '0'), 
               icon: FileText 
             },
+            { label: '# drtalk connections', value: '15', icon: Users },
           ].map((stat) => (
             <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
               <div className="flex justify-between items-start">

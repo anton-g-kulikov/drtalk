@@ -38,11 +38,11 @@ export default function DentistMessagesPage() {
                 <p className="text-[9px] uppercase text-muted-foreground font-bold">Alice Cooper / D-1001</p>
               </div>
             </div>
-            <span className="border border-black px-2 py-1 text-[8px] uppercase font-black">Referral Accepted</span>
+            <span className="border border-black px-2 py-1 text-[8px] uppercase font-black">Referral Scheduled</span>
           </div>
 
           <div className="p-6 sm:p-8 space-y-6 bg-gray-50">
-            <Message user="Valley Endodontics" time="10:42 AM" text="Referral accepted. We are contacting Alice to schedule an endodontic evaluation." />
+            <Message user="Valley Endodontics" time="10:42 AM" text="Referral scheduled. We are contacting Alice to schedule an endodontic evaluation." />
             <Message user="Sunshine Dental" time="10:50 AM" text="Thanks. We uploaded the bitewing and clinical notes with the referral." self />
             <Message user="Valley Endodontics" time="11:05 AM" text="Received. If you have a pano image, please add it before the consult." />
             <div className="wireframe-card p-3 bg-white flex items-center gap-3">

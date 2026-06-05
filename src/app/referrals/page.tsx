@@ -6,7 +6,7 @@ import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-r
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
-type ReferralStatus = 'Received' | 'Accepted' | 'Scheduled' | 'Working on' | 'Processed' | 'Archived';
+type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
 
 interface Referral {
   id: string;
@@ -25,9 +25,9 @@ interface Referral {
 const mockReferrals: Referral[] = [
   { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', practice: 'Valley Endodontics', urgency: 'Routine' },
   { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', practice: 'unknown', urgency: 'Urgent' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Working on', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates', urgency: 'Emergency' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Processed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group', urgency: 'Routine' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Working on', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental', urgency: 'Routine' },
+  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Scheduled', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates', urgency: 'Emergency' },
+  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Completed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group', urgency: 'Routine' },
+  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Scheduled', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental', urgency: 'Routine' },
 ];
 
 import { useVerification } from '@/components/VerificationContext';
@@ -67,26 +67,24 @@ export default function ReferralsPage() {
     }
   };
 
-  const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Working on', 'Processed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Scheduled', 'Completed', 'Archived'];
 
   const getTabLabel = (tab: ReferralStatus) => {
     if (isDentist) {
       switch (tab) {
         case 'Received': return 'SENT';
-        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
-        case 'Working on': return 'IN PROGRESS';
-        case 'Processed': return 'COMPLETED';
-        default: return tab.toUpperCase();
+        case 'Completed': return 'COMPLETED';
+        case 'Archived': return 'ARCHIVED';
+        default: return (tab as string).toUpperCase();
       }
     } else {
       switch (tab) {
         case 'Received': return 'RECEIVED (REVIEW)';
-        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
-        case 'Working on': return 'WORKING ON (IN PROGRESS)';
-        case 'Processed': return 'PROCESSED';
-        default: return tab.toUpperCase();
+        case 'Completed': return 'COMPLETED';
+        case 'Archived': return 'ARCHIVED';
+        default: return (tab as string).toUpperCase();
       }
     }
   };
@@ -95,14 +93,14 @@ export default function ReferralsPage() {
     if (isDentist) {
       return [
         { label: 'Sent (30d)', value: '12', trend: '+2' },
-        { label: 'In Progress', value: '08', trend: '0' },
+        { label: 'Scheduled', value: '08', trend: '0' },
         { label: 'Completed', value: '45', trend: '+5' },
       ];
     } else {
       return [
         { label: 'Received (24h)', value: '12', trend: '+2' },
-        { label: 'Working on', value: '08', trend: '0' },
-        { label: 'Processed', value: '45', trend: '+5' },
+        { label: 'Scheduled', value: '08', trend: '0' },
+        { label: 'Completed', value: '45', trend: '+5' },
       ];
     }
   };
