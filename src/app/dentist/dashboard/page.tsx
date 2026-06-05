@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
+import { useSubscription } from '@/components/SubscriptionContext';
+import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import {
   initialDocuments,
   initialMessages,
@@ -90,6 +92,8 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from '@/components/InviteModal';
 
 export default function DentistDashboardPage() {
+  const { isTrialEnded, setShowPaywall } = useSubscription();
+
   interface DocumentItem {
     id: string;
     name: string;
@@ -314,6 +318,10 @@ export default function DentistDashboardPage() {
   };
 
   const handleSendDocumentSubmit = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+      return;
+    }
     if (!selectedPractice) {
       triggerToast("Please select a connected practice.");
       return;
@@ -489,7 +497,13 @@ export default function DentistDashboardPage() {
               Send a Referral <Plus size={14} />
             </button>
             <button
-              onClick={() => setIsSendDocOpen(true)}
+              onClick={() => {
+                if (isTrialEnded) {
+                  setShowPaywall(true);
+                } else {
+                  setIsSendDocOpen(true);
+                }
+              }}
               className="wireframe-button bg-white text-black border-black text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none hover:bg-zinc-100 transition-colors"
             >
               Send Document <FileText size={14} />
@@ -797,6 +811,7 @@ export default function DentistDashboardPage() {
                 Open Learning Hub
               </button>
             </div>
+            <SubscriptionBanner />
           </div>
 
         </div>

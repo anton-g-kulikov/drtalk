@@ -130,40 +130,38 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       </div>
 
       {/* Debug Controls */}
-      {!isDentist && (
-        <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
-          <div className="flex items-center gap-2 px-3 mb-2">
-            <Bug size={12} />
-            <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
-          </div>
-          <div className="space-y-1">
-            <button
-              onClick={setNoOwnerYet}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              No Owner Yet
-            </button>
-            <button
-              onClick={resetVerification}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              Reset Verification
-            </button>
-            <button
-              onClick={endTrial}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              End Trial
-            </button>
-            <button
-              onClick={resetSubscription}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              Reset Subscription
-            </button>
-          </div>
+      <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-2 px-3 mb-2">
+          <Bug size={12} />
+          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
         </div>
-      )}
+        <div className="space-y-1">
+          <button
+            onClick={setNoOwnerYet}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            No Owner Yet
+          </button>
+          <button
+            onClick={resetVerification}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            Reset Verification
+          </button>
+          <button
+            onClick={endTrial}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            End Trial
+          </button>
+          <button
+            onClick={resetSubscription}
+            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+          >
+            Reset Subscription
+          </button>
+        </div>
+      </div>
 
       <div className="p-4 border-t-2 border-black space-y-2">
         <Link
@@ -244,7 +242,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
               {[
                 { label: 'View Profile', href: isDentist ? '/dentist/settings' : '/settings' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
-                ...(!isDentist ? [{ label: 'Billing & Usage', href: '/settings' }] : []),
+                { label: 'Billing & Usage', href: isDentist ? '/dentist/settings#billing' : '/settings#billing' },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link

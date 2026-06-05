@@ -2,10 +2,13 @@
 
 import React from 'react';
 import { useSubscription } from './SubscriptionContext';
-import { Timer, Zap, ShieldCheck } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Timer } from 'lucide-react';
 
 export function SubscriptionBanner() {
   const { plan, isTrialEnded, daysRemaining, setShowPaywall } = useSubscription();
+  const pathname = usePathname();
+  const isDentist = pathname.startsWith('/dentist');
 
   if (plan !== 'Trial') return null;
 
@@ -20,7 +23,9 @@ export function SubscriptionBanner() {
             {isTrialEnded ? 'Trial Ended' : 'Free Trial'}
           </h4>
           <p className={`text-[9px] font-bold tracking-tight leading-tight ${isTrialEnded ? 'text-gray-300' : 'text-muted-foreground'}`}>
-            {isTrialEnded ? 'Upgrade to process referrals.' : `${daysRemaining} Days Left`}
+            {isTrialEnded 
+              ? (isDentist ? 'Upgrade to analyze referral submissions and communicate with patients.' : 'Upgrade to process referrals.') 
+              : `${daysRemaining} Days Left`}
           </p>
         </div>
       </div>

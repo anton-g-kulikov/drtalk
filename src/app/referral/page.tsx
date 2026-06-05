@@ -8,6 +8,7 @@ import {
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
+import { useSubscription } from '@/components/SubscriptionContext';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -18,6 +19,7 @@ export default function GuestReferralPage() {
   const [practiceName, setPracticeName] = useState('');
   const router = useRouter();
   const { verify } = useVerification();
+  const { isTrialEnded, setShowPaywall } = useSubscription();
 
   const nextStep = (next: ReferralStep) => setStep(next);
 

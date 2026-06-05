@@ -5,11 +5,12 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { useSubscription } from '@/components/SubscriptionContext';
 import {
   Search, Hash, Lock, Users, Send,
   Paperclip, Smile, MoreHorizontal,
   Smartphone, Mail, AppWindow,
-  FileText, Image as ImageIcon, X, Eye, Download, Plus, Upload,
+  FileText, ImageIcon, X, Eye, Download, Plus, Upload,
   ChevronDown, ChevronRight
 } from 'lucide-react';
 
@@ -134,6 +135,7 @@ const mockGroupParticipants: GroupParticipant[] = [
 function ChannelsContent() {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
+  const { isTrialEnded, setShowPaywall } = useSubscription();
 
   const searchParams = useSearchParams();
   const practiceParam = searchParams.get('practice');
@@ -251,11 +253,8 @@ function ChannelsContent() {
 
   // Filter channels based on role
   const displayedChannels = React.useMemo(() => {
-    return channels.filter(c => {
-      if (isDentist && c.type === 'patient') return false;
-      return true;
-    });
-  }, [isDentist, channels]);
+    return channels;
+  }, [channels]);
 
   // Section unread sums
   const internalUnreadCount = React.useMemo(() => {
@@ -283,10 +282,7 @@ function ChannelsContent() {
   }, [displayedChannels]);
 
   const [activeChannel, setActiveChannel] = useState<Channel>(() => {
-    const defaultChannels = mockChannels.filter(c => {
-      if (pathname.startsWith('/dentist') && c.type === 'patient') return false;
-      return true;
-    });
+    const defaultChannels = mockChannels;
 
     if (practiceParam) {
       const channel = defaultChannels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase());
@@ -334,6 +330,10 @@ function ChannelsContent() {
   };
 
   const handleSendMessage = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+      return;
+    }
     if (!inputText.trim() && !attachedDoc) return;
 
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -434,6 +434,10 @@ function ChannelsContent() {
   };
 
   const handleDirectUpload = () => {
+    if (isTrialEnded) {
+      setShowPaywall(true);
+      return;
+    }
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
     // Prepare documents to share. If we have attachedFiles, use those. 
@@ -730,50 +734,48 @@ function ChannelsContent() {
             </div>
 
             {/* Patient */}
-            {!isDentist && (
-              <div className="p-4 border-t border-black border-dashed space-y-3">
-                <div className="flex justify-between items-center">
-                  <button
-                    onClick={() => setPatientCollapsed(!patientCollapsed)}
-                    className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
-                  >
-                    {patientCollapsed ? (
-                      <ChevronRight size={10} className="shrink-0" />
-                    ) : (
-                      <ChevronDown size={10} className="shrink-0" />
-                    )}
-                    <span className="text-[8px] font-black uppercase tracking-widest">Patient Comm (SMS/Email)</span>
-                    {patientCollapsed && patientUnreadCount > 0 && (
-                      <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
-                        {patientUnreadCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                {!patientCollapsed && (
-                  <>
-                    {/* Tip for Patient Channels */}
-                    <div className="p-3 bg-gray-50 border border-black border-dashed">
-                      <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
-                        Tip: Patient channels are automatically created once you process a referral and initiate external communication.
-                      </p>
-                    </div>
-
-                    <div className="space-y-1">
-                      {displayedChannels.filter(c => c.type === 'patient').map(c => (
-                        <ChannelItem
-                          key={c.id}
-                          channel={c}
-                          isActive={activeChannel.id === c.id}
-                          onClick={() => handleSelectChannel(c)}
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
+            <div className="p-4 border-t border-black border-dashed space-y-3">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setPatientCollapsed(!patientCollapsed)}
+                  className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                >
+                  {patientCollapsed ? (
+                    <ChevronRight size={10} className="shrink-0" />
+                  ) : (
+                    <ChevronDown size={10} className="shrink-0" />
+                  )}
+                  <span className="text-[8px] font-black uppercase tracking-widest">Patient Comm (SMS/Email)</span>
+                  {patientCollapsed && patientUnreadCount > 0 && (
+                    <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                      {patientUnreadCount}
+                    </span>
+                  )}
+                </button>
               </div>
-            )}
+
+              {!patientCollapsed && (
+                <>
+                  {/* Tip for Patient Channels */}
+                  <div className="p-3 bg-gray-50 border border-black border-dashed">
+                    <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
+                      Tip: Patient channels are automatically created once you process a referral and initiate external communication.
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    {displayedChannels.filter(c => c.type === 'patient').map(c => (
+                      <ChannelItem
+                        key={c.id}
+                        channel={c}
+                        isActive={activeChannel.id === c.id}
+                        onClick={() => handleSelectChannel(c)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
