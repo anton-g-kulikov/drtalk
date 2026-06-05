@@ -53,7 +53,7 @@ export const mockChannels: Channel[] = [
   { id: '8', name: 'Metro Orthodontics', type: 'inter-practice', lastMessage: 'Referral sent for Charlie Brown.', memberCount: 2 },
   { id: '9', name: 'Arizona Periodontics', type: 'inter-practice', lastMessage: 'Referral sent for David Bowie.', memberCount: 2 },
   { id: '6', name: 'Beverly Hills Dental', type: 'inter-practice', lastMessage: 'Waiting for verification.', memberCount: 1, isVerified: false },
-  { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Appointment confirmed.', memberCount: 2 },
+  { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];
 
@@ -92,7 +92,8 @@ export const initialMessages: Record<string, MessageItem[]> = {
     { id: 'm9_1', user: 'Me', text: 'Hi Dr. White, referring David Bowie for an Invisalign evaluation. Attached is the complete case package.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd9_1', channelId: '9', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' } }
   ],
   '4': [
-    { id: 'm4_1', user: 'Alice Cooper', text: 'Is there any prep I need to do before my appointment?', time: '11:15 AM', type: 'other', transport: 'SMS' },
+    { id: 'm4_0', user: 'Me', text: 'Welcome to Sunshine Dental! To help us communicate about your care, appointments, and important health information, may we contact you via SMS/text message? Standard messaging rates may apply.\n\nPlease reply with:\n• Full Name:\n• Date of Birth (MM/DD/YYYY):\n\nReply YES to consent to SMS communication, or NO to decline.', time: '11:15 AM', type: 'self', transport: 'SMS' },
+    { id: 'm4_1', user: 'Alice Cooper', text: 'YES\nAlice Cooper\n02/04/1948', time: '11:15 AM', type: 'other', transport: 'SMS' },
     { id: 'm4_2', user: 'Me', text: 'Just avoid eating 2 hours before the procedure. We will send a formal prep guide to your email shortly.', time: '11:20 AM', type: 'self', transport: 'Email' },
     { id: 'm4_3', user: 'Alice Cooper', text: 'Got it, thank you!', time: '11:25 AM', type: 'other', transport: 'SMS' }
   ],
@@ -1822,7 +1823,7 @@ function Message({
       </div>
       <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'
         }`}>
-        {text && <div>{text}</div>}
+        {text && <div className="whitespace-pre-wrap">{text}</div>}
 
         {document && (
           <div className={`mt-3 p-3 border-2 flex items-center justify-between gap-4 transition-all ${isSelf ? 'border-white bg-black text-white' : 'border-black bg-white text-black'
