@@ -9,10 +9,11 @@ import {
   Search, Hash, Lock, Users, Send,
   Paperclip, Smile, MoreHorizontal,
   Smartphone, Mail, AppWindow,
-  FileText, Image as ImageIcon, X, Eye, Download, Plus, Upload
+  FileText, Image as ImageIcon, X, Eye, Download, Plus, Upload,
+  ChevronDown, ChevronRight
 } from 'lucide-react';
 
-export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public';
+export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group';
 
 export interface Channel {
   id: string;
@@ -111,6 +112,24 @@ const mockAttachments = [
   { name: 'clinical_notes_cooper.pdf', size: '840 KB', type: 'pdf' as const }
 ];
 
+export interface GroupParticipant {
+  id: string;
+  name: string;
+  practice: string;
+  selected: boolean;
+}
+
+const mockGroupParticipants: GroupParticipant[] = [
+  { id: 'gp1', name: 'Dr. John Smith', practice: 'Sunshine Dental (Me)', selected: false },
+  { id: 'gp2', name: 'Jane Doe', practice: 'Sunshine Dental (Me)', selected: false },
+  { id: 'gp3', name: 'Dr. Clara Valley', practice: 'Valley Endodontics', selected: false },
+  { id: 'gp4', name: 'Robert Chen', practice: 'Valley Endodontics', selected: false },
+  { id: 'gp5', name: 'Dr. Marcus Jones', practice: 'Downtown Oral Surgery', selected: false },
+  { id: 'gp6', name: 'Linda Brooks', practice: 'Downtown Oral Surgery', selected: false },
+  { id: 'gp7', name: 'Dr. Angela Metro', practice: 'Metro Orthodontics', selected: false },
+  { id: 'gp8', name: 'Dr. David Bowie', practice: 'Arizona Periodontics', selected: false },
+];
+
 function ChannelsContent() {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
@@ -123,6 +142,18 @@ function ChannelsContent() {
   const [messages, setMessages] = useState<Record<string, MessageItem[]>>(initialMessages);
   const [documents, setDocuments] = useState<SharedDocument[]>(initialDocuments);
   const [activeTab, setActiveTab] = useState<'messages' | 'documents'>('messages');
+
+  // Collapse states for sidebar sections
+  const [internalCollapsed, setInternalCollapsed] = useState(true);
+  const [connectedCollapsed, setConnectedCollapsed] = useState(true);
+  const [patientCollapsed, setPatientCollapsed] = useState(true);
+  const [groupCollapsed, setGroupCollapsed] = useState(true);
+
+  // Group chat creation states
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
+  const [groupChatName, setGroupChatName] = useState('');
+  const [groupParticipants, setGroupParticipants] = useState<GroupParticipant[]>(mockGroupParticipants);
+  const [groupChatError, setGroupChatError] = useState<string | null>(null);
 
   // Input states
   const [inputText, setInputText] = useState('');
@@ -155,6 +186,55 @@ function ChannelsContent() {
     setParticipants(prev => prev.map(p => p.id === id ? { ...p, selected: !p.selected } : p));
   };
 
+  const toggleGroupParticipant = (id: string) => {
+    setGroupParticipants(prev => prev.map(p => p.id === id ? { ...p, selected: !p.selected } : p));
+    setGroupChatError(null);
+  };
+
+  const handleCreateGroupChat = () => {
+    if (!groupChatName.trim()) {
+      setGroupChatError("Please enter a group chat name.");
+      return;
+    }
+    const selectedPeople = groupParticipants.filter(p => p.selected);
+    if (selectedPeople.length === 0) {
+      setGroupChatError("Please select at least one participant.");
+      return;
+    }
+
+    const newChannelId = 'group_' + Math.random().toString(36).substring(2, 9);
+    const newChannel: Channel = {
+      id: newChannelId,
+      name: groupChatName.trim(),
+      type: 'group',
+      lastMessage: 'Group chat created.',
+      memberCount: selectedPeople.length + 1
+    };
+
+    setChannels(prev => [...prev, newChannel]);
+
+    const welcomeMsg: MessageItem = {
+      id: 'm_welcome_' + Math.random().toString(36).substring(2, 9),
+      user: 'System',
+      text: `Group chat "${groupChatName.trim()}" created with ${selectedPeople.map(p => p.name).join(', ')}.`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'other'
+    };
+    setMessages(prev => ({
+      ...prev,
+      [newChannelId]: [welcomeMsg]
+    }));
+
+    setGroupChatName('');
+    setGroupParticipants(mockGroupParticipants);
+    setGroupChatError(null);
+    setShowCreateGroupModal(false);
+    setGroupCollapsed(false);
+    setActiveChannel(newChannel);
+    setActiveTab('messages');
+    triggerToast("Group chat created successfully!");
+  };
+
   // Direct Upload State Form
   const [customDocName, setCustomDocName] = useState('');
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
@@ -175,6 +255,31 @@ function ChannelsContent() {
       return true;
     });
   }, [isDentist, channels]);
+
+  // Section unread sums
+  const internalUnreadCount = React.useMemo(() => {
+    return displayedChannels
+      .filter(c => c.type === 'internal')
+      .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  }, [displayedChannels]);
+
+  const connectedUnreadCount = React.useMemo(() => {
+    return displayedChannels
+      .filter(c => c.type === 'inter-practice')
+      .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  }, [displayedChannels]);
+
+  const groupUnreadCount = React.useMemo(() => {
+    return displayedChannels
+      .filter(c => c.type === 'group')
+      .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  }, [displayedChannels]);
+
+  const patientUnreadCount = React.useMemo(() => {
+    return displayedChannels
+      .filter(c => c.type === 'patient')
+      .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  }, [displayedChannels]);
 
   const [activeChannel, setActiveChannel] = useState<Channel>(() => {
     const defaultChannels = mockChannels.filter(c => {
@@ -507,60 +612,27 @@ function ChannelsContent() {
             {/* Internal */}
             <div className="p-4 space-y-3">
               <div className="flex justify-between items-center">
-                <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Internal Communication</p>
+                <button
+                  onClick={() => setInternalCollapsed(!internalCollapsed)}
+                  className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                >
+                  {internalCollapsed ? (
+                    <ChevronRight size={10} className="shrink-0" />
+                  ) : (
+                    <ChevronDown size={10} className="shrink-0" />
+                  )}
+                  <span className="text-[8px] font-black uppercase tracking-widest">Internal Communication</span>
+                  {internalCollapsed && internalUnreadCount > 0 && (
+                    <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                      {internalUnreadCount}
+                    </span>
+                  )}
+                </button>
                 <button className="text-[8px] font-black uppercase underline hover:text-black">Create +</button>
               </div>
-              <div className="space-y-1">
-                {displayedChannels.filter(c => c.type === 'internal').map(c => (
-                  <ChannelItem
-                    key={c.id}
-                    channel={c}
-                    isActive={activeChannel.id === c.id}
-                    onClick={() => handleSelectChannel(c)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Inter-practice */}
-            <div className="p-4 border-t border-black border-dashed space-y-3">
-              <div className="flex justify-between items-center">
-                <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Connected Practices</p>
-                <Link 
-                  href={`${isDentist ? '/dentist' : ''}/network?tab=directory`}
-                  className="text-[8px] font-black uppercase underline hover:text-black"
-                >
-                  Connect
-                </Link>
-              </div>
-              <div className="space-y-1">
-                {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
-                  <ChannelItem
-                    key={c.id}
-                    channel={c}
-                    isActive={activeChannel.id === c.id}
-                    onClick={() => handleSelectChannel(c)}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Patient */}
-            {!isDentist && (
-              <div className="p-4 border-t border-black border-dashed space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Patient Comm (SMS/Email)</p>
-                </div>
-
-                {/* Tip for Patient Channels */}
-                <div className="p-3 bg-gray-50 border border-black border-dashed">
-                  <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
-                    Tip: Patient channels are automatically created once you process a referral and initiate external communication.
-                  </p>
-                </div>
-
+              {!internalCollapsed && (
                 <div className="space-y-1">
-                  {displayedChannels.filter(c => c.type === 'patient').map(c => (
+                  {displayedChannels.filter(c => c.type === 'internal').map(c => (
                     <ChannelItem
                       key={c.id}
                       channel={c}
@@ -569,6 +641,136 @@ function ChannelsContent() {
                     />
                   ))}
                 </div>
+              )}
+            </div>
+
+            {/* Inter-practice */}
+            <div className="p-4 border-t border-black border-dashed space-y-3">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setConnectedCollapsed(!connectedCollapsed)}
+                  className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                >
+                  {connectedCollapsed ? (
+                    <ChevronRight size={10} className="shrink-0" />
+                  ) : (
+                    <ChevronDown size={10} className="shrink-0" />
+                  )}
+                  <span className="text-[8px] font-black uppercase tracking-widest">Connected Practices</span>
+                  {connectedCollapsed && connectedUnreadCount > 0 && (
+                    <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                      {connectedUnreadCount}
+                    </span>
+                  )}
+                </button>
+                <Link 
+                  href={`${isDentist ? '/dentist' : ''}/network?tab=directory`}
+                  className="text-[8px] font-black uppercase underline hover:text-black"
+                >
+                  Connect
+                </Link>
+              </div>
+              {!connectedCollapsed && (
+                <div className="space-y-1">
+                  {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
+                    <ChannelItem
+                      key={c.id}
+                      channel={c}
+                      isActive={activeChannel.id === c.id}
+                      onClick={() => handleSelectChannel(c)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Group Chats */}
+            <div className="p-4 border-t border-black border-dashed space-y-3">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setGroupCollapsed(!groupCollapsed)}
+                  className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                >
+                  {groupCollapsed ? (
+                    <ChevronRight size={10} className="shrink-0" />
+                  ) : (
+                    <ChevronDown size={10} className="shrink-0" />
+                  )}
+                  <span className="text-[8px] font-black uppercase tracking-widest">Group Chats</span>
+                  {groupCollapsed && groupUnreadCount > 0 && (
+                    <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                      {groupUnreadCount}
+                    </span>
+                  )}
+                </button>
+                <button 
+                  onClick={() => setShowCreateGroupModal(true)}
+                  className="text-[8px] font-black uppercase underline hover:text-black"
+                >
+                  Create +
+                </button>
+              </div>
+              {!groupCollapsed && (
+                <div className="space-y-1">
+                  {displayedChannels.filter(c => c.type === 'group').length === 0 ? (
+                    <p className="text-[8px] text-muted-foreground italic uppercase">No group chats yet.</p>
+                  ) : (
+                    displayedChannels.filter(c => c.type === 'group').map(c => (
+                      <ChannelItem
+                        key={c.id}
+                        channel={c}
+                        isActive={activeChannel.id === c.id}
+                        onClick={() => handleSelectChannel(c)}
+                      />
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Patient */}
+            {!isDentist && (
+              <div className="p-4 border-t border-black border-dashed space-y-3">
+                <div className="flex justify-between items-center">
+                  <button
+                    onClick={() => setPatientCollapsed(!patientCollapsed)}
+                    className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                  >
+                    {patientCollapsed ? (
+                      <ChevronRight size={10} className="shrink-0" />
+                    ) : (
+                      <ChevronDown size={10} className="shrink-0" />
+                    )}
+                    <span className="text-[8px] font-black uppercase tracking-widest">Patient Comm (SMS/Email)</span>
+                    {patientCollapsed && patientUnreadCount > 0 && (
+                      <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                        {patientUnreadCount}
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {!patientCollapsed && (
+                  <>
+                    {/* Tip for Patient Channels */}
+                    <div className="p-3 bg-gray-50 border border-black border-dashed">
+                      <p className="text-[7px] font-bold uppercase leading-relaxed text-muted-foreground italic">
+                        Tip: Patient channels are automatically created once you process a referral and initiate external communication.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1">
+                      {displayedChannels.filter(c => c.type === 'patient').map(c => (
+                        <ChannelItem
+                          key={c.id}
+                          channel={c}
+                          isActive={activeChannel.id === c.id}
+                          onClick={() => handleSelectChannel(c)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -1365,6 +1567,128 @@ function ChannelsContent() {
         </div>
       )}
 
+      {/* Create Group Chat Modal */}
+      {showCreateGroupModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
+          <div className="bg-white border-4 border-black p-8 max-w-lg w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
+            <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
+              <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
+                <Users size={16} /> Create Group Chat
+              </h3>
+              <button 
+                onClick={() => {
+                  setShowCreateGroupModal(false);
+                  setGroupChatName('');
+                  setGroupParticipants(mockGroupParticipants);
+                  setGroupChatError(null);
+                }} 
+                className="hover:text-black text-black"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-1 mb-4">
+              <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Group Chat Name</label>
+              <input
+                type="text"
+                placeholder="ENTER GROUP CHAT NAME..."
+                value={groupChatName}
+                onChange={(e) => {
+                  setGroupChatName(e.target.value);
+                  setGroupChatError(null);
+                }}
+                className="wireframe-input w-full p-2 border-2 border-black text-[10px] text-black"
+              />
+            </div>
+
+            <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block mb-2">Select Participants</label>
+            <div className="space-y-4 max-h-[40vh] overflow-y-auto mb-6 pr-2">
+              {Object.entries(
+                groupParticipants.reduce((acc, p) => {
+                  if (!acc[p.practice]) acc[p.practice] = [];
+                  acc[p.practice].push(p);
+                  return acc;
+                }, {} as Record<string, typeof groupParticipants>)
+              ).map(([practiceName, members]) => (
+                <div key={practiceName} className="space-y-1.5">
+                  <div className="flex justify-between items-end border-b border-black border-dashed pb-1">
+                    <h4 className="text-[8px] font-black uppercase text-muted-foreground tracking-wider">
+                      {practiceName}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const practiceMembers = members.map(m => m.id);
+                        const allGroupSelected = members.every(m => m.selected);
+                        setGroupParticipants(prev =>
+                          prev.map(p =>
+                            practiceMembers.includes(p.id)
+                              ? { ...p, selected: !allGroupSelected }
+                              : p
+                          )
+                        );
+                        setGroupChatError(null);
+                      }}
+                      className="flex items-center gap-1.5 text-[8px] font-black uppercase text-muted-foreground hover:text-black transition-colors"
+                    >
+                      <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center shrink-0 ${members.every(m => m.selected) ? 'bg-black' : 'bg-white'}`}>
+                        {members.every(m => m.selected) && <div className="w-1.5 h-1.5 bg-white" />}
+                      </div>
+                      <span>Select All</span>
+                    </button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {members.map(p => (
+                      <label key={p.id} className="flex items-center justify-between p-2 border border-black hover:bg-gray-50 cursor-pointer transition-colors group">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center ${p.selected ? 'bg-black' : 'bg-white'}`}>
+                            {p.selected && <div className="w-1.5 h-1.5 bg-white" />}
+                          </div>
+                          <span className="text-[9px] font-bold uppercase text-black">{p.name}</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={p.selected}
+                          onChange={() => toggleGroupParticipant(p.id)}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {groupChatError && (
+              <div className="mb-4 bg-black text-white border-2 border-black p-3 text-center animate-fade-in shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <p className="text-[9px] font-black uppercase tracking-widest">{groupChatError}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 pt-4 border-t-2 border-black">
+              <button
+                onClick={() => {
+                  setShowCreateGroupModal(false);
+                  setGroupChatName('');
+                  setGroupParticipants(mockGroupParticipants);
+                  setGroupChatError(null);
+                }}
+                className="wireframe-button border-black hover:bg-black hover:text-white text-[10px] uppercase py-2 px-4 font-black transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateGroupChat}
+                className="wireframe-button bg-black text-white border-black text-[10px] uppercase py-2 px-6 font-black hover:bg-white hover:text-black transition-all"
+              >
+                Create Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Participants Management Modal */}
       {showParticipantsModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
@@ -1445,6 +1769,7 @@ function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActiv
         {channel.type === 'inter-practice' && <Users size={12} />}
         {channel.type === 'patient' && <Smartphone size={12} />}
         {channel.type === 'public' && <Lock size={12} />}
+        {channel.type === 'group' && <Users size={12} />}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
