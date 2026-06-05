@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import {
   AlertCircle, MessageSquare, ArrowUpRight,
-  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive
+  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -441,10 +441,10 @@ export default function DashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Acceptance Rate', value: '82%', trend: '+4%', icon: TrendingUp },
-            { label: 'Referrals', value: '18', trend: '+2', icon: FileText },
-            { label: 'Dentist Partners', value: '12', trend: '+1', icon: Users },
-            { label: 'Patient Messages', value: '05', trend: '-2', icon: MessageSquare },
+            { label: 'Referrals received', value: '18', icon: FileText },
+            { label: 'Referrals scheduled', value: '12', icon: Calendar },
+            { label: 'Specialty Care Complete', value: '05', icon: FileText },
+            { label: '# drtalk connections', value: '15', icon: Users },
           ].map((stat) => (
             <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
               <div className="flex justify-between items-start">
@@ -453,7 +453,6 @@ export default function DashboardPage() {
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold tracking-tighter">{stat.value}</span>
-                <span className="text-[9px] font-bold text-black uppercase">{stat.trend}</span>
               </div>
             </div>
           ))}
@@ -464,43 +463,144 @@ export default function DashboardPage() {
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
 
-            {/* Inbox Section */}
-            <div className="space-y-8">
+            {/* Referrals Section */}
+            <div className="space-y-6">
               <div className="flex items-center justify-between border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Inbox</h3>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals</h3>
                 </div>
                 <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
-                  {documents.length + referrals.length} items
+                  {referrals.length} items
                 </span>
               </div>
 
-              {/* Documents Section */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b-2 border-black pb-1">
-                  <div className="flex items-center gap-4">
-                    <h4 className="font-black uppercase text-xs tracking-wider">
-                      Documents
-                    </h4>
-                    <div className="flex items-center gap-4">
-                      <button 
-                        onClick={() => setActiveInboxTab('inbox')} 
-                        className="flex items-center gap-1.5 focus:outline-none group"
-                      >
-                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
-                      </button>
-                      <button 
-                        onClick={() => setActiveInboxTab('archived')} 
-                        className="flex items-center gap-1.5 focus:outline-none group"
-                      >
-                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
-                      </button>
-                    </div>
-                  </div>
+              {/* Sub-section: New Referrals Requiring Processing */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 border-l-4 border-black pl-2">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-black">New referrals requiring processing</span>
                 </div>
+                
+                {newProcessingReferrals.length === 0 ? (
+                  <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                    No new referrals requiring processing
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {newProcessingReferrals.map((ref) => (
+                      <div 
+                        key={ref.id} 
+                        onClick={() => handleReferralClick(ref.id)}
+                        className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
+                            <p className="font-bold uppercase text-xs">{ref.patient}</p>
+                          </div>
+                          <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {ref.urgency && (
+                            <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
+                              ref.urgency === 'Emergency' 
+                                ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
+                                : ref.urgency === 'Urgent' 
+                                ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
+                                : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
+                            }`}>
+                              {ref.urgency}
+                            </span>
+                          )}
+                          <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
+                          <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Sub-section: Referrals with Newly Received Documents */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 border-l-4 border-black pl-2">
+                  <span className="text-[9px] font-black uppercase tracking-wider text-black">Referrals with newly received documents</span>
+                </div>
+                
+                {newDocsReferrals.length === 0 ? (
+                  <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                    No referrals with newly received documents
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {newDocsReferrals.map((ref) => (
+                      <div 
+                        key={ref.id} 
+                        onClick={() => handleReferralClick(ref.id)}
+                        className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
+                            <p className="font-bold uppercase text-xs">{ref.patient}</p>
+                          </div>
+                          <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {ref.urgency && (
+                            <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
+                              ref.urgency === 'Emergency' 
+                                ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
+                                : ref.urgency === 'Urgent' 
+                                ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
+                                : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
+                            }`}>
+                              {ref.urgency}
+                            </span>
+                          )}
+                          <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
+                          <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              onClick={() => router.push('/referrals')}
+              className="text-[10px] font-black uppercase underline block"
+            >
+              View all Referrals
+            </button>
+
+            {/* Documents Section */}
+            <div className="space-y-4 pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setActiveInboxTab('inbox')} 
+                    className="flex items-center gap-1.5 focus:outline-none group"
+                  >
+                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
+                  </button>
+                  <button 
+                    onClick={() => setActiveInboxTab('archived')} 
+                    className="flex items-center gap-1.5 focus:outline-none group"
+                  >
+                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
+                  </button>
+                </div>
+              </div>
                 
                 {activeInboxTab === 'inbox' ? (
                   documents.length === 0 ? (
@@ -636,119 +736,7 @@ export default function DashboardPage() {
                   )
                 )}
               </div>
-
-              {/* Referrals Section */}
-              <div className="space-y-6">
-                <div className="flex items-center justify-between border-b-2 border-black pb-1">
-                  <h4 className="font-black uppercase text-xs tracking-wider flex items-center gap-2">
-                    <span>Referrals</span>
-                    <span className="text-[9px] font-bold text-muted-foreground">({referrals.length})</span>
-                  </h4>
-                </div>
-
-                {/* Sub-section: New Referrals Requiring Processing */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 border-l-4 border-black pl-2">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-black">New referrals requiring processing</span>
-                  </div>
-                  
-                  {newProcessingReferrals.length === 0 ? (
-                    <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No new referrals requiring processing
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {newProcessingReferrals.map((ref) => (
-                        <div 
-                          key={ref.id} 
-                          onClick={() => handleReferralClick(ref.id)}
-                          className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
-                              <p className="font-bold uppercase text-xs">{ref.patient}</p>
-                            </div>
-                            <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                            <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {ref.urgency && (
-                              <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
-                                ref.urgency === 'Emergency' 
-                                  ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
-                                  : ref.urgency === 'Urgent' 
-                                  ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
-                                  : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
-                              }`}>
-                                {ref.urgency}
-                              </span>
-                            )}
-                            <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
-                            <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Sub-section: Referrals with Newly Received Documents */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 border-l-4 border-black pl-2">
-                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Referrals with newly received documents</span>
-                  </div>
-                  
-                  {newDocsReferrals.length === 0 ? (
-                    <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No referrals with newly received documents
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {newDocsReferrals.map((ref) => (
-                        <div 
-                          key={ref.id} 
-                          onClick={() => handleReferralClick(ref.id)}
-                          className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
-                              <p className="font-bold uppercase text-xs">{ref.patient}</p>
-                            </div>
-                            <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                            <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {ref.urgency && (
-                              <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
-                                ref.urgency === 'Emergency' 
-                                  ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
-                                  : ref.urgency === 'Urgent' 
-                                  ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
-                                  : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
-                              }`}>
-                                {ref.urgency}
-                              </span>
-                            )}
-                            <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
-                            <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={() => router.push('/referrals')}
-                className="text-[10px] font-black uppercase underline block"
-              >
-                View all Referrals
-              </button>
             </div>
-          </div>
 
           {/* Quick Actions / Side Column */}
           <div className="lg:col-span-4 space-y-8">

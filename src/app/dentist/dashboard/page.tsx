@@ -3,19 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { useRouter } from 'next/navigation';
-import { 
-  AlertCircle, MessageSquare, ArrowUpRight, 
+import {
+  AlertCircle, MessageSquare, ArrowUpRight,
   TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap,
-  Upload, X, Eye, Paperclip, Lock, Archive
+  Upload, X, Eye, Paperclip, Lock, Archive, Calendar
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
-import { 
-  initialDocuments, 
-  initialMessages, 
-  mockChannels, 
-  SharedDocument, 
-  MessageItem 
+import {
+  initialDocuments,
+  initialMessages,
+  mockChannels,
+  SharedDocument,
+  MessageItem
 } from '@/app/channels/page';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
@@ -159,7 +159,7 @@ export default function DentistDashboardPage() {
   const [selectedReferral, setSelectedReferral] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastAction, setToastAction] = useState<{ label: string; onClick: () => void } | null>(null);
-  
+
   // Direct Upload State Form
   const [customDocName, setCustomDocName] = useState('');
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
@@ -416,10 +416,10 @@ export default function DentistDashboardPage() {
   return (
     <MainLayout title="Dentist Dashboard">
       <div className="max-w-6xl mx-auto space-y-8">
-        
+
         {/* Status Banners */}
         <div className="space-y-4">
-          
+
           {/* Verification Alert */}
           {!isVerified && (
             <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
@@ -469,7 +469,7 @@ export default function DentistDashboardPage() {
             </div>
           )}
         </div>
-        
+
         {/* Welcome Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
@@ -478,17 +478,17 @@ export default function DentistDashboardPage() {
               <CommentMarker id="dashboard-dentist" title="Dentist Dashboard" description="The main overview for dentist practices." />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-              Refer patients, track specialist progress, and coordinate care across your network.
+              REFER PATIENTS, Track Patient’s Progress, And completion of specialty care
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <button 
+            <button
               onClick={() => router.push('/dentist/referral')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none hover:bg-zinc-800 transition-colors"
             >
               Send a Referral <Plus size={14} />
             </button>
-            <button 
+            <button
               onClick={() => setIsSendDocOpen(true)}
               className="wireframe-button bg-white text-black border-black text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none hover:bg-zinc-100 transition-colors"
             >
@@ -500,10 +500,14 @@ export default function DentistDashboardPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[
-            { label: 'Referrals', value: '09', trend: '+2', icon: FileText },
-            { label: 'Awaiting Review', value: '02', trend: '-1', icon: Clock },
-            { label: 'Accepted Cases', value: '05', trend: '+1', icon: TrendingUp },
-            { label: 'Specialist Messages', value: '03', trend: '+3', icon: MessageSquare },
+            { label: 'Referrals Sent', value: '09', icon: FileText },
+            { label: 'Referrals Accepted', value: '07', icon: Clock },
+            { label: 'Referrals scheduled', value: '04', icon: Calendar },
+            { 
+              label: 'Specialty Care Complete', 
+              value: (sentReferrals.filter(r => r.status === 'Completed').length).toString().padStart(2, '0'), 
+              icon: FileText 
+            },
           ].map((stat) => (
             <div key={stat.label} className="wireframe-card p-5 space-y-2 bg-white">
               <div className="flex justify-between items-start">
@@ -511,176 +515,24 @@ export default function DentistDashboardPage() {
                 <stat.icon size={16} className="text-muted-foreground" />
               </div>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold tracking-tighter">{stat.value}</span>
-                <span className="text-[9px] font-bold text-black uppercase">{stat.trend}</span>
+                <span className="text-3xl font-bold tracking-tighter flex items-center gap-1.5">
+                  {stat.value}
+                </span>
               </div>
             </div>
           ))}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
-            
-            {/* Inbox / Unread Section */}
-            <div className="space-y-8">
-              <div className="flex items-center justify-between border-b-4 border-black pb-2">
+            {/* Recent Referrals Section */}
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Inbox</h3>
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
-                  {documents.length} NEW ITEMS
-                </span>
-              </div>
-
-              {/* Documents Inbox */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between border-b-2 border-black pb-1">
-                  <div className="flex items-center gap-4">
-                    <h4 className="font-black uppercase text-xs tracking-wider">
-                      Documents
-                    </h4>
-                    <div className="flex items-center gap-4">
-                      <button 
-                        onClick={() => setActiveInboxTab('inbox')} 
-                        className="flex items-center gap-1.5 focus:outline-none group"
-                      >
-                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
-                      </button>
-                      <button 
-                        onClick={() => setActiveInboxTab('archived')} 
-                        className="flex items-center gap-1.5 focus:outline-none group"
-                      >
-                        <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                {activeInboxTab === 'inbox' ? (
-                  documents.length === 0 ? (
-                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No new documents in inbox
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {documents.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
-                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                                <FileText size={20} className="text-black" />
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <p 
-                                    onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
-                                    className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                  >
-                                    {doc.name}
-                                  </p>
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
-                                </div>
-                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>Practice: {doc.sender}</span>
-                                  <span>•</span>
-                                  <span>{doc.size}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                          </div>
-                          
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
-                            {doc.fromChannel ? (
-                              <>
-                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                                  Discuss and view this document in the inter-practice channel
-                                </span>
-                                <button 
-                                  onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
-                                >
-                                  View & Discuss in Channel <ArrowUpRight size={12} />
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                                  This document is not associated with an active communication channel
-                                </span>
-                                <button 
-                                  onClick={() => handleArchiveDocument(doc)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
-                                >
-                                  Archive <Archive size={12} />
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                ) : (
-                  archivedDocuments.length === 0 ? (
-                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No archived documents
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {archivedDocuments.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
-                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                                <FileText size={20} className="text-black" />
-                              </div>
-                              <div>
-                                <p 
-                                  onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
-                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                >
-                                  {doc.name}
-                                </p>
-                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>Practice: {doc.sender}</span>
-                                  <span>•</span>
-                                  <span>{doc.size}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                          </div>
-                          
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
-                            <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                              This document has been archived from your active inbox
-                            </span>
-                            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
-                              Archived
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            {/* Referral Status Tracker */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-black pb-2">
-                <div className="flex items-center gap-2">
-                  <FileText size={18} />
-                  <h3 className="font-bold uppercase text-xs tracking-widest">Recent Referrals</h3>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Recent Referrals</h3>
                 </div>
                 <div className="relative">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -695,9 +547,9 @@ export default function DentistDashboardPage() {
 
               <div className="space-y-3">
                 {filteredReferrals.map((referral) => (
-                  <div 
-                    key={referral.id} 
-                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer" 
+                  <div
+                    key={referral.id}
+                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer"
                     onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
@@ -730,18 +582,156 @@ export default function DentistDashboardPage() {
                   </div>
                 ))}
               </div>
-              <button 
+              <button
                 onClick={() => router.push('/dentist/referrals')}
                 className="text-[10px] font-black uppercase underline"
               >
                 View all Referrals
               </button>
             </div>
-          </div>
+
+            {/* Documents Inbox */}
+            <div className="space-y-4 pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
+                </div>
+                <div className="flex items-center gap-4">
+                  <button
+                    onClick={() => setActiveInboxTab('inbox')}
+                    className="flex items-center gap-1.5 focus:outline-none group"
+                  >
+                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveInboxTab('archived')}
+                    className="flex items-center gap-1.5 focus:outline-none group"
+                  >
+                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
+                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
+                  </button>
+                </div>
+              </div>
+
+                {activeInboxTab === 'inbox' ? (
+                  documents.length === 0 ? (
+                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                      No new documents in inbox
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {documents.map((doc) => (
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
+                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                                <FileText size={20} className="text-black" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p
+                                    onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                                    className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                  >
+                                    {doc.name}
+                                  </p>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
+                                </div>
+                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                  <span>Practice: {doc.sender}</span>
+                                  <span>•</span>
+                                  <span>{doc.size}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
+                            {doc.fromChannel ? (
+                              <>
+                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                                  Discuss and view this document in the inter-practice channel
+                                </span>
+                                <button
+                                  onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
+                                >
+                                  View & Discuss in Channel <ArrowUpRight size={12} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                                  This document is not associated with an active communication channel
+                                </span>
+                                <button
+                                  onClick={() => handleArchiveDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
+                                >
+                                  Archive <Archive size={12} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  archivedDocuments.length === 0 ? (
+                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                      No archived documents
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {archivedDocuments.map((doc) => (
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
+                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                                <FileText size={20} className="text-black" />
+                              </div>
+                              <div>
+                                <p
+                                  onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                >
+                                  {doc.name}
+                                </p>
+                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                  <span>Practice: {doc.sender}</span>
+                                  <span>•</span>
+                                  <span>{doc.size}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
+                            <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
+                               This document has been archived from your active inbox
+                            </span>
+                            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
+                              Archived
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
 
           {/* Side Column */}
           <div className="lg:col-span-4 space-y-8">
-            
+
             {/* Specialist Conversations */}
             <div className="space-y-4">
               <div className="flex items-center gap-2 border-b-2 border-black pb-2">
@@ -753,9 +743,9 @@ export default function DentistDashboardPage() {
                   { id: 1, name: 'Valley Endodontics', msg: 'Regarding Alice Cooper: pano received.', initials: 'VE' },
                   { id: 2, name: 'Downtown Oral Surgery', msg: 'Requesting pano image for Marco Reyes.', initials: 'DO' }
                 ].map((item) => (
-                  <div 
-                    key={item.id} 
-                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors" 
+                  <div
+                    key={item.id}
+                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors"
                     onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(item.name)}`)}
                   >
                     <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
@@ -777,14 +767,14 @@ export default function DentistDashboardPage() {
             <div className="space-y-4">
               <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
-                <ActionCard 
-                  label="Find Specialist" 
-                  desc="Browse the drTalk network" 
+                <ActionCard
+                  label="Find Specialist"
+                  desc="Browse the drTalk network"
                   onClick={() => router.push('/dentist/network')}
                 />
-                <ActionCard 
-                  label="Practice Setup" 
-                  desc="Manage your dentist profile" 
+                <ActionCard
+                  label="Practice Setup"
+                  desc="Manage your dentist profile"
                   onClick={() => router.push('/dentist/settings')}
                 />
               </div>
@@ -1056,7 +1046,7 @@ export default function DentistDashboardPage() {
           </div>
         </div>
       )}
-      <InviteModal 
+      <InviteModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
         defaultRole={inviteRole}
@@ -1070,7 +1060,7 @@ export default function DentistDashboardPage() {
 
 function ActionCard({ label, desc, onClick }: { label: string, desc: string, onClick?: () => void }) {
   return (
-    <div 
+    <div
       onClick={onClick}
       className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group"
     >
