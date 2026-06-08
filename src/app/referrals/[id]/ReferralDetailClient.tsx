@@ -301,12 +301,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                       </div>
                     ))}
                   </div>
-                  <button 
-                    onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-                    className="w-full mt-4 wireframe-button border-2 border-black border-dashed hover:border-solid hover:bg-black hover:text-white transition-all text-[10px] uppercase py-3 flex items-center justify-center gap-2 font-black tracking-wider bg-white text-black"
-                  >
-                    Send Additional Documents Back <Send size={12} />
-                  </button>
+
                 </section>
               </div>
             </div>
