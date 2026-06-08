@@ -302,7 +302,7 @@ export default function ReferralsPage() {
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
-              <div className="col-span-3">Patient</div>
+              <div className={isDentist ? "col-span-3" : "col-span-2"}>Patient</div>
               <div className={isDentist ? "col-span-2" : "col-span-2"}>Urgency</div>
               <div className="col-span-2">Source / ID</div>
               <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
@@ -321,7 +321,7 @@ export default function ReferralsPage() {
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className="col-span-3">
+                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
                         {isDentist ? (
                           <>
                             <p className="font-bold uppercase text-xs">Patient: {referral.patientName}</p>
