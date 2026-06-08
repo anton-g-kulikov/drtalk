@@ -179,7 +179,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           Practice
         </Link>
         <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
-          {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.1
+          {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.5
         </p>
       </div>
     </div>
