@@ -354,7 +354,6 @@ export default function ReferralsPage() {
                         {!isDentist && referral.practice && (
                           <p className="text-[8px] font-black uppercase text-black/50">{referral.practice}</p>
                         )}
-                        <p className="text-[8px] text-muted-foreground uppercase">{isDentist ? 'Specialist' : 'General Dentist'}</p>
                       </div>
                       {!isDentist && (
                         <div className="col-span-2">
