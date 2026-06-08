@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
@@ -11,7 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 
-export type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
+import { getReferrals, updateReferralStatus, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
 
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
@@ -19,43 +19,58 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [isEditorMode, setIsEditorMode] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
-  // Mock data for the specific referral
-  const mockReferrals = [
-    { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email' as const, completion: 55, status: 'Received' as const, receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', practice: 'Valley Endodontics', urgency: 'Routine' as const },
-    { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax' as const, completion: 45, status: 'Received' as const, receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', practice: 'unknown', urgency: 'Urgent' as const },
-    { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App' as const, completion: 100, status: 'Scheduled' as const, receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', practice: 'Miller & Associates', urgency: 'Emergency' as const },
-    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web' as const, completion: 88, status: 'Completed' as const, receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', practice: 'White Dental Group', urgency: 'Routine' as const },
-    { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email' as const, completion: 30, status: 'Scheduled' as const, receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', practice: 'Black Family Dental', urgency: 'Routine' as const },
-  ];
+  // Load unified referrals from localStorage
+  const [referrals, setReferrals] = useState<UnifiedReferral[]>(initialReferrals);
+  const referral = referrals.find(r => r.id === id) || referrals[0];
 
-  const referral = mockReferrals.find(r => r.id === id) || mockReferrals[0];
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
+
+  useEffect(() => {
+    setTimeout(() => {
+      const loadedRefs = getReferrals();
+      setReferrals(loadedRefs);
+      const ref = loadedRefs.find(r => r.id === id) || loadedRefs[0];
+      if (ref) {
+        setCurrentStatus(ref.status);
+        setUrgency(ref.urgency || 'Routine');
+        setPracticeName(ref.practice);
+      }
+    }, 0);
+  }, [id]);
+
   const targetPractice = practiceName && practiceName !== 'unknown' ? practiceName : referral.dentist;
+
+  const handleStatusChange = (newStatus: ReferralStatus) => {
+    setCurrentStatus(newStatus);
+    const updated = updateReferralStatus(referral.id, newStatus);
+    setReferrals(updated);
+  };
 
   const handleProcessReferral = () => {
     if (isTrialEnded) {
       setShowPaywall(true);
     } else {
       alert("Referral Processed Successfully!");
-      setCurrentStatus('Completed');
+      handleStatusChange('Completed');
     }
   };
 
   const handleMainNextAction = () => {
     switch (currentStatus) {
       case 'Received':
-        setCurrentStatus('Scheduled');
+      case 'Sent':
+        handleStatusChange('Scheduled');
         break;
       case 'Scheduled':
         handleProcessReferral();
         break;
       case 'Completed':
-        setCurrentStatus('Archived');
+        handleStatusChange('Archived');
         break;
       case 'Archived':
-        setCurrentStatus('Scheduled');
+        handleStatusChange('Scheduled');
         break;
       default:
         break;
@@ -86,7 +101,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             </button>
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / REF-{referral.id}000X</p>
+                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / {getReferralCode(referral.id)}</p>
                 <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
                   {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
                 </span>
@@ -147,7 +162,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                         if (item.status === 'Completed') {
                           handleProcessReferral();
                         } else {
-                          setCurrentStatus(item.status as ReferralStatus);
+                          handleStatusChange(item.status as ReferralStatus);
                         }
                         setIsStatusDropdownOpen(false);
                       }}
@@ -164,7 +179,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             </div>
  
             <button 
-              onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
+              onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
               className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
             >
               Continue Communication <MessageSquare size={12} />
@@ -172,7 +187,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
  
             {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
               <button 
-                onClick={() => setCurrentStatus('Archived')}
+                onClick={() => handleStatusChange('Archived')}
                 className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black"
               >
                 Archive Case
@@ -250,7 +265,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     />
                     <DataField 
                       label="Referring Practice" 
-                      value={referral.id === '1' || referral.practice === 'unknown' ? '[MISSING - ACTION REQUIRED]' : practiceName} 
+                      value={referral.id === '1' || referral.practice === 'unknown' ? '[MISSING - ACTION REQUIRED]' : (practiceName || '')} 
                       edit={isEditorMode} 
                       onChange={setPracticeName}
                       canEditInline={true}
@@ -287,7 +302,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     ))}
                   </div>
                   <button 
-                    onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
+                    onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
                     className="w-full mt-4 wireframe-button border-2 border-black border-dashed hover:border-solid hover:bg-black hover:text-white transition-all text-[10px] uppercase py-3 flex items-center justify-center gap-2 font-black tracking-wider bg-white text-black"
                   >
                     Send Additional Documents Back <Send size={12} />
@@ -309,7 +324,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">ACTIVE NOW</p>
                 </div>
                 <div 
-                  onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}`)}
+                  onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
                   className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white border-dashed border-2 border-black hover:bg-black hover:text-white cursor-pointer transition-all flex items-center justify-between gap-3 group shadow-sm"
                 >
                   <span className="font-medium">Click here to reply to <span className="font-black underline">{referral.dentist}</span> / share post-op reports or additional scans.</span>
