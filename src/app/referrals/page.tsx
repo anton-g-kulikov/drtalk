@@ -5,34 +5,20 @@ import { MainLayout } from "@/components/MainLayout";
 import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
 
-type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
-
-interface Referral {
-  id: string;
-  patientName: string;
-  type: string;
-  source: 'Email' | 'Fax' | 'Web' | 'App';
-  completion: number;
-  status: ReferralStatus;
-  receivedAt: string;
-  dentist: string;
-  specialist: string;
-  practice?: string;
-  urgency?: 'Routine' | 'Urgent' | 'Emergency';
-}
-
-const mockReferrals: Referral[] = [
-  { id: '1', patientName: 'Alice Cooper', type: 'Endodontic Consultation', source: 'Email', completion: 55, status: 'Received', receivedAt: '08:20 AM\n05/11/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', practice: 'Valley Endodontics', urgency: 'Routine' },
-  { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n05/11/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', practice: 'unknown', urgency: 'Urgent' },
-  { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Scheduled', receivedAt: '10:20 AM\n05/10/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', practice: 'Miller & Associates', urgency: 'Emergency' },
-  { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Completed', receivedAt: '10:20 AM\n05/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', practice: 'White Dental Group', urgency: 'Routine' },
-  { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Scheduled', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', practice: 'Black Family Dental', urgency: 'Routine' },
-];
+import { ReferralStatus } from '@/lib/referrals';
+type Referral = UnifiedReferral;
 
 import { useVerification } from '@/components/VerificationContext';
 
 export default function ReferralsPage() {
+  const [mockReferrals, setMockReferrals] = useState<UnifiedReferral[]>(initialReferrals);
+  useEffect(() => {
+    setTimeout(() => {
+      setMockReferrals(getReferrals());
+    }, 0);
+  }, []);
   const getCompletionColor = (score: number) => {
     if (score >= 90) return 'text-black';
     return 'text-black font-black italic opacity-60';
@@ -73,7 +59,7 @@ export default function ReferralsPage() {
     } else {
       const referral = mockReferrals.find(r => r.id === id);
       if (isDentist && referral) {
-        router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`);
+        router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}&caseId=case_${referral.id}`);
       } else {
         router.push(isDentist ? '/dentist/channels' : `/referrals/${id}`);
       }
@@ -102,6 +88,12 @@ export default function ReferralsPage() {
     }
   };
   const filteredReferrals = mockReferrals.filter(r => {
+    if (isDentist) {
+      if (!r.id.startsWith('D-') && r.id !== '1') return false;
+    } else {
+      if (r.id.startsWith('D-')) return false;
+    }
+
     const matchesTab = r.status === activeTab;
     const matchesQuery = r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          r.type.toLowerCase().includes(searchQuery.toLowerCase());
@@ -350,7 +342,7 @@ export default function ReferralsPage() {
                           </div>
                           <span className="text-[10px] font-bold uppercase">{referral.source}</span>
                         </div>
-                        <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">REF-{referral.id}000X</p>
+                        <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
                       </div>
                       <div className={isDentist ? "col-span-3" : "col-span-2"}>
                         <p className="text-[10px] font-bold uppercase">{isDentist ? referral.specialist : referral.dentist}</p>
