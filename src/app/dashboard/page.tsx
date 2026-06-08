@@ -515,7 +515,6 @@ export default function DashboardPage() {
                               {ref.urgency}
                             </span>
                           )}
-                          <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
                           <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </div>
                       </div>
@@ -562,7 +561,6 @@ export default function DashboardPage() {
                               {ref.urgency}
                             </span>
                           )}
-                          <span className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300 border border-black/20 group-hover:border-white/20 px-2 py-0.5">{ref.type}</span>
                           <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                         </div>
                       </div>
