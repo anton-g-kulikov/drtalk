@@ -132,6 +132,11 @@ const mockGroupParticipants: GroupParticipant[] = [
   { id: 'gp8', name: 'Dr. David Bowie', practice: 'Arizona Periodontics', selected: false },
 ];
 
+// Helper function defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
+function getRandomId(prefix: string): string {
+  return prefix + Math.random().toString(36).substring(2, 9);
+}
+
 function ChannelsContent() {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
@@ -205,7 +210,7 @@ function ChannelsContent() {
       return;
     }
 
-    const newChannelId = 'group_' + Math.random().toString(36).substring(2, 9);
+    const newChannelId = getRandomId('group_');
     const newChannel: Channel = {
       id: newChannelId,
       name: groupChatName.trim(),
@@ -217,7 +222,7 @@ function ChannelsContent() {
     setChannels(prev => [...prev, newChannel]);
 
     const welcomeMsg: MessageItem = {
-      id: 'm_welcome_' + Math.random().toString(36).substring(2, 9),
+      id: getRandomId('m_welcome_'),
       user: 'System',
       text: `Group chat "${groupChatName.trim()}" created with ${selectedPeople.map(p => p.name).join(', ')}.`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

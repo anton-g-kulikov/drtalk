@@ -124,14 +124,16 @@ export default function DentistDashboardPage() {
     const savedArchived = localStorage.getItem('drtalk_dentist_archived_docs');
     if (savedDocs) {
       try {
-        setDocuments(JSON.parse(savedDocs));
+        const docs = JSON.parse(savedDocs);
+        setTimeout(() => setDocuments(docs), 0);
       } catch (e) {
         console.error(e);
       }
     }
     if (savedArchived) {
       try {
-        setArchivedDocuments(JSON.parse(savedArchived));
+        const archived = JSON.parse(savedArchived);
+        setTimeout(() => setArchivedDocuments(archived), 0);
       } catch (e) {
         console.error(e);
       }

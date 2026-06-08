@@ -197,7 +197,10 @@ export default function NetworkPage() {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (tabParam === 'directory' || tabParam === 'connected' || tabParam === 'analytics') {
-        setActiveTab(tabParam as any);
+        const timer = setTimeout(() => {
+          setActiveTab(tabParam as any);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, []);

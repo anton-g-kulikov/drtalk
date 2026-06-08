@@ -59,7 +59,10 @@ export default function ReferralsPage() {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (tabParam && ['Received', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
-        setActiveTab(tabParam as ReferralStatus);
+        const timer = setTimeout(() => {
+          setActiveTab(tabParam as ReferralStatus);
+        }, 0);
+        return () => clearTimeout(timer);
       }
     }
   }, []);

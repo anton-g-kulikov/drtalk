@@ -288,7 +288,7 @@ export default function ReferralIntakePage() {
 
             <div className="space-y-4">
               <p className="text-[10px] uppercase font-bold text-muted-foreground leading-normal">
-                Upload your practice's custom PDF referral sheet. Referring offices can easily view and download this template directly from your public referral submission page.
+                Upload your practice&apos;s custom PDF referral sheet. Referring offices can easily view and download this template directly from your public referral submission page.
               </p>
 
               {uploadedFile && !isUploading ? (

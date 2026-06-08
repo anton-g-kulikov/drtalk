@@ -78,13 +78,14 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
       doc = fallbackDocs.find(d => d.id === id);
     }
 
+    let shouldArchive = false;
     // 2. Look in archived documents if not found in active
     if (!doc && savedArchived) {
       try {
         const parsedArchived = JSON.parse(savedArchived) as DocumentItem[];
         doc = parsedArchived.find(d => d.id === id);
         if (doc) {
-          setIsArchived(true);
+          shouldArchive = true;
         }
       } catch (e) {
         console.error(e);
@@ -92,14 +93,22 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
     }
 
     if (doc) {
-      setDocumentItem(doc);
+      const finalDoc = doc;
+      const finalShouldArchive = shouldArchive;
       
       // Prefill guessed patient name
       let guessedName = 'NEW PATIENT';
       if (doc.name.includes('ALICE_COOPER')) guessedName = 'Alice Cooper';
       else if (doc.name.includes('JOHN_DOE')) guessedName = 'John Doe';
       else if (doc.name.includes('BOB_MARLEY')) guessedName = 'Bob Marley';
-      setConvertPatientName(guessedName);
+      
+      setTimeout(() => {
+        setDocumentItem(finalDoc);
+        setConvertPatientName(guessedName);
+        if (finalShouldArchive) {
+          setIsArchived(true);
+        }
+      }, 0);
     }
   }, [id, role]);
 

@@ -16,7 +16,10 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#billing') {
-      setIsBillingModalOpen(true);
+      const timer = setTimeout(() => {
+        setIsBillingModalOpen(true);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, []);
 
