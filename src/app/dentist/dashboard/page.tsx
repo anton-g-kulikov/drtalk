@@ -816,7 +816,8 @@ export default function DentistDashboardPage() {
                 Open Learning Hub
               </button>
             </div>
-            <SubscriptionBanner />
+            {/* Commented out Trial widget for Dentist profile */}
+            {/* <SubscriptionBanner /> */}
           </div>
 
         </div>

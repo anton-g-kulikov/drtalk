@@ -148,6 +148,8 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           >
             Reset Verification
           </button>
+          {/* Commented out Trial widget and subscription options from debug menu for Dentist profile */}
+          {/* 
           <button
             onClick={endTrial}
             className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
@@ -160,6 +162,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           >
             Reset Subscription
           </button>
+          */}
         </div>
       </div>
 
