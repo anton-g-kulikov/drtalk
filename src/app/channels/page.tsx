@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { MainLayout } from "@/components/MainLayout";
@@ -11,8 +11,9 @@ import {
   Paperclip, Smile, MoreHorizontal,
   Smartphone, Mail, AppWindow,
   FileText, ImageIcon, X, Eye, Download, Plus, Upload,
-  ChevronDown, ChevronRight
+  ChevronDown, ChevronRight, ArrowLeft
 } from 'lucide-react';
+import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
 
 export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group';
 
@@ -59,13 +60,15 @@ export const mockChannels: Channel[] = [
 ];
 
 export const initialDocuments: SharedDocument[] = [
-  { id: 'd1', channelId: '3', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' },
-  { id: 'd2', channelId: '3', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' },
-  { id: 'd7_1', channelId: '7', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
-  { id: 'd7_2', channelId: '7', name: 'implant_scan_19.zip', size: '15.2 MB', type: 'zip', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
-  { id: 'd8_1', channelId: '8', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' },
-  { id: 'd9_1', channelId: '9', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' },
-  { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' }
+  { id: 'd1', channelId: 'case_1', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' },
+  { id: 'd2', channelId: 'case_1', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' },
+  { id: 'd7_1', channelId: 'case_2', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
+  { id: 'd7_2', channelId: 'case_2', name: 'implant_scan_19.zip', size: '15.2 MB', type: 'zip', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
+  { id: 'd8_1', channelId: 'case_3', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' },
+  { id: 'd9_1', channelId: 'case_4', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' },
+  { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' },
+  { id: 'd_gen3', channelId: '3', name: 'valley_endo_fee_schedule_2026.pdf', size: '1.5 MB', type: 'pdf', sentBy: 'Valley Endodontics', sentAt: 'Yesterday, 02:30 PM' },
+  { id: 'd_gen7', channelId: '7', name: 'downtown_oral_surgery_consent_forms.zip', size: '4.8 MB', type: 'zip', sentBy: 'Downtown Oral Surgery', sentAt: 'Yesterday, 04:00 PM' }
 ];
 
 export const initialMessages: Record<string, MessageItem[]> = {
@@ -78,19 +81,19 @@ export const initialMessages: Record<string, MessageItem[]> = {
     { id: 'm2_1', user: 'Me', text: 'Drafting the March report now.', time: 'Yesterday', type: 'self', transport: 'App' },
     { id: 'm2_2', user: 'Admin', text: "Great, let's review it tomorrow.", time: 'Yesterday', type: 'other' }
   ],
-  '3': [
-    { id: 'm3_1', user: 'Valley Endodontics', text: 'Pano image uploaded for Alice Cooper. Let us know if you need more angles.', time: '10:24 AM', type: 'other', document: { id: 'd1', channelId: '3', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' } },
-    { id: 'm3_2', user: 'Me', text: 'Received. Looks like a clear case for retreatment. Sending referral over now.', time: '11:05 AM', type: 'self', transport: 'App', document: { id: 'd2', channelId: '3', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' } }
+  'case_1': [
+    { id: 'm3_1', user: 'Valley Endodontics', text: 'Pano image uploaded for Alice Cooper. Let us know if you need more angles.', time: '10:24 AM', type: 'other', document: { id: 'd1', channelId: 'case_1', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' } },
+    { id: 'm3_2', user: 'Me', text: 'Received. Looks like a clear case for retreatment. Sending referral over now.', time: '11:05 AM', type: 'self', transport: 'App', document: { id: 'd2', channelId: 'case_1', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' } }
   ],
-  '7': [
-    { id: 'm7_1', user: 'Me', text: 'Hello Dr. Jones, referring Bob Marley for a dental implant on #19. Attached are the referral form and patient records.', time: '06:20 AM', type: 'self', transport: 'App', document: { id: 'd7_1', channelId: '7', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' } },
+  'case_2': [
+    { id: 'm7_1', user: 'Me', text: 'Hello Dr. Jones, referring Bob Marley for a dental implant on #19. Attached are the referral form and patient records.', time: '06:20 AM', type: 'self', transport: 'App', document: { id: 'd7_1', channelId: 'case_2', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' } },
     { id: 'm7_2', user: 'Downtown Oral Surgery', text: 'Thanks Taylor. We will schedule Bob soon and send over updates.', time: '07:15 AM', type: 'other' }
   ],
-  '8': [
-    { id: 'm8_1', user: 'Me', text: 'Hi Dr. Miller, sending over Charlie Brown for an emergency extraction of tooth #16. Please see attached records.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd8_1', channelId: '8', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' } }
+  'case_3': [
+    { id: 'm8_1', user: 'Me', text: 'Hi Dr. Miller, sending over Charlie Brown for an emergency extraction of tooth #16. Please see attached records.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd8_1', channelId: 'case_3', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' } }
   ],
-  '9': [
-    { id: 'm9_1', user: 'Me', text: 'Hi Dr. White, referring David Bowie for an Invisalign evaluation. Attached is the complete case package.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd9_1', channelId: '9', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' } }
+  'case_4': [
+    { id: 'm9_1', user: 'Me', text: 'Hi Dr. White, referring David Bowie for an Invisalign evaluation. Attached is the complete case package.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd9_1', channelId: 'case_4', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' } }
   ],
   '4': [
     { id: 'm4_0', user: 'Me', text: 'Welcome to Sunshine Dental! To help us communicate about your care, appointments, and important health information, may we contact you via SMS/text message? Standard messaging rates may apply.\n\nPlease reply with:\n• Full Name:\n• Date of Birth (MM/DD/YYYY):\n\nReply YES to consent to SMS communication, or NO to decline.', time: '11:15 AM', type: 'self', transport: 'SMS' },
@@ -104,6 +107,19 @@ export const initialMessages: Record<string, MessageItem[]> = {
   ],
   '6': [
     { id: 'm6_1', user: 'Beverly Hills Dental', text: 'Waiting for verification.', time: 'Yesterday, 04:15 PM', type: 'other', document: { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' } }
+  ],
+  '3': [
+    { id: 'm3_g1', user: 'Valley Endodontics', text: 'Hi Dr. Smith, welcome to our connected practice portal. Here we can chat generally and share practice-level files.', time: '08:00 AM', type: 'other' },
+    { id: 'm3_g2', user: 'Me', text: 'Thanks! Looking forward to collaborating on our joint patients.', time: '08:15 AM', type: 'self', transport: 'App' }
+  ],
+  '7': [
+    { id: 'm7_g1', user: 'Downtown Oral Surgery', text: 'Hello! General portal established. Let us know if you need to coordinate any surgical scheduling templates.', time: 'Yesterday', type: 'other' }
+  ],
+  '8': [
+    { id: 'm8_g1', user: 'Metro Orthodontics', text: 'Connected successfully with Sunshine Dental. We will post general schedule updates here.', time: 'Yesterday', type: 'other' }
+  ],
+  '9': [
+    { id: 'm9_g1', user: 'Arizona Periodontics', text: 'Practice connection active.', time: 'Yesterday', type: 'other' }
   ]
 };
 
@@ -144,12 +160,59 @@ function ChannelsContent() {
 
   const searchParams = useSearchParams();
   const practiceParam = searchParams.get('practice');
+  const caseIdParam = searchParams.get('caseId');
+
+  // Load unified referrals from localStorage
+  const [referrals, setReferrals] = useState<UnifiedReferral[]>(initialReferrals);
+  useEffect(() => {
+    setTimeout(() => {
+      setReferrals(getReferrals());
+    }, 0);
+  }, []);
+
+  // Derive Case Channels dynamically from the referrals
+  const caseChannels = React.useMemo(() => {
+    // Filter referrals based on user's role (Dentist vs Specialist)
+    // Also ignore Draft referrals
+    const filteredRefs = referrals.filter(ref => {
+      const isDraft = ref.status === 'Draft';
+      if (isDraft) return false;
+      
+      if (isDentist) {
+        // Dentist side: show referrals sent by dentist
+        return ref.id.startsWith('D-') || ref.id === '1';
+      } else {
+        // Specialist side: show referrals received by specialist
+        return !ref.id.startsWith('D-');
+      }
+    });
+
+    return filteredRefs.map(ref => {
+      let practiceId = '3';
+      const specialistName = (ref.specialist || '').toLowerCase();
+      if (specialistName.includes('downtown')) practiceId = '7';
+      else if (specialistName.includes('metro')) practiceId = '8';
+      else if (specialistName.includes('arizona')) practiceId = '9';
+      else if (specialistName.includes('beverly')) practiceId = '6';
+
+      const code = getReferralCode(ref.id);
+      return {
+        id: `case_${ref.id}`,
+        name: `${code}: ${ref.patientName.toUpperCase()}`,
+        patientName: ref.patientName,
+        referralId: ref.id,
+        practiceId,
+        isArchived: ref.status === 'Archived',
+        lastMessage: ref.status === 'Archived' ? 'Case archived.' : `Referral status: ${ref.status}`
+      };
+    });
+  }, [referrals, isDentist]);
 
   // State managed data
   const [channels, setChannels] = useState<Channel[]>(mockChannels);
   const [messages, setMessages] = useState<Record<string, MessageItem[]>>(initialMessages);
   const [documents, setDocuments] = useState<SharedDocument[]>(initialDocuments);
-  const [activeTab, setActiveTab] = useState<'messages' | 'documents'>('messages');
+  const [activeTab, setActiveTab] = useState<'messages' | 'documents' | 'archived'>('messages');
 
   // Collapse states for sidebar sections
   const [internalCollapsed, setInternalCollapsed] = useState(true);
@@ -286,15 +349,7 @@ function ChannelsContent() {
       .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
   }, [displayedChannels]);
 
-  const [activeChannel, setActiveChannel] = useState<Channel>(() => {
-    const defaultChannels = mockChannels;
-
-    if (practiceParam) {
-      const channel = defaultChannels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase());
-      if (channel) return channel;
-    }
-    return defaultChannels[0];
-  });
+  const [activeChannel, setActiveChannel] = useState<Channel>(mockChannels[0]);
 
   const channelReferrals = React.useMemo(() => {
     if (activeChannel.name.includes('Sunshine')) {
@@ -302,7 +357,7 @@ function ChannelsContent() {
     } else if (activeChannel.name.includes('Downtown')) {
       return [{ id: 'D-1002', patientName: 'Marco Reyes', type: 'Extraction' }];
     } else if (activeChannel.name.includes('Valley')) {
-      return [{ id: 'D-1001', patientName: 'Alice Cooper', type: 'Endodontic' }];
+      return [{ id: '1', patientName: 'Alice Cooper', type: 'Endodontic' }];
     } else if (activeChannel.name.includes('Metro')) {
       return [{ id: 'D-1003', patientName: 'John Doe', type: 'Orthodontic' }];
     }
@@ -311,25 +366,45 @@ function ChannelsContent() {
 
   const [showChannelList, setShowChannelList] = useState(false);
 
-  // Sync activeChannel if practiceParam changes after mount
-  const [prevPracticeParam, setPrevPracticeParam] = useState(practiceParam);
-  if (practiceParam !== prevPracticeParam) {
-    setPrevPracticeParam(practiceParam);
+  // Sync activeChannel if practiceParam and caseIdParam change
+  useEffect(() => {
     if (practiceParam) {
-      const channel = displayedChannels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase());
-      if (channel && channel.id !== activeChannel.id) {
-        setActiveChannel(channel);
-        if (channel.type !== 'inter-practice') {
-          setActiveTab('messages');
+      const parentChannel = channels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase() || c.id === practiceParam);
+      if (parentChannel) {
+        if (caseIdParam) {
+          const allRefs = getReferrals();
+          const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
+          if (ref) {
+            // Auto-reactivate if archived
+            const isArchived = ref.status === 'Archived';
+            setTimeout(() => {
+              if (isArchived) {
+                const updated = updateReferralStatus(ref.id, 'Scheduled');
+                setReferrals(updated);
+              }
+              const caseChannelObj: Channel = {
+                id: `case_${ref.id}`,
+                name: `${getReferralCode(ref.id)}: ${ref.patientName.toUpperCase()}`,
+                type: 'inter-practice',
+                lastMessage: `Referral status: ${ref.status}`,
+                memberCount: parentChannel.memberCount
+              };
+              setActiveChannel(caseChannelObj);
+              setActiveTab('messages');
+            }, 0);
+            return;
+          }
         }
+        setActiveChannel(parentChannel);
       }
     }
-  }
+  }, [practiceParam, caseIdParam, channels]);
 
   const handleSelectChannel = (c: Channel) => {
     setActiveChannel(c);
     setShowChannelList(false);
-    if (c.type !== 'inter-practice') {
+    const isParentInterPractice = c.type === 'inter-practice' && !c.id.startsWith('case_');
+    if (!isParentInterPractice && activeTab === 'archived') {
       setActiveTab('messages');
     }
   };
@@ -375,7 +450,9 @@ function ChannelsContent() {
 
     // Update last message of the channel
     setChannels(prev => prev.map(c => {
-      if (c.id === activeChannel.id) {
+      const isParent = !activeChannel.id.startsWith('case_') && c.id === activeChannel.id;
+      const isCaseParent = activeChannel.id.startsWith('case_') && c.id === caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId;
+      if (isParent || isCaseParent) {
         return {
           ...c,
           lastMessage: attachedDoc ? `Shared document: ${attachedDoc.name}` : inputText
@@ -383,6 +460,16 @@ function ChannelsContent() {
       }
       return c;
     }));
+
+    // Auto-reactivate case if archived
+    if (activeChannel.id.startsWith('case_')) {
+      const refId = activeChannel.id.replace('case_', '');
+      const ref = referrals.find(r => r.id === refId);
+      if (ref && ref.status === 'Archived') {
+        const updatedRefs = updateReferralStatus(refId, 'Scheduled');
+        setReferrals(updatedRefs);
+      }
+    }
 
     setInputText('');
     setAttachedDoc(null);
@@ -517,7 +604,9 @@ function ChannelsContent() {
     }));
 
     setChannels(prev => prev.map(c => {
-      if (c.id === activeChannel.id) {
+      const isParent = !activeChannel.id.startsWith('case_') && c.id === activeChannel.id;
+      const isCaseParent = activeChannel.id.startsWith('case_') && c.id === caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId;
+      if (isParent || isCaseParent) {
         return {
           ...c,
           lastMessage: `Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''}: ${finalDocs[0].name}`
@@ -525,6 +614,16 @@ function ChannelsContent() {
       }
       return c;
     }));
+
+    // Auto-reactivate case if archived
+    if (activeChannel.id.startsWith('case_')) {
+      const refId = activeChannel.id.replace('case_', '');
+      const ref = referrals.find(r => r.id === refId);
+      if (ref && ref.status === 'Archived') {
+        const updatedRefs = updateReferralStatus(refId, 'Scheduled');
+        setReferrals(updatedRefs);
+      }
+    }
 
     setAttachedFiles([]);
     setCustomDocName('');
@@ -682,14 +781,46 @@ function ChannelsContent() {
               </div>
               {!connectedCollapsed && (
                 <div className="space-y-1">
-                  {displayedChannels.filter(c => c.type === 'inter-practice').map(c => (
-                    <ChannelItem
-                      key={c.id}
-                      channel={c}
-                      isActive={activeChannel.id === c.id}
-                      onClick={() => handleSelectChannel(c)}
-                    />
-                  ))}
+                  {displayedChannels.filter(c => c.type === 'inter-practice').map(c => {
+                    const practiceCases = caseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
+
+                    return (
+                      <div key={c.id} className="space-y-0.5">
+                        <ChannelItem
+                          channel={c}
+                          isActive={activeChannel.id === c.id}
+                          onClick={() => handleSelectChannel(c)}
+                        />
+                        {/* Render nested case sub-channels */}
+                        {practiceCases.map(cc => {
+                          const isCaseActive = activeChannel.id === cc.id;
+                          return (
+                            <button
+                              key={cc.id}
+                              onClick={() => {
+                                const caseChannelObj: Channel = {
+                                  id: cc.id,
+                                  name: cc.name,
+                                  type: 'inter-practice',
+                                  lastMessage: cc.lastMessage,
+                                  memberCount: c.memberCount
+                                };
+                                handleSelectChannel(caseChannelObj);
+                              }}
+                              className={`w-full flex items-center gap-2 py-1.5 pl-10 text-left transition-all ${
+                                isCaseActive 
+                                  ? 'bg-black text-white font-black' 
+                                  : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                              }`}
+                            >
+                              <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-red-600 font-black text-[11px]"}>#</span>
+                              <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -795,18 +926,51 @@ function ChannelsContent() {
               >
                 <Hash size={20} />
               </button>
-              <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0">
+              {activeChannel.id.startsWith('case_') && (
+                <button
+                  onClick={() => {
+                    const parentId = caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId || '3';
+                    const parentChan = channels.find(c => c.id === parentId) || channels[0];
+                    setActiveChannel(parentChan);
+                  }}
+                  className="mr-1 p-1 hover:bg-gray-100 border border-black/20 text-black"
+                  title="Back to practice dashboard"
+                >
+                  <ArrowLeft size={14} />
+                </button>
+              )}
+              <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0 text-black">
                 {activeChannel.type === 'internal' ? <Hash size={16} /> : <Users size={16} />}
               </div>
               <div className="min-w-0">
-                <h3 className="font-bold uppercase text-xs truncate">{(activeChannel.id === '3' && !isDentist) ? 'Sunshine Dental' : activeChannel.name}</h3>
+                <h3 className="font-black uppercase text-xs truncate text-black">
+                  {activeChannel.id.startsWith('case_') ? activeChannel.name : ((activeChannel.id === '3' && !isDentist) ? 'Sunshine Dental' : activeChannel.name)}
+                </h3>
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-                  <span className="text-[8px] text-muted-foreground uppercase font-bold">{activeChannel.memberCount} Members</span>
+                  <span className="text-[8px] text-muted-foreground uppercase font-black">
+                    {activeChannel.id.startsWith('case_') ? 'Case Sub-Channel' : `${activeChannel.memberCount} Members`}
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 text-black">
+              {activeChannel.id.startsWith('case_') && (
+                <button
+                  onClick={() => {
+                    const refId = activeChannel.id.replace('case_', '');
+                    const updated = updateReferralStatus(refId, 'Archived');
+                    setReferrals(updated);
+                    triggerToast(`Archived channel for ${activeChannel.name}!`);
+                    const parentId = caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId || '3';
+                    const parentChan = channels.find(c => c.id === parentId) || channels[0];
+                    setActiveChannel(parentChan);
+                  }}
+                  className="wireframe-button border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-all text-[9px] uppercase font-black bg-white text-black"
+                >
+                  Archive Channel
+                </button>
+              )}
               <button onClick={() => setShowParticipantsModal(true)} className="hidden sm:block text-[10px] font-bold uppercase underline">Participants</button>
               <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all">
                 <MoreHorizontal size={18} />
@@ -835,309 +999,62 @@ function ChannelsContent() {
               >
                 Documents
               </button>
+              {!activeChannel.id.startsWith('case_') && (
+                <button
+                  onClick={() => setActiveTab('archived')}
+                  className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'archived'
+                    ? 'border-black text-black font-black'
+                    : 'border-transparent text-muted-foreground hover:text-black'
+                    }`}
+                >
+                  Archived Conversations
+                </button>
+              )}
             </div>
           )}
 
           {/* Messages Area / Documents Tab */}
-          {activeTab === 'messages' ? (
-            <>
-              {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-8">
-                <div className="max-w-4xl mx-auto w-full space-y-6">
-                  {(messages[activeChannel.id] || []).map((msg) => {
-                    const mapped = getMessageRoleAndUser(msg);
-                    return (
-                      <Message
-                        key={msg.id}
-                        user={mapped.user}
-                        text={msg.text}
-                        time={msg.time}
-                        type={mapped.type}
-                        transport={msg.transport}
-                        document={msg.document ? {
-                          ...msg.document,
-                          sentBy: getDocSender(msg.document.sentBy)
-                        } : undefined}
-                      />
-                    );
-                  })}
-                  {activeChannel.isVerified === false && (
-                    <div className="flex justify-center p-4">
-                      <div className="bg-gray-100 border border-black border-dashed p-4 max-w-sm text-center">
-                        <p className="text-[10px] font-bold uppercase italic text-muted-foreground">
-                          Note: This practice is unverified. Patient PHI sharing is restricted until the practice owner completes verification.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex justify-center">
-                    <span className="text-[8px] font-bold uppercase bg-gray-200 px-3 py-1 text-muted-foreground">End of history</span>
+          {activeTab === 'archived' && activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_') ? (
+            <div className="flex-1 overflow-y-auto p-8 bg-zinc-50">
+              <div className="max-w-4xl mx-auto space-y-6">
+                <div className="wireframe-card p-6 bg-white border-2 border-black space-y-6">
+                  <div className="border-b-2 border-black pb-3">
+                    <h3 className="text-sm font-black uppercase tracking-widest italic text-black">Archived Conversations</h3>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">Re-activate any per-case channel to resume communication</p>
                   </div>
-                </div>
-              </div>
-
-              {/* Message Input */}
-              <div className="p-4 sm:p-6 bg-white border-t-2 border-black relative shrink-0">
-                <div className="max-w-4xl mx-auto w-full relative">
-                  {/* Custom Attachment Picker Drawer */}
-                  {showAttachmentDrawer && (
-                    <div className="absolute bottom-24 left-4 right-4 sm:left-6 sm:right-auto bg-white border-2 border-black p-4 z-40 w-[280px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
-                      <div className="flex justify-between items-center pb-2 border-b border-black border-dashed mb-3">
-                        <span className="text-[9px] font-black uppercase tracking-wider text-black">Select Document to Attach</span>
-                        <button onClick={() => setShowAttachmentDrawer(false)} className="hover:text-black">
-                          <X size={14} />
-                        </button>
-                      </div>
-                      <div className="space-y-1.5">
-                        {/* Attach New Document Button */}
-                        <button
-                          onClick={() => {
-                            setShowDirectUploadModal(true);
-                            setShowAttachmentDrawer(false);
-                          }}
-                          className="w-full flex items-center gap-2 p-2 bg-black text-white hover:bg-white hover:text-black border border-black text-left transition-all font-black text-[9px] uppercase group/btn"
-                        >
-                          <div className="w-5 h-5 border border-white group-hover/btn:border-black flex items-center justify-center shrink-0">
-                            <Plus size={10} />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-[9px] font-black uppercase truncate">Attach New Document</p>
-                            <p className="text-[7px] opacity-85 uppercase">Upload from computer</p>
-                          </div>
-                        </button>
-
-                        <div className="h-[1px] bg-black/10 my-2" />
-
-                        {/* Existing list (No more than 5 docs) */}
-                        {mockAttachments.slice(0, 5).map((item, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              setAttachedDoc({
-                                name: item.name,
-                                size: item.size,
-                                type: item.type
-                              });
-                              setShowAttachmentDrawer(false);
-                            }}
-                            className="w-full flex items-center gap-2 p-2 hover:bg-black hover:text-white border border-transparent hover:border-black text-left transition-all text-black"
-                          >
-                            <div className="w-5 h-5 border border-black flex items-center justify-center shrink-0">
-                              {item.type === 'pdf' ? <FileText size={10} /> :
-                                item.type === 'image' ? <ImageIcon size={10} /> :
-                                  <Paperclip size={10} />}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                              <p className="text-[7px] text-muted-foreground uppercase">{item.size}</p>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="mt-3 pt-2 border-t border-black border-dashed">
-                        <p className="text-[7px] font-bold uppercase text-muted-foreground italic text-center">
-                          Click a document to attach it to your message.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="wireframe-card p-4 space-y-4">
-                    {/* Document Attachment Preview */}
-                    {attachedDoc && (
-                      <div className="flex items-center justify-between p-2 mb-2 bg-gray-50 border-2 border-black animate-fade-in">
-                        <div className="flex items-center gap-2 text-black">
-                          <div className="w-6 h-6 border border-black flex items-center justify-center bg-black text-white shrink-0">
-                            {attachedDoc.type === 'pdf' ? <FileText size={12} /> :
-                              attachedDoc.type === 'image' ? <ImageIcon size={12} /> :
-                                <Paperclip size={12} />}
-                          </div>
-                          <span className="text-[10px] font-bold uppercase">{attachedDoc.name} ({attachedDoc.size})</span>
-                        </div>
-                        <button
-                          onClick={() => setAttachedDoc(null)}
-                          className="p-1 hover:bg-black hover:text-white border border-black transition-colors text-black"
-                        >
-                          <X size={10} />
-                        </button>
-                      </div>
-                    )}
-
-                    <textarea
-                      placeholder={`MESSAGE #${activeChannel.name}...`}
-                      value={inputText}
-                      onChange={(e) => setInputText(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                        }
-                      }}
-                      className="w-full bg-transparent border-none focus:ring-0 text-xs resize-none h-12 outline-none text-black"
-                    />
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
-                      <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
-                        <button
-                          onClick={() => setShowAttachmentDrawer(!showAttachmentDrawer)}
-                          className={`hover:text-black transition-colors p-1 ${showAttachmentDrawer ? 'bg-black text-white' : ''}`}
-                          title="Attach Document"
-                        >
-                          <Paperclip size={18} />
-                        </button>
-                        <button className="hover:text-black transition-colors"><Smile size={18} /></button>
-
-                        {activeChannel.type === 'patient' ? (
-                          <>
-                            <div className="h-4 w-[1px] bg-black/20 mx-1" />
-                            <div className="flex items-center gap-3">
-                              <span className="text-[8px] font-black uppercase text-black">Delivery Method:</span>
-                              <div className="flex gap-4">
-                                <label className="flex items-center gap-1.5 cursor-pointer group">
-                                  <input type="radio" name="transport" defaultChecked className="hidden peer" />
-                                  <div className="w-3 h-3 border border-black flex items-center justify-center peer-checked:bg-black transition-all">
-                                    <div className="w-1 h-1 bg-white" />
-                                  </div>
-                                  <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
-                                    <span className="text-[8px] font-black uppercase">Both (Email + SMS)</span>
-                                  </div>
-                                </label>
-                                <label className="flex items-center gap-1.5 cursor-pointer group">
-                                  <input type="radio" name="transport" className="hidden peer" />
-                                  <div className="w-3 h-3 border border-black flex items-center justify-center peer-checked:bg-black transition-all">
-                                    <div className="w-1 h-1 bg-white" />
-                                  </div>
-                                  <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
-                                    <span className="text-[8px] font-black uppercase">SMS</span>
-                                  </div>
-                                </label>
-                                <label className="flex items-center gap-1.5 cursor-pointer group">
-                                  <input type="radio" name="transport" className="hidden peer" />
-                                  <div className="w-3 h-3 border border-black flex items-center justify-center peer-checked:bg-black transition-all">
-                                    <div className="w-1 h-1 bg-white" />
-                                  </div>
-                                  <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
-                                    <span className="text-[8px] font-black uppercase">Email</span>
-                                  </div>
-                                </label>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div className="h-4 w-[1px] bg-black/20 mx-1" />
-                            <div className="flex items-center gap-2">
-                              <Lock size={12} className="text-black" />
-                              <span className="text-[8px] font-bold uppercase text-black">Secure Internal Transmission</span>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                      <button
-                        onClick={handleSendMessage}
-                        className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2 flex items-center justify-center gap-2 w-full sm:w-auto hover:bg-white hover:text-black transition-all"
-                      >
-                        Send Message <Send size={12} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : (
-            /* Dedicated Documents Tab View */
-            <div className="flex-1 flex flex-col overflow-hidden bg-gray-50">
-              {/* Toolbar */}
-              <div className="p-4 border-b-2 border-black bg-white shrink-0">
-                <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-black uppercase tracking-tighter italic text-black">Shared Documents</span>
-                    <span className="text-[8px] font-bold uppercase px-2 py-0.5 bg-black text-white">
-                      {filteredDocuments.length} Files
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-48 sm:w-64">
-                      <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <input
-                        type="text"
-                        placeholder="SEARCH DOCUMENTS..."
-                        value={docSearchQuery}
-                        onChange={(e) => setDocSearchQuery(e.target.value)}
-                        className="wireframe-input pl-9 py-1.5 text-[9px] outline-none text-black font-bold uppercase"
-                      />
-                      {docSearchQuery && (
-                        <button
-                          onClick={() => setDocSearchQuery('')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-black text-gray-400"
-                        >
-                          <X size={10} />
-                        </button>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={() => setShowDirectUploadModal(true)}
-                      className="wireframe-button bg-black text-white text-[9px] uppercase px-4 py-1.5 flex items-center gap-1.5 font-black whitespace-nowrap hover:bg-white hover:text-black transition-all"
-                    >
-                      Send New Document <Plus size={10} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Documents List */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-                <div className="max-w-4xl mx-auto w-full space-y-4">
-                  {filteredDocuments.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-48 bg-white border-2 border-black border-dashed p-6 text-center">
-                      <p className="text-[11px] font-bold uppercase text-muted-foreground italic mb-1">
-                        {docSearchQuery ? 'No documents found matching your search' : 'No documents have been shared yet'}
-                      </p>
-                      <p className="text-[9px] text-muted-foreground uppercase">
-                        {docSearchQuery ? 'Try checking your spelling or clearing the search query.' : 'Attach documents to messages or use the button above to upload.'}
-                      </p>
+                  
+                  {caseChannels.filter(cc => cc.practiceId === activeChannel.id && cc.isArchived).length === 0 ? (
+                    <div className="p-8 border-2 border-black border-dashed text-center text-muted-foreground uppercase text-[10px] font-bold">
+                      No archived conversations for this practice.
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {filteredDocuments.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="wireframe-card p-4 flex flex-col justify-between bg-white border-2 border-black hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-                        >
-                          <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
-                              {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
-                                doc.type === 'image' ? <ImageIcon size={20} className="text-black" /> :
-                                  <Paperclip size={20} className="text-black" />}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <h4 className="text-[11px] font-black uppercase tracking-tight truncate text-black" title={doc.name}>
-                                {doc.name}
-                              </h4>
-                              <p className="text-[8px] uppercase font-bold text-muted-foreground mt-0.5">
-                                {doc.size} • {doc.type.toUpperCase()} File
-                              </p>
-                              <div className="mt-2 text-[8px] font-medium uppercase tracking-tight text-gray-500">
-                                Shared by <span className="font-bold text-black">{getDocSender(doc.sentBy)}</span> • {doc.sentAt}
-                              </div>
-                            </div>
+                    <div className="divide-y divide-black/10">
+                      {caseChannels.filter(cc => cc.practiceId === activeChannel.id && cc.isArchived).map(cc => (
+                        <div key={cc.id} className="py-4 flex items-center justify-between text-black">
+                          <div>
+                            <p className="font-bold text-xs uppercase text-black">{cc.name}</p>
+                            <p className="text-[8px] text-muted-foreground uppercase font-bold mt-0.5">Case ID: {cc.id.replace('case_', '')}</p>
                           </div>
-
-                          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
-                            <button
-                              onClick={() => setPreviewDocument(doc)}
-                              className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
-                            >
-                              <Eye size={10} /> View
-                            </button>
-                            <button
-                              onClick={() => handleDownloadDocument(doc.name)}
-                              className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
-                            >
-                              <Download size={10} /> Download
-                            </button>
-                          </div>
+                          <button
+                            onClick={() => {
+                              const refId = cc.id.replace('case_', '');
+                              const updated = updateReferralStatus(refId, 'Scheduled');
+                              setReferrals(updated);
+                              triggerToast(`Re-activated channel for ${cc.patientName}!`);
+                              const caseChannelObj: Channel = {
+                                  id: cc.id,
+                                  name: cc.name,
+                                  type: 'inter-practice',
+                                  lastMessage: cc.lastMessage,
+                                  memberCount: activeChannel.memberCount
+                              };
+                              setActiveChannel(caseChannelObj);
+                              setActiveTab('messages');
+                            }}
+                            className="wireframe-button text-[9px] font-black uppercase px-4 py-2 border-2 border-black bg-black text-white hover:bg-white hover:text-black transition-all"
+                          >
+                            Re-activate
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -1145,7 +1062,292 @@ function ChannelsContent() {
                 </div>
               </div>
             </div>
-          )}
+          ) : (
+            // Existing Chat/Document Views
+            <>
+              {activeTab === 'messages' ? (
+                <>
+                  {/* Messages Area */}
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-8">
+                    <div className="max-w-4xl mx-auto w-full space-y-6">
+                      {(messages[activeChannel.id] || []).map((msg) => {
+                        const mapped = getMessageRoleAndUser(msg);
+                        return (
+                          <Message
+                            key={msg.id}
+                            user={mapped.user}
+                            text={msg.text}
+                            time={msg.time}
+                            type={mapped.type}
+                            transport={msg.transport}
+                            document={msg.document ? {
+                              ...msg.document,
+                              sentBy: getDocSender(msg.document.sentBy)
+                            } : undefined}
+                          />
+                        );
+                      })}
+                      {activeChannel.isVerified === false && (
+                        <div className="flex justify-center p-4">
+                          <div className="bg-gray-100 border border-black border-dashed p-4 max-w-sm text-center">
+                            <p className="text-[10px] font-bold uppercase italic text-muted-foreground">
+                              Note: This practice is unverified. Patient PHI sharing is restricted until the practice owner completes verification.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex justify-center">
+                        <span className="text-[8px] font-bold uppercase bg-gray-200 px-3 py-1 text-muted-foreground">End of history</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Message Input */}
+                  <div className="p-4 sm:p-6 bg-white border-t-2 border-black relative shrink-0">
+                    <div className="max-w-4xl mx-auto w-full relative">
+                      {/* Custom Attachment Picker Drawer */}
+                      {showAttachmentDrawer && (
+                        <div className="absolute bottom-24 left-4 right-4 sm:left-6 sm:right-auto bg-white border-2 border-black p-4 z-40 w-[280px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
+                          <div className="flex justify-between items-center pb-2 border-b border-black border-dashed mb-3">
+                            <span className="text-[9px] font-black uppercase tracking-wider text-black">Select Document to Attach</span>
+                            <button onClick={() => setShowAttachmentDrawer(false)} className="hover:text-black">
+                              <X size={14} />
+                            </button>
+                          </div>
+                          <div className="space-y-1.5">
+                            {/* Attach New Document Button */}
+                            <button
+                              onClick={() => {
+                                setShowDirectUploadModal(true);
+                                setShowAttachmentDrawer(false);
+                              }}
+                              className="w-full flex items-center gap-2 p-2 bg-black text-white hover:bg-white hover:text-black border border-black text-left transition-all font-black text-[9px] uppercase group/btn"
+                            >
+                              <div className="w-5 h-5 border border-white group-hover/btn:border-black flex items-center justify-center shrink-0">
+                                <Plus size={12} />
+                              </div>
+                              <span>Attach New Document</span>
+                            </button>
+
+                            {/* Recent Documents Selection */}
+                            <div className="pt-2 border-t border-black/10">
+                              <p className="text-[7px] font-black uppercase text-muted-foreground mb-1.5 tracking-wider">Attach Recent scan/form</p>
+                              <div className="space-y-1">
+                                {mockAttachments.map((file, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => {
+                                      setAttachedDoc({ name: file.name, size: file.size, type: file.type });
+                                      setShowAttachmentDrawer(false);
+                                      triggerToast(`Attached ${file.name}!`);
+                                    }}
+                                    className="w-full text-left p-1.5 hover:bg-zinc-100 border border-transparent hover:border-black/10 flex items-center gap-2 overflow-hidden transition-all text-black"
+                                  >
+                                    <FileText size={12} className="shrink-0 text-black/50" />
+                                    <div className="truncate">
+                                      <p className="text-[8px] font-bold uppercase truncate leading-tight">{file.name}</p>
+                                      <p className="text-[7px] text-muted-foreground uppercase leading-none mt-0.5">{file.size} • {file.type.toUpperCase()}</p>
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="wireframe-card p-4 space-y-4">
+                        {/* Document Attachment Preview */}
+                        {attachedDoc && (
+                          <div className="flex items-center justify-between p-2 mb-2 bg-gray-50 border-2 border-black animate-fade-in">
+                            <div className="flex items-center gap-2 text-black">
+                              <div className="w-6 h-6 border border-black flex items-center justify-center bg-black text-white shrink-0">
+                                {attachedDoc.type === 'pdf' ? <FileText size={12} /> :
+                                  attachedDoc.type === 'image' ? <ImageIcon size={12} /> :
+                                    <Paperclip size={12} />}
+                              </div>
+                              <span className="text-[10px] font-bold uppercase">{attachedDoc.name} ({attachedDoc.size})</span>
+                            </div>
+                            <button
+                              onClick={() => setAttachedDoc(null)}
+                              className="p-1 hover:bg-black hover:text-white border border-black transition-colors text-black"
+                            >
+                              <X size={10} />
+                            </button>
+                          </div>
+                        )}
+
+                        <textarea
+                          placeholder={`MESSAGE #${activeChannel.name}...`}
+                          value={inputText}
+                          onChange={(e) => setInputText(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendMessage();
+                            }
+                          }}
+                          className="w-full bg-transparent border-none focus:ring-0 text-xs resize-none h-12 outline-none text-black"
+                        />
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
+                          <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+                            <button
+                              onClick={() => setShowAttachmentDrawer(!showAttachmentDrawer)}
+                              className={`hover:text-black transition-colors p-1 ${showAttachmentDrawer ? 'bg-black text-white' : ''}`}
+                              title="Attach Document"
+                            >
+                              <Paperclip size={18} />
+                            </button>
+                            <button className="hover:text-black transition-colors"><Smile size={18} /></button>
+
+                            {activeChannel.type === 'patient' ? (
+                              <>
+                                <div className="h-4 w-[1px] bg-black/20 mx-1" />
+                                <div className="flex items-center gap-3">
+                                  <span className="text-[8px] font-black uppercase text-black">Delivery Method:</span>
+                                  <div className="flex gap-4">
+                                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                                      <input type="radio" name="transport" defaultChecked className="hidden peer" />
+                                      <div className="w-3 h-3 border border-black flex items-center justify-center peer-checked:bg-black transition-all">
+                                        <div className="w-1 h-1 bg-white" />
+                                      </div>
+                                      <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
+                                        <span className="text-[8px] font-black uppercase">Both (Email + SMS)</span>
+                                      </div>
+                                    </label>
+                                    <label className="flex items-center gap-1.5 cursor-pointer group">
+                                      <input type="radio" name="transport" className="hidden peer" />
+                                      <div className="w-3 h-3 border border-black flex items-center justify-center peer-checked:bg-black transition-all">
+                                        <div className="w-1 h-1 bg-white" />
+                                      </div>
+                                      <div className="flex items-center gap-1 opacity-50 group-hover:opacity-100 peer-checked:opacity-100">
+                                        <span className="text-[8px] font-black uppercase">SMS</span>
+                                      </div>
+                                    </label>
+                                  </div>
+                                </div>
+                              </>
+                            ) : null}
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={handleSendMessage}
+                              disabled={!inputText.trim() && !attachedDoc}
+                              className="wireframe-button bg-black text-white text-[10px] uppercase font-bold px-6 py-2.5 flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:hover:bg-black disabled:hover:text-white hover:bg-white hover:text-black transition-colors"
+                            >
+                              Send Message <Send size={12} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Documents Tab
+                <div className="flex-1 flex flex-col overflow-hidden bg-gray-50 text-black">
+                  <div className="p-4 border-b-2 border-black bg-white shrink-0">
+                    <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black uppercase tracking-tighter italic text-black">Shared Documents</span>
+                        <span className="text-[8px] font-bold uppercase px-2 py-0.5 bg-black text-white">
+                          {filteredDocuments.length} Files
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-48 sm:w-64">
+                          <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            type="text"
+                            placeholder="SEARCH DOCUMENTS..."
+                            value={docSearchQuery}
+                            onChange={(e) => setDocSearchQuery(e.target.value)}
+                            className="wireframe-input pl-9 py-1.5 text-[9px] outline-none text-black font-bold uppercase"
+                          />
+                          {docSearchQuery && (
+                            <button
+                              onClick={() => setDocSearchQuery('')}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 hover:text-black text-gray-400"
+                            >
+                              <X size={10} />
+                            </button>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => setShowDirectUploadModal(true)}
+                          className="wireframe-button bg-black text-white text-[9px] uppercase px-4 py-1.5 flex items-center gap-1.5 font-black whitespace-nowrap hover:bg-white hover:text-black transition-all"
+                        >
+                          Send New Document <Plus size={10} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Documents List */}
+                  <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+                    <div className="max-w-4xl mx-auto w-full space-y-4">
+                      {filteredDocuments.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-48 bg-white border-2 border-black border-dashed p-6 text-center">
+                          <p className="text-[11px] font-bold uppercase text-muted-foreground italic mb-1">
+                            {docSearchQuery ? 'No documents found matching your search' : 'No documents have been shared yet'}
+                          </p>
+                          <p className="text-[9px] text-muted-foreground uppercase">
+                            {docSearchQuery ? 'Try checking your spelling or clearing the search query.' : 'Attach documents to messages or use the button above to upload.'}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {filteredDocuments.map((doc) => (
+                            <div
+                              key={doc.id}
+                              className="wireframe-card p-4 flex flex-col justify-between bg-white border-2 border-black hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                            >
+                              <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
+                                  {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
+                                    doc.type === 'image' ? <ImageIcon size={20} className="text-black" /> :
+                                      <Paperclip size={20} className="text-black" />}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="text-[11px] font-black uppercase tracking-tight truncate text-black" title={doc.name}>
+                                    {doc.name}
+                                  </h4>
+                                  <p className="text-[8px] uppercase font-bold text-muted-foreground mt-0.5">
+                                    {doc.size} • {doc.type.toUpperCase()} File
+                                  </p>
+                                  <div className="mt-2 text-[8px] font-medium uppercase tracking-tight text-gray-500">
+                                    Shared by <span className="font-bold text-black">{getDocSender(doc.sentBy)}</span> • {doc.sentAt}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
+                                <button
+                                  onClick={() => setPreviewDocument(doc)}
+                                  className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
+                                >
+                                  <Eye size={10} /> View
+                                </button>
+                                <button
+                                  onClick={() => handleDownloadDocument(doc.name)}
+                                  className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
+                                >
+                                  <Download size={10} /> Download
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}      
         </div>
       </div>
 
