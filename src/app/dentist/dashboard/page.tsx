@@ -19,6 +19,7 @@ import {
   SharedDocument,
   MessageItem
 } from '@/app/channels/page';
+import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function addSharedDocumentsToDb(newDocs: SharedDocument[]) {
@@ -32,72 +33,23 @@ function addMessagesToDb(channelId: string, newMsgs: MessageItem[]) {
   initialMessages[channelId].push(...newMsgs);
 }
 
-type SentReferralStatus = 'Draft' | 'Sent' | 'Scheduled' | 'Completed';
-
-interface SentReferral {
-  id: string;
-  patientName: string;
-  specialist: string;
-  type: string;
-  status: SentReferralStatus;
-  lastUpdate: string;
-  nextStep: string;
-  urgency?: 'Routine' | 'Urgent' | 'Emergency';
-  sender: string;
-}
-
-const sentReferrals: SentReferral[] = [
-  {
-    id: 'D-1001',
-    patientName: 'Alice Cooper',
-    specialist: 'Valley Endodontics',
-    type: 'Endodontic Consultation',
-    status: 'Scheduled',
-    lastUpdate: '10:05 AM\n05/11/2026',
-    nextStep: 'Appointment scheduled',
-    urgency: 'Routine',
-    sender: 'Dr. Taylor Reed',
-  },
-  {
-    id: 'D-1002',
-    patientName: 'Marco Reyes',
-    specialist: 'Downtown Oral Surgery',
-    type: 'Extraction Evaluation',
-    status: 'Sent',
-    lastUpdate: '08:20 AM\n05/11/2026',
-    nextStep: 'Waiting for specialist review',
-    urgency: 'Urgent',
-    sender: 'Dr. Taylor Reed',
-  },
-  {
-    id: 'D-1003',
-    patientName: 'Nina Patel',
-    specialist: 'Arizona Periodontics',
-    type: 'Periodontal Surgery',
-    status: 'Scheduled',
-    lastUpdate: '10:20 AM\n05/10/2026',
-    nextStep: 'Appointment confirmed for Tuesday',
-    urgency: 'Emergency',
-    sender: 'Dr. Sarah Jenkins',
-  },
-  {
-    id: 'D-1004',
-    patientName: 'John Doe',
-    specialist: 'Metro Orthodontics',
-    type: 'Braces Consultation',
-    status: 'Completed',
-    lastUpdate: '10:20 AM\n05/08/2026',
-    nextStep: 'Case closed. Outcome report received.',
-    urgency: 'Routine',
-    sender: 'Dr. Taylor Reed',
-  },
-];
+// Referral type compatibility
+export type SentReferral = UnifiedReferral;
 
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from '@/components/InviteModal';
 
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
+  const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setReferralsList(getReferrals());
+    }, 0);
+  }, []);
+
+  const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
 
   interface DocumentItem {
     id: string;
@@ -197,7 +149,7 @@ export default function DentistDashboardPage() {
   const filteredReferralsForDoc = React.useMemo(() => {
     if (!selectedPractice) return sentReferrals;
     return sentReferrals.filter(r => r.specialist === selectedPractice);
-  }, [selectedPractice]);
+  }, [selectedPractice, sentReferrals]);
 
   const handleSelectReferral = (refId: string) => {
     setSelectedReferral(refId);
@@ -294,7 +246,7 @@ export default function DentistDashboardPage() {
             patient: {
               first: parts[0] || '',
               last: parts[1] || '',
-              dob: ref.id === 'D-1001' ? '12/04/1978' : ref.id === 'D-1002' ? '05/14/1988' : '10/20/1990',
+              dob: ref.id === '1' ? '12/04/1978' : ref.id === 'D-1002' ? '05/14/1988' : '10/20/1990',
               msg: `Document regarding referral ${ref.id} for ${ref.patientName}.`
             }
           };
@@ -710,7 +662,7 @@ export default function DentistDashboardPage() {
                   <div
                     key={referral.id}
                     className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer"
-                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}&caseId=case_${referral.id}`)}
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
                       <div className="md:col-span-4">
@@ -727,7 +679,7 @@ export default function DentistDashboardPage() {
                       </div>
                       <div className="md:col-span-4">
                         <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
-                        <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.id}</p>
+                        <p className="text-[8px] uppercase text-muted-foreground font-bold">{getReferralCode(referral.id)}</p>
                       </div>
                       <div className="md:col-span-2">
                         <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
@@ -899,7 +851,7 @@ export default function DentistDashboardPage() {
                   <option value="">NONE / NEW REFERRAL</option>
                   {filteredReferralsForDoc.map((referral) => (
                     <option key={referral.id} value={referral.id}>
-                      {referral.id} - {referral.patientName} ({referral.type})
+                      {getReferralCode(referral.id)} - {referral.patientName} ({referral.type})
                     </option>
                   ))}
                 </select>
