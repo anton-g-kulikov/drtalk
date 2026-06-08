@@ -35,7 +35,7 @@ export default function DentistMessagesPage() {
               </div>
               <div>
                 <p className="text-xs uppercase font-black">Valley Endodontics</p>
-                <p className="text-[9px] uppercase text-muted-foreground font-bold">Alice Cooper / D-1001</p>
+                <p className="text-[9px] uppercase text-muted-foreground font-bold">Alice Cooper / 1</p>
               </div>
             </div>
             <span className="border border-black px-2 py-1 text-[8px] uppercase font-black">Referral Scheduled</span>
