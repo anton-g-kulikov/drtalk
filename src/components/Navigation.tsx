@@ -192,7 +192,6 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
   const accountName = isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist';
   const accountEmail = isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com';
   const roleLabel = userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin');
-  const statusLabel = userRole === 'individual' ? 'Learning Hub' : (isDentist ? 'Dentist Practice' : 'Specialist Practice');
 
   return (
     <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
@@ -210,9 +209,6 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
           {title && (
             <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest">{title}</p>
           )}
-        </div>
-        <div className="bg-black text-white text-[8px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 font-bold uppercase shrink-0">
-          {statusLabel}
         </div>
       </div>
       <div className="flex items-center gap-3 sm:gap-6">
