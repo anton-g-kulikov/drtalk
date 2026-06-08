@@ -43,6 +43,7 @@ interface SentReferral {
   lastUpdate: string;
   nextStep: string;
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
+  sender: string;
 }
 
 const sentReferrals: SentReferral[] = [
@@ -55,6 +56,7 @@ const sentReferrals: SentReferral[] = [
     lastUpdate: '10:05 AM\n05/11/2026',
     nextStep: 'Appointment scheduled',
     urgency: 'Routine',
+    sender: 'Dr. Taylor Reed',
   },
   {
     id: 'D-1002',
@@ -65,6 +67,7 @@ const sentReferrals: SentReferral[] = [
     lastUpdate: '08:20 AM\n05/11/2026',
     nextStep: 'Waiting for specialist review',
     urgency: 'Urgent',
+    sender: 'Dr. Taylor Reed',
   },
   {
     id: 'D-1003',
@@ -75,6 +78,7 @@ const sentReferrals: SentReferral[] = [
     lastUpdate: '10:20 AM\n05/10/2026',
     nextStep: 'Appointment confirmed for Tuesday',
     urgency: 'Emergency',
+    sender: 'Dr. Sarah Jenkins',
   },
   {
     id: 'D-1004',
@@ -85,6 +89,7 @@ const sentReferrals: SentReferral[] = [
     lastUpdate: '10:20 AM\n05/08/2026',
     nextStep: 'Case closed. Outcome report received.',
     urgency: 'Routine',
+    sender: 'Dr. Taylor Reed',
   },
 ];
 
@@ -542,71 +547,8 @@ export default function DentistDashboardPage() {
 
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
-            {/* Recent Referrals Section */}
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Recent Referrals</h3>
-                </div>
-                <div className="relative">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input
-                    value={searchQuery}
-                    onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="SEARCH REFERRALS..."
-                    className="wireframe-input pl-10 py-1.5 text-[9px] w-full sm:w-64"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {filteredReferrals.map((referral) => (
-                  <div
-                    key={referral.id}
-                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer"
-                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-                      <div className="md:col-span-4">
-                        <div className="flex items-center gap-2">
-                          <p className="text-xs font-black uppercase">{referral.patientName}</p>
-                          {referral.urgency === 'Urgent' && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
-                          )}
-                          {referral.urgency === 'Emergency' && (
-                            <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
-                          )}
-                        </div>
-                        <p className="text-[9px] uppercase font-bold text-muted-foreground">{referral.type}</p>
-                      </div>
-                      <div className="md:col-span-4">
-                        <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
-                        <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.id}</p>
-                      </div>
-                      <div className="md:col-span-2">
-                        <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
-                          {referral.status}
-                        </span>
-                      </div>
-                      <div className="md:col-span-2 flex items-center justify-end gap-2 text-muted-foreground">
-                        <span className="text-[9px] uppercase font-bold whitespace-pre-line text-right">{referral.lastUpdate}</span>
-                        <ArrowUpRight size={14} />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => router.push('/dentist/referrals')}
-                className="text-[10px] font-black uppercase underline"
-              >
-                View all Referrals
-              </button>
-            </div>
-
             {/* Documents Inbox */}
-            <div className="space-y-4 pt-4">
+            <div className="space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 bg-black"></div>
@@ -742,7 +684,70 @@ export default function DentistDashboardPage() {
                   )
                 )}
               </div>
+
+            {/* Recent Referrals Section */}
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals Sent</h3>
+                </div>
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    value={searchQuery}
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="SEARCH REFERRALS..."
+                    className="wireframe-input pl-10 py-1.5 text-[9px] w-full sm:w-64"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {filteredReferrals.map((referral) => (
+                  <div
+                    key={referral.id}
+                    className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer"
+                    onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(referral.specialist)}`)}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                      <div className="md:col-span-4">
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs font-black uppercase">Patient: {referral.patientName}</p>
+                          {referral.urgency === 'Urgent' && (
+                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
+                          )}
+                          {referral.urgency === 'Emergency' && (
+                            <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
+                          )}
+                        </div>
+                        <p className="text-[9px] uppercase font-bold text-muted-foreground">Sender: {referral.sender}</p>
+                      </div>
+                      <div className="md:col-span-4">
+                        <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
+                        <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.id}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
+                          {referral.status}
+                        </span>
+                      </div>
+                      <div className="md:col-span-2 flex items-center justify-end gap-2 text-muted-foreground">
+                        <span className="text-[9px] uppercase font-bold whitespace-pre-line text-right">{referral.lastUpdate}</span>
+                        <ArrowUpRight size={14} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => router.push('/dentist/referrals')}
+                className="text-[10px] font-black uppercase underline"
+              >
+                View all Referrals
+              </button>
             </div>
+          </div>
 
           {/* Side Column */}
           <div className="lg:col-span-4 space-y-8">
