@@ -20,6 +20,7 @@ import {
   SharedDocument, 
   MessageItem 
 } from '@/app/channels/page';
+import { getReferrals, isInRange, UnifiedReferral } from '@/lib/referrals';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function getNewId(prefix: string): string {
@@ -54,6 +55,19 @@ export default function DashboardPage() {
   const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteRole, setInviteRole] = useState('Team Member');
+  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
+  const [referralsList, setReferralsList] = useState<UnifiedReferral[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setReferralsList(getReferrals());
+    }, 0);
+  }, []);
+
+  const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
+  const referralsReceivedCount = specialistReferrals.filter(r => r.status === 'Received' && isInRange(r.receivedAt, timeRange)).length;
+  const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+  const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -445,26 +459,44 @@ export default function DashboardPage() {
         </div>
 
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Referrals received', value: '18', icon: FileText, path: '/referrals?tab=Received' },
-            { label: 'Referrals scheduled', value: '12', icon: Calendar, path: '/referrals?tab=Scheduled' },
-            { label: 'Specialty Care Complete', value: '05', icon: FileText, path: '/referrals?tab=Completed' },
-            { label: '# drtalk connections', value: '15', icon: Users, path: '/network' },
-          ].map((stat) => (
-            <div 
-              key={stat.label} 
-              onClick={() => router.push(stat.path)}
-              className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
-            >
-              <stat.icon size={32} className="text-black shrink-0" />
-              <div className="space-y-1">
-                <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-                <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
-              </div>
+        {/* Stats Section with Time Range Selector */}
+        <div className="space-y-2">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Time Range:</span>
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="wireframe-input py-1 px-3 text-[10px] font-black uppercase border-2 border-black bg-white focus:outline-none cursor-pointer"
+              >
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="last_year">Last Year</option>
+              </select>
             </div>
-          ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received' },
+              { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled' },
+              { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed' },
+              { label: '# drtalk connections', value: '15', icon: Users, path: '/network' },
+            ].map((stat) => (
+              <div 
+                key={stat.label} 
+                onClick={() => router.push(stat.path)}
+                className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+              >
+                <stat.icon size={32} className="text-black shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
+                  <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

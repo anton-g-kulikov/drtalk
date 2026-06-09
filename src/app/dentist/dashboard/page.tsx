@@ -19,7 +19,7 @@ import {
   SharedDocument,
   MessageItem
 } from '@/app/channels/page';
-import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function addSharedDocumentsToDb(newDocs: SharedDocument[]) {
@@ -42,6 +42,7 @@ import { InviteModal } from '@/components/InviteModal';
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
+  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
 
   useEffect(() => {
     setTimeout(() => {
@@ -50,6 +51,10 @@ export default function DentistDashboardPage() {
   }, []);
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
+  
+  const referralsSentCount = sentReferrals.filter(r => (r.status === 'Sent' || r.status === 'Received') && isInRange(r.receivedAt, timeRange)).length;
+  const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+  const specialtyCareCompleteCount = sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   interface DocumentItem {
     id: string;
