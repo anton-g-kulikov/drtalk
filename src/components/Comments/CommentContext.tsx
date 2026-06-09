@@ -27,6 +27,8 @@ type CommentContextType = {
   isPanelOpen: boolean;
   setIsPanelOpen: (open: boolean) => void;
   isLoading: boolean;
+  resolvedCommentIds: string[];
+  toggleResolveComment: (commentId: string) => void;
 };
 
 const CommentContext = createContext<CommentContextType | undefined>(undefined);
@@ -36,6 +38,33 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [comments, setComments] = useState<Record<string, Comment[]>>({});
   const [isLoading, setIsLoading] = useState(true);
+  const [resolvedCommentIds, setResolvedCommentIds] = useState<string[]>([]);
+
+  // Load resolved comment IDs on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('drtalk_resolved_comments');
+      if (stored) {
+        try {
+          setResolvedCommentIds(JSON.parse(stored));
+        } catch (e) {
+          console.error("Failed to parse resolved comments", e);
+        }
+      }
+    }
+  }, []);
+
+  const toggleResolveComment = (commentId: string) => {
+    setResolvedCommentIds(prev => {
+      const updated = prev.includes(commentId)
+        ? prev.filter(id => id !== commentId)
+        : [...prev, commentId];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('drtalk_resolved_comments', JSON.stringify(updated));
+      }
+      return updated;
+    });
+  };
 
   // Load from Supabase
   useEffect(() => {
@@ -158,7 +187,9 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
       addComment,
       isPanelOpen,
       setIsPanelOpen,
-      isLoading
+      isLoading,
+      resolvedCommentIds,
+      toggleResolveComment
     }}>
       {children}
     </CommentContext.Provider>
