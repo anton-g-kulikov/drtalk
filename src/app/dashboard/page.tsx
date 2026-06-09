@@ -65,9 +65,18 @@ export default function DashboardPage() {
   }, []);
 
   const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
-  const referralsReceivedCount = specialistReferrals.filter(r => r.status === 'Received' && isInRange(r.receivedAt, timeRange)).length;
-  const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
-  const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
+  
+  // Base values for realistic look: Month: 18, Quarter: 34, Year: 72, Last Year: 95
+  const baseReceived = timeRange === 'month' ? 18 : timeRange === 'quarter' ? 34 : timeRange === 'year' ? 72 : 95;
+  const referralsReceivedCount = baseReceived + specialistReferrals.filter(r => r.status === 'Received' && isInRange(r.receivedAt, timeRange)).length;
+  
+  // Base values for realistic look: Month: 12, Quarter: 24, Year: 48, Last Year: 60
+  const baseScheduled = timeRange === 'month' ? 12 : timeRange === 'quarter' ? 24 : timeRange === 'year' ? 48 : 60;
+  const referralsScheduledCount = baseScheduled + specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+  
+  // Base values for realistic look: Month: 5, Quarter: 14, Year: 36, Last Year: 45
+  const baseCompleted = timeRange === 'month' ? 5 : timeRange === 'quarter' ? 14 : timeRange === 'year' ? 36 : 45;
+  const specialtyCareCompleteCount = baseCompleted + specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -461,9 +470,8 @@ export default function DashboardPage() {
 
         {/* Stats Section with Time Range Selector */}
         <div className="space-y-2">
-          <div className="flex justify-end items-center">
+          <div className="flex justify-start items-center">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Time Range:</span>
               <select 
                 value={timeRange} 
                 onChange={(e) => setTimeRange(e.target.value as any)}

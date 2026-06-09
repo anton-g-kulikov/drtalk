@@ -52,9 +52,17 @@ export default function DentistDashboardPage() {
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
   
-  const referralsSentCount = sentReferrals.filter(r => (r.status === 'Sent' || r.status === 'Received') && isInRange(r.receivedAt, timeRange)).length;
-  const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
-  const specialtyCareCompleteCount = sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
+  // Base values for realistic look: Month: 9, Quarter: 21, Year: 42, Last Year: 68
+  const baseSent = timeRange === 'month' ? 9 : timeRange === 'quarter' ? 21 : timeRange === 'year' ? 42 : 68;
+  const referralsSentCount = baseSent + sentReferrals.filter(r => (r.status === 'Sent' || r.status === 'Received') && isInRange(r.receivedAt, timeRange)).length;
+  
+  // Base values for realistic look: Month: 4, Quarter: 12, Year: 28, Last Year: 35
+  const baseScheduled = timeRange === 'month' ? 4 : timeRange === 'quarter' ? 12 : timeRange === 'year' ? 28 : 35;
+  const referralsScheduledCount = baseScheduled + sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+  
+  // Base values for realistic look: Month: 2, Quarter: 8, Year: 18, Last Year: 24
+  const baseCompleted = timeRange === 'month' ? 2 : timeRange === 'quarter' ? 8 : timeRange === 'year' ? 18 : 24;
+  const specialtyCareCompleteCount = baseCompleted + sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   interface DocumentItem {
     id: string;
@@ -477,9 +485,8 @@ export default function DentistDashboardPage() {
 
         {/* Stats Section with Time Range Selector */}
         <div className="space-y-2">
-          <div className="flex justify-end items-center">
+          <div className="flex justify-start items-center">
             <div className="flex items-center gap-2">
-              <span className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Time Range:</span>
               <select 
                 value={timeRange} 
                 onChange={(e) => setTimeRange(e.target.value as any)}
