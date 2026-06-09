@@ -1552,7 +1552,7 @@ function ChannelsContent() {
                   <option value="">NONE / NEW REFERRAL</option>
                   {channelReferrals.map((referral) => (
                     <option key={referral.id} value={referral.id}>
-                      {referral.id} - {referral.patientName} ({referral.type})
+                      {referral.id} - {referral.patientName}
                     </option>
                   ))}
                 </select>

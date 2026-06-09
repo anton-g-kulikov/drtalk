@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { 
   FileText, ArrowLeft, ArrowUpRight, Archive, Download, 
-  HelpCircle, HardDrive, User, Calendar, ShieldCheck
+  HelpCircle, HardDrive, User, Calendar, ShieldCheck, Search
 } from 'lucide-react';
 
 interface DocumentItem {
@@ -35,6 +35,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   // States for specialist convert / attach actions
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
   const [convertPatientName, setConvertPatientName] = useState('');
+  const [attachSearchQuery, setAttachSearchQuery] = useState('');
 
   // Hardcoded referals to attach to (copied from dashboard mock data)
   const [referrals, setReferrals] = useState([
@@ -42,6 +43,12 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
     { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Incomplete Data (30%)' },
     { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Incomplete Data (45%)' }
   ]);
+
+  const filteredAttachReferrals = referrals.filter(ref => 
+    ref.patient.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
+    ref.source.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
+    (ref.detail && ref.detail.toLowerCase().includes(attachSearchQuery.toLowerCase()))
+  );
 
   useEffect(() => {
     // Determine local storage keys based on role
@@ -455,7 +462,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
                   </button>
                   <button 
                     disabled={isArchived}
-                    onClick={() => setActiveModal('attach')}
+                    onClick={() => { setAttachSearchQuery(''); setActiveModal('attach'); }}
                     className="wireframe-button text-[10px] font-black uppercase px-4 py-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Attach to existing referral
@@ -573,22 +580,46 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <label className="text-[9px] font-black uppercase block text-black">Select Target Referral</label>
-              <div className="max-h-60 overflow-y-auto space-y-2 pr-1 border border-black/10 p-2 text-black">
-                {referrals.map((ref) => (
-                  <div 
-                    key={ref.id}
-                    onClick={() => handleConfirmAttach(ref.id)}
-                    className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer transition-all space-y-1"
+              
+              {/* Search Box */}
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="Search patient or source..." 
+                  value={attachSearchQuery}
+                  onChange={(e) => setAttachSearchQuery(e.target.value)}
+                  className="wireframe-input w-full p-2 pl-8 text-xs uppercase text-black"
+                />
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                {attachSearchQuery && (
+                  <button 
+                    onClick={() => setAttachSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase hover:underline text-black"
                   >
-                    <div className="flex justify-between items-start">
-                      <p className="font-black uppercase text-xs">{ref.patient}</p>
-                      <span className="text-[8px] font-bold uppercase opacity-80 border border-black/20 px-1">{ref.type}</span>
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-60 overflow-y-auto space-y-2 pr-1 border border-black/10 p-2 text-black">
+                {filteredAttachReferrals.length === 0 ? (
+                  <p className="text-center text-[10px] uppercase font-bold text-muted-foreground py-6">No matching referrals found</p>
+                ) : (
+                  filteredAttachReferrals.map((ref) => (
+                    <div 
+                      key={ref.id}
+                      onClick={() => handleConfirmAttach(ref.id)}
+                      className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer transition-all space-y-1"
+                    >
+                      <div className="flex justify-between items-start">
+                        <p className="font-black uppercase text-xs">{ref.patient}</p>
+                      </div>
+                      <p className="text-[8px] uppercase opacity-70">From: {ref.source} • {ref.detail}</p>
                     </div>
-                    <p className="text-[8px] uppercase opacity-70">From: {ref.source} • {ref.detail}</p>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 

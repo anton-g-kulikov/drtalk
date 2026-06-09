@@ -851,7 +851,7 @@ export default function DentistDashboardPage() {
                   <option value="">NONE / NEW REFERRAL</option>
                   {filteredReferralsForDoc.map((referral) => (
                     <option key={referral.id} value={referral.id}>
-                      {getReferralCode(referral.id)} - {referral.patientName} ({referral.type})
+                      {getReferralCode(referral.id)} - {referral.patientName}
                     </option>
                   ))}
                 </select>
