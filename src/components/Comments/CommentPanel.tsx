@@ -77,7 +77,7 @@ export function CommentPanel() {
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-black uppercase italic">{comment.author}</span>
                     <span className="text-[8px] text-muted-foreground uppercase">
-                      {new Date(comment.timestamp).toLocaleTimeString()}
+                      {new Date(comment.timestamp).toLocaleDateString()} {new Date(comment.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
                   <p className="text-xs leading-relaxed">{comment.text}</p>
