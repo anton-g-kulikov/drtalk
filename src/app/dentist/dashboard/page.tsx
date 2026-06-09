@@ -505,7 +505,7 @@ export default function DentistDashboardPage() {
               { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
               { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
               { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
-              { label: '# drtalk connections', value: '15', icon: Users, path: '/dentist/network' },
+              { label: '# drtalk connections', value: '15', icon: Users, path: '/dentist/network?tab=connected' },
             ].map((stat) => (
               <div 
                 key={stat.label} 

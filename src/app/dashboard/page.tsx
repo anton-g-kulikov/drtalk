@@ -490,7 +490,7 @@ export default function DashboardPage() {
               { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received' },
               { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled' },
               { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed' },
-              { label: '# drtalk connections', value: '15', icon: Users, path: '/network' },
+              { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected' },
             ].map((stat) => (
               <div 
                 key={stat.label} 
