@@ -40,8 +40,8 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   // Hardcoded referals to attach to (copied from dashboard mock data)
   const [referrals, setReferrals] = useState([
     { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Incomplete Data (30%)' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Incomplete Data (45%)' }
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History' },
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph' }
   ]);
 
   const filteredAttachReferrals = referrals.filter(ref => 

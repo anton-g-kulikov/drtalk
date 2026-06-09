@@ -94,6 +94,8 @@ export default function DashboardPage() {
     size: string;
     fromChannel?: boolean;
     channelName?: string;
+    channelType?: 'practice' | 'case';
+    caseId?: string;
   }
 
   interface ReferralItem {
@@ -108,9 +110,9 @@ export default function DashboardPage() {
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([
-    { id: 'doc-1', name: 'PANO_IMAGE_ALICE_COOPER.JPG', sender: 'Dr. Smith (Dentist)', date: '10:05 AM 05/18/2026', size: '2.4 MB', fromChannel: true, channelName: 'Sunshine Dental' },
+    { id: 'doc-1', name: 'PANO_IMAGE_ALICE_COOPER.JPG', sender: 'Dr. Smith (Dentist)', date: '10:05 AM 05/18/2026', size: '2.4 MB', fromChannel: true, channelName: 'Sunshine Dental', channelType: 'practice' },
     { id: 'doc-2', name: 'REFERRAL_FORM_JOHN_DOE.PDF', sender: 'Dr. Jane Doe (Dentist)', date: '09:15 AM 05/18/2026', size: '1.2 MB', fromChannel: false },
-    { id: 'doc-3', name: 'CBCT_SCAN_BOB_MARLEY.DCM', sender: 'Dr. Robert Miller', date: '04:30 PM 05/17/2026', size: '15.8 MB', fromChannel: true, channelName: 'Westside Pediatric Dentistry' }
+    { id: 'doc-3', name: 'CBCT_SCAN_BOB_MARLEY.DCM', sender: 'Dr. Robert Miller', date: '04:30 PM 05/17/2026', size: '15.8 MB', fromChannel: true, channelName: 'Valley Endodontics', channelType: 'case', caseId: 'case_2' }
   ]);
 
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
@@ -158,8 +160,8 @@ export default function DashboardPage() {
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
     { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Incomplete Data (30%)', urgency: 'Routine' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Incomplete Data (45%)', urgency: 'Urgent' }
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
   ]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
@@ -680,20 +682,22 @@ export default function DashboardPage() {
                           
                           {/* Actions */}
                           <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
-                            <div className="flex gap-2">
-                              <button 
-                                onClick={() => handleConvertDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                              >
-                                Convert to Referral
-                              </button>
-                              <button 
-                                onClick={() => handleAttachDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                              >
-                                Attach to existing referral
-                              </button>
-                            </div>
+                            {doc.channelType !== 'case' && (
+                              <div className="flex gap-2">
+                                <button 
+                                  onClick={() => handleConvertDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                                >
+                                  Convert to Referral
+                                </button>
+                                <button 
+                                  onClick={() => handleAttachDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                                >
+                                  Attach to existing referral
+                                </button>
+                              </div>
+                            )}
 
                             {doc.fromChannel ? (
                               <button 
@@ -705,16 +709,19 @@ export default function DashboardPage() {
                                     : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
                                     ? 'Westside Pediatric Dentistry'
                                     : 'Sunshine Dental';
-                                  router.push(`/channels?practice=${encodeURIComponent(practiceName)}`);
+                                  const url = doc.channelType === 'case'
+                                    ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}`
+                                    : `/channels?practice=${encodeURIComponent(practiceName)}`;
+                                  router.push(url);
                                 }}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
+                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
                               >
-                                View & Discuss in Channel <ArrowUpRight size={12} />
+                                View & Discuss in {doc.channelType === 'case' ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
                               </button>
                             ) : (
                               <button 
                                 onClick={() => handleArchiveDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
+                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
                               >
                                 Archive <Archive size={12} />
                               </button>

@@ -19,7 +19,7 @@ import {
   SharedDocument,
   MessageItem
 } from '@/app/channels/page';
-import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
+import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function addSharedDocumentsToDb(newDocs: SharedDocument[]) {
@@ -72,16 +72,23 @@ export default function DentistDashboardPage() {
     size: string;
     channelName: string;
     fromChannel?: boolean;
+    channelType?: 'practice' | 'case';
+    caseId?: string;
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([
-    { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics', fromChannel: true },
+    { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics', fromChannel: true, channelType: 'practice' },
     { id: 'doc-dentist-2', name: 'TREATMENT_PLAN_REVISION.PDF', sender: 'Downtown Oral Surgery', date: 'Yesterday, 02:15 PM', size: '1.8 MB', channelName: 'Downtown Oral Surgery', fromChannel: false },
-    { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics', fromChannel: true }
+    { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics', fromChannel: true, channelType: 'case', caseId: 'case_1' }
   ]);
 
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
   const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
+
+  const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
+  const [convertPatientName, setConvertPatientName] = useState('');
+  const [attachSearchQuery, setAttachSearchQuery] = useState('');
 
   // Sync with localStorage
   useEffect(() => {
@@ -122,6 +129,96 @@ export default function DentistDashboardPage() {
     saveArchivedToStorage(updatedArchived);
     triggerToast(`Archived ${doc.name}!`);
   };
+
+  const handleConvertDocument = (doc: DocumentItem) => {
+    setSelectedDocument(doc);
+    let guessedName = 'NEW PATIENT';
+    if (doc.name.includes('ALICE_COOPER')) {
+      guessedName = 'Alice Cooper';
+    } else if (doc.name.includes('JOHN_DOE')) {
+      guessedName = 'John Doe';
+    } else if (doc.name.includes('BOB_MARLEY')) {
+      guessedName = 'Bob Marley';
+    }
+    setConvertPatientName(guessedName);
+    setActiveModal('convert');
+  };
+
+  const handleConfirmConvert = () => {
+    if (!selectedDocument) return;
+    
+    const newId = `D-${1000 + referralsList.length + 1}`;
+    const newReferral: UnifiedReferral = {
+      id: newId,
+      patientName: convertPatientName || 'NEW PATIENT',
+      type: 'Referral Case',
+      source: 'App',
+      completion: 0,
+      status: 'Sent',
+      receivedAt: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      lastUpdate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      nextStep: 'Waiting for specialist review',
+      dentist: 'Dr. Taylor Reed',
+      specialist: selectedDocument.sender,
+      practice: selectedDocument.sender,
+      urgency: 'Routine',
+      sender: 'Dr. Taylor Reed'
+    };
+
+    const updatedReferrals = [newReferral, ...referralsList];
+    setReferralsList(updatedReferrals);
+    saveReferrals(updatedReferrals);
+    
+    // Archive or remove from active docs
+    const updatedDocs = documents.filter(d => d.id !== selectedDocument.id);
+    saveDocumentsToStorage(updatedDocs);
+    
+    setActiveModal(null);
+    setSelectedDocument(null);
+    
+    triggerToast(`Converted ${selectedDocument.name} to referral for ${newReferral.patientName}!`);
+  };
+
+  const handleAttachDocument = (doc: DocumentItem) => {
+    setSelectedDocument(doc);
+    setAttachSearchQuery('');
+    setActiveModal('attach');
+  };
+
+  const handleConfirmAttach = (referralId: string) => {
+    if (!selectedDocument) return;
+
+    const updatedReferrals = referralsList.map(ref => {
+      if (ref.id === referralId) {
+        return {
+          ...ref,
+          completion: Math.min(ref.completion + 10, 100),
+          lastUpdate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          nextStep: `Attached: ${selectedDocument.name}`
+        };
+      }
+      return ref;
+    });
+
+    setReferralsList(updatedReferrals);
+    saveReferrals(updatedReferrals);
+
+    const updatedDocs = documents.filter(d => d.id !== selectedDocument.id);
+    saveDocumentsToStorage(updatedDocs);
+    setActiveModal(null);
+    
+    const targetRef = referralsList.find(r => r.id === referralId);
+    triggerToast(`Attached ${selectedDocument.name} to referral for ${targetRef?.patientName || 'patient'}.`);
+    setSelectedDocument(null);
+  };
+
+  const filteredAttachReferrals = React.useMemo(() => {
+    return sentReferrals.filter(ref => {
+      const matchesSearch = ref.patientName.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
+                            ref.specialist.toLowerCase().includes(attachSearchQuery.toLowerCase());
+      return matchesSearch && ref.status !== 'Completed' && ref.status !== 'Archived';
+    });
+  }, [sentReferrals, attachSearchQuery]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
@@ -559,46 +656,69 @@ export default function DentistDashboardPage() {
                   ) : (
                     <div className="space-y-3">
                       {documents.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black hover:bg-zinc-50/50 transition-all">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="flex gap-3 items-center">
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
                               <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
                                 <FileText size={20} className="text-black" />
                               </div>
                               <div>
-                                <div className="flex items-center gap-2">
-                                  <p
-                                    onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
-                                    className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                  >
-                                    {doc.name}
-                                  </p>
-                                </div>
+                                <p 
+                                  onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                >
+                                  {doc.name}
+                                </p>
                                 <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>Practice: {doc.sender}</span>
+                                  <span>From: {doc.sender}</span>
                                   <span>•</span>
                                   <span>{doc.size}</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
-                              <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                              {doc.fromChannel ? (
-                                <button
-                                  onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                          </div>
+                          
+                          {/* Actions */}
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
+                            {doc.channelType !== 'case' && (
+                              <div className="flex gap-2">
+                                <button 
+                                  onClick={() => handleConvertDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
                                 >
-                                  View & Discuss in Channel <ArrowUpRight size={12} />
+                                  Convert to Referral
                                 </button>
-                              ) : (
-                                <button
-                                  onClick={() => handleArchiveDocument(doc)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
+                                <button 
+                                  onClick={() => handleAttachDocument(doc)}
+                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
                                 >
-                                  Archive <Archive size={12} />
+                                  Attach to existing referral
                                 </button>
-                              )}
-                            </div>
+                              </div>
+                            )}
+
+                            {doc.fromChannel ? (
+                              <button 
+                                onClick={() => {
+                                  const practiceName = doc.channelName || doc.sender;
+                                  const url = doc.channelType === 'case'
+                                    ? `/dentist/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}`
+                                    : `/dentist/channels?practice=${encodeURIComponent(practiceName)}`;
+                                  router.push(url);
+                                }}
+                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
+                              >
+                                View & Discuss in {doc.channelType === 'case' ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={() => handleArchiveDocument(doc)}
+                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                              >
+                                Archive <Archive size={12} />
+                              </button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -612,27 +732,27 @@ export default function DentistDashboardPage() {
                   ) : (
                     <div className="space-y-3">
                       {archivedDocuments.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black hover:bg-zinc-50/50 transition-all opacity-80">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="flex gap-3 items-center">
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
+                          <div className="flex justify-between items-start">
+                            <div className="flex gap-3">
                               <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
                                 <FileText size={20} className="text-black" />
                               </div>
                               <div>
-                                <p
+                                <p 
                                   onClick={() => router.push(`/documents/${doc.id}?role=dentist`)}
                                   className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
                                 >
                                   {doc.name}
                                 </p>
                                 <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>Practice: {doc.sender}</span>
+                                  <span>From: {doc.sender}</span>
                                   <span>•</span>
                                   <span>{doc.size}</span>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
+                            <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
                               <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
                               <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
                                 Archived
@@ -1002,6 +1122,133 @@ export default function DentistDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Convert Document to Referral Modal */}
+      {activeModal === 'convert' && selectedDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black max-w-md w-full p-6 space-y-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-200 text-black">
+            <div className="flex justify-between items-center border-b-2 border-black pb-2">
+              <h4 className="font-black uppercase text-sm tracking-tight italic text-black">Convert Document to Referral</h4>
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="text-xs font-black uppercase hover:underline text-black"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="space-y-1">
+              <p className="text-[8px] font-bold text-muted-foreground uppercase text-black">Source Document</p>
+              <div className="p-3 border-2 border-black bg-zinc-50 font-mono text-[10px] break-all text-black">
+                {selectedDocument.name}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase block text-black">Patient Name</label>
+                <input 
+                  type="text" 
+                  value={convertPatientName}
+                  onChange={(e) => setConvertPatientName(e.target.value)}
+                  className="wireframe-input w-full p-2 text-xs uppercase text-black"
+                  placeholder="PATIENT NAME..."
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <button 
+                onClick={handleConfirmConvert}
+                className="wireframe-button flex-1 bg-black text-white text-[10px] font-black uppercase py-3 hover:bg-zinc-800 transition-colors"
+              >
+                Create Referral
+              </button>
+              <button 
+                onClick={() => setActiveModal(null)}
+                className="wireframe-button flex-1 bg-white text-black border-2 border-black text-[10px] font-black uppercase py-3 hover:bg-zinc-100 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Attach to Referral Modal */}
+      {activeModal === 'attach' && selectedDocument && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white border-4 border-black max-w-md w-full p-6 space-y-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-200 text-black">
+            <div className="flex justify-between items-center border-b-2 border-black pb-2">
+              <h4 className="font-black uppercase text-sm tracking-tight italic text-black">Attach to Existing Referral</h4>
+              <button 
+                onClick={() => setActiveModal(null)} 
+                className="text-xs font-black uppercase hover:underline text-black"
+              >
+                Close
+              </button>
+            </div>
+            
+            <div className="space-y-1">
+              <p className="text-[8px] font-bold text-muted-foreground uppercase text-black">Document to Attach</p>
+              <div className="p-3 border-2 border-black bg-zinc-50 font-mono text-[10px] break-all text-black">
+                {selectedDocument.name}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-[9px] font-black uppercase block text-black">Select Target Referral</label>
+              
+              {/* Search Box */}
+              <div className="relative">
+                <input 
+                  type="text" 
+                  placeholder="Search patient or practice..." 
+                  value={attachSearchQuery}
+                  onChange={(e) => setAttachSearchQuery(e.target.value)}
+                  className="wireframe-input w-full p-2 pl-8 text-xs uppercase text-black"
+                />
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                {attachSearchQuery && (
+                  <button 
+                    onClick={() => setAttachSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase hover:underline text-black"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-60 overflow-y-auto space-y-2 pr-1 border border-black/10 p-2 text-black">
+                {filteredAttachReferrals.length === 0 ? (
+                  <p className="text-center text-[10px] uppercase font-bold text-muted-foreground py-6">No matching referrals found</p>
+                ) : (
+                  filteredAttachReferrals.map((ref) => (
+                    <div 
+                      key={ref.id}
+                      onClick={() => handleConfirmAttach(ref.id)}
+                      className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer transition-all space-y-1"
+                    >
+                      <div className="flex justify-between items-start">
+                        <p className="font-black uppercase text-xs">{ref.patientName}</p>
+                      </div>
+                      <p className="text-[8px] uppercase opacity-70">To: {ref.specialist} • {ref.nextStep || 'Sent'}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <button 
+              onClick={() => setActiveModal(null)}
+              className="wireframe-button w-full bg-white text-black border-2 border-black text-[10px] font-black uppercase py-3 hover:bg-zinc-100 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       <InviteModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
