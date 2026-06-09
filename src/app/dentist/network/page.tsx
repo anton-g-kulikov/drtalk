@@ -11,6 +11,7 @@ import {
   ArrowUpRight, CheckCircle2, TrendingUp, Users, ChevronDown
 } from 'lucide-react';
 import { InviteModal } from '@/components/InviteModal';
+import { ReferralModal } from '@/components/ReferralModal';
 
 interface NetworkPractice {
   id: string;
@@ -188,6 +189,8 @@ export default function DentistNetworkPage() {
   const [directoryFilter, setDirectoryFilter] = useState<'all' | 'nearby'>('nearby');
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
+  const [selectedPracticeForReferral, setSelectedPracticeForReferral] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -213,7 +216,10 @@ export default function DentistNetworkPage() {
   const filteredNetwork = mockNetwork.filter(p => {
     if (p.type !== 'Specialist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
-    if (activeTab === 'directory' && directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
+    if (activeTab === 'directory') {
+      if (p.status === 'Connected') return false;
+      if (directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
+    }
     return p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
            p.specialty.toLowerCase().includes(searchQuery.toLowerCase());
   });
@@ -262,7 +268,7 @@ export default function DentistNetworkPage() {
                         : 'text-muted-foreground hover:text-black hover:bg-zinc-50'
                     }`}
                   >
-                    {tab === 'analytics' ? 'Analytics' : tab === 'connected' ? 'My Network' : 'Directory'}
+                    {tab === 'analytics' ? 'Analytics' : tab === 'connected' ? 'My Network' : 'Connect&Grow'}
                   </button>
                 ))}
               </div>
@@ -332,18 +338,39 @@ export default function DentistNetworkPage() {
                       </div>
 
                       <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
-                        <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                          {activeTab === 'directory' 
-                            ? (practice.status === 'Connected' ? 'Connected' : 'Connect') 
-                            : (practice.status === 'Connected' ? 'Send Referral' : 'Refer & Connect')}
-                        </button>
-                        {activeTab !== 'directory' && (
-                          <Link 
-                            href={`/dentist/channels?practice=${encodeURIComponent(practice.name)}`}
-                            className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black"
+                        {practice.status === 'Connected' ? (
+                          <>
+                            <button 
+                              onClick={() => {
+                                setSelectedPracticeForReferral(practice.name);
+                                setIsReferralModalOpen(true);
+                              }}
+                              className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
+                            >
+                              Send Referral
+                            </button>
+                            <Link 
+                              href={`/dentist/channels?practice=${encodeURIComponent(practice.name)}`}
+                              className="flex-1 wireframe-button bg-white text-black text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-50 border-2 border-black transition-all font-black"
+                            >
+                              <MessageCircle size={14} />
+                              Chat Now
+                            </Link>
+                          </>
+                        ) : (
+                          <button 
+                            onClick={() => {
+                              if (activeTab === 'directory') {
+                                showToast(`Connection request sent to ${practice.name}`);
+                              } else {
+                                setSelectedPracticeForReferral(practice.name);
+                                setIsReferralModalOpen(true);
+                              }
+                            }}
+                            className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
                           >
-                            <MessageCircle size={14} />
-                          </Link>
+                            {activeTab === 'directory' ? 'Connect' : 'Refer & Connect'}
+                          </button>
                         )}
                         <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
                           <ExternalLink size={14} />
@@ -390,6 +417,15 @@ export default function DentistNetworkPage() {
         defaultRole="Specialist"
         onSuccess={(email) => {
           showToast(`Invitation sent to ${email}`);
+        }}
+      />
+
+      <ReferralModal 
+        isOpen={isReferralModalOpen}
+        onClose={() => setIsReferralModalOpen(false)}
+        practiceName={selectedPracticeForReferral}
+        onSuccess={(patientName) => {
+          showToast(`Referral for ${patientName} submitted successfully!`);
         }}
       />
     </MainLayout>
