@@ -46,7 +46,10 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem('drtalk_resolved_comments');
       if (stored) {
         try {
-          setResolvedCommentIds(JSON.parse(stored));
+          const parsed = JSON.parse(stored);
+          setTimeout(() => {
+            setResolvedCommentIds(parsed);
+          }, 0);
         } catch (e) {
           console.error("Failed to parse resolved comments", e);
         }
