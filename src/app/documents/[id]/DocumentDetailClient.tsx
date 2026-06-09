@@ -35,7 +35,6 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   // States for specialist convert / attach actions
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
   const [convertPatientName, setConvertPatientName] = useState('');
-  const [convertReferralType, setConvertReferralType] = useState('Extraction');
 
   // Hardcoded referals to attach to (copied from dashboard mock data)
   const [referrals, setReferrals] = useState([
@@ -532,21 +531,6 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
                   className="wireframe-input w-full p-2 text-xs uppercase text-black"
                   placeholder="PATIENT NAME..."
                 />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[9px] font-black uppercase block text-black">Referral Type</label>
-                <select 
-                  value={convertReferralType}
-                  onChange={(e) => setConvertReferralType(e.target.value)}
-                  className="wireframe-input w-full p-2 text-xs uppercase bg-white cursor-pointer text-black"
-                >
-                  <option value="Extraction">Extraction</option>
-                  <option value="Periodontal">Periodontal</option>
-                  <option value="Endodontic">Endodontic</option>
-                  <option value="Implants">Implants</option>
-                  <option value="Orthodontic">Orthodontic</option>
-                </select>
               </div>
             </div>
 
