@@ -475,31 +475,44 @@ export default function DentistDashboardPage() {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {[
-            { label: 'Referrals Sent', value: '09', icon: FileText, path: '/dentist/referrals?tab=Received' },
-            { label: 'Referrals scheduled', value: '04', icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
-            { 
-              label: 'Specialty Care Complete', 
-              value: (sentReferrals.filter(r => r.status === 'Completed').length).toString().padStart(2, '0'), 
-              icon: FileText,
-              path: '/dentist/referrals?tab=Completed'
-            },
-            { label: '# drtalk connections', value: '15', icon: Users, path: '/dentist/network' },
-          ].map((stat) => (
-            <div 
-              key={stat.label} 
-              onClick={() => router.push(stat.path)}
-              className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
-            >
-              <stat.icon size={32} className="text-black shrink-0" />
-              <div className="space-y-1">
-                <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-                <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
-              </div>
+        {/* Stats Section with Time Range Selector */}
+        <div className="space-y-2">
+          <div className="flex justify-end items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Time Range:</span>
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="wireframe-input py-1 px-3 text-[10px] font-black uppercase border-2 border-black bg-white focus:outline-none cursor-pointer"
+              >
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="last_year">Last Year</option>
+              </select>
             </div>
-          ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
+              { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
+              { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
+              { label: '# drtalk connections', value: '15', icon: Users, path: '/dentist/network' },
+            ].map((stat) => (
+              <div 
+                key={stat.label} 
+                onClick={() => router.push(stat.path)}
+                className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+              >
+                <stat.icon size={32} className="text-black shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
+                  <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -539,9 +552,9 @@ export default function DentistDashboardPage() {
                   ) : (
                     <div className="space-y-3">
                       {documents.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black hover:bg-zinc-50/50 transition-all">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex gap-3 items-center">
                               <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
                                 <FileText size={20} className="text-black" />
                               </div>
@@ -562,36 +575,24 @@ export default function DentistDashboardPage() {
                                 </div>
                               </div>
                             </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
-                            {doc.fromChannel ? (
-                              <>
-                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                                  Discuss and view this document in the inter-practice channel
-                                </span>
+                            <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
+                              <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                              {doc.fromChannel ? (
                                 <button
                                   onClick={() => router.push(`/dentist/channels?practice=${encodeURIComponent(doc.channelName)}`)}
                                   className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1"
                                 >
                                   View & Discuss in Channel <ArrowUpRight size={12} />
                                 </button>
-                              </>
-                            ) : (
-                              <>
-                                <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                                  This document is not associated with an active communication channel
-                                </span>
+                              ) : (
                                 <button
                                   onClick={() => handleArchiveDocument(doc)}
                                   className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1"
                                 >
                                   Archive <Archive size={12} />
                                 </button>
-                              </>
-                            )}
+                              )}
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -605,9 +606,9 @@ export default function DentistDashboardPage() {
                   ) : (
                     <div className="space-y-3">
                       {archivedDocuments.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
+                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black hover:bg-zinc-50/50 transition-all opacity-80">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="flex gap-3 items-center">
                               <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
                                 <FileText size={20} className="text-black" />
                               </div>
@@ -625,17 +626,12 @@ export default function DentistDashboardPage() {
                                 </div>
                               </div>
                             </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 justify-between items-center">
-                            <span className="text-[8px] uppercase font-bold text-muted-foreground italic">
-                               This document has been archived from your active inbox
-                            </span>
-                            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
-                              Archived
-                            </span>
+                            <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end w-full sm:w-auto">
+                              <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                              <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
+                                Archived
+                              </span>
+                            </div>
                           </div>
                         </div>
                       ))}
