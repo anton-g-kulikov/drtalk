@@ -787,28 +787,6 @@ export default function DashboardPage() {
 
           {/* Quick Actions / Side Column */}
           <div className="lg:col-span-4 space-y-8">
-            <div className="space-y-4">
-              <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <ActionCard 
-                  label="Invite Dentist" 
-                  desc="Grow your referral network" 
-                  onClick={() => {
-                    setInviteRole('Specialist');
-                    setIsInviteModalOpen(true);
-                  }}
-                />
-                <ActionCard 
-                  label="TEAM, ROLES & ACCESS CONTROL" 
-                  desc="Manage team permissions and patient communication safeguards." 
-                  onClick={() => router.push('/dashboard/settings/team')}
-                />
-                <ActionCard 
-                  label="Learning Resource" 
-                  desc="Create a public or paid education channel" 
-                />
-              </div>
-            </div>
             <SubscriptionBanner />
           </div>
 

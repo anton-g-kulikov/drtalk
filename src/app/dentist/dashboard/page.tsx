@@ -744,23 +744,6 @@ export default function DentistDashboardPage() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="space-y-4">
-              <h3 className="font-bold uppercase text-xs tracking-widest border-b-2 border-black pb-2">Quick Actions</h3>
-              <div className="grid grid-cols-1 gap-3">
-                <ActionCard
-                  label="Find Specialist"
-                  desc="Browse the drTalk network"
-                  onClick={() => router.push('/dentist/network')}
-                />
-                <ActionCard
-                  label="Practice Setup"
-                  desc="Manage your dentist profile"
-                  onClick={() => router.push('/dentist/settings')}
-                />
-              </div>
-            </div>
-
             {/* Commented out Trial widget for Dentist profile */}
             {/* <SubscriptionBanner /> */}
           </div>
