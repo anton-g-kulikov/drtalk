@@ -192,9 +192,62 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
   const isDentist = pathname.startsWith('/dentist');
   const { userRole } = useVerification();
   const workspaceName = userRole === 'individual' ? 'My Account' : (isDentist ? 'Sunshine Dental' : 'Valley Endodontics');
-  const accountName = isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist';
-  const accountEmail = isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com';
-  const roleLabel = userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin');
+  
+  const [accountName, setAccountName] = React.useState(isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist');
+  const [accountEmail, setAccountEmail] = React.useState(isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com');
+  const [roleLabel, setRoleLabel] = React.useState(userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin'));
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null);
+  const [initials, setInitials] = React.useState(isDentist ? 'TR' : 'JD');
+
+  React.useEffect(() => {
+    const loadProfile = () => {
+      const stored = localStorage.getItem(isDentist ? 'drtalk_profile_dentist' : 'drtalk_profile_specialist');
+      if (stored) {
+        try {
+          const profile = JSON.parse(stored);
+          const name = profile.displayName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim() || (isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist');
+          setAccountName(name);
+          setAccountEmail(profile.email || (isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com'));
+          setAvatarUrl(profile.avatarUrl || null);
+          
+          if (profile.jobTitle && profile.jobTitle !== 'Select job title') {
+            setRoleLabel(profile.jobTitle);
+          } else {
+            setRoleLabel(userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin'));
+          }
+
+          const first = profile.firstName || '';
+          const last = profile.lastName || '';
+          if (first || last) {
+            setInitials(`${first[0] || ''}${last[0] || ''}`.toUpperCase() || '??');
+          } else if (profile.displayName) {
+            const parts = profile.displayName.split(' ');
+            if (parts.length > 1) {
+              setInitials(`${parts[0][0] || ''}${parts[1][0] || ''}`.toUpperCase());
+            } else {
+              setInitials(profile.displayName.substring(0, 2).toUpperCase());
+            }
+          } else {
+            setInitials(isDentist ? 'TR' : 'JD');
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        setAccountName(isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist');
+        setAccountEmail(isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com');
+        setRoleLabel(userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin'));
+        setAvatarUrl(null);
+        setInitials(isDentist ? 'TR' : 'JD');
+      }
+    };
+
+    loadProfile();
+    window.addEventListener('drtalk-profile-updated', loadProfile);
+    return () => {
+      window.removeEventListener('drtalk-profile-updated', loadProfile);
+    };
+  }, [isDentist, userRole]);
 
   return (
     <header className="h-16 border-b-2 border-black flex items-center justify-between px-4 sm:px-8 bg-white relative z-40">
@@ -227,8 +280,12 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
             <p className="text-[10px] font-bold uppercase truncate">{accountName}</p>
             <p className="text-[8px] text-muted-foreground uppercase truncate">{roleLabel}</p>
           </div>
-          <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center text-xs font-bold group-hover:bg-black group-hover:text-white transition-all">
-            {isDentist ? 'TR' : 'JD'}
+          <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center overflow-hidden text-xs font-bold group-hover:bg-black group-hover:text-white transition-all bg-white">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover filter grayscale" />
+            ) : (
+              initials
+            )}
           </div>
 
           {/* Dropdown Menu */}
@@ -239,7 +296,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
                 <p className="text-[8px] text-muted-foreground uppercase tracking-tighter">{accountEmail}</p>
               </div>
               {[
-                { label: 'View Profile', href: isDentist ? '/dentist/settings' : '/settings' },
+                { label: 'View Profile', href: isDentist ? '/dentist/settings/profile/user' : '/settings/profile/user' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
                 { label: 'Billing & Usage', href: isDentist ? '/dentist/settings#billing' : '/settings#billing' },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
