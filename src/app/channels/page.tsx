@@ -209,10 +209,25 @@ function ChannelsContent() {
   }, [referrals, isDentist]);
 
   // State managed data
-  const [channels, setChannels] = useState<Channel[]>(mockChannels);
+  const [channels, setChannels] = useState<Channel[]>([]);
   const [messages, setMessages] = useState<Record<string, MessageItem[]>>(initialMessages);
   const [documents, setDocuments] = useState<SharedDocument[]>(initialDocuments);
   const [activeTab, setActiveTab] = useState<'messages' | 'documents' | 'archived'>('messages');
+
+  useEffect(() => {
+    if (isDentist) {
+      setChannels(mockChannels);
+    } else {
+      setChannels([
+        { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+        { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
+        { id: '6', name: 'Sunshine Dental', type: 'inter-practice', lastMessage: 'Practice connection active.', memberCount: 2 },
+        { id: '7', name: 'Desert Bloom Dental', type: 'inter-practice', lastMessage: 'Referral sent for Bob Marley.', memberCount: 2 },
+        { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
+        { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
+      ]);
+    }
+  }, [isDentist]);
 
   // Collapse states for sidebar sections
   const [internalCollapsed, setInternalCollapsed] = useState(true);
@@ -371,6 +386,7 @@ function ChannelsContent() {
     if (practiceParam) {
       const parentChannel = channels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase() || c.id === practiceParam);
       if (parentChannel) {
+        setConnectedCollapsed(false); // Auto-expand connected practices
         if (caseIdParam) {
           const allRefs = getReferrals();
           const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
@@ -813,7 +829,7 @@ function ChannelsContent() {
                                   : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
                               }`}
                             >
-                              <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-red-600 font-black text-[11px]"}>#</span>
+                              <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-black font-black text-[11px]"}>#</span>
                               <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
                             </button>
                           );
