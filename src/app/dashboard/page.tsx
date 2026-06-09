@@ -785,8 +785,44 @@ export default function DashboardPage() {
               </div>
             </div>
 
-          {/* Quick Actions / Side Column */}
+          {/* Recent Conversations / Side Column */}
           <div className="lg:col-span-4 space-y-8">
+            {/* Recent Conversations */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b-2 border-black pb-2">
+                <MessageSquare size={18} />
+                <h3 className="font-bold uppercase text-xs tracking-widest">Recent Conversations</h3>
+              </div>
+              <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
+                {[
+                  { id: 1, name: 'team-members', msg: 'Reviewing tooth #14...', initials: 'TM', type: 'Internal', path: '/channels' },
+                  { id: 2, name: 'Sunshine Dental', msg: 'Practice connection active.', initials: 'SD', type: 'Inter-Practice', path: '/channels?practice=Sunshine%20Dental' },
+                  { id: 3, name: 'Downtown Oral Surgery', msg: 'Referral sent for Bob Marley.', initials: 'DO', type: 'Inter-Practice', path: '/channels?practice=Downtown%20Oral%20Surgery' },
+                  { id: 4, name: 'Alice Cooper', msg: 'Got it, thank you!', initials: 'AC', type: 'Patient', path: '/channels?practice=Alice%20Cooper' },
+                  { id: 5, name: 'Emergency Case Board', msg: 'Case discussion initiated.', initials: 'EC', type: 'Group', path: '/channels' }
+                ].map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors"
+                    onClick={() => router.push(item.path)}
+                  >
+                    <div className="w-8 h-8 border-2 border-black flex flex-col items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
+                    <div className="flex-1 space-y-1 min-w-0">
+                      <div className="flex justify-between items-baseline">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
+                          <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-muted-foreground shrink-0 scale-90 origin-left">{item.type}</span>
+                        </div>
+                        <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right">10:05 AM{"\n"}05/11/2026</span>
+                      </div>
+                      <p className="text-[9px] uppercase truncate opacity-70 italic">
+                        {item.msg}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             <SubscriptionBanner />
           </div>
 
