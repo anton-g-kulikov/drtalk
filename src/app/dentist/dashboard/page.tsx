@@ -573,7 +573,6 @@ export default function DentistDashboardPage() {
                                   >
                                     {doc.name}
                                   </p>
-                                  <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0 animate-pulse" title="New document" />
                                 </div>
                                 <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
                                   <span>Practice: {doc.sender}</span>
