@@ -762,22 +762,6 @@ export default function DentistDashboardPage() {
               </div>
             </div>
 
-            {/* Learning Hub */}
-            <div className="wireframe-card p-5 space-y-4 bg-gray-50">
-              <div className="flex items-center gap-2">
-                <GraduationCap size={16} />
-                <h3 className="text-xs uppercase font-black">Learning Hub</h3>
-              </div>
-              <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed">
-                Browse clinical guides and practice growth resources.
-              </p>
-              <button
-                onClick={() => router.push('/dentist/academy')}
-                className="wireframe-button w-full bg-black text-white text-[10px] uppercase py-3"
-              >
-                Open Learning Hub
-              </button>
-            </div>
             {/* Commented out Trial widget for Dentist profile */}
             {/* <SubscriptionBanner /> */}
           </div>
