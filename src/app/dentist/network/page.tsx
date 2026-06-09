@@ -111,7 +111,7 @@ function NetworkAnalytics() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="wireframe-card p-6 flex flex-col justify-between">
           <div className="flex justify-between items-start mb-4">
-            <span className="text-[10px] font-bold uppercase text-muted-foreground">Total Sent</span>
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Total Referral Sent</span>
             <ArrowUpRight size={16} className="text-black" />
           </div>
           <div className="text-4xl font-black">{data.totalSent}</div>
