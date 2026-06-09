@@ -544,7 +544,6 @@ export default function DashboardPage() {
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
                             <p className="font-bold uppercase text-xs">{ref.patient}</p>
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
@@ -590,7 +589,6 @@ export default function DashboardPage() {
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="inline-block w-1.5 h-1.5 bg-black group-hover:bg-white rounded-full"></span>
                             <p className="font-bold uppercase text-xs">{ref.patient}</p>
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
