@@ -34,58 +34,54 @@ const mockNetwork: NetworkPractice[] = [
 ];
 
 const mockAnalytics = {
-  '30d': {
+  'month': {
     totalReceived: 142,
     totalProcessed: 128,
     totalScheduled: 115,
     conversionRate: 81,
-    patientsReleased: 24,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 45, processed: 42, scheduled: 38, conversion: 84, released: 8 },
-      { id: '7', name: 'Desert Bloom Dental', received: 62, processed: 58, scheduled: 52, conversion: 83, released: 12 },
-      { id: '8', name: 'Mountain View Family Dental', received: 35, processed: 28, scheduled: 25, conversion: 71, released: 4 }
+      { id: '6', name: 'Sunshine Dental', received: 45, processed: 42, scheduled: 38, conversion: 84 },
+      { id: '7', name: 'Desert Bloom Dental', received: 62, processed: 58, scheduled: 52, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 35, processed: 28, scheduled: 25, conversion: 71 }
     ]
   },
-  'this_year': {
+  'quarter': {
+    totalReceived: 450,
+    totalProcessed: 410,
+    totalScheduled: 375,
+    conversionRate: 83,
+    breakdown: [
+      { id: '6', name: 'Sunshine Dental', received: 140, processed: 130, scheduled: 120, conversion: 85 },
+      { id: '7', name: 'Desert Bloom Dental', received: 210, processed: 195, scheduled: 175, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 100, processed: 85, scheduled: 80, conversion: 80 }
+    ]
+  },
+  'year': {
     totalReceived: 840,
     totalProcessed: 790,
     totalScheduled: 710,
     conversionRate: 85,
-    patientsReleased: 145,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 260, processed: 250, scheduled: 235, conversion: 90, released: 52 },
-      { id: '7', name: 'Desert Bloom Dental', received: 410, processed: 380, scheduled: 340, conversion: 83, released: 65 },
-      { id: '8', name: 'Mountain View Family Dental', received: 170, processed: 160, scheduled: 135, conversion: 79, released: 28 }
+      { id: '6', name: 'Sunshine Dental', received: 260, processed: 250, scheduled: 235, conversion: 90 },
+      { id: '7', name: 'Desert Bloom Dental', received: 410, processed: 380, scheduled: 340, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 170, processed: 160, scheduled: 135, conversion: 79 }
     ]
   },
-  '12m': {
+  'last_year': {
     totalReceived: 1650,
     totalProcessed: 1580,
     totalScheduled: 1420,
     conversionRate: 86,
-    patientsReleased: 310,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 520, processed: 505, scheduled: 480, conversion: 92, released: 115 },
-      { id: '7', name: 'Desert Bloom Dental', received: 780, processed: 740, scheduled: 650, conversion: 83, released: 142 },
-      { id: '8', name: 'Mountain View Family Dental', received: 350, processed: 335, scheduled: 290, conversion: 82, released: 53 }
-    ]
-  },
-  'all_time': {
-    totalReceived: 4200,
-    totalProcessed: 3950,
-    totalScheduled: 3550,
-    conversionRate: 85,
-    patientsReleased: 820,
-    breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 1250, processed: 1200, scheduled: 1100, conversion: 88, released: 280 },
-      { id: '7', name: 'Desert Bloom Dental', received: 2100, processed: 1950, scheduled: 1750, conversion: 83, released: 410 },
-      { id: '8', name: 'Mountain View Family Dental', received: 850, processed: 800, scheduled: 700, conversion: 82, released: 130 }
+      { id: '6', name: 'Sunshine Dental', received: 520, processed: 505, scheduled: 480, conversion: 92 },
+      { id: '7', name: 'Desert Bloom Dental', received: 780, processed: 740, scheduled: 650, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 350, processed: 335, scheduled: 290, conversion: 82 }
     ]
   }
 };
 
 function NetworkAnalytics() {
-  const [timeRange, setTimeRange] = useState<'30d' | '12m' | 'this_year' | 'all_time'>('30d');
+  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
   const data = mockAnalytics[timeRange];
 
   return (
@@ -98,10 +94,10 @@ function NetworkAnalytics() {
             onChange={(e) => setTimeRange(e.target.value as any)}
             className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none"
           >
-            <option value="30d">Last 30 Days</option>
-            <option value="this_year">This Year</option>
-            <option value="12m">Trailing 12 Months</option>
-            <option value="all_time">All Time</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+            <option value="last_year">Last Year</option>
           </select>
           <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
             <ChevronDown size={14} className="text-black" />
@@ -148,7 +144,6 @@ function NetworkAnalytics() {
                 <th className="p-4 font-black text-right">Processed</th>
                 <th className="p-4 font-black text-right">Scheduled</th>
                 <th className="p-4 font-black">Conversion</th>
-                <th className="p-4 font-black text-right">Released</th>
               </tr>
             </thead>
             <tbody>
@@ -166,7 +161,6 @@ function NetworkAnalytics() {
                       <span className="text-[10px] font-bold">{row.conversion}%</span>
                     </div>
                   </td>
-                  <td className="p-4 text-right font-medium">{row.released}</td>
                 </tr>
               ))}
             </tbody>
