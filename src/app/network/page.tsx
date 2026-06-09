@@ -215,7 +215,10 @@ export default function NetworkPage() {
   const filteredNetwork = mockNetwork.filter(p => {
     if (p.type !== 'Dentist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
-    if (activeTab === 'directory' && directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
+    if (activeTab === 'directory') {
+      if (p.status === 'Connected') return false;
+      if (directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
+    }
     const searchStr = searchQuery.toLowerCase();
     return p.name.toLowerCase().includes(searchStr) || 
            p.specialty.toLowerCase().includes(searchStr);
@@ -265,7 +268,7 @@ export default function NetworkPage() {
                         : 'text-muted-foreground hover:text-black hover:bg-zinc-50'
                     }`}
                   >
-                    {tab === 'analytics' ? 'Analytics' : tab === 'connected' ? 'My Network' : 'Directory'}
+                    {tab === 'analytics' ? 'Analytics' : tab === 'connected' ? 'My Network' : 'Connect&Grow'}
                   </button>
                 ))}
               </div>
@@ -335,18 +338,18 @@ export default function NetworkPage() {
                       </div>
 
                       <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
-                        <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                          {activeTab === 'directory' 
-                            ? (practice.status === 'Connected' ? 'Connected' : 'Connect') 
-                            : (practice.type === 'Dentist' ? 'Connect' : 'Send Referral')}
-                        </button>
-                        {activeTab !== 'directory' && (
+                        {practice.status === 'Connected' ? (
                           <Link 
                             href={`/channels?practice=${encodeURIComponent(practice.name)}`}
-                            className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black"
+                            className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
                           >
                             <MessageCircle size={14} />
+                            Chat Now
                           </Link>
+                        ) : (
+                          <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
+                            {activeTab === 'directory' ? 'Connect' : 'Connect'}
+                          </button>
                         )}
                         <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
                           <ExternalLink size={14} />
