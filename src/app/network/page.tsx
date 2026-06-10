@@ -316,7 +316,7 @@ export default function NetworkPage() {
                           : 'bg-white text-black hover:bg-gray-50'
                       }`}
                     >
-                      Nearby
+                      Suggested (Nearby)
                     </button>
                   </div>
                 )}
@@ -336,7 +336,7 @@ export default function NetworkPage() {
                             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
                               practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
                             }`}>
-                              {practice.status}
+                              {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
                             </span>
                           </div>
                         </div>
