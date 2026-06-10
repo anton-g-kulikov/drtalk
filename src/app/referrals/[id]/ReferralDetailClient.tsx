@@ -52,7 +52,6 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     if (isTrialEnded) {
       setShowPaywall(true);
     } else {
-      alert("Referral Processed Successfully!");
       handleStatusChange('Completed');
     }
   };
