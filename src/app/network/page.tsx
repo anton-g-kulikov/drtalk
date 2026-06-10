@@ -36,46 +36,46 @@ const mockNetwork: NetworkPractice[] = [
 const mockAnalytics = {
   'month': {
     totalReceived: 142,
-    totalProcessed: 128,
     totalScheduled: 115,
+    totalReleased: 98,
     conversionRate: 81,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 45, processed: 42, scheduled: 38, conversion: 84 },
-      { id: '7', name: 'Desert Bloom Dental', received: 62, processed: 58, scheduled: 52, conversion: 83 },
-      { id: '8', name: 'Mountain View Family Dental', received: 35, processed: 28, scheduled: 25, conversion: 71 }
+      { id: '6', name: 'Sunshine Dental', received: 45, scheduled: 38, released: 32, conversion: 84 },
+      { id: '7', name: 'Desert Bloom Dental', received: 62, scheduled: 52, released: 45, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 35, scheduled: 25, released: 21, conversion: 71 }
     ]
   },
   'quarter': {
     totalReceived: 450,
-    totalProcessed: 410,
     totalScheduled: 375,
+    totalReleased: 310,
     conversionRate: 83,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 140, processed: 130, scheduled: 120, conversion: 85 },
-      { id: '7', name: 'Desert Bloom Dental', received: 210, processed: 195, scheduled: 175, conversion: 83 },
-      { id: '8', name: 'Mountain View Family Dental', received: 100, processed: 85, scheduled: 80, conversion: 80 }
+      { id: '6', name: 'Sunshine Dental', received: 140, scheduled: 120, released: 95, conversion: 85 },
+      { id: '7', name: 'Desert Bloom Dental', received: 210, scheduled: 175, released: 145, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 100, scheduled: 80, released: 70, conversion: 80 }
     ]
   },
   'year': {
     totalReceived: 840,
-    totalProcessed: 790,
     totalScheduled: 710,
+    totalReleased: 580,
     conversionRate: 85,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 260, processed: 250, scheduled: 235, conversion: 90 },
-      { id: '7', name: 'Desert Bloom Dental', received: 410, processed: 380, scheduled: 340, conversion: 83 },
-      { id: '8', name: 'Mountain View Family Dental', received: 170, processed: 160, scheduled: 135, conversion: 79 }
+      { id: '6', name: 'Sunshine Dental', received: 260, scheduled: 235, released: 190, conversion: 90 },
+      { id: '7', name: 'Desert Bloom Dental', received: 410, scheduled: 340, released: 280, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 170, scheduled: 135, released: 110, conversion: 79 }
     ]
   },
   'last_year': {
     totalReceived: 1650,
-    totalProcessed: 1580,
     totalScheduled: 1420,
+    totalReleased: 1210,
     conversionRate: 86,
     breakdown: [
-      { id: '6', name: 'Sunshine Dental', received: 520, processed: 505, scheduled: 480, conversion: 92 },
-      { id: '7', name: 'Desert Bloom Dental', received: 780, processed: 740, scheduled: 650, conversion: 83 },
-      { id: '8', name: 'Mountain View Family Dental', received: 350, processed: 335, scheduled: 290, conversion: 82 }
+      { id: '6', name: 'Sunshine Dental', received: 520, scheduled: 480, released: 410, conversion: 92 },
+      { id: '7', name: 'Desert Bloom Dental', received: 780, scheduled: 650, released: 550, conversion: 83 },
+      { id: '8', name: 'Mountain View Family Dental', received: 350, scheduled: 290, released: 250, conversion: 82 }
     ]
   }
 };
@@ -105,7 +105,7 @@ function NetworkAnalytics() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="wireframe-card p-6 flex flex-col justify-between">
           <div className="flex justify-between items-start mb-4">
             <span className="text-[10px] font-bold uppercase text-muted-foreground">Total Referrals Received</span>
@@ -116,10 +116,10 @@ function NetworkAnalytics() {
         
         <div className="wireframe-card p-6 flex flex-col justify-between">
           <div className="flex justify-between items-start mb-4">
-            <span className="text-[10px] font-bold uppercase text-muted-foreground">Processed / Scheduled</span>
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Scheduled</span>
             <CheckCircle2 size={16} className="text-black" />
           </div>
-          <div className="text-4xl font-black">{data.totalScheduled} <span className="text-lg text-muted-foreground font-medium">/ {data.totalProcessed}</span></div>
+          <div className="text-4xl font-black">{data.totalScheduled}</div>
         </div>
 
         <div className="wireframe-card p-6 flex flex-col justify-between">
@@ -128,6 +128,14 @@ function NetworkAnalytics() {
             <TrendingUp size={16} className="text-black" />
           </div>
           <div className="text-4xl font-black">{data.conversionRate}%</div>
+        </div>
+
+        <div className="wireframe-card p-6 flex flex-col justify-between">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-[10px] font-bold uppercase text-muted-foreground">Released</span>
+            <Users size={16} className="text-black" />
+          </div>
+          <div className="text-4xl font-black">{data.totalReleased}</div>
         </div>
       </div>
 
@@ -141,9 +149,9 @@ function NetworkAnalytics() {
               <tr className="border-b-2 border-black text-[10px] uppercase bg-white">
                 <th className="p-4 font-black">Practice Name</th>
                 <th className="p-4 font-black text-right">Received</th>
-                <th className="p-4 font-black text-right">Processed</th>
                 <th className="p-4 font-black text-right">Scheduled</th>
                 <th className="p-4 font-black">Conversion</th>
+                <th className="p-4 font-black text-right">Released</th>
               </tr>
             </thead>
             <tbody>
@@ -151,7 +159,6 @@ function NetworkAnalytics() {
                 <tr key={row.id} className={`text-sm ${idx !== data.breakdown.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors bg-white`}>
                   <td className="p-4 font-bold">{row.name}</td>
                   <td className="p-4 text-right font-medium">{row.received}</td>
-                  <td className="p-4 text-right font-medium">{row.processed}</td>
                   <td className="p-4 text-right font-medium">{row.scheduled}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
@@ -161,6 +168,7 @@ function NetworkAnalytics() {
                       <span className="text-[10px] font-bold">{row.conversion}%</span>
                     </div>
                   </td>
+                  <td className="p-4 text-right font-medium">{row.released}</td>
                 </tr>
               ))}
             </tbody>
