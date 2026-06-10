@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
@@ -203,6 +204,7 @@ function NetworkAnalytics() {
 }
 
 export default function DentistNetworkPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'analytics' | 'connected' | 'directory'>('analytics');
   const [directoryFilter, setDirectoryFilter] = useState<'all' | 'nearby'>('nearby');
   const [searchQuery, setSearchQuery] = useState('');
@@ -360,8 +362,7 @@ export default function DentistNetworkPage() {
                           <>
                             <button 
                               onClick={() => {
-                                setSelectedPracticeForReferral(practice.name);
-                                setIsReferralModalOpen(true);
+                                router.push(`/dentist/referral?practice=${encodeURIComponent(practice.name)}`);
                               }}
                               className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
                             >
@@ -381,8 +382,7 @@ export default function DentistNetworkPage() {
                               if (activeTab === 'directory') {
                                 showToast(`Connection request sent to ${practice.name}`);
                               } else {
-                                setSelectedPracticeForReferral(practice.name);
-                                setIsReferralModalOpen(true);
+                                router.push(`/dentist/referral?practice=${encodeURIComponent(practice.name)}`);
                               }
                             }}
                             className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
