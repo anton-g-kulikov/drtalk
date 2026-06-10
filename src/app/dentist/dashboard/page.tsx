@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   AlertCircle, MessageSquare, ArrowUpRight,
   TrendingUp, Users, FileText, Send, Search, Clock, Plus, GraduationCap,
-  Upload, X, Eye, Paperclip, Lock, Archive, Calendar
+  Upload, X, Eye, Paperclip, Lock, Archive, Calendar, ChevronDown
 } from 'lucide-react';
 
 import { useVerification } from '@/components/VerificationContext';
@@ -42,7 +42,7 @@ import { InviteModal } from '@/components/InviteModal';
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
-  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
 
   useEffect(() => {
     setTimeout(() => {
@@ -52,16 +52,16 @@ export default function DentistDashboardPage() {
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
   
-  // Base values for realistic look: Month: 9, Quarter: 21, Year: 42, Last Year: 68
-  const baseSent = timeRange === 'month' ? 9 : timeRange === 'quarter' ? 21 : timeRange === 'year' ? 42 : 68;
+  // Base values for realistic look: Day: 1, Week: 3, Month: 9, Quarter: 21, Year: 42, Last Year: 68
+  const baseSent = timeRange === 'day' ? 1 : timeRange === 'week' ? 3 : timeRange === 'month' ? 9 : timeRange === 'quarter' ? 21 : timeRange === 'year' ? 42 : 68;
   const referralsSentCount = baseSent + sentReferrals.filter(r => (r.status === 'Sent' || r.status === 'Received') && isInRange(r.receivedAt, timeRange)).length;
   
-  // Base values for realistic look: Month: 4, Quarter: 12, Year: 28, Last Year: 35
-  const baseScheduled = timeRange === 'month' ? 4 : timeRange === 'quarter' ? 12 : timeRange === 'year' ? 28 : 35;
+  // Base values for realistic look: Day: 0, Week: 1, Month: 4, Quarter: 12, Year: 28, Last Year: 35
+  const baseScheduled = timeRange === 'day' ? 0 : timeRange === 'week' ? 1 : timeRange === 'month' ? 4 : timeRange === 'quarter' ? 12 : timeRange === 'year' ? 28 : 35;
   const referralsScheduledCount = baseScheduled + sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   
-  // Base values for realistic look: Month: 2, Quarter: 8, Year: 18, Last Year: 24
-  const baseCompleted = timeRange === 'month' ? 2 : timeRange === 'quarter' ? 8 : timeRange === 'year' ? 18 : 24;
+  // Base values for realistic look: Day: 0, Week: 1, Month: 2, Quarter: 8, Year: 18, Last Year: 24
+  const baseCompleted = timeRange === 'day' ? 0 : timeRange === 'week' ? 1 : timeRange === 'month' ? 2 : timeRange === 'quarter' ? 8 : timeRange === 'year' ? 18 : 24;
   const specialtyCareCompleteCount = baseCompleted + sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   interface DocumentItem {
@@ -583,17 +583,22 @@ export default function DentistDashboardPage() {
         {/* Stats Section with Time Range Selector */}
         <div className="space-y-2">
           <div className="flex justify-start items-center">
-            <div className="flex items-center gap-2">
+            <div className="relative">
               <select 
                 value={timeRange} 
                 onChange={(e) => setTimeRange(e.target.value as any)}
-                className="wireframe-input py-1 px-3 text-[10px] font-black uppercase border-2 border-black bg-white focus:outline-none cursor-pointer"
+                className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
               >
+                <option value="day">Today</option>
+                <option value="week">This Week</option>
                 <option value="month">This Month</option>
                 <option value="quarter">This Quarter</option>
                 <option value="year">This Year</option>
                 <option value="last_year">Last Year</option>
               </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-black" />
+              </div>
             </div>
           </div>
 

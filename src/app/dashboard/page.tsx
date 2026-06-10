@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import {
   AlertCircle, MessageSquare, ArrowUpRight,
-  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar, Search
+  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar, Search, ChevronDown
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -55,7 +55,7 @@ export default function DashboardPage() {
   const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteRole, setInviteRole] = useState('Team Member');
-  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>([]);
 
   useEffect(() => {
@@ -66,16 +66,16 @@ export default function DashboardPage() {
 
   const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
   
-  // Base values for realistic look: Month: 18, Quarter: 34, Year: 72, Last Year: 95
-  const baseReceived = timeRange === 'month' ? 18 : timeRange === 'quarter' ? 34 : timeRange === 'year' ? 72 : 95;
+  // Base values for realistic look: Day: 2, Week: 6, Month: 18, Quarter: 34, Year: 72, Last Year: 95
+  const baseReceived = timeRange === 'day' ? 2 : timeRange === 'week' ? 6 : timeRange === 'month' ? 18 : timeRange === 'quarter' ? 34 : timeRange === 'year' ? 72 : 95;
   const referralsReceivedCount = baseReceived + specialistReferrals.filter(r => r.status === 'Received' && isInRange(r.receivedAt, timeRange)).length;
   
-  // Base values for realistic look: Month: 12, Quarter: 24, Year: 48, Last Year: 60
-  const baseScheduled = timeRange === 'month' ? 12 : timeRange === 'quarter' ? 24 : timeRange === 'year' ? 48 : 60;
+  // Base values for realistic look: Day: 1, Week: 4, Month: 12, Quarter: 24, Year: 48, Last Year: 60
+  const baseScheduled = timeRange === 'day' ? 1 : timeRange === 'week' ? 4 : timeRange === 'month' ? 12 : timeRange === 'quarter' ? 24 : timeRange === 'year' ? 48 : 60;
   const referralsScheduledCount = baseScheduled + specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   
-  // Base values for realistic look: Month: 5, Quarter: 14, Year: 36, Last Year: 45
-  const baseCompleted = timeRange === 'month' ? 5 : timeRange === 'quarter' ? 14 : timeRange === 'year' ? 36 : 45;
+  // Base values for realistic look: Day: 0, Week: 2, Month: 5, Quarter: 14, Year: 36, Last Year: 45
+  const baseCompleted = timeRange === 'day' ? 0 : timeRange === 'week' ? 2 : timeRange === 'month' ? 5 : timeRange === 'quarter' ? 14 : timeRange === 'year' ? 36 : 45;
   const specialtyCareCompleteCount = baseCompleted + specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   const handleReferralClick = (id: string) => {
@@ -473,17 +473,22 @@ export default function DashboardPage() {
         {/* Stats Section with Time Range Selector */}
         <div className="space-y-2">
           <div className="flex justify-start items-center">
-            <div className="flex items-center gap-2">
+            <div className="relative">
               <select 
                 value={timeRange} 
                 onChange={(e) => setTimeRange(e.target.value as any)}
-                className="wireframe-input py-1 px-3 text-[10px] font-black uppercase border-2 border-black bg-white focus:outline-none cursor-pointer"
+                className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
               >
+                <option value="day">Today</option>
+                <option value="week">This Week</option>
                 <option value="month">This Month</option>
                 <option value="quarter">This Quarter</option>
                 <option value="year">This Year</option>
                 <option value="last_year">Last Year</option>
               </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-black" />
+              </div>
             </div>
           </div>
 
