@@ -33,6 +33,28 @@ const mockNetwork: NetworkPractice[] = [
 ];
 
 const mockAnalytics = {
+  'day': {
+    totalSent: 8,
+    totalScheduled: 5,
+    totalReleased: 4,
+    conversionRate: 62,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 3, scheduled: 2, released: 1, conversion: 66 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 4, scheduled: 2, released: 2, conversion: 50 },
+      { id: '3', name: 'Arizona Periodontics', sent: 1, scheduled: 1, released: 1, conversion: 100 }
+    ]
+  },
+  'week': {
+    totalSent: 38,
+    totalScheduled: 28,
+    totalReleased: 22,
+    conversionRate: 73,
+    breakdown: [
+      { id: '1', name: 'Valley Endodontics', sent: 12, scheduled: 9, released: 7, conversion: 75 },
+      { id: '2', name: 'Downtown Oral Surgery', sent: 18, scheduled: 13, released: 11, conversion: 72 },
+      { id: '3', name: 'Arizona Periodontics', sent: 8, scheduled: 6, released: 4, conversion: 75 }
+    ]
+  },
   'month': {
     totalSent: 142,
     totalScheduled: 115,
@@ -80,7 +102,7 @@ const mockAnalytics = {
 };
 
 function NetworkAnalytics() {
-  const [timeRange, setTimeRange] = useState<'month' | 'quarter' | 'year' | 'last_year'>('month');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
   const data = mockAnalytics[timeRange];
 
   return (
@@ -91,8 +113,10 @@ function NetworkAnalytics() {
           <select 
             value={timeRange} 
             onChange={(e) => setTimeRange(e.target.value as any)}
-            className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none"
+            className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
           >
+            <option value="day">Today</option>
+            <option value="week">This Week</option>
             <option value="month">This Month</option>
             <option value="quarter">This Quarter</option>
             <option value="year">This Year</option>
