@@ -875,6 +875,42 @@ export default function DentistDashboardPage() {
               </div>
             </div>
 
+            {/* Suggested Connections */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 border-b-2 border-black pb-2">
+                <Users size={18} />
+                <h3 className="font-bold uppercase text-xs tracking-widest">Suggested Connections</h3>
+              </div>
+              <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
+                {[
+                  { id: '3', name: 'Arizona Periodontics', specialty: 'Periodontics', location: 'Scottsdale, AZ' },
+                  { id: '5', name: 'Skyline Orthodontics', specialty: 'Orthodontics', location: 'Phoenix, AZ' },
+                  { id: '4', name: 'Desert Dental Implants', specialty: 'Implantology', location: 'Tempe, AZ' }
+                ].map((item) => (
+                  <div
+                    key={item.id}
+                    className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="space-y-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <p className="text-[10px] font-bold uppercase truncate">{item.name}</p>
+                        <span className="text-[7px] font-bold px-1.5 py-0.5 border border-black uppercase text-muted-foreground shrink-0">{item.specialty}</span>
+                      </div>
+                      <p className="text-[8px] uppercase text-muted-foreground">
+                        {item.location}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => triggerToast(`Connection request sent to ${item.name}`)}
+                      className="wireframe-button text-[8px] font-black uppercase px-2.5 py-1 bg-black text-white hover:bg-zinc-800 transition-all shrink-0"
+                    >
+                      Connect
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Commented out Trial widget for Dentist profile */}
             {/* <SubscriptionBanner /> */}
           </div>
