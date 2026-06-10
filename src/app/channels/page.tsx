@@ -189,11 +189,22 @@ function ChannelsContent() {
 
     return filteredRefs.map(ref => {
       let practiceId = '3';
-      const specialistName = (ref.specialist || '').toLowerCase();
-      if (specialistName.includes('downtown')) practiceId = '7';
-      else if (specialistName.includes('metro')) practiceId = '8';
-      else if (specialistName.includes('arizona')) practiceId = '9';
-      else if (specialistName.includes('beverly')) practiceId = '6';
+      if (isDentist) {
+        const specialistName = (ref.specialist || '').toLowerCase();
+        if (specialistName.includes('downtown')) practiceId = '7';
+        else if (specialistName.includes('metro')) practiceId = '8';
+        else if (specialistName.includes('arizona')) practiceId = '9';
+        else if (specialistName.includes('beverly')) practiceId = '6';
+      } else {
+        // Specialist side: map based on referring dentist/practice
+        const practice = (ref.practice || '').toLowerCase();
+        const dentist = (ref.dentist || '').toLowerCase();
+        if (practice.includes('sunshine') || dentist.includes('smith') || dentist.includes('reed') || ref.id === '1' || ref.id === '6' || ref.id === '9') {
+          practiceId = '6'; // Sunshine Dental
+        } else if (practice.includes('desert') || dentist.includes('jones') || ref.id === '2') {
+          practiceId = '7'; // Desert Bloom Dental
+        }
+      }
 
       const code = getReferralCode(ref.id);
       return {
@@ -383,10 +394,43 @@ function ChannelsContent() {
 
   // Sync activeChannel if practiceParam and caseIdParam change
   useEffect(() => {
-    if (practiceParam) {
-      const parentChannel = channels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase() || c.id === practiceParam);
+    if (practiceParam || caseIdParam) {
+      let parentChannel = null;
+
+      // 1. Try to find the parent channel directly from practiceParam
+      if (practiceParam) {
+        parentChannel = channels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase() || c.id === practiceParam);
+      }
+
+      // 2. If parentChannel not found but caseIdParam is provided, resolve it from referral
+      if (!parentChannel && caseIdParam) {
+        const allRefs = getReferrals();
+        const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
+        if (ref) {
+          let practiceId = '3';
+          if (isDentist) {
+            const specialistName = (ref.specialist || '').toLowerCase();
+            if (specialistName.includes('downtown')) practiceId = '7';
+            else if (specialistName.includes('metro')) practiceId = '8';
+            else if (specialistName.includes('arizona')) practiceId = '9';
+            else if (specialistName.includes('beverly')) practiceId = '6';
+          } else {
+            const practice = (ref.practice || '').toLowerCase();
+            const dentist = (ref.dentist || '').toLowerCase();
+            if (practice.includes('sunshine') || dentist.includes('smith') || dentist.includes('reed') || ref.id === '1' || ref.id === '6' || ref.id === '9') {
+              practiceId = '6';
+            } else if (practice.includes('desert') || dentist.includes('jones') || ref.id === '2') {
+              practiceId = '7';
+            }
+          }
+          parentChannel = channels.find(c => c.id === practiceId);
+        }
+      }
+
       if (parentChannel) {
         setConnectedCollapsed(false); // Auto-expand connected practices
+        const tabParam = searchParams.get('tab');
+        const targetTab = (tabParam === 'documents' || tabParam === 'archived' || tabParam === 'messages') ? tabParam : 'messages';
         if (caseIdParam) {
           const allRefs = getReferrals();
           const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
@@ -406,15 +450,16 @@ function ChannelsContent() {
                 memberCount: parentChannel.memberCount
               };
               setActiveChannel(caseChannelObj);
-              setActiveTab('messages');
+              setActiveTab(targetTab);
             }, 0);
             return;
           }
         }
         setActiveChannel(parentChannel);
+        setActiveTab(targetTab);
       }
     }
-  }, [practiceParam, caseIdParam, channels]);
+  }, [practiceParam, caseIdParam, channels, isDentist, searchParams]);
 
   const handleSelectChannel = (c: Channel) => {
     setActiveChannel(c);
