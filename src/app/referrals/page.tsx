@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy } from 'lucide-react';
+import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy, ChevronDown } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
-import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
 
 import { ReferralStatus } from '@/lib/referrals';
 type Referral = UnifiedReferral;
@@ -33,6 +33,7 @@ export default function ReferralsPage() {
   const isDentist = pathname.startsWith('/dentist');
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<ReferralStatus>('Received');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [selectedUrgency, setSelectedUrgency] = useState<string>('All');
@@ -108,7 +109,9 @@ export default function ReferralsPage() {
     const practiceName = isDentist ? r.specialist : r.practice;
     const matchesPractice = selectedPracticeFilter === 'All' || practiceName === selectedPracticeFilter;
     
-    return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice;
+    const matchesTimeRange = isInRange(r.receivedAt, timeRange);
+
+    return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice && matchesTimeRange;
   });
 
   return (
@@ -187,17 +190,36 @@ export default function ReferralsPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className={`wireframe-button flex items-center justify-center gap-2 px-6 py-2.5 text-[11px] uppercase font-bold transition-colors ${
-                  showFilters || selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All'
-                    ? 'bg-black text-white' 
-                    : 'bg-white text-black'
-                }`}
-              >
-                <Filter size={14} />
-                Filters {(selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All') && '•'}
-              </button>
+              <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
+                <div className="relative">
+                  <select 
+                    value={timeRange} 
+                    onChange={(e) => setTimeRange(e.target.value as any)}
+                    className="wireframe-input py-2 pl-4 pr-10 text-[11px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+                  >
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                    <option value="quarter">This Quarter</option>
+                    <option value="year">This Year</option>
+                    <option value="last_year">Last Year</option>
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                    <ChevronDown size={14} className="text-black" />
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`wireframe-button flex items-center justify-center gap-2 px-6 py-2.5 text-[11px] uppercase font-bold transition-colors h-10 ${
+                    showFilters || selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All'
+                      ? 'bg-black text-white' 
+                      : 'bg-white text-black'
+                  }`}
+                >
+                  <Filter size={14} />
+                  Filters {(selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All') && '•'}
+                </button>
+              </div>
             </div>
 
             {/* Collapsible Filters Row */}
