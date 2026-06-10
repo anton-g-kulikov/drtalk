@@ -81,7 +81,7 @@ export function getReferralCode(id: string): string {
   return `REF-${id}000X`;
 }
 
-export function isInRange(receivedAt: string, range: 'month' | 'quarter' | 'year' | 'last_year'): boolean {
+export function isInRange(receivedAt: string, range: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'): boolean {
   // Use current date: Jun 9, 2026
   const currentDate = new Date('2026-06-09T10:42:38+02:00');
   
@@ -98,6 +98,23 @@ export function isInRange(receivedAt: string, range: 'month' | 'quarter' | 'year
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth(); // June is 5
   
+  if (range === 'day') {
+    return refDate.getFullYear() === currentYear &&
+           refDate.getMonth() === currentMonth &&
+           refDate.getDate() === currentDate.getDate();
+  }
+  if (range === 'week') {
+    const startOfWeek = new Date(currentDate);
+    const dayOfWeek = currentDate.getDay();
+    startOfWeek.setDate(currentDate.getDate() - dayOfWeek);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    endOfWeek.setHours(23, 59, 59, 999);
+
+    return refDate >= startOfWeek && refDate <= endOfWeek;
+  }
   if (range === 'month') {
     return refDate.getFullYear() === currentYear && refDate.getMonth() === currentMonth;
   }
