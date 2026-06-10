@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy, ChevronDown } from 'lucide-react';
+import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy, ChevronDown, Check } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
@@ -14,6 +14,16 @@ import { useVerification } from '@/components/VerificationContext';
 
 export default function ReferralsPage() {
   const [mockReferrals, setMockReferrals] = useState<UnifiedReferral[]>(initialReferrals);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const handleCopy = (value: string, fieldName: string) => {
+    navigator.clipboard.writeText(value);
+    setCopiedField(fieldName);
+    setTimeout(() => {
+      setCopiedField(null);
+    }, 2000);
+  };
+
   useEffect(() => {
     setTimeout(() => {
       setMockReferrals(getReferrals());
@@ -135,15 +145,28 @@ export default function ReferralsPage() {
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Direct Intake Email:</span>
                 <span className="text-[10px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</span>
-                <button className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1">
-                  <Copy size={12} />
+                <button 
+                  onClick={() => handleCopy('valleyendodontics@drtalk.com', 'email')}
+                  className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                  title="Copy Intake Email"
+                >
+                  {copiedField === 'email' ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
                 </button>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Public Referral URL:</span>
-                <span className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight">drtalk.com/valleyendodontics</span>
-                <button className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1">
-                  <Copy size={12} />
+                <span 
+                  onClick={() => router.push('/referral?practice=Valley Endodontics')}
+                  className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight"
+                >
+                  drtalk.com/valleyendodontics
+                </span>
+                <button 
+                  onClick={() => handleCopy('https://drtalk.com/valleyendodontics', 'url')}
+                  className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1 flex items-center justify-center min-w-[28px] min-h-[28px]"
+                  title="Copy Public URL"
+                >
+                  {copiedField === 'url' ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
                 </button>
               </div>
             </div>
