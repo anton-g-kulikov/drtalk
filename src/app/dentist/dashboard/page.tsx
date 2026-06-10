@@ -703,8 +703,8 @@ export default function DentistDashboardPage() {
                                 onClick={() => {
                                   const practiceName = doc.channelName || doc.sender;
                                   const url = doc.channelType === 'case'
-                                    ? `/dentist/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}`
-                                    : `/dentist/channels?practice=${encodeURIComponent(practiceName)}`;
+                                    ? `/dentist/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
+                                    : `/dentist/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                                   router.push(url);
                                 }}
                                 className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"

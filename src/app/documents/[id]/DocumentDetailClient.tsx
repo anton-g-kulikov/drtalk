@@ -486,7 +486,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
                       : documentItem.sender.toLowerCase().includes('miller') || documentItem.sender.toLowerCase().includes('robert')
                       ? 'Westside Pediatric Dentistry'
                       : 'Sunshine Dental';
-                    const route = role === 'dentist' ? `/dentist/channels?practice=${encodeURIComponent(documentItem.channelName || '')}` : `/channels?practice=${encodeURIComponent(practiceName)}`;
+                    const route = role === 'dentist' ? `/dentist/channels?practice=${encodeURIComponent(documentItem.channelName || '')}&tab=documents` : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                     router.push(route);
                   }}
                   className="wireframe-button text-[10px] font-black uppercase px-5 py-2 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5"

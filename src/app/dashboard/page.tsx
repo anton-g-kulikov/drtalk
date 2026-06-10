@@ -710,8 +710,8 @@ export default function DashboardPage() {
                                     ? 'Westside Pediatric Dentistry'
                                     : 'Sunshine Dental';
                                   const url = doc.channelType === 'case'
-                                    ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}`
-                                    : `/channels?practice=${encodeURIComponent(practiceName)}`;
+                                    ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
+                                    : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                                   router.push(url);
                                 }}
                                 className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
