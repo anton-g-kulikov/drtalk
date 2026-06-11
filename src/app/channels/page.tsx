@@ -14,6 +14,7 @@ import {
   ChevronDown, ChevronRight, ArrowLeft
 } from 'lucide-react';
 import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { generateMockData, dentistPractices, specialistClinics } from '@/lib/mockGenerator';
 
 export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group';
 
@@ -47,81 +48,23 @@ export interface MessageItem {
   document?: SharedDocument;
 }
 
+const mockData = typeof window !== 'undefined' ? generateMockData() : { documents: [], messages: {} };
+export const initialDocuments: SharedDocument[] = mockData.documents;
+export const initialMessages: Record<string, MessageItem[]> = mockData.messages;
+
 export const mockChannels: Channel[] = [
   { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
-  { id: '3', name: 'Valley Endodontics', type: 'inter-practice', lastMessage: 'Pano image uploaded for Alice Cooper.', memberCount: 2 },
-  { id: '7', name: 'Downtown Oral Surgery', type: 'inter-practice', lastMessage: 'Referral sent for Bob Marley.', memberCount: 2 },
-  { id: '8', name: 'Metro Orthodontics', type: 'inter-practice', lastMessage: 'Referral sent for Charlie Brown.', memberCount: 2 },
-  { id: '9', name: 'Arizona Periodontics', type: 'inter-practice', lastMessage: 'Referral sent for David Bowie.', memberCount: 2 },
-  { id: '6', name: 'Beverly Hills Dental', type: 'inter-practice', lastMessage: 'Waiting for verification.', memberCount: 1, isVerified: false },
+  ...specialistClinics.map(clinic => ({
+    id: clinic.id,
+    name: clinic.name,
+    type: 'inter-practice' as const,
+    lastMessage: clinic.name === 'Valley Endodontics' ? 'Pano image uploaded for Alice Cooper.' : 'Practice connection active.',
+    memberCount: 2
+  })),
   { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
   { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
 ];
-
-export const initialDocuments: SharedDocument[] = [
-  { id: 'd1', channelId: 'case_1', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' },
-  { id: 'd2', channelId: 'case_1', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' },
-  { id: 'd7_1', channelId: 'case_2', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
-  { id: 'd7_2', channelId: 'case_2', name: 'implant_scan_19.zip', size: '15.2 MB', type: 'zip', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' },
-  { id: 'd8_1', channelId: 'case_3', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' },
-  { id: 'd9_1', channelId: 'case_4', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' },
-  { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' },
-  { id: 'd_gen3', channelId: '3', name: 'valley_endo_fee_schedule_2026.pdf', size: '1.5 MB', type: 'pdf', sentBy: 'Valley Endodontics', sentAt: 'Yesterday, 02:30 PM' },
-  { id: 'd_gen7', channelId: '7', name: 'downtown_oral_surgery_consent_forms.zip', size: '4.8 MB', type: 'zip', sentBy: 'Downtown Oral Surgery', sentAt: 'Yesterday, 04:00 PM' }
-];
-
-export const initialMessages: Record<string, MessageItem[]> = {
-  '1': [
-    { id: 'm1_1', user: 'Nurse Joy', text: 'Did anyone review the morning labs yet?', time: '09:15 AM', type: 'other' },
-    { id: 'm1_2', user: 'Me', text: "I'm on it. Should be done in 10 minutes.", time: '09:20 AM', type: 'self', transport: 'App' },
-    { id: 'm1_3', user: 'Dr. Smith', text: "Thanks, let know if there's anything urgent.", time: '09:25 AM', type: 'other' }
-  ],
-  '2': [
-    { id: 'm2_1', user: 'Me', text: 'Drafting the March report now.', time: 'Yesterday', type: 'self', transport: 'App' },
-    { id: 'm2_2', user: 'Admin', text: "Great, let's review it tomorrow.", time: 'Yesterday', type: 'other' }
-  ],
-  'case_1': [
-    { id: 'm3_1', user: 'Valley Endodontics', text: 'Pano image uploaded for Alice Cooper. Let us know if you need more angles.', time: '10:24 AM', type: 'other', document: { id: 'd1', channelId: 'case_1', name: 'pano_alice_cooper.png', size: '2.4 MB', type: 'image', sentBy: 'Valley Endodontics', sentAt: 'Today, 10:24 AM' } },
-    { id: 'm3_2', user: 'Me', text: 'Received. Looks like a clear case for retreatment. Sending referral over now.', time: '11:05 AM', type: 'self', transport: 'App', document: { id: 'd2', channelId: 'case_1', name: 'referral_form_signed.pdf', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: 'Today, 11:05 AM' } }
-  ],
-  'case_2': [
-    { id: 'm7_1', user: 'Me', text: 'Hello Dr. Jones, referring Bob Marley for a dental implant on #19. Attached are the referral form and patient records.', time: '06:20 AM', type: 'self', transport: 'App', document: { id: 'd7_1', channelId: 'case_2', name: 'referral_bob_marley.pdf', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 06:20 AM' } },
-    { id: 'm7_2', user: 'Downtown Oral Surgery', text: 'Thanks Taylor. We will schedule Bob soon and send over updates.', time: '07:15 AM', type: 'other' }
-  ],
-  'case_3': [
-    { id: 'm8_1', user: 'Me', text: 'Hi Dr. Miller, sending over Charlie Brown for an emergency extraction of tooth #16. Please see attached records.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd8_1', channelId: 'case_3', name: 'referral_charlie_brown.pdf', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/10/2026, 10:20 AM' } }
-  ],
-  'case_4': [
-    { id: 'm9_1', user: 'Me', text: 'Hi Dr. White, referring David Bowie for an Invisalign evaluation. Attached is the complete case package.', time: '10:20 AM', type: 'self', transport: 'App', document: { id: 'd9_1', channelId: 'case_4', name: 'referral_david_bowie.pdf', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/09/2026, 10:20 AM' } }
-  ],
-  '4': [
-    { id: 'm4_0', user: 'Me', text: 'Welcome to Sunshine Dental! To help us communicate about your care, appointments, and important health information, may we contact you via SMS/text message? Standard messaging rates may apply.\n\nPlease reply with:\n• Full Name:\n• Date of Birth (MM/DD/YYYY):\n\nReply YES to consent to SMS communication, or NO to decline.', time: '11:15 AM', type: 'self', transport: 'SMS' },
-    { id: 'm4_1', user: 'Alice Cooper', text: 'YES\nAlice Cooper\n02/04/1948', time: '11:15 AM', type: 'other', transport: 'SMS' },
-    { id: 'm4_2', user: 'Me', text: 'Just avoid eating 2 hours before the procedure. We will send a formal prep guide to your email shortly.', time: '11:20 AM', type: 'self', transport: 'Email' },
-    { id: 'm4_3', user: 'Alice Cooper', text: 'Got it, thank you!', time: '11:25 AM', type: 'other', transport: 'SMS' }
-  ],
-  '5': [
-    { id: 'm5_1', user: 'System', text: 'Welcome to the drTalk network! Here you can find updates and connect with other providers.', time: 'Yesterday', type: 'other' },
-    { id: 'm5_2', user: 'Admin', text: 'New clinical guidelines for 2024 have been posted in the resources section.', time: '08:00 AM', type: 'other' }
-  ],
-  '6': [
-    { id: 'm6_1', user: 'Beverly Hills Dental', text: 'Waiting for verification.', time: 'Yesterday, 04:15 PM', type: 'other', document: { id: 'd3', channelId: '6', name: 'practice_credentials.pdf', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' } }
-  ],
-  '3': [
-    { id: 'm3_g1', user: 'Valley Endodontics', text: 'Hi Dr. Smith, welcome to our connected practice portal. Here we can chat generally and share practice-level files.', time: '08:00 AM', type: 'other' },
-    { id: 'm3_g2', user: 'Me', text: 'Thanks! Looking forward to collaborating on our joint patients.', time: '08:15 AM', type: 'self', transport: 'App' }
-  ],
-  '7': [
-    { id: 'm7_g1', user: 'Downtown Oral Surgery', text: 'Hello! General portal established. Let us know if you need to coordinate any surgical scheduling templates.', time: 'Yesterday', type: 'other' }
-  ],
-  '8': [
-    { id: 'm8_g1', user: 'Metro Orthodontics', text: 'Connected successfully with Sunshine Dental. We will post general schedule updates here.', time: 'Yesterday', type: 'other' }
-  ],
-  '9': [
-    { id: 'm9_g1', user: 'Arizona Periodontics', text: 'Practice connection active.', time: 'Yesterday', type: 'other' }
-  ]
-};
 
 const mockAttachments = [
   { name: 'pano_xray_post_op.png', size: '3.1 MB', type: 'image' as const },
@@ -190,20 +133,11 @@ function ChannelsContent() {
     return filteredRefs.map(ref => {
       let practiceId = '3';
       if (isDentist) {
-        const specialistName = (ref.specialist || '').toLowerCase();
-        if (specialistName.includes('downtown')) practiceId = '7';
-        else if (specialistName.includes('metro')) practiceId = '8';
-        else if (specialistName.includes('arizona')) practiceId = '9';
-        else if (specialistName.includes('beverly')) practiceId = '6';
+        const match = specialistClinics.find(c => c.name.toLowerCase() === (ref.specialist || '').toLowerCase());
+        practiceId = match ? match.id : '3';
       } else {
-        // Specialist side: map based on referring dentist/practice
-        const practice = (ref.practice || '').toLowerCase();
-        const dentist = (ref.dentist || '').toLowerCase();
-        if (practice.includes('sunshine') || dentist.includes('smith') || dentist.includes('reed') || ref.id === '1' || ref.id === '6' || ref.id === '9') {
-          practiceId = '6'; // Sunshine Dental
-        } else if (practice.includes('desert') || dentist.includes('jones') || ref.id === '2') {
-          practiceId = '7'; // Desert Bloom Dental
-        }
+        const match = dentistPractices.find(p => p.name.toLowerCase() === (ref.practice || '').toLowerCase());
+        practiceId = match ? match.id : '6';
       }
 
       const code = getReferralCode(ref.id);
@@ -232,8 +166,13 @@ function ChannelsContent() {
       setChannels([
         { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
         { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
-        { id: '6', name: 'Sunshine Dental', type: 'inter-practice', lastMessage: 'Practice connection active.', memberCount: 2 },
-        { id: '7', name: 'Desert Bloom Dental', type: 'inter-practice', lastMessage: 'Referral sent for Bob Marley.', memberCount: 2 },
+        ...dentistPractices.map(practice => ({
+          id: practice.id,
+          name: practice.name,
+          type: 'inter-practice' as const,
+          lastMessage: 'Practice connection active.',
+          memberCount: 2
+        })),
         { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
         { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
       ]);
@@ -246,6 +185,9 @@ function ChannelsContent() {
   const [patientCollapsed, setPatientCollapsed] = useState(true);
   const [groupCollapsed, setGroupCollapsed] = useState(true);
 
+  // Expanded state for connected practice case lists (collapsed by default to keep sidebar clean)
+  const [expandedPractices, setExpandedPractices] = useState<Record<string, boolean>>({});
+
   // Group chat creation states
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [groupChatName, setGroupChatName] = useState('');
@@ -256,8 +198,47 @@ function ChannelsContent() {
   const [inputText, setInputText] = useState('');
   const [attachedDoc, setAttachedDoc] = useState<{ name: string; size: string; type: 'pdf' | 'image' | 'zip' | 'doc' } | null>(null);
 
-  // Search states for documents
+  // Search states for sidebar and documents
+  const [sidebarSearchQuery, setSidebarSearchQuery] = useState('');
   const [docSearchQuery, setDocSearchQuery] = useState('');
+
+  const filteredInternalChannels = React.useMemo(() => {
+    return channels
+      .filter(c => c.type === 'internal')
+      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
+  }, [channels, sidebarSearchQuery]);
+
+  const filteredPatientChannels = React.useMemo(() => {
+    return channels
+      .filter(c => c.type === 'patient')
+      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
+  }, [channels, sidebarSearchQuery]);
+
+  const filteredGroupChannels = React.useMemo(() => {
+    return channels
+      .filter(c => c.type === 'group')
+      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
+  }, [channels, sidebarSearchQuery]);
+
+  const filteredCaseChannels = React.useMemo(() => {
+    return caseChannels.filter(cc => 
+      cc.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase())
+    );
+  }, [caseChannels, sidebarSearchQuery]);
+
+  const filteredPracticeChannels = React.useMemo(() => {
+    return channels
+      .filter(c => c.type === 'inter-practice')
+      .filter(c => {
+        const matchesPractice = c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase());
+        const hasMatchingCase = caseChannels.some(cc => 
+          cc.practiceId === c.id && 
+          !cc.isArchived && 
+          cc.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase())
+        );
+        return matchesPractice || hasMatchingCase;
+      });
+  }, [channels, caseChannels, sidebarSearchQuery]);
 
   // Toast notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -377,6 +358,23 @@ function ChannelsContent() {
 
   const [activeChannel, setActiveChannel] = useState<Channel>(mockChannels[0]);
 
+  // Auto-expand parent practice when active channel is a case sub-channel
+  useEffect(() => {
+    if (activeChannel?.id?.startsWith('case_')) {
+      const caseChan = caseChannels.find(cc => cc.id === activeChannel.id);
+      if (caseChan?.practiceId) {
+        setExpandedPractices(prev => {
+          if (prev[caseChan.practiceId]) return prev;
+          return {
+            ...prev,
+            [caseChan.practiceId]: true
+          };
+        });
+      }
+    }
+  }, [activeChannel, caseChannels]);
+
+
   const channelReferrals = React.useMemo(() => {
     if (activeChannel.name.includes('Sunshine')) {
       return [{ id: 'D-1005', patientName: 'Sarah Jenkins', type: 'Endodontic' }];
@@ -465,6 +463,12 @@ function ChannelsContent() {
     setActiveChannel(c);
     setShowChannelList(false);
     const isParentInterPractice = c.type === 'inter-practice' && !c.id.startsWith('case_');
+    if (isParentInterPractice) {
+      setExpandedPractices(prev => ({
+        ...prev,
+        [c.id]: !prev[c.id]
+      }));
+    }
     if (!isParentInterPractice && activeTab === 'archived') {
       setActiveTab('messages');
     }
@@ -711,16 +715,33 @@ function ChannelsContent() {
     if (activeChannel.type !== 'inter-practice') {
       return { type: msg.type, user: msg.user };
     }
-    if (isDentist) {
-      return {
-        type: msg.type,
-        user: msg.user === 'Valley Endodontics' ? 'Valley Endodontics' : msg.user
-      };
-    } else {
-      if (msg.type === 'self') {
-        return { type: 'other' as const, user: 'Sunshine Dental' };
+    const isCaseChannel = activeChannel.id.startsWith('case_');
+    if (isCaseChannel) {
+      if (isDentist) {
+        return {
+          type: msg.type,
+          user: msg.user === 'Valley Endodontics' ? 'Valley Endodontics' : msg.user
+        };
       } else {
-        return { type: 'self' as const, user: 'Me' };
+        if (msg.type === 'self') {
+          return { type: 'other' as const, user: 'Sunshine Dental' };
+        } else {
+          return { type: 'self' as const, user: 'Me' };
+        }
+      }
+    } else {
+      if (isDentist) {
+        const isSelf = msg.user === 'Me' || msg.user === 'Dr. Taylor Reed';
+        return {
+          type: isSelf ? ('self' as const) : ('other' as const),
+          user: isSelf ? 'Me' : activeChannel.name
+        };
+      } else {
+        const isSelf = msg.user === 'Me' || msg.user === 'Valley Endodontics';
+        return {
+          type: isSelf ? ('self' as const) : ('other' as const),
+          user: isSelf ? 'Me' : activeChannel.name
+        };
       }
     }
   };
@@ -729,16 +750,27 @@ function ChannelsContent() {
     if (activeChannel.type !== 'inter-practice') {
       return sentBy;
     }
-    if (isDentist) {
-      return sentBy;
+    const isCaseChannel = activeChannel.id.startsWith('case_');
+    if (isCaseChannel) {
+      if (isDentist) {
+        return sentBy;
+      } else {
+        if (sentBy === 'Me') {
+          return 'Sunshine Dental';
+        }
+        if (sentBy === 'Valley Endodontics') {
+          return 'Me';
+        }
+        return sentBy;
+      }
     } else {
-      if (sentBy === 'Me') {
-        return 'Sunshine Dental';
+      if (isDentist) {
+        const isSelf = sentBy === 'Me' || sentBy === 'Dr. Taylor Reed' || sentBy === 'Sunshine Dental';
+        return isSelf ? 'Me' : activeChannel.name;
+      } else {
+        const isSelf = sentBy === 'Me' || sentBy === 'Valley Endodontics';
+        return isSelf ? 'Me' : activeChannel.name;
       }
-      if (sentBy === 'Valley Endodontics') {
-        return 'Me';
-      }
-      return sentBy;
     }
   };
 
@@ -773,8 +805,18 @@ function ChannelsContent() {
               <input
                 type="text"
                 placeholder="SEARCH CONVERSATIONS..."
-                className="wireframe-input pl-10 py-1.5 text-[10px]"
+                value={sidebarSearchQuery}
+                onChange={(e) => setSidebarSearchQuery(e.target.value)}
+                className="wireframe-input pl-10 py-1.5 text-[10px] w-full"
               />
+              {sidebarSearchQuery && (
+                <button
+                  onClick={() => setSidebarSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase hover:underline"
+                >
+                  Clear
+                </button>
+              )}
             </div>
           </div>
 
@@ -802,7 +844,7 @@ function ChannelsContent() {
               </div>
               {!internalCollapsed && (
                 <div className="space-y-1">
-                  {displayedChannels.filter(c => c.type === 'internal').map(c => (
+                  {filteredInternalChannels.map(c => (
                     <ChannelItem
                       key={c.id}
                       channel={c}
@@ -842,8 +884,8 @@ function ChannelsContent() {
               </div>
               {!connectedCollapsed && (
                 <div className="space-y-1">
-                  {displayedChannels.filter(c => c.type === 'inter-practice').map(c => {
-                    const practiceCases = caseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
+                  {filteredPracticeChannels.map(c => {
+                    const practiceCases = filteredCaseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
 
                     return (
                       <div key={c.id} className="space-y-0.5">
@@ -851,9 +893,11 @@ function ChannelsContent() {
                           channel={c}
                           isActive={activeChannel.id === c.id}
                           onClick={() => handleSelectChannel(c)}
+                          isExpanded={!!expandedPractices[c.id]}
+                          hasSubChannels={practiceCases.length > 0}
                         />
                         {/* Render nested case sub-channels */}
-                        {practiceCases.map(cc => {
+                        {expandedPractices[c.id] && practiceCases.map(cc => {
                           const isCaseActive = activeChannel.id === cc.id;
                           return (
                             <button
@@ -914,10 +958,10 @@ function ChannelsContent() {
               </div>
               {!groupCollapsed && (
                 <div className="space-y-1">
-                  {displayedChannels.filter(c => c.type === 'group').length === 0 ? (
+                  {filteredGroupChannels.length === 0 ? (
                     <p className="text-[8px] text-muted-foreground italic uppercase">No group chats yet.</p>
                   ) : (
-                    displayedChannels.filter(c => c.type === 'group').map(c => (
+                    filteredGroupChannels.map(c => (
                       <ChannelItem
                         key={c.id}
                         channel={c}
@@ -961,7 +1005,7 @@ function ChannelsContent() {
                   </div>
 
                   <div className="space-y-1">
-                    {displayedChannels.filter(c => c.type === 'patient').map(c => (
+                    {filteredPatientChannels.map(c => (
                       <ChannelItem
                         key={c.id}
                         channel={c}
@@ -2024,7 +2068,19 @@ export default function ChannelsPage() {
   );
 }
 
-function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActive: boolean, onClick: () => void }) {
+function ChannelItem({
+  channel,
+  isActive,
+  onClick,
+  isExpanded,
+  hasSubChannels
+}: {
+  channel: Channel;
+  isActive: boolean;
+  onClick: () => void;
+  isExpanded?: boolean;
+  hasSubChannels?: boolean;
+}) {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
   const displayName = (channel.id === '3' && !isDentist) ? 'Sunshine Dental' : channel.name;
@@ -2045,6 +2101,11 @@ function ChannelItem({ channel, isActive, onClick }: { channel: Channel, isActiv
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1.5 min-w-0">
+            {hasSubChannels && (
+              <span className={`shrink-0 ${isActive ? 'text-white' : 'text-muted-foreground'}`}>
+                {isExpanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+              </span>
+            )}
             <p className="text-[10px] font-bold uppercase truncate">{displayName}</p>
             {channel.isVerified === false && (
               <span
