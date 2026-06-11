@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
+import { initialDocuments } from '@/app/channels/page';
 
 import { getReferrals, updateReferralStatus, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
 
@@ -22,6 +23,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   // Load unified referrals from localStorage
   const [referrals, setReferrals] = useState<UnifiedReferral[]>(initialReferrals);
   const referral = referrals.find(r => r.id === id) || referrals[0];
+  const caseDocs = initialDocuments.filter(d => d.channelId === `case_${referral.id}`);
 
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
@@ -284,23 +286,30 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </div>
                 </section>
                 <section className="space-y-6">
-                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Attachments (3)</h4>
-                  <div className="space-y-2">
-                    {[
-                      { name: 'VIEW_SCAN_1.DCM', type: 'DICOM', size: '12.4 MB' },
-                      { name: 'VIEW_SCAN_2.DCM', type: 'DICOM', size: '8.2 MB' },
-                      { name: 'VIEW_SCAN_3.DCM', type: 'DICOM', size: '10.1 MB' },
-                    ].map((file, i) => (
-                      <div key={i} className="flex items-center gap-3 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group cursor-pointer transition-all">
-                        <FileText size={18} className="shrink-0" />
-                        <div className="flex flex-col flex-1 overflow-hidden">
-                          <span className="text-[10px] font-bold uppercase tracking-tight truncate">{file.name}</span>
-                          <span className="text-[8px] font-bold uppercase text-muted-foreground group-hover:text-white/70">{file.type} • {file.size}</span>
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Attachments ({caseDocs.length})</h4>
+                  {caseDocs.length === 0 ? (
+                    <div className="p-4 border-2 border-black border-dashed text-center">
+                      <p className="text-[10px] font-bold uppercase text-muted-foreground">No attachments for this case</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {caseDocs.map((doc) => (
+                        <div 
+                          key={doc.id} 
+                          onClick={() => router.push(`/documents/${doc.id}?role=specialist`)}
+                          className="flex items-center gap-3 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group cursor-pointer transition-all"
+                        >
+                          <FileText size={18} className="shrink-0" />
+                          <div className="flex flex-col flex-1 overflow-hidden">
+                            <span className="text-[10px] font-bold uppercase tracking-tight truncate">{doc.name}</span>
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground group-hover:text-white/70">
+                              {doc.type.toUpperCase()} • {doc.size}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-
+                      ))}
+                    </div>
+                  )}
                 </section>
               </div>
             </div>
