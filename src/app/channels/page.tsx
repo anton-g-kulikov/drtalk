@@ -323,6 +323,53 @@ function ChannelsContent() {
   const [patientDob, setPatientDob] = useState('');
   const [uploadMessage, setUploadMessage] = useState('');
   const [selectedReferral, setSelectedReferral] = useState('');
+  const [referralSearchQuery, setReferralSearchQuery] = useState('NONE / NEW REFERRAL');
+  const [isReferralDropdownOpen, setIsReferralDropdownOpen] = useState(false);
+
+  const handleSelectReferral = (refId: string) => {
+    setSelectedReferral(refId);
+    if (refId) {
+      const ref = referrals.find(r => r.id === refId);
+      if (ref) {
+        const parts = ref.patientName.trim().split(/\s+/);
+        const first = parts[0] || '';
+        const last = parts.slice(1).join(' ') || '';
+        
+        let dob = '';
+        if (ref.id === '1' || ref.patientName.toLowerCase() === 'alice cooper') dob = '12/04/1978';
+        else if (ref.id === 'D-1002' || ref.patientName.toLowerCase() === 'marco reyes') dob = '05/14/1988';
+        else if (ref.id === 'D-1003' || ref.patientName.toLowerCase() === 'nina patel') dob = '10/20/1990';
+        else if (ref.id === 'D-1005' || ref.id === 'D-1004' || ref.patientName.toLowerCase() === 'sarah jenkins') dob = '11/22/1992';
+        else if (ref.patientName.toLowerCase() === 'john doe') dob = '08/08/1985';
+        else if (ref.patientName.toLowerCase() === 'james dean') dob = '02/08/1931';
+        else if (ref.patientName.toLowerCase() === 'humphrey bogart') dob = '12/25/1899';
+        else if (ref.patientName.toLowerCase() === 'audrey hepburn') dob = '05/04/1929';
+        else dob = '01/01/1990';
+
+        setPatientFirstName(first);
+        setPatientLastName(last);
+        setPatientDob(dob);
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+      }
+    } else {
+      setPatientFirstName('');
+      setPatientLastName('');
+      setPatientDob('');
+      setReferralSearchQuery('NONE / NEW REFERRAL');
+    }
+  };
+
+  const closeReferralDropdown = () => {
+    setIsReferralDropdownOpen(false);
+    if (selectedReferral) {
+      const ref = referrals.find(r => r.id === selectedReferral);
+      if (ref) {
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+      }
+    } else {
+      setReferralSearchQuery('NONE / NEW REFERRAL');
+    }
+  };
 
 
 
@@ -385,8 +432,19 @@ function ChannelsContent() {
     } else if (activeChannel.name.includes('Metro')) {
       return [{ id: 'D-1003', patientName: 'John Doe', type: 'Orthodontic' }];
     }
-    return [];
   }, [activeChannel.name]);
+
+  const filteredReferralsList = React.useMemo(() => {
+    if (!referralSearchQuery || referralSearchQuery === 'NONE / NEW REFERRAL') {
+      return channelReferrals || [];
+    }
+    const query = referralSearchQuery.toLowerCase().trim();
+    return (channelReferrals || []).filter(r => {
+      const code = getReferralCode(r.id).toLowerCase();
+      const name = r.patientName.toLowerCase();
+      return code.includes(query) || name.includes(query);
+    });
+  }, [channelReferrals, referralSearchQuery]);
 
   const [showChannelList, setShowChannelList] = useState(false);
 
@@ -1622,6 +1680,8 @@ function ChannelsContent() {
                   setPatientDob('');
                   setUploadMessage('');
                   setSelectedReferral('');
+                  setReferralSearchQuery('NONE / NEW REFERRAL');
+                  setIsReferralDropdownOpen(false);
                 }}
                 className="hover:text-black text-black"
               >
@@ -1644,23 +1704,76 @@ function ChannelsContent() {
                 </select>
               </div>
 
-              {/* Field 2: Choice of sent referral (optional) */}
-              <div>
+              {/* Field 2: Choice of sent referral */}
+              <div className="relative">
                 <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Associated Referral (Optional)
+                  Associated Referral
                 </span>
-                <select
-                  value={selectedReferral}
-                  onChange={(e) => setSelectedReferral(e.target.value)}
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none"
-                >
-                  <option value="">NONE / NEW REFERRAL</option>
-                  {channelReferrals.map((referral) => (
-                    <option key={referral.id} value={referral.id}>
-                      {referral.id} - {referral.patientName}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search or select referral..."
+                    value={referralSearchQuery}
+                    onChange={(e) => {
+                      setReferralSearchQuery(e.target.value);
+                      setIsReferralDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsReferralDropdownOpen(true)}
+                    className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsReferralDropdownOpen(!isReferralDropdownOpen)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black"
+                  >
+                    <ChevronDown size={16} className={`transition-transform duration-200 ${isReferralDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {isReferralDropdownOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={closeReferralDropdown} 
+                    />
+                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-60 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
+                      <div
+                        onClick={() => {
+                          handleSelectReferral('');
+                          setReferralSearchQuery('NONE / NEW REFERRAL');
+                          setIsReferralDropdownOpen(false);
+                        }}
+                        className="p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10"
+                      >
+                        NONE / NEW REFERRAL
+                      </div>
+                      {filteredReferralsList.length === 0 ? (
+                        <div className="p-2 text-xs font-bold text-muted-foreground italic text-center">
+                          No matching referrals
+                        </div>
+                      ) : (
+                        filteredReferralsList.map((referral) => {
+                          const code = getReferralCode(referral.id);
+                          const label = `${code} - ${referral.patientName}`;
+                          return (
+                            <div
+                              key={referral.id}
+                              onClick={() => {
+                                handleSelectReferral(referral.id);
+                                setIsReferralDropdownOpen(false);
+                              }}
+                              className={`p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10 ${
+                                selectedReferral === referral.id ? 'bg-zinc-100' : ''
+                              }`}
+                            >
+                              {label}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Attached Files List */}
@@ -1805,7 +1918,8 @@ function ChannelsContent() {
                       placeholder="Enter patient first name"
                       value={patientFirstName}
                       onChange={(e) => setPatientFirstName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                   </div>
                   <div>
@@ -1815,7 +1929,8 @@ function ChannelsContent() {
                       placeholder="Enter patient last name"
                       value={patientLastName}
                       onChange={(e) => setPatientLastName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                   </div>
                 </div>
@@ -1828,7 +1943,8 @@ function ChannelsContent() {
                       placeholder="MM/DD/YYYY"
                       value={patientDob}
                       onChange={(e) => setPatientDob(e.target.value)}
-                      className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                     <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                       <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1865,6 +1981,8 @@ function ChannelsContent() {
                   setPatientDob('');
                   setUploadMessage('');
                   setSelectedReferral('');
+                  setReferralSearchQuery('NONE / NEW REFERRAL');
+                  setIsReferralDropdownOpen(false);
                 }}
                 className="flex-1 wireframe-button bg-white text-black border-black text-[10px] uppercase py-2.5 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
               >
