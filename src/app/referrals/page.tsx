@@ -51,6 +51,13 @@ export default function ReferralsPage() {
   const [selectedPracticeFilter, setSelectedPracticeFilter] = useState<string>('All');
   const [showIncompleteOnly, setShowIncompleteOnly] = useState(false);
 
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, timeRange, searchQuery, selectedUrgency, selectedSource, selectedPracticeFilter, showIncompleteOnly]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -105,7 +112,9 @@ export default function ReferralsPage() {
       if (r.id.startsWith('D-')) return false;
     }
 
-    const matchesTab = r.status === activeTab;
+    const matchesTab = activeTab === 'Received'
+      ? (r.status === 'Received' || r.status === 'Sent')
+      : r.status === activeTab;
     const matchesQuery = r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          r.type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesUrgency = selectedUrgency === 'All' || r.urgency === selectedUrgency;
@@ -123,6 +132,13 @@ export default function ReferralsPage() {
 
     return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice && matchesTimeRange;
   });
+
+  const ITEMS_PER_PAGE = 10;
+  const totalReferralPages = Math.ceil(filteredReferrals.length / ITEMS_PER_PAGE);
+  const paginatedReferrals = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredReferrals.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReferrals, currentPage]);
 
   return (
     <MainLayout title="Referrals">
@@ -353,8 +369,8 @@ export default function ReferralsPage() {
 
             {/* Referral List */}
             <div className="space-y-2">
-              {filteredReferrals.length > 0 ? (
-                filteredReferrals.map((referral) => (
+              {paginatedReferrals.length > 0 ? (
+                paginatedReferrals.map((referral) => (
                   <div 
                     key={referral.id} 
                     onClick={() => handleReferralClick(referral.id)}
@@ -424,8 +440,86 @@ export default function ReferralsPage() {
                 </div>
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {totalReferralPages > 1 && (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black pt-4 bg-white font-bold text-[10px] gap-4">
+                <div className="flex items-center gap-3 text-muted-foreground uppercase font-black tracking-wider flex-wrap">
+                  <span>Page {currentPage} of {totalReferralPages} ({filteredReferrals.length} items)</span>
+                  <div className="flex items-center gap-1.5 text-black">
+                    <span className="font-normal lowercase">go to page:</span>
+                    <select
+                      value={currentPage}
+                      onChange={(e) => setCurrentPage(Number(e.target.value))}
+                      className="border-2 border-black bg-white px-1.5 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none"
+                    >
+                      {Array.from({ length: totalReferralPages }, (_, i) => i + 1).map(page => (
+                        <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                  >
+                    PREV
+                  </button>
+                  
+                  <div className="flex items-center gap-1">
+                    {getPageNumbers(currentPage, totalReferralPages).map((p, idx) => {
+                      if (p === '...') {
+                        return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
+                      }
+                      return (
+                        <button
+                          key={`page-${p}`}
+                          onClick={() => setCurrentPage(Number(p))}
+                          className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
+                            currentPage === p 
+                              ? 'bg-black text-white font-black' 
+                              : 'bg-white text-black hover:bg-black hover:text-white font-bold'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    disabled={currentPage === totalReferralPages}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalReferralPages))}
+                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                  >
+                    NEXT
+                  </button>
+                </div>
+              </div>
+            )}
         </div>
       </div>
     </MainLayout>
   );
 }
+
+function getPageNumbers(currentPage: number, totalPages: number) {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+  return pages;
+}
+

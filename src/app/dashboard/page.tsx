@@ -21,6 +21,11 @@ import {
   MessageItem 
 } from '@/app/channels/page';
 import { getReferrals, isInRange, UnifiedReferral } from '@/lib/referrals';
+import { 
+  getInitialSpecialistDocs, 
+  getInitialSpecialistArchivedDocs,
+  dentistPractices
+} from '@/lib/mockGenerator';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function getNewId(prefix: string): string {
@@ -66,17 +71,9 @@ export default function DashboardPage() {
 
   const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
   
-  // Base values for realistic look: Day: 2, Week: 6, Month: 18, Quarter: 34, Year: 72, Last Year: 95
-  const baseReceived = timeRange === 'day' ? 2 : timeRange === 'week' ? 6 : timeRange === 'month' ? 18 : timeRange === 'quarter' ? 34 : timeRange === 'year' ? 72 : 95;
-  const referralsReceivedCount = baseReceived + specialistReferrals.filter(r => r.status === 'Received' && isInRange(r.receivedAt, timeRange)).length;
-  
-  // Base values for realistic look: Day: 1, Week: 4, Month: 12, Quarter: 24, Year: 48, Last Year: 60
-  const baseScheduled = timeRange === 'day' ? 1 : timeRange === 'week' ? 4 : timeRange === 'month' ? 12 : timeRange === 'quarter' ? 24 : timeRange === 'year' ? 48 : 60;
-  const referralsScheduledCount = baseScheduled + specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
-  
-  // Base values for realistic look: Day: 0, Week: 2, Month: 5, Quarter: 14, Year: 36, Last Year: 45
-  const baseCompleted = timeRange === 'day' ? 0 : timeRange === 'week' ? 2 : timeRange === 'month' ? 5 : timeRange === 'quarter' ? 14 : timeRange === 'year' ? 36 : 45;
-  const specialtyCareCompleteCount = baseCompleted + specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
+  const referralsReceivedCount = specialistReferrals.filter(r => (r.status === 'Received' || r.status === 'Sent') && isInRange(r.receivedAt, timeRange)).length;
+  const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+  const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
   const handleReferralClick = (id: string) => {
     if (!isVerified) {
@@ -109,12 +106,7 @@ export default function DashboardPage() {
     urgency?: 'Routine' | 'Urgent' | 'Emergency';
   }
 
-  const [documents, setDocuments] = useState<DocumentItem[]>([
-    { id: 'doc-1', name: 'PANO_IMAGE_ALICE_COOPER.JPG', sender: 'Dr. Smith (Dentist)', date: '10:05 AM 05/18/2026', size: '2.4 MB', fromChannel: true, channelName: 'Sunshine Dental', channelType: 'practice' },
-    { id: 'doc-2', name: 'REFERRAL_FORM_JOHN_DOE.PDF', sender: 'Dr. Jane Doe (Dentist)', date: '09:15 AM 05/18/2026', size: '1.2 MB', fromChannel: false },
-    { id: 'doc-3', name: 'CBCT_SCAN_BOB_MARLEY.DCM', sender: 'Dr. Robert Miller', date: '04:30 PM 05/17/2026', size: '15.8 MB', fromChannel: true, channelName: 'Valley Endodontics', channelType: 'case', caseId: 'case_2' }
-  ]);
-
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
   const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
 
@@ -125,18 +117,38 @@ export default function DashboardPage() {
     if (savedDocs) {
       try {
         const docs = JSON.parse(savedDocs);
-        setTimeout(() => setDocuments(docs), 0);
+        if (docs.length < 5) {
+          const initialSpecialistDocs = getInitialSpecialistDocs();
+          setDocuments(initialSpecialistDocs);
+          localStorage.setItem('drtalk_specialist_docs', JSON.stringify(initialSpecialistDocs));
+        } else {
+          setTimeout(() => setDocuments(docs), 0);
+        }
       } catch (e) {
         console.error(e);
       }
+    } else {
+      const initialSpecialistDocs = getInitialSpecialistDocs();
+      setDocuments(initialSpecialistDocs);
+      localStorage.setItem('drtalk_specialist_docs', JSON.stringify(initialSpecialistDocs));
     }
     if (savedArchived) {
       try {
         const archived = JSON.parse(savedArchived);
-        setTimeout(() => setArchivedDocuments(archived), 0);
+        if (archived.length < 5) {
+          const initialSpecialistArchivedDocs = getInitialSpecialistArchivedDocs();
+          setArchivedDocuments(initialSpecialistArchivedDocs);
+          localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(initialSpecialistArchivedDocs));
+        } else {
+          setTimeout(() => setArchivedDocuments(archived), 0);
+        }
       } catch (e) {
         console.error(e);
       }
+    } else {
+      const initialSpecialistArchivedDocs = getInitialSpecialistArchivedDocs();
+      setArchivedDocuments(initialSpecialistArchivedDocs);
+      localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(initialSpecialistArchivedDocs));
     }
   }, []);
 
@@ -149,6 +161,30 @@ export default function DashboardPage() {
     setArchivedDocuments(newArchived);
     localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(newArchived));
   };
+
+  // Search & Pagination states for Dashboard Documents
+  const [docSearchQuery, setDocSearchQuery] = useState('');
+  const [docCurrentPage, setDocCurrentPage] = useState(1);
+
+  // Reset page to 1 when search query or tab changes
+  useEffect(() => {
+    setDocCurrentPage(1);
+  }, [docSearchQuery, activeInboxTab]);
+
+  const filteredDocs = React.useMemo(() => {
+    const list = activeInboxTab === 'inbox' ? documents : archivedDocuments;
+    return list.filter(d => 
+      d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
+      d.sender.toLowerCase().includes(docSearchQuery.toLowerCase())
+    );
+  }, [documents, archivedDocuments, activeInboxTab, docSearchQuery]);
+
+  const DOCS_PER_PAGE = 5;
+  const totalDocPages = Math.ceil(filteredDocs.length / DOCS_PER_PAGE);
+  const paginatedDocs = React.useMemo(() => {
+    const start = (docCurrentPage - 1) * DOCS_PER_PAGE;
+    return filteredDocs.slice(start, start + DOCS_PER_PAGE);
+  }, [filteredDocs, docCurrentPage]);
 
   const handleArchiveDocument = (doc: DocumentItem) => {
     const updatedDocs = documents.filter(d => d.id !== doc.id);
@@ -273,11 +309,7 @@ export default function DashboardPage() {
   // Toast Action Link state
   const [toastAction, setToastAction] = useState<{ label: string; onClick: () => void } | null>(null);
 
-  const connectedPractices = [
-    { id: '1', name: 'Sunshine Dental' },
-    { id: '2', name: 'Oakridge Dental' },
-    { id: '3', name: 'Westside Pediatric Dentistry', isVerified: false }
-  ];
+  const connectedPractices = dentistPractices;
 
   const handleAttachMockScan = () => {
     const mockFile = {
@@ -628,7 +660,7 @@ export default function DashboardPage() {
             >
               View all Referrals
             </button>
-
+            
             {/* Documents Section */}
             <div className="space-y-4 pt-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
@@ -653,122 +685,64 @@ export default function DashboardPage() {
                   </button>
                 </div>
               </div>
-                
-                {activeInboxTab === 'inbox' ? (
-                  documents.length === 0 ? (
-                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No documents in inbox
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {documents.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
-                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                                <FileText size={20} className="text-black" />
-                              </div>
-                              <div>
-                                <p 
-                                  onClick={() => router.push(`/documents/${doc.id}?role=specialist`)}
-                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                >
-                                  {doc.name}
-                                </p>
-                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>From: {doc.sender}</span>
-                                  <span>•</span>
-                                  <span>{doc.size}</span>
-                                </div>
-                              </div>
-                            </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                          </div>
-                          
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
-                            {doc.channelType !== 'case' && (
-                              <div className="flex gap-2">
-                                <button 
-                                  onClick={() => handleConvertDocument(doc)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                                >
-                                  Convert to Referral
-                                </button>
-                                <button 
-                                  onClick={() => handleAttachDocument(doc)}
-                                  className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                                >
-                                  Attach to existing referral
-                                </button>
-                              </div>
-                            )}
 
-                            {doc.fromChannel ? (
-                              <button 
-                                onClick={() => {
-                                  const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
-                                    ? 'Sunshine Dental'
-                                    : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
-                                    ? 'Oakridge Dental'
-                                    : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
-                                    ? 'Westside Pediatric Dentistry'
-                                    : 'Sunshine Dental';
-                                  const url = doc.channelType === 'case'
-                                    ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
-                                    : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
-                                  router.push(url);
-                                }}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
+              {/* Document Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="SEARCH DOCUMENTS..."
+                  value={docSearchQuery}
+                  onChange={(e) => setDocSearchQuery(e.target.value)}
+                  className="wireframe-input pl-10 py-2 text-[10px] w-full"
+                />
+                {docSearchQuery && (
+                  <button
+                    onClick={() => setDocSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+                
+              {filteredDocs.length === 0 && (
+                <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                  No documents found
+                </div>
+              )}
+
+              {filteredDocs.length > 0 && (
+                <div className="space-y-3">
+                  {paginatedDocs.map((doc) => {
+                    const isCase = doc.channelType === 'case';
+                    return (
+                      <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
+                        <div className="flex justify-between items-start">
+                          <div className="flex gap-3">
+                            <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
+                              <FileText size={20} className="text-black" />
+                            </div>
+                            <div>
+                              <p 
+                                onClick={() => router.push(`/documents/${doc.id}?role=specialist`)}
+                                className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
                               >
-                                View & Discuss in {doc.channelType === 'case' ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => handleArchiveDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
-                              >
-                                Archive <Archive size={12} />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )
-                ) : (
-                  archivedDocuments.length === 0 ? (
-                    <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                      No archived documents
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      {archivedDocuments.map((doc) => (
-                        <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all opacity-80">
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-3">
-                              <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                                <FileText size={20} className="text-black" />
-                              </div>
-                              <div>
-                                <p 
-                                  onClick={() => router.push(`/documents/${doc.id}?role=specialist`)}
-                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                >
-                                  {doc.name}
-                                </p>
-                                <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                  <span>From: {doc.sender}</span>
-                                  <span>•</span>
-                                  <span>{doc.size}</span>
-                                </div>
+                                {doc.name}
+                              </p>
+                              <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+                                <span>From: {doc.sender}</span>
+                                <span>•</span>
+                                <span>{doc.size}</span>
                               </div>
                             </div>
-                            <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
                           </div>
-                          
-                          {/* Actions */}
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
+                          <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
+                          {!isCase && (
                             <div className="flex gap-2">
                               <button 
                                 onClick={() => handleConvertDocument(doc)}
@@ -783,17 +757,102 @@ export default function DashboardPage() {
                                 Attach to existing referral
                               </button>
                             </div>
-                            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
-                              Archived
-                            </span>
-                          </div>
+                          )}
+
+                          {doc.fromChannel ? (
+                            <button 
+                              onClick={() => {
+                                const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
+                                  ? 'Sunshine Dental'
+                                  : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
+                                  ? 'Oakridge Dental'
+                                  : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
+                                  ? 'Westside Pediatric Dentistry'
+                                  : 'Sunshine Dental';
+                                const url = isCase
+                                  ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
+                                  : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
+                                router.push(url);
+                              }}
+                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
+                            >
+                              View & Discuss in {isCase ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={() => handleArchiveDocument(doc)}
+                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                            >
+                              Archive <Archive size={12} />
+                            </button>
+                          )}
                         </div>
-                      ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Pagination Controls */}
+              {totalDocPages > 1 && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black pt-4 bg-white font-bold text-[10px] gap-4">
+                  <div className="flex items-center gap-3 text-muted-foreground uppercase font-black tracking-wider flex-wrap">
+                    <span>Page {docCurrentPage} of {totalDocPages} ({filteredDocs.length} items)</span>
+                    <div className="flex items-center gap-1.5 text-black">
+                      <span className="font-normal lowercase">go to page:</span>
+                      <select
+                        value={docCurrentPage}
+                        onChange={(e) => setDocCurrentPage(Number(e.target.value))}
+                        className="border-2 border-black bg-white px-1.5 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none"
+                      >
+                        {Array.from({ length: totalDocPages }, (_, i) => i + 1).map(page => (
+                          <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                        ))}
+                      </select>
                     </div>
-                  )
-                )}
-              </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <button
+                      disabled={docCurrentPage === 1}
+                      onClick={() => setDocCurrentPage(prev => Math.max(prev - 1, 1))}
+                      className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                    >
+                      PREV
+                    </button>
+                    
+                    <div className="flex items-center gap-1">
+                      {getPageNumbers(docCurrentPage, totalDocPages).map((p, idx) => {
+                        if (p === '...') {
+                          return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
+                        }
+                        return (
+                          <button
+                            key={`page-${p}`}
+                            onClick={() => setDocCurrentPage(Number(p))}
+                            className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
+                              docCurrentPage === p 
+                                ? 'bg-black text-white font-black' 
+                                : 'bg-white text-black hover:bg-black hover:text-white font-bold'
+                            }`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <button
+                      disabled={docCurrentPage === totalDocPages}
+                      onClick={() => setDocCurrentPage(prev => Math.min(prev + 1, totalDocPages))}
+                      className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                    >
+                      NEXT
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
 
           {/* Recent Conversations / Side Column */}
           <div className="lg:col-span-4 space-y-8">
@@ -1039,7 +1098,7 @@ export default function DashboardPage() {
                   <option value="">SELECT PRACTICE...</option>
                   {connectedPractices.map((practice) => (
                     <option key={practice.id} value={practice.name}>
-                      {practice.name} {practice.isVerified === false ? '(UNVERIFIED)' : ''}
+                      {practice.name} {(practice as any).isVerified === false ? '(UNVERIFIED)' : ''}
                     </option>
                   ))}
                 </select>
@@ -1264,3 +1323,22 @@ function ActionCard({ label, desc, onClick }: { label: string, desc: string, onC
     </div>
   );
 }
+
+function getPageNumbers(currentPage: number, totalPages: number) {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+  return pages;
+}
+
