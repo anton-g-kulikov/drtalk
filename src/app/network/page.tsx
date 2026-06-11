@@ -11,27 +11,7 @@ import {
   ArrowUpRight, CheckCircle2, TrendingUp, Users, ChevronDown
 } from 'lucide-react';
 import { InviteModal } from '@/components/InviteModal';
-
-interface NetworkPractice {
-  id: string;
-  name: string;
-  type: string;
-  specialty: string;
-  location: string;
-  status: 'Connected' | 'Nearby' | 'Suggested';
-  verified: boolean;
-}
-
-const mockNetwork: NetworkPractice[] = [
-  { id: '1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
-  { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
-  { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
-  { id: '6', name: 'Sunshine Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '7', name: 'Desert Bloom Dental', type: 'Dentist', specialty: 'General Dentistry', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
-  { id: '8', name: 'Mountain View Family Dental', type: 'Dentist', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ', status: 'Suggested', verified: false },
-];
+import { getNetwork, NetworkPractice } from '@/lib/referrals';
 
 const mockAnalytics = {
   'day': {
@@ -209,6 +189,11 @@ export default function NetworkPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
+
+  useEffect(() => {
+    setNetworkList(getNetwork());
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -230,17 +215,26 @@ export default function NetworkPage() {
     }, 5000);
   };
 
-  const filteredNetwork = mockNetwork.filter(p => {
-    if (p.type !== 'Dentist') return false;
-    if (activeTab === 'connected' && p.status !== 'Connected') return false;
+  const filteredNetwork = networkList.filter(p => {
+    const searchStr = searchQuery.toLowerCase();
+    const matchesSearch = p.name.toLowerCase().includes(searchStr) ||
+                          p.specialty.toLowerCase().includes(searchStr);
+    if (!matchesSearch) return false;
+
+    if (activeTab === 'connected') {
+      // My Network: show all Connected practices regardless of type
+      return p.status === 'Connected';
+    }
     if (activeTab === 'directory') {
+      // Connect&Grow: show non-connected, on-platform suggestions only
+      if (p.isExternal) return false;
       if (p.status === 'Connected') return false;
       if (directoryFilter === 'nearby' && p.status !== 'Nearby') return false;
+      return true;
     }
-    const searchStr = searchQuery.toLowerCase();
-    return p.name.toLowerCase().includes(searchStr) || 
-           p.specialty.toLowerCase().includes(searchStr);
+    return true;
   });
+
 
   return (
     <MainLayout title="Practice Network">
@@ -321,23 +315,30 @@ export default function NetworkPage() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredNetwork.map((practice) => (
-                    <div 
-                      key={practice.id} 
-                      className="wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full"
+                {activeTab === 'connected' ? (() => {
+                  const onPlatform = filteredNetwork.filter(p => !p.isExternal);
+                  const external   = filteredNetwork.filter(p => p.isExternal);
+                  const PracticeCard = ({ practice }: { practice: NetworkPractice }) => (
+                    <div
+                      key={practice.id}
+                      className={`wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full ${practice.isExternal ? 'border-dashed' : ''}`}
                     >
                       <div className="p-6 space-y-4 flex-1">
                         <div className="flex justify-between items-start">
-                          <div className="w-12 h-12 border-2 border-black flex items-center justify-center bg-gray-50 group-hover:bg-black group-hover:text-white transition-all">
+                          <div className={`w-12 h-12 border-2 border-black flex items-center justify-center transition-all ${practice.isExternal ? 'bg-gray-100 group-hover:bg-gray-200' : 'bg-gray-50 group-hover:bg-black group-hover:text-white'}`}>
                             <Building2 size={24} />
                           </div>
-                          <div className="flex flex-col items-end">
+                          <div className="flex flex-col items-end gap-1">
                             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
                               practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
                             }`}>
                               {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
                             </span>
+                            {practice.isExternal && (
+                              <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
+                                External / Fax / Email
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -356,47 +357,112 @@ export default function NetworkPage() {
                       </div>
 
                       <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
-                        {practice.status === 'Connected' ? (
-                          <Link 
-                            href={`/channels?practice=${encodeURIComponent(practice.name)}`}
-                            className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
-                          >
-                            <MessageCircle size={14} />
-                            Chat Now
-                          </Link>
-                        ) : (
-                          <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
-                            {activeTab === 'directory' ? 'Connect' : 'Connect'}
-                          </button>
-                        )}
+                        <Link
+                          href={`/channels?practice=${encodeURIComponent(practice.name)}`}
+                          className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${practice.isExternal ? 'bg-white text-black hover:bg-gray-100 border-2 border-black' : 'bg-black text-white hover:bg-zinc-800'}`}
+                        >
+                          <MessageCircle size={14} />
+                          {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
+                        </Link>
                         <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
                           <ExternalLink size={14} />
                         </button>
                       </div>
                     </div>
-                  ))}
+                  );
 
-                  {/* Invite Placeholder */}
-                  {activeTab === 'connected' && (
-                    <div className="wireframe-card border-dashed bg-gray-50/30 flex flex-col items-center justify-center p-8 text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full border-2 border-black border-dashed flex items-center justify-center">
-                        <UserPlus size={24} className="text-muted-foreground" />
+                  return (
+                    <div className="space-y-10">
+                      {/* On-platform section */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-2.5 h-2.5 bg-black" />
+                          <span className="text-[10px] font-black uppercase tracking-widest">On-Platform ({onPlatform.length})</span>
+                          <div className="flex-1 border-t border-black/20" />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {onPlatform.map(p => <PracticeCard key={p.id} practice={p} />)}
+                          {/* Invite placeholder */}
+                          <div className="wireframe-card border-dashed bg-gray-50/30 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                            <div className="w-16 h-16 rounded-full border-2 border-black border-dashed flex items-center justify-center">
+                              <UserPlus size={24} className="text-muted-foreground" />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Colleague</h4>
+                              <p className="text-[8px] uppercase text-muted-foreground leading-relaxed">
+                                Is your favorite specialist not on drTalk yet? Invite them to join your network.
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setIsInviteModalOpen(true)}
+                              className="text-[10px] font-black uppercase underline hover:text-black"
+                            >
+                              Send Invitation
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <h4 className="font-bold uppercase text-xs tracking-tight">Invite a Colleague</h4>
-                        <p className="text-[8px] uppercase text-muted-foreground leading-relaxed">
-                          Is your favorite specialist not on drTalk yet? Invite them to join your network.
-                        </p>
-                      </div>
-                      <button 
-                        onClick={() => setIsInviteModalOpen(true)}
-                        className="text-[10px] font-black uppercase underline hover:text-black"
-                      >
-                        Send Invitation
-                      </button>
+
+                      {/* External section */}
+                      {external.length > 0 && (
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2.5 h-2.5 bg-gray-400 border border-black" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">External — Fax / Email ({external.length})</span>
+                            <div className="flex-1 border-t border-black/20" />
+                            <span className="text-[8px] font-bold uppercase text-muted-foreground">Off-platform · Secure Email transport</span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {external.map(p => <PracticeCard key={p.id} practice={p} />)}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  );
+                })() : (
+                  /* Connect&Grow flat grid */
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredNetwork.map((practice) => (
+                      <div
+                        key={practice.id}
+                        className="wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full"
+                      >
+                        <div className="p-6 space-y-4 flex-1">
+                          <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 border-2 border-black flex items-center justify-center bg-gray-50 group-hover:bg-black group-hover:text-white transition-all">
+                              <Building2 size={24} />
+                            </div>
+                            <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
+                              practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
+                            }`}>
+                              {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-black uppercase text-sm tracking-tight">{practice.name}</h3>
+                              {practice.verified && <ShieldCheck size={14} className="text-black" />}
+                            </div>
+                            <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty} — {practice.type}</p>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <MapPin size={12} />
+                            <span className="text-[9px] font-bold uppercase">{practice.location}</span>
+                          </div>
+                        </div>
+                        <div className="p-4 border-t-2 border-black flex gap-2 bg-gray-50/50">
+                          <button className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2">
+                            Connect
+                          </button>
+                          <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
+                            <ExternalLink size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
               </div>
             )}
         </div>

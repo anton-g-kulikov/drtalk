@@ -13,25 +13,7 @@ import {
 } from 'lucide-react';
 import { InviteModal } from '@/components/InviteModal';
 import { ReferralModal } from '@/components/ReferralModal';
-
-interface NetworkPractice {
-  id: string;
-  name: string;
-  type: string;
-  specialty: string;
-  location: string;
-  status: 'Connected' | 'Nearby' | 'Suggested';
-  verified: boolean;
-}
-
-const mockNetwork: NetworkPractice[] = [
-  { id: '1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: '3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
-  { id: '4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
-  { id: '5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
-  { id: '9', name: 'Phoenix Children\'s Dentistry', type: 'Specialist', specialty: 'Pediatric Dentistry', location: 'Phoenix, AZ', status: 'Suggested', verified: true },
-];
+import { getNetwork, NetworkPractice } from '@/lib/referrals';
 
 const mockAnalytics = {
   'day': {
@@ -212,6 +194,11 @@ export default function DentistNetworkPage() {
   const [isReferralModalOpen, setIsReferralModalOpen] = useState(false);
   const [selectedPracticeForReferral, setSelectedPracticeForReferral] = useState('');
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
+
+  useEffect(() => {
+    setNetworkList(getNetwork());
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -233,7 +220,7 @@ export default function DentistNetworkPage() {
     }, 5000);
   };
 
-  const filteredNetwork = mockNetwork.filter(p => {
+  const filteredNetwork = networkList.filter(p => {
     if (p.type !== 'Specialist') return false;
     if (activeTab === 'connected' && p.status !== 'Connected') return false;
     if (activeTab === 'directory') {
@@ -334,12 +321,17 @@ export default function DentistNetworkPage() {
                           <div className="w-12 h-12 border-2 border-black flex items-center justify-center bg-gray-50 group-hover:bg-black group-hover:text-white transition-all">
                             <Building2 size={24} />
                           </div>
-                          <div className="flex flex-col items-end">
+                          <div className="flex flex-col items-end gap-1">
                             <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${
                               practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'
                             }`}>
                               {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
                             </span>
+                            {practice.isExternal && (
+                              <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
+                                External / Fax / Email
+                              </span>
+                            )}
                           </div>
                         </div>
 
