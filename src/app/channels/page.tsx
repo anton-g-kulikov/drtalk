@@ -13,7 +13,7 @@ import {
   FileText, ImageIcon, X, Eye, Download, Plus, Upload,
   ChevronDown, ChevronRight, ArrowLeft
 } from 'lucide-react';
-import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
 import { generateMockData, dentistPractices, specialistClinics } from '@/lib/mockGenerator';
 
 export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group';
@@ -26,6 +26,7 @@ export interface Channel {
   unreadCount?: number;
   memberCount: number;
   isVerified?: boolean;
+  isExternal?: boolean;
 }
 
 export interface SharedDocument {
@@ -155,33 +156,34 @@ function ChannelsContent() {
 
   // State managed data
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [messages, setMessages] = useState<Record<string, MessageItem[]>>(initialMessages);
+  const [activeChannel, setActiveChannel] = useState<Channel>(mockChannels[0]);
+  const [messages, setMessages] = useState<Record<string, MessageItem[]>>({});
+  useEffect(() => {
+    setMessages(getMessages());
+  }, []);
+
+  useEffect(() => {
+    if (Object.keys(messages).length > 0) {
+      saveMessages(messages);
+    }
+  }, [messages]);
   const [documents, setDocuments] = useState<SharedDocument[]>(initialDocuments);
   const [activeTab, setActiveTab] = useState<'messages' | 'documents' | 'archived'>('messages');
 
   useEffect(() => {
-    if (isDentist) {
-      setChannels(mockChannels);
-    } else {
-      setChannels([
-        { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
-        { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
-        ...dentistPractices.map(practice => ({
-          id: practice.id,
-          name: practice.name,
-          type: 'inter-practice' as const,
-          lastMessage: 'Practice connection active.',
-          memberCount: 2
-        })),
-        { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
-        { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
-      ]);
-    }
+    setChannels(getChannels(isDentist));
   }, [isDentist]);
+
+  useEffect(() => {
+    if (channels.length > 0) {
+      saveChannels(isDentist, channels);
+    }
+  }, [channels, isDentist]);
 
   // Collapse states for sidebar sections
   const [internalCollapsed, setInternalCollapsed] = useState(true);
   const [connectedCollapsed, setConnectedCollapsed] = useState(true);
+  const [externalCollapsed, setExternalCollapsed] = useState(true);
   const [patientCollapsed, setPatientCollapsed] = useState(true);
   const [groupCollapsed, setGroupCollapsed] = useState(true);
 
@@ -239,6 +241,16 @@ function ChannelsContent() {
         return matchesPractice || hasMatchingCase;
       });
   }, [channels, caseChannels, sidebarSearchQuery]);
+
+  const filteredOnPlatformChannels = React.useMemo(
+    () => filteredPracticeChannels.filter(c => !c.isExternal),
+    [filteredPracticeChannels]
+  );
+
+  const filteredExternalChannels = React.useMemo(
+    () => filteredPracticeChannels.filter(c => c.isExternal),
+    [filteredPracticeChannels]
+  );
 
   // Toast notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -325,6 +337,16 @@ function ChannelsContent() {
   const [selectedReferral, setSelectedReferral] = useState('');
   const [referralSearchQuery, setReferralSearchQuery] = useState('NONE / NEW REFERRAL');
   const [isReferralDropdownOpen, setIsReferralDropdownOpen] = useState(false);
+  const [selectedPractices, setSelectedPractices] = useState<string[]>([]);
+  const [practiceSearchQuery, setPracticeSearchQuery] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    if (activeChannel) {
+      setSelectedPractices([activeChannel.name]);
+    }
+  }, [activeChannel]);
 
   const handleSelectReferral = (refId: string) => {
     setSelectedReferral(refId);
@@ -387,7 +409,13 @@ function ChannelsContent() {
 
   const connectedUnreadCount = React.useMemo(() => {
     return displayedChannels
-      .filter(c => c.type === 'inter-practice')
+      .filter(c => c.type === 'inter-practice' && !c.isExternal)
+      .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+  }, [displayedChannels]);
+
+  const externalUnreadCount = React.useMemo(() => {
+    return displayedChannels
+      .filter(c => c.type === 'inter-practice' && c.isExternal)
       .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
   }, [displayedChannels]);
 
@@ -402,8 +430,6 @@ function ChannelsContent() {
       .filter(c => c.type === 'patient')
       .reduce((sum, c) => sum + (c.unreadCount || 0), 0);
   }, [displayedChannels]);
-
-  const [activeChannel, setActiveChannel] = useState<Channel>(mockChannels[0]);
 
   // Auto-expand parent practice when active channel is a case sub-channel
   useEffect(() => {
@@ -484,7 +510,12 @@ function ChannelsContent() {
       }
 
       if (parentChannel) {
-        setConnectedCollapsed(false); // Auto-expand connected practices
+        if (parentChannel.isExternal) {
+          setExternalCollapsed(false);  // Expand External section
+          setConnectedCollapsed(true);  // Keep Connected collapsed
+        } else {
+          setConnectedCollapsed(false); // Expand Connected Practices
+        }
         const tabParam = searchParams.get('tab');
         const targetTab = (tabParam === 'documents' || tabParam === 'archived' || tabParam === 'messages') ? tabParam : 'messages';
         if (caseIdParam) {
@@ -562,7 +593,7 @@ function ChannelsContent() {
       text: inputText,
       time: timeString,
       type: 'self',
-      transport: activeChannel.type === 'patient' ? 'Email' : 'App',
+      transport: (activeChannel.type === 'patient' || activeChannel.isExternal) ? 'Email' : 'App',
       document: docObj
     };
 
@@ -612,40 +643,89 @@ function ChannelsContent() {
   };
 
   const handleRealFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    const extension = file.name.split('.').pop()?.toLowerCase() || '';
-    let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
-    if (extension === 'pdf') type = 'pdf';
-    else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
-    else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
+    const newAttachedFiles: SharedDocument[] = [];
+    const limit = Math.min(files.length, 10 - attachedFiles.length);
 
-    const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
-    const formattedSize = parseFloat(sizeMB) > 0.1 ? `${sizeMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+    for (let k = 0; k < limit; k++) {
+      const file = files[k];
+      const extension = file.name.split('.').pop()?.toLowerCase() || '';
+      let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+      if (extension === 'pdf') type = 'pdf';
+      else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
+      else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
 
-    // Automatically fill form fields!
-    setCustomDocName(file.name);
-    setCustomDocType(type);
-    setCustomDocSize(formattedSize);
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      const formattedSize = parseFloat(sizeMB) > 0.1 ? `${sizeMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
 
-    // Automatically attach to list!
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const newFile: SharedDocument = {
-      id: 'temp_' + Math.random().toString(36).substring(2, 9),
-      channelId: activeChannel.id,
-      name: file.name,
-      size: formattedSize,
-      type: type,
-      sentBy: 'Me',
-      sentAt: 'Today, ' + timeString
-    };
+      const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      newAttachedFiles.push({
+        id: 'temp_' + Math.random().toString(36).substring(2, 9),
+        channelId: activeChannel.id,
+        name: file.name,
+        size: formattedSize,
+        type: type,
+        sentBy: 'Me',
+        sentAt: 'Today, ' + timeString
+      });
+    }
 
-    setAttachedFiles(prev => [...prev, newFile]);
-    triggerToast(`Attached "${file.name}" successfully!`);
+    if (newAttachedFiles.length > 0) {
+      setAttachedFiles(prev => [...prev, ...newAttachedFiles]);
+      triggerToast(`Attached ${newAttachedFiles.length} file(s) successfully!`);
+    }
 
-    // Clear input value so same file can be uploaded again
     e.target.value = '';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const newAttachedFiles: SharedDocument[] = [];
+      const limit = Math.min(files.length, 10 - attachedFiles.length);
+
+      for (let k = 0; k < limit; k++) {
+        const file = files[k];
+        const extension = file.name.split('.').pop()?.toLowerCase() || '';
+        let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+        if (extension === 'pdf') type = 'pdf';
+        else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
+        else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
+
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        const formattedSize = parseFloat(sizeMB) > 0.1 ? `${sizeMB} MB` : `${(file.size / 1024).toFixed(0)} KB`;
+
+        const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        newAttachedFiles.push({
+          id: 'temp_' + Math.random().toString(36).substring(2, 9),
+          channelId: activeChannel.id,
+          name: file.name,
+          size: formattedSize,
+          type: type,
+          sentBy: 'Me',
+          sentAt: 'Today, ' + timeString
+        });
+      }
+
+      if (newAttachedFiles.length > 0) {
+        setAttachedFiles(prev => [...prev, ...newAttachedFiles]);
+        triggerToast(`Attached ${newAttachedFiles.length} file(s) successfully!`);
+      }
+    }
   };
 
   const handleDirectUpload = () => {
@@ -655,10 +735,7 @@ function ChannelsContent() {
     }
     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Prepare documents to share. If we have attachedFiles, use those. 
-    // Otherwise fallback to single custom file as backup
     let filesToShare: Omit<SharedDocument, 'id'>[] = [];
-
     if (attachedFiles.length > 0) {
       filesToShare = attachedFiles;
     } else if (customDocName.trim()) {
@@ -677,68 +754,89 @@ function ChannelsContent() {
 
     if (filesToShare.length === 0) return;
 
-    // Convert to final SharedDocument array with unique IDs
-    const finalDocs: SharedDocument[] = filesToShare.map(file => ({
-      id: 'd_' + Math.random().toString(36).substring(2, 9),
-      channelId: activeChannel.id,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      sentBy: 'Me',
-      sentAt: 'Today, ' + timeString
-    }));
+    if (selectedPractices.length === 0) {
+      triggerToast("Please select at least one recipient.");
+      return;
+    }
 
-    setDocuments(prev => [...prev, ...finalDocs]);
+    let allNewDocs: SharedDocument[] = [];
+    let updatedMessagesMap = { ...messages };
 
-    // Create message objects
-    const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
-      let messageText = `Directly shared document: ${newDoc.name}`;
-
-      if (selectedReferral) {
-        messageText += `\nAssociated Referral: ${selectedReferral}`;
+    selectedPractices.forEach(pName => {
+      let matchedChannel = channels.find(c => c.name.toLowerCase() === pName.toLowerCase());
+      let pId = '';
+      if (matchedChannel) {
+        pId = matchedChannel.id;
+      } else {
+        pId = 'ext_ch_' + Math.random().toString(36).substring(2, 9);
+        const newCh: Channel = {
+          id: pId,
+          name: pName,
+          type: 'inter-practice' as const,
+          lastMessage: '',
+          memberCount: 2,
+          isVerified: false,
+          isExternal: true
+        };
+        setChannels(prev => [...prev, newCh]);
+        matchedChannel = newCh;
       }
 
-      // Associate patient information if provided (on the first document in the batch)
-      if (index === 0) {
-        if (patientFirstName || patientLastName) {
-          const patientName = `${patientFirstName} ${patientLastName}`.trim();
-          messageText += `\nAssociated Patient: ${patientName}`;
-          if (patientDob) messageText += ` (DOB: ${patientDob})`;
-        }
-        if (uploadMessage.trim()) {
-          messageText += `\nMessage: ${uploadMessage.trim()}`;
-        }
-      }
+      const finalDocs: SharedDocument[] = filesToShare.map(file => ({
+        id: 'd_' + Math.random().toString(36).substring(2, 9),
+        channelId: pId,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        sentBy: 'Me',
+        sentAt: 'Today, ' + timeString
+      }));
 
-      return {
-        id: 'm_' + Math.random().toString(36).substring(2, 9),
-        user: 'Me',
-        text: messageText,
-        time: timeString,
-        type: 'self',
-        transport: 'App',
-        document: newDoc
-      };
+      allNewDocs.push(...finalDocs);
+
+      const channelMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
+        let messageText = `Directly shared document: ${newDoc.name}`;
+        if (selectedReferral) {
+          messageText += `\nAssociated Referral: ${selectedReferral}`;
+        }
+        if (index === 0) {
+          if (patientFirstName || patientLastName) {
+            const patientName = `${patientFirstName} ${patientLastName}`.trim();
+            messageText += `\nAssociated Patient: ${patientName}`;
+            if (patientDob) messageText += ` (DOB: ${patientDob})`;
+          }
+          if (uploadMessage.trim()) {
+            messageText += `\nMessage: ${uploadMessage.trim()}`;
+          }
+        }
+
+        return {
+          id: 'm_' + Math.random().toString(36).substring(2, 9),
+          user: 'Me',
+          text: messageText,
+          time: timeString,
+          type: 'self',
+          transport: matchedChannel?.isExternal ? 'Email' as const : 'App' as const,
+          document: newDoc
+        };
+      });
+
+      updatedMessagesMap[pId] = [...(updatedMessagesMap[pId] || []), ...channelMessages];
+
+      setChannels(prev => prev.map(c => {
+        if (c.id === pId) {
+          return {
+            ...c,
+            lastMessage: `Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''}: ${finalDocs[0].name}`
+          };
+        }
+        return c;
+      }));
     });
 
-    setMessages(prev => ({
-      ...prev,
-      [activeChannel.id]: [...(prev[activeChannel.id] || []), ...newMessages]
-    }));
+    setDocuments(prev => [...prev, ...allNewDocs]);
+    setMessages(updatedMessagesMap);
 
-    setChannels(prev => prev.map(c => {
-      const isParent = !activeChannel.id.startsWith('case_') && c.id === activeChannel.id;
-      const isCaseParent = activeChannel.id.startsWith('case_') && c.id === caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId;
-      if (isParent || isCaseParent) {
-        return {
-          ...c,
-          lastMessage: `Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''}: ${finalDocs[0].name}`
-        };
-      }
-      return c;
-    }));
-
-    // Auto-reactivate case if archived
     if (activeChannel.id.startsWith('case_')) {
       const refId = activeChannel.id.replace('case_', '');
       const ref = referrals.find(r => r.id === refId);
@@ -755,8 +853,9 @@ function ChannelsContent() {
     setPatientDob('');
     setUploadMessage('');
     setSelectedReferral('');
+    setSelectedPractices([activeChannel.name]);
     setShowDirectUploadModal(false);
-    triggerToast(`Shared ${finalDocs.length} document${finalDocs.length > 1 ? 's' : ''} successfully!`);
+    triggerToast(`Shared ${allNewDocs.length} document(s) successfully!`);
   };
 
   const handleDownloadDocument = (name: string) => {
@@ -914,7 +1013,7 @@ function ChannelsContent() {
               )}
             </div>
 
-            {/* Inter-practice */}
+            {/* On-platform Inter-practice */}
             <div className="p-4 border-t border-black border-dashed space-y-3">
               <div className="flex justify-between items-center">
                 <button
@@ -942,48 +1041,88 @@ function ChannelsContent() {
               </div>
               {!connectedCollapsed && (
                 <div className="space-y-1">
-                  {filteredPracticeChannels.map(c => {
-                    const practiceCases = filteredCaseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
+                  {filteredOnPlatformChannels.length === 0 ? (
+                    <p className="text-[8px] text-muted-foreground italic uppercase">No on-platform connections yet.</p>
+                  ) : (
+                    filteredOnPlatformChannels.map(c => {
+                      const practiceCases = filteredCaseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
+                      return (
+                        <div key={c.id} className="space-y-0.5">
+                          <ChannelItem
+                            channel={c}
+                            isActive={activeChannel.id === c.id}
+                            onClick={() => handleSelectChannel(c)}
+                            isExpanded={!!expandedPractices[c.id]}
+                            hasSubChannels={practiceCases.length > 0}
+                          />
+                          {expandedPractices[c.id] && practiceCases.map(cc => {
+                            const isCaseActive = activeChannel.id === cc.id;
+                            return (
+                              <button
+                                key={cc.id}
+                                onClick={() => {
+                                  const caseChannelObj: Channel = {
+                                    id: cc.id,
+                                    name: cc.name,
+                                    type: 'inter-practice',
+                                    lastMessage: cc.lastMessage,
+                                    memberCount: c.memberCount
+                                  };
+                                  handleSelectChannel(caseChannelObj);
+                                }}
+                                className={`w-full flex items-center gap-2 py-1.5 pl-10 text-left transition-all ${
+                                  isCaseActive 
+                                    ? 'bg-black text-white font-black' 
+                                    : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                                }`}
+                              >
+                                <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-black font-black text-[11px]"}>#</span>
+                                <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              )}
+            </div>
 
-                    return (
-                      <div key={c.id} className="space-y-0.5">
-                        <ChannelItem
-                          channel={c}
-                          isActive={activeChannel.id === c.id}
-                          onClick={() => handleSelectChannel(c)}
-                          isExpanded={!!expandedPractices[c.id]}
-                          hasSubChannels={practiceCases.length > 0}
-                        />
-                        {/* Render nested case sub-channels */}
-                        {expandedPractices[c.id] && practiceCases.map(cc => {
-                          const isCaseActive = activeChannel.id === cc.id;
-                          return (
-                            <button
-                              key={cc.id}
-                              onClick={() => {
-                                const caseChannelObj: Channel = {
-                                  id: cc.id,
-                                  name: cc.name,
-                                  type: 'inter-practice',
-                                  lastMessage: cc.lastMessage,
-                                  memberCount: c.memberCount
-                                };
-                                handleSelectChannel(caseChannelObj);
-                              }}
-                              className={`w-full flex items-center gap-2 py-1.5 pl-10 text-left transition-all ${
-                                isCaseActive 
-                                  ? 'bg-black text-white font-black' 
-                                  : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
-                              }`}
-                            >
-                              <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-black font-black text-[11px]"}>#</span>
-                              <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
+            {/* External — Secure Email */}
+            <div className="p-4 border-t border-black border-dashed space-y-3">
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => setExternalCollapsed(!externalCollapsed)}
+                  className="flex items-center gap-1 hover:text-black text-muted-foreground transition-colors text-left"
+                >
+                  {externalCollapsed ? (
+                    <ChevronRight size={10} className="shrink-0" />
+                  ) : (
+                    <ChevronDown size={10} className="shrink-0" />
+                  )}
+                  <span className="text-[8px] font-black uppercase tracking-widest">External — Secure Email</span>
+                  {externalCollapsed && externalUnreadCount > 0 && (
+                    <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
+                      {externalUnreadCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+              {!externalCollapsed && (
+                <div className="space-y-1">
+                  {filteredExternalChannels.length === 0 ? (
+                    <p className="text-[8px] text-muted-foreground italic uppercase">No external connections yet.</p>
+                  ) : (
+                    filteredExternalChannels.map(c => (
+                      <ChannelItem
+                        key={c.id}
+                        channel={c}
+                        isActive={activeChannel.id === c.id}
+                        onClick={() => handleSelectChannel(c)}
+                      />
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -1109,11 +1248,16 @@ function ChannelsContent() {
                 <h3 className="font-black uppercase text-xs truncate text-black">
                   {activeChannel.id.startsWith('case_') ? activeChannel.name : ((activeChannel.id === '3' && !isDentist) ? 'Sunshine Dental' : activeChannel.name)}
                 </h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
                   <span className="text-[8px] text-muted-foreground uppercase font-black">
                     {activeChannel.id.startsWith('case_') ? 'Case Sub-Channel' : `${activeChannel.memberCount} Members`}
                   </span>
+                  {activeChannel.isExternal && (
+                    <span className="text-[7px] font-black uppercase px-1.5 py-0.5 border border-black bg-gray-100 whitespace-nowrap">
+                      External &bull; Secure Email
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -1320,6 +1464,12 @@ function ChannelsContent() {
                       )}
 
                       <div className="wireframe-card p-4 space-y-4">
+                        {activeChannel.isExternal && (
+                          <div className="flex items-center gap-2 px-3 py-1.5 bg-black/10 border border-black/30 text-black text-[9px] font-black uppercase">
+                            <Mail size={12} className="text-black shrink-0" />
+                            <span>Counterpart is not on drTalk. Messages and files will be delivered via Secure Email.</span>
+                          </div>
+                        )}
                         {/* Document Attachment Preview */}
                         {attachedDoc && (
                           <div className="flex items-center justify-between p-2 mb-2 bg-gray-50 border-2 border-black animate-fade-in">
@@ -1690,18 +1840,84 @@ function ChannelsContent() {
             </div>
 
             <div className="space-y-4">
-              {/* Field 1: Choice of connected practice (prefilled & disabled) */}
-              <div>
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Connected Practice <span className="text-red-500">*</span>
+              {/* Field 1: Recipients (Select Multiple) */}
+              <div className="relative">
+                <span className="text-[10px] font-black uppercase block mb-1 text-black">
+                  Recipients (Select Multiple) <span className="text-red-500">*</span>
                 </span>
-                <select
-                  value={activeChannel.name}
-                  disabled
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-zinc-100 w-full h-10 cursor-not-allowed focus:ring-0 focus:outline-none opacity-80"
-                >
-                  <option value={activeChannel.name}>{activeChannel.name}</option>
-                </select>
+                <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
+                  <div className="flex flex-wrap gap-1.5 mb-1.5">
+                    {selectedPractices.map(pName => {
+                      const match = getNetwork().find(n => n.name.toLowerCase() === pName.toLowerCase());
+                      const isExt = match ? match.isExternal : !channels.some(c => c.name.toLowerCase() === pName.toLowerCase() && !c.isExternal);
+                      return (
+                        <span key={pName} className={`px-2 py-0.5 font-bold uppercase text-[8px] border border-black flex items-center gap-1 ${isExt ? 'bg-white text-black border border-black' : 'bg-black text-white'}`}>
+                          {pName} {isExt ? '✉' : ''}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedPractices(prev => prev.filter(p => p !== pName))}
+                            className="font-bold ml-1 text-[9px] hover:text-red-500"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Type to search and add practices..."
+                      value={practiceSearchQuery}
+                      onChange={(e) => {
+                        setPracticeSearchQuery(e.target.value);
+                        setIsPracticeDropdownOpen(true);
+                      }}
+                      onFocus={() => setIsPracticeDropdownOpen(true)}
+                      className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 text-[10px] uppercase font-bold text-black placeholder:text-zinc-400 h-5"
+                    />
+                  </div>
+                </div>
+
+                {isPracticeDropdownOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsPracticeDropdownOpen(false)} />
+                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
+                      {getNetwork()
+                        .filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase()))
+                        .filter(p => !selectedPractices.includes(p.name))
+                        .map(p => (
+                          <div
+                            key={p.id}
+                            onClick={() => {
+                              setSelectedPractices(prev => [...prev, p.name]);
+                              setPracticeSearchQuery('');
+                              setIsPracticeDropdownOpen(false);
+                            }}
+                            className="p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 flex justify-between items-center bg-white"
+                          >
+                            <span>{p.name}</span>
+                            <span className={`text-[6px] px-1 font-black ${p.isExternal ? 'bg-white text-black border border-black' : 'bg-black text-white'}`}>
+                              {p.isExternal ? 'Secure Email' : 'drTalk App'}
+                            </span>
+                          </div>
+                        ))}
+                      {practiceSearchQuery.trim() && !getNetwork().some(p => p.name.toLowerCase() === practiceSearchQuery.trim().toLowerCase()) && (
+                        <div
+                          onClick={() => {
+                            const customName = practiceSearchQuery.trim();
+                            setSelectedPractices(prev => [...prev, customName]);
+                            setPracticeSearchQuery('');
+                            setIsPracticeDropdownOpen(false);
+                          }}
+                          className="p-2 hover:bg-black hover:text-white cursor-pointer font-black border-b border-black/10 bg-zinc-50"
+                        >
+                          Add "{practiceSearchQuery.trim().toUpperCase()}" (External ✉)
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Field 2: Choice of sent referral */}
@@ -1818,12 +2034,20 @@ function ChannelsContent() {
               )}
 
               {/* Premium Drag and Drop / Click Zone */}
-              <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
+              <div 
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`relative border-2 border-dashed p-4 transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px] ${
+                  isDragging ? 'border-black bg-black/5' : 'border-black bg-gray-50 hover:bg-black/5 cursor-pointer'
+                }`}
+              >
                 {/* Hidden native input */}
                 <input
                   type="file"
                   id="modal-file-input"
                   className="hidden"
+                  multiple
                   onChange={handleRealFileSelect}
                 />
 
@@ -2231,6 +2455,14 @@ function ChannelItem({
                 title="Practice owner isn't verified yet"
               >
                 UNVERIFIED
+              </span>
+            )}
+            {channel.isExternal && (
+              <span
+                className={`text-[6px] px-1 font-black uppercase whitespace-nowrap cursor-help ${isActive ? 'bg-white text-black' : 'bg-gray-200 text-black border border-black'}`}
+                title="Practice is not on the platform; messages are delivered via secure email"
+              >
+                SECURE EMAIL
               </span>
             )}
           </div>

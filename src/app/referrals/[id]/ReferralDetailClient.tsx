@@ -80,7 +80,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
-      case 'Received': return 'bg-yellow-50 text-yellow-800 border-yellow-200';
+      case 'Received': return 'bg-gray-100 text-black border-black/30';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
       case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';

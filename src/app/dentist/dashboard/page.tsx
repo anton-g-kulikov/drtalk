@@ -19,7 +19,7 @@ import {
   SharedDocument,
   MessageItem
 } from '@/app/channels/page';
-import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
+import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { getInitialDentistDocs, getInitialDentistArchivedDocs, specialistClinics } from '@/lib/mockGenerator';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
@@ -154,12 +154,96 @@ export default function DentistDashboardPage() {
     return filteredDocs.slice(start, start + DOCS_PER_PAGE);
   }, [filteredDocs, docCurrentPage]);
 
-  const handleArchiveDocument = (doc: DocumentItem) => {
+  const handleOpenInChannel = (doc: DocumentItem) => {
+    let practiceName = doc.sender;
+    if (practiceName.includes('Valley') || practiceName.includes('Endo')) {
+      practiceName = 'Valley Endodontics';
+    } else if (practiceName.includes('Downtown')) {
+      practiceName = 'Downtown Oral Surgery';
+    } else if (practiceName.includes('Metro')) {
+      practiceName = 'Metro Orthodontics';
+    } else if (practiceName.includes('Arizona')) {
+      practiceName = 'Arizona Periodontics';
+    } else if (practiceName.includes('Beverly')) {
+      practiceName = 'Beverly Hills Dental';
+    } else {
+      practiceName = doc.sender.replace(' (Specialist)', '').replace(' (Dentist)', '');
+    }
+
+    // Add to Network if not exists
+    const currentNetwork = getNetwork();
+    const existsInNetwork = currentNetwork.some(p => p.name.toLowerCase() === practiceName.toLowerCase());
+    if (!existsInNetwork) {
+      const newPracticeId = 'ext_' + Math.random().toString(36).substring(2, 9);
+      const newPractice = {
+        id: newPracticeId,
+        name: practiceName,
+        type: 'Specialist',
+        specialty: 'Endodontics',
+        location: 'Phoenix, AZ',
+        status: 'Connected' as const,
+        verified: false,
+        isExternal: true
+      };
+      saveNetwork([...currentNetwork, newPractice]);
+    }
+
+    // Add to Channels if not exists
+    const isDentist = true;
+    const currentChannels = getChannels(isDentist);
+    const existsInChannels = currentChannels.some(c => c.name.toLowerCase() === practiceName.toLowerCase());
+    let practiceId = '';
+    if (!existsInChannels) {
+      practiceId = 'ext_ch_' + Math.random().toString(36).substring(2, 9);
+      const newChannel = {
+        id: practiceId,
+        name: practiceName,
+        type: 'inter-practice' as const,
+        lastMessage: `Practice channel created. Shared document: ${doc.name}`,
+        memberCount: 2,
+        isVerified: false,
+        isExternal: true
+      };
+      saveChannels(isDentist, [...currentChannels, newChannel]);
+    } else {
+      const match = currentChannels.find(c => c.name.toLowerCase() === practiceName.toLowerCase());
+      practiceId = match ? match.id : '3';
+    }
+
+    // Add Shared Document item to channel documents store
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const sharedDocObj: SharedDocument = {
+      id: doc.id,
+      channelId: practiceId,
+      name: doc.name,
+      size: doc.size,
+      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
+      sentBy: doc.sender,
+      sentAt: 'Today, ' + timeString
+    };
+    initialDocuments.push(sharedDocObj);
+
+    // Add initial message to the channel
+    const allMessages = getMessages();
+    if (!allMessages[practiceId]) {
+      allMessages[practiceId] = [];
+    }
+    allMessages[practiceId].push({
+      id: 'm_' + Math.random().toString(36).substring(2, 9),
+      user: doc.sender,
+      text: `Incoming document via secure email: ${doc.name}`,
+      time: timeString,
+      type: 'other',
+      transport: 'Email',
+      document: sharedDocObj
+    });
+    saveMessages(allMessages);
+
+    // Remove from dashboard inbox
     const updatedDocs = documents.filter(d => d.id !== doc.id);
     saveDocumentsToStorage(updatedDocs);
-    const updatedArchived = [doc, ...archivedDocuments];
-    saveArchivedToStorage(updatedArchived);
-    triggerToast(`Archived ${doc.name}!`);
+    setSelectedDocument(null);
+    router.push(`/dentist/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`);
   };
 
   const handleConvertDocument = (doc: DocumentItem) => {
@@ -736,20 +820,10 @@ export default function DentistDashboardPage() {
                   <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button
-                    onClick={() => setActiveInboxTab('inbox')}
-                    className="flex items-center gap-1.5 focus:outline-none group"
-                  >
-                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
-                  </button>
-                  <button
-                    onClick={() => setActiveInboxTab('archived')}
-                    className="flex items-center gap-1.5 focus:outline-none group"
-                  >
-                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-black"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({documents.length})</span>
+                  </div>
                 </div>
               </div>
 
@@ -848,10 +922,10 @@ export default function DentistDashboardPage() {
                               </button>
                             ) : (
                               <button 
-                                onClick={() => handleArchiveDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                                onClick={() => handleOpenInChannel(doc)}
+                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
                               >
-                                Archive <Archive size={12} />
+                                Open / Reply in Channel <MessageSquare size={12} />
                               </button>
                             )}
                           </div>

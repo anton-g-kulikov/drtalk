@@ -20,7 +20,7 @@ import {
   SharedDocument, 
   MessageItem 
 } from '@/app/channels/page';
-import { getReferrals, isInRange, UnifiedReferral } from '@/lib/referrals';
+import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { 
   getInitialSpecialistDocs, 
   getInitialSpecialistArchivedDocs,
@@ -75,12 +75,28 @@ export default function DashboardPage() {
   const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
-  const handleReferralClick = (id: string) => {
+  const handleReferralClick = (ref: ReferralItem) => {
     if (!isVerified) {
       router.push('/verify');
-    } else {
-      router.push(`/referrals/${id}`);
+      return;
     }
+    if (ref.isExternal) {
+      // Extract clean practice name from source string like "Pinecrest Dental (External)"
+      const practiceName = ref.source.replace(/\s*\(External\)/i, '').trim();
+      // Build a synthetic DocumentItem-like object so handleOpenInChannel can open/create the channel
+      const syntheticDoc: DocumentItem = {
+        id: ref.id,
+        name: `Referral — ${ref.patient}`,
+        sender: practiceName,
+        date: ref.date,
+        size: '',
+        isExternal: true,
+        transport: ref.transport,
+      };
+      handleOpenInChannel(syntheticDoc);
+      return;
+    }
+    router.push(`/referrals/${ref.id}`);
   };
 
   interface DocumentItem {
@@ -93,6 +109,8 @@ export default function DashboardPage() {
     channelName?: string;
     channelType?: 'practice' | 'case';
     caseId?: string;
+    isExternal?: boolean;
+    transport?: 'Email' | 'Fax' | 'App';
   }
 
   interface ReferralItem {
@@ -104,6 +122,8 @@ export default function DashboardPage() {
     status: 'new_processing' | 'new_docs';
     detail: string;
     urgency?: 'Routine' | 'Urgent' | 'Emergency';
+    isExternal?: boolean;
+    transport?: 'Email' | 'Fax' | 'App';
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -186,17 +206,117 @@ export default function DashboardPage() {
     return filteredDocs.slice(start, start + DOCS_PER_PAGE);
   }, [filteredDocs, docCurrentPage]);
 
-  const handleArchiveDocument = (doc: DocumentItem) => {
+  const handleOpenInChannel = (doc: DocumentItem) => {
+    let practiceName = doc.sender;
+    if (practiceName.includes('Sunshine') || practiceName.includes('Smith') || practiceName.includes('Reed')) {
+      practiceName = 'Sunshine Dental';
+    } else if (practiceName.includes('Desert Bloom')) {
+      practiceName = 'Desert Bloom Dental';
+    } else if (practiceName.includes('Oakridge')) {
+      practiceName = 'Oakridge Dental';
+    } else if (practiceName.includes('Black')) {
+      practiceName = 'Black Family Dental';
+    } else if (practiceName.includes('Miller')) {
+      practiceName = 'Miller & Associates';
+    } else if (practiceName.includes('Westside')) {
+      practiceName = 'Westside Pediatric Dentistry';
+    } else {
+      practiceName = doc.sender.replace(' (Specialist)', '').replace(' (Dentist)', '');
+    }
+
+    // Add to Network if not exists
+    const currentNetwork = getNetwork();
+    const existsInNetwork = currentNetwork.some(p => p.name.toLowerCase() === practiceName.toLowerCase());
+    if (!existsInNetwork) {
+      const newPracticeId = 'ext_' + Math.random().toString(36).substring(2, 9);
+      const newPractice = {
+        id: newPracticeId,
+        name: practiceName,
+        type: 'Dentist',
+        specialty: 'General Dentistry',
+        location: 'Phoenix, AZ',
+        status: 'Connected' as const,
+        verified: false,
+        isExternal: true
+      };
+      saveNetwork([...currentNetwork, newPractice]);
+    } else if (doc.isExternal) {
+      // Ensure existing network entry is marked external
+      const updated = currentNetwork.map(p =>
+        p.name.toLowerCase() === practiceName.toLowerCase() ? { ...p, isExternal: true } : p
+      );
+      saveNetwork(updated);
+    }
+
+    // Add to Channels if not exists
+    const isDentist = false;
+    const currentChannels = getChannels(isDentist);
+    const existingChannel = currentChannels.find(c => c.name.toLowerCase() === practiceName.toLowerCase());
+    let practiceId = '';
+    if (!existingChannel) {
+      practiceId = 'ext_ch_' + Math.random().toString(36).substring(2, 9);
+      const newChannel = {
+        id: practiceId,
+        name: practiceName,
+        type: 'inter-practice' as const,
+        lastMessage: `Practice channel created. Shared document: ${doc.name}`,
+        memberCount: 2,
+        isVerified: false,
+        isExternal: true
+      };
+      saveChannels(isDentist, [...currentChannels, newChannel]);
+    } else {
+      practiceId = existingChannel.id;
+      // If this is an external source, ensure the channel is marked external
+      if (doc.isExternal && !existingChannel.isExternal) {
+        const updatedChannels = currentChannels.map(c =>
+          c.id === practiceId ? { ...c, isExternal: true, isVerified: false } : c
+        );
+        saveChannels(isDentist, updatedChannels);
+      }
+    }
+
+    // Add Shared Document item to channel documents store
+    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const sharedDocObj: SharedDocument = {
+      id: doc.id,
+      channelId: practiceId,
+      name: doc.name,
+      size: doc.size,
+      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
+      sentBy: doc.sender,
+      sentAt: 'Today, ' + timeString
+    };
+    initialDocuments.push(sharedDocObj);
+
+    // Add initial message to the channel
+    const allMessages = getMessages();
+    if (!allMessages[practiceId]) {
+      allMessages[practiceId] = [];
+    }
+    allMessages[practiceId].push({
+      id: 'm_' + Math.random().toString(36).substring(2, 9),
+      user: doc.sender,
+      text: `Incoming document via secure email: ${doc.name}`,
+      time: timeString,
+      type: 'other',
+      transport: 'Email',
+      document: sharedDocObj
+    });
+    saveMessages(allMessages);
+
+    // Remove from dashboard inbox
     const updatedDocs = documents.filter(d => d.id !== doc.id);
     saveDocumentsToStorage(updatedDocs);
-    const updatedArchived = [doc, ...archivedDocuments];
-    saveArchivedToStorage(updatedArchived);
-    showToast(`Archived ${doc.name}!`);
+    setSelectedDocument(null);
+    router.push(`/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`);
   };
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
+    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
     { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
     { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
+    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
     { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
   ]);
 
@@ -578,12 +698,17 @@ export default function DashboardPage() {
                     {newProcessingReferrals.map((ref) => (
                       <div 
                         key={ref.id} 
-                        onClick={() => handleReferralClick(ref.id)}
+                        onClick={() => handleReferralClick(ref)}
                         className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-bold uppercase text-xs">{ref.patient}</p>
+                            {ref.isExternal && (
+                              <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
+                                EXTERNAL &bull; {ref.transport || 'EMAIL'}
+                              </span>
+                            )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
                           <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
@@ -623,12 +748,17 @@ export default function DashboardPage() {
                     {newDocsReferrals.map((ref) => (
                       <div 
                         key={ref.id} 
-                        onClick={() => handleReferralClick(ref.id)}
+                        onClick={() => handleReferralClick(ref)}
                         className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
                             <p className="font-bold uppercase text-xs">{ref.patient}</p>
+                            {ref.isExternal && (
+                              <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
+                                EXTERNAL &bull; {ref.transport || 'EMAIL'}
+                              </span>
+                            )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
                           <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
@@ -669,20 +799,10 @@ export default function DashboardPage() {
                   <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => setActiveInboxTab('inbox')} 
-                    className="flex items-center gap-1.5 focus:outline-none group"
-                  >
-                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'inbox' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'inbox' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Inbox ({documents.length})</span>
-                  </button>
-                  <button 
-                    onClick={() => setActiveInboxTab('archived')} 
-                    className="flex items-center gap-1.5 focus:outline-none group"
-                  >
-                    <div className={`w-2.5 h-2.5 ${activeInboxTab === 'archived' ? 'bg-black' : 'border border-black bg-white group-hover:bg-zinc-100'}`}></div>
-                    <span className={`text-[9px] font-black uppercase tracking-wider transition-colors ${activeInboxTab === 'archived' ? 'text-black' : 'text-zinc-400 group-hover:text-zinc-600'}`}>Archived ({archivedDocuments.length})</span>
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-black"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({documents.length})</span>
+                  </div>
                 </div>
               </div>
 
@@ -724,12 +844,19 @@ export default function DashboardPage() {
                               <FileText size={20} className="text-black" />
                             </div>
                             <div>
-                              <p 
-                                onClick={() => router.push(`/documents/${doc.id}?role=specialist`)}
-                                className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                              >
-                                {doc.name}
-                              </p>
+                              <div className="flex items-center gap-2">
+                                <p 
+                                  onClick={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
+                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                                >
+                                  {doc.name}
+                                </p>
+                                {doc.isExternal && (
+                                  <span className="text-[7px] bg-gray-100 text-black px-1.5 py-0.5 border border-black font-black uppercase tracking-wider">
+                                    EXTERNAL • {doc.transport || 'EMAIL'}
+                                  </span>
+                                )}
+                              </div>
                               <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
                                 <span>From: {doc.sender}</span>
                                 <span>•</span>
@@ -780,10 +907,10 @@ export default function DashboardPage() {
                             </button>
                           ) : (
                             <button 
-                              onClick={() => handleArchiveDocument(doc)}
-                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-zinc-100 border-2 border-black text-black hover:bg-black hover:text-white transition-colors flex items-center gap-1 ml-auto"
+                              onClick={() => handleOpenInChannel(doc)}
+                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
                             >
-                              Archive <Archive size={12} />
+                              Open / Reply in Channel <MessageSquare size={12} />
                             </button>
                           )}
                         </div>

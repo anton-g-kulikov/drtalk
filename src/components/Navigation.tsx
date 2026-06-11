@@ -136,18 +136,29 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
           <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
         </div>
         <div className="space-y-1">
-          <button
-            onClick={setNoOwnerYet}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            No Owner Yet
-          </button>
-          <button
-            onClick={resetVerification}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            Reset Verification
-          </button>
+            <button
+              onClick={setNoOwnerYet}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              No Owner Yet
+            </button>
+            <button
+              onClick={resetVerification}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              Reset Verification
+            </button>
+            <button
+              onClick={() => {
+                // Clear all localStorage entries related to the prototype
+                localStorage.clear();
+                // Reload page to apply reset
+                window.location.reload();
+              }}
+              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+            >
+              Reset Prototype
+            </button>
           {/* Commented out Trial widget and subscription options from debug menu for Dentist profile */}
           {/* 
           <button
