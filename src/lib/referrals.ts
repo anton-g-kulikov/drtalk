@@ -19,7 +19,7 @@ export interface UnifiedReferral {
   sender?: string;
 }
 
-import { generateMockData } from './mockGenerator';
+import { generateMockData, dentistPractices, specialistClinics } from './mockGenerator';
 
 const mockData = generateMockData();
 export const initialReferrals: UnifiedReferral[] = mockData.referrals.length > 0 
@@ -121,4 +121,193 @@ export function isInRange(receivedAt: string, range: 'day' | 'week' | 'month' | 
     return refDate.getFullYear() === currentYear - 1;
   }
   return false;
+}
+
+// Persisted Network and Channels definitions
+export interface NetworkPractice {
+  id: string;
+  name: string;
+  type: string;
+  specialty: string;
+  location: string;
+  status: 'Connected' | 'Nearby' | 'Suggested';
+  verified: boolean;
+  isExternal?: boolean;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  type: 'internal' | 'inter-practice' | 'patient' | 'public' | 'group';
+  lastMessage: string;
+  unreadCount?: number;
+  memberCount: number;
+  isVerified?: boolean;
+  isExternal?: boolean;
+}
+
+export const initialNetwork: NetworkPractice[] = [
+  // ── On-platform Specialist neighbours (dentist-side sees these) ───────────
+  { id: 'sp-1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', verified: true },
+  { id: 'sp-2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', verified: true },
+  { id: 'sp-3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
+  { id: 'sp-4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
+  { id: 'sp-5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
+
+  // ── 16 On-platform Dentist connections (specialist-side "My Network") ─────
+  { id: 'dn-1',  name: 'Sunshine Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: true },
+  { id: 'dn-2',  name: 'Desert Bloom Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', status: 'Connected', verified: true },
+  { id: 'dn-3',  name: 'Mountain View Family Dental',    type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Connected', verified: true },
+  { id: 'dn-4',  name: 'Oakridge Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: true },
+  { id: 'dn-5',  name: 'Black Family Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       status: 'Connected', verified: true },
+  { id: 'dn-6',  name: 'White Dental Group',             type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   status: 'Connected', verified: true },
+  { id: 'dn-7',  name: 'Miller & Associates',            type: 'Dentist', specialty: 'Family Dentistry',    location: 'Gilbert, AZ',    status: 'Connected', verified: true },
+  { id: 'dn-8',  name: 'Westside Pediatric Dentistry',  type: 'Dentist', specialty: 'Pediatric Dentistry', location: 'Glendale, AZ',   status: 'Connected', verified: true },
+  { id: 'dn-9',  name: 'Aspen Crest Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Peoria, AZ',     status: 'Connected', verified: true },
+  { id: 'dn-10', name: 'Boulder Valley Dental',          type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Connected', verified: true },
+  { id: 'dn-11', name: 'Canyon Creek Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', status: 'Connected', verified: false },
+  { id: 'dn-12', name: 'Foothills Family Dentistry',    type: 'Dentist', specialty: 'Family Dentistry',    location: 'Ahwatukee, AZ',  status: 'Connected', verified: true },
+  { id: 'dn-13', name: 'Glacier Peak Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Nearby',    verified: true },
+  { id: 'dn-14', name: 'Harbor Light Dental',           type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Nearby',    verified: true },
+  { id: 'dn-15', name: 'Meadowbrook Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       status: 'Nearby',    verified: false },
+  { id: 'dn-16', name: 'Summit Ridge Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   status: 'Suggested', verified: false },
+
+  // ── 15 External contacts (off-platform, connected via e-fax / secure email) ─
+  { id: 'ext-1',  name: 'Pinecrest Dental Group',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-2',  name: 'Oakwood Family Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Scottsdale, AZ', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-3',  name: 'Riverfront Dental Care',       type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ',      status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-4',  name: 'Heritage Dental Partners',     type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Gilbert, AZ',    status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-5',  name: 'Sunrise Smiles Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Mesa, AZ',       status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-6',  name: 'Desert Rose Dentistry',        type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Peoria, AZ',     status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-7',  name: 'Copper State Dental',          type: 'Dentist',    specialty: 'General Dentistry',  location: 'Glendale, AZ',   status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-8',  name: 'Cactus Park Dental',           type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-9',  name: 'Red Rock Dental Studio',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Sedona, AZ',     status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-10', name: 'Grand Canyon Dental Group',    type: 'Dentist',    specialty: 'General Dentistry',  location: 'Flagstaff, AZ',  status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-11', name: 'Apex Endodontics',             type: 'Specialist', specialty: 'Endodontics',        location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-12', name: 'Metro Oral Surgery',           type: 'Specialist', specialty: 'Oral Surgery',       location: 'Scottsdale, AZ', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-13', name: 'Summit Periodontics',          type: 'Specialist', specialty: 'Periodontics',       location: 'Tempe, AZ',      status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-14', name: 'Desert Ridge Implants',        type: 'Specialist', specialty: 'Implantology',       location: 'Chandler, AZ',   status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-15', name: 'Valley Orthodontic Center',    type: 'Specialist', specialty: 'Orthodontics',       location: 'Mesa, AZ',       status: 'Connected', verified: false, isExternal: true },
+];
+
+export function getNetwork(): NetworkPractice[] {
+  if (typeof window === 'undefined') return initialNetwork;
+  const stored = localStorage.getItem('drtalk_network');
+  if (!stored) {
+    localStorage.setItem('drtalk_network', JSON.stringify(initialNetwork));
+    return initialNetwork;
+  }
+  try {
+    const parsed = JSON.parse(stored);
+    // Refresh if stale (old list had < 28 entries or no external contacts)
+    if (Array.isArray(parsed) && (parsed.length < 28 || !parsed.some((p: NetworkPractice) => p.isExternal))) {
+      localStorage.setItem('drtalk_network', JSON.stringify(initialNetwork));
+      return initialNetwork;
+    }
+    return parsed;
+  } catch (e) {
+    return initialNetwork;
+  }
+}
+
+
+export function saveNetwork(network: NetworkPractice[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('drtalk_network', JSON.stringify(network));
+}
+
+
+export function getChannels(isDentist: boolean): Channel[] {
+  if (typeof window === 'undefined') return [];
+  const key = isDentist ? 'drtalk_channels_dentist' : 'drtalk_channels_specialist';
+  const stored = localStorage.getItem(key);
+  if (stored) {
+    try {
+      const parsed: Channel[] = JSON.parse(stored);
+      // Cache-bust: if any known-external practice is still marked as on-platform, re-seed
+      if (!isDentist) {
+        const knownExternal = ['pinecrest dental group', 'oakwood family dental', 'riverfront dental care',
+          'heritage dental partners', 'sunrise smiles dental', 'desert rose dentistry',
+          'copper state dental', 'cactus park dental', 'red rock dental studio', 'grand canyon dental group'];
+        const needsReset = parsed.some(c =>
+          c.type === 'inter-practice' &&
+          !c.isExternal &&
+          knownExternal.includes(c.name.toLowerCase())
+        );
+        if (!needsReset) return parsed;
+        // Fall through to re-seed
+        localStorage.removeItem(key);
+      } else {
+        return parsed;
+      }
+    } catch (e) {
+      // ignore parsing errors and fallback
+    }
+  }
+
+  let defaults: Channel[] = [];
+  if (isDentist) {
+    defaults = [
+      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+      { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
+      ...specialistClinics.map(clinic => ({
+        id: clinic.id,
+        name: clinic.name,
+        type: 'inter-practice' as const,
+        lastMessage: clinic.name === 'Valley Endodontics' ? 'Pano image uploaded for Alice Cooper.' : 'Practice connection active.',
+        memberCount: 2
+      })),
+      { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
+      { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
+    ];
+  } else {
+    // Practice names that are external (off-platform) contacts
+    const externalPracticeNames = new Set([
+      'pinecrest dental group', 'oakwood family dental', 'riverfront dental care',
+      'heritage dental partners', 'sunrise smiles dental', 'desert rose dentistry',
+      'copper state dental', 'cactus park dental', 'red rock dental studio',
+      'grand canyon dental group',
+    ]);
+    defaults = [
+      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+      { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
+      ...dentistPractices.map(practice => ({
+        id: practice.id,
+        name: practice.name,
+        type: 'inter-practice' as const,
+        lastMessage: 'Practice connection active.',
+        memberCount: 2,
+        ...(externalPracticeNames.has(practice.name.toLowerCase()) ? { isExternal: true, isVerified: false } : {}),
+      })),
+      { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
+      { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
+    ];
+  }
+  localStorage.setItem(key, JSON.stringify(defaults));
+  return defaults;
+}
+
+export function saveChannels(isDentist: boolean, channels: Channel[]) {
+  if (typeof window === 'undefined') return;
+  const key = isDentist ? 'drtalk_channels_dentist' : 'drtalk_channels_specialist';
+  localStorage.setItem(key, JSON.stringify(channels));
+}
+
+export function getMessages(): Record<string, any[]> {
+  if (typeof window === 'undefined') return mockData.messages;
+  const stored = localStorage.getItem('drtalk_messages');
+  if (!stored) {
+    localStorage.setItem('drtalk_messages', JSON.stringify(mockData.messages));
+    return mockData.messages;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return mockData.messages;
+  }
+}
+
+export function saveMessages(messages: Record<string, any[]>) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('drtalk_messages', JSON.stringify(messages));
 }

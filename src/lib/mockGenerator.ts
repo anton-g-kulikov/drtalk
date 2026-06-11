@@ -97,6 +97,8 @@ export interface DashboardDoc {
   channelName?: string;
   channelType?: 'practice' | 'case';
   caseId?: string;
+  isExternal?: boolean;
+  transport?: 'Email' | 'Fax' | 'App';
 }
 
 // Generate the master mock dataset
@@ -105,7 +107,28 @@ export function generateMockData() {
   const documents: SharedDocument[] = [];
   const messages: Record<string, MessageItem[]> = {};
   
-  const dashboardDocsSpecialist: DashboardDoc[] = [];
+  const dashboardDocsSpecialist: DashboardDoc[] = [
+    {
+      id: 'doc-ext-1',
+      name: 'SECURE_REFERRAL_SMITH_DOE.PDF',
+      sender: 'Pinecrest Dental Group (Dentist)',
+      date: '10:15 AM 06/30/2026',
+      size: '1.4 MB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Email'
+    },
+    {
+      id: 'doc-ext-2',
+      name: 'EFAX_CBCT_MANDIBLE_PATEL.ZIP',
+      sender: 'Oakwood Family Dental (Dentist)',
+      date: '08:45 AM 06/30/2026',
+      size: '12.8 MB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Fax'
+    }
+  ];
   const dashboardDocsSpecialistArchived: DashboardDoc[] = [];
   
   const dashboardDocsDentist: DashboardDoc[] = [];
