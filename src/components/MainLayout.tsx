@@ -7,7 +7,7 @@ export const MainLayout = ({ children, title, noPadding = false }: { children: R
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
-    <div className="flex h-screen bg-white overflow-hidden">
+    <div className="flex min-h-screen bg-white overflow-x-hidden">
       {/* Desktop Sidebar */}
       <Sidebar />
 
@@ -24,10 +24,10 @@ export const MainLayout = ({ children, title, noPadding = false }: { children: R
         <Sidebar onClose={() => setIsSidebarOpen(false)} />
       )}
 
-      <div className="flex-1 flex flex-col min-w-0 h-full">
+      <div className="flex-1 flex flex-col min-w-0">
         <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
-        <main className="flex-1 overflow-hidden flex flex-col">
-          <div className="animate-fade-in flex-1 flex flex-col overflow-y-auto">
+        <main className="flex-1 flex flex-col">
+          <div className="animate-fade-in flex-1 flex flex-col">
             {noPadding ? (
               children
             ) : (

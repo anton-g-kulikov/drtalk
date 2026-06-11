@@ -18,8 +18,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">
+    <html lang="en" className="h-full bg-white">
+      <body className="min-h-screen bg-white antialiased">
         <SubscriptionProvider>
           <VerificationProvider>
             <CommentSystem>
