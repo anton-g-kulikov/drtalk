@@ -53,7 +53,7 @@ export default function DentistDashboardPage() {
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
   
-  const referralsSentCount = sentReferrals.filter(r => (r.status === 'Sent' || r.status === 'Received') && isInRange(r.receivedAt, timeRange)).length;
+  const referralsSentCount = sentReferrals.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
   const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   const specialtyCareCompleteCount = sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
@@ -269,6 +269,8 @@ export default function DentistDashboardPage() {
   const [isSendDocOpen, setIsSendDocOpen] = useState(false);
   const [selectedPractice, setSelectedPractice] = useState('');
   const [selectedReferral, setSelectedReferral] = useState('');
+  const [referralSearchQuery, setReferralSearchQuery] = useState('NONE / NEW REFERRAL');
+  const [isReferralDropdownOpen, setIsReferralDropdownOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [toastAction, setToastAction] = useState<{ label: string; onClick: () => void } | null>(null);
 
@@ -300,13 +302,62 @@ export default function DentistDashboardPage() {
     return sentReferrals.filter(r => r.specialist === selectedPractice);
   }, [selectedPractice, sentReferrals]);
 
+  const filteredReferralsList = React.useMemo(() => {
+    if (!referralSearchQuery || referralSearchQuery === 'NONE / NEW REFERRAL') {
+      return filteredReferralsForDoc;
+    }
+    const query = referralSearchQuery.toLowerCase().trim();
+    return filteredReferralsForDoc.filter(r => {
+      const code = getReferralCode(r.id).toLowerCase();
+      const name = r.patientName.toLowerCase();
+      return code.includes(query) || name.includes(query);
+    });
+  }, [filteredReferralsForDoc, referralSearchQuery]);
+
+  const closeReferralDropdown = () => {
+    setIsReferralDropdownOpen(false);
+    if (selectedReferral) {
+      const ref = sentReferrals.find(r => r.id === selectedReferral);
+      if (ref) {
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+      }
+    } else {
+      setReferralSearchQuery('NONE / NEW REFERRAL');
+    }
+  };
+
   const handleSelectReferral = (refId: string) => {
     setSelectedReferral(refId);
     if (refId) {
       const ref = sentReferrals.find(r => r.id === refId);
       if (ref) {
         setSelectedPractice(ref.specialist);
+        
+        const parts = ref.patientName.trim().split(/\s+/);
+        const first = parts[0] || '';
+        const last = parts.slice(1).join(' ') || '';
+        
+        let dob = '';
+        if (ref.id === '1' || ref.patientName.toLowerCase() === 'alice cooper') dob = '12/04/1978';
+        else if (ref.id === 'D-1002' || ref.patientName.toLowerCase() === 'marco reyes') dob = '05/14/1988';
+        else if (ref.id === 'D-1003' || ref.patientName.toLowerCase() === 'nina patel') dob = '10/20/1990';
+        else if (ref.id === 'D-1005' || ref.id === 'D-1004' || ref.patientName.toLowerCase() === 'sarah jenkins') dob = '11/22/1992';
+        else if (ref.patientName.toLowerCase() === 'john doe') dob = '08/08/1985';
+        else if (ref.patientName.toLowerCase() === 'james dean') dob = '02/08/1931';
+        else if (ref.patientName.toLowerCase() === 'humphrey bogart') dob = '12/25/1899';
+        else if (ref.patientName.toLowerCase() === 'audrey hepburn') dob = '05/04/1929';
+        else dob = '01/01/1990';
+
+        setPatientFirstName(first);
+        setPatientLastName(last);
+        setPatientDob(dob);
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
       }
+    } else {
+      setPatientFirstName('');
+      setPatientLastName('');
+      setPatientDob('');
+      setReferralSearchQuery('NONE / NEW REFERRAL');
     }
   };
 
@@ -316,6 +367,10 @@ export default function DentistDashboardPage() {
       const ref = sentReferrals.find(r => r.id === selectedReferral);
       if (ref && ref.specialist !== practiceName) {
         setSelectedReferral('');
+        setPatientFirstName('');
+        setPatientLastName('');
+        setPatientDob('');
+        setReferralSearchQuery('NONE / NEW REFERRAL');
       }
     }
   };
@@ -1244,7 +1299,8 @@ export default function DentistDashboardPage() {
                       placeholder="Enter patient first name"
                       value={patientFirstName}
                       onChange={(e) => setPatientFirstName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                   </div>
                   <div>
@@ -1254,7 +1310,8 @@ export default function DentistDashboardPage() {
                       placeholder="Enter patient last name"
                       value={patientLastName}
                       onChange={(e) => setPatientLastName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                   </div>
                 </div>
@@ -1267,7 +1324,8 @@ export default function DentistDashboardPage() {
                       placeholder="MM/DD/YYYY"
                       value={patientDob}
                       onChange={(e) => setPatientDob(e.target.value)}
-                      className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
+                      disabled={!!selectedReferral}
+                      className={`wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
                     />
                     <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
                       <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">

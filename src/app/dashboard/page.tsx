@@ -71,7 +71,7 @@ export default function DashboardPage() {
 
   const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
   
-  const referralsReceivedCount = specialistReferrals.filter(r => (r.status === 'Received' || r.status === 'Sent') && isInRange(r.receivedAt, timeRange)).length;
+  const referralsReceivedCount = specialistReferrals.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
   const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
