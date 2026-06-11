@@ -1161,6 +1161,8 @@ export default function DentistDashboardPage() {
                   setAttachedFiles([]);
                   setSelectedPractice('');
                   setSelectedReferral('');
+                  setReferralSearchQuery('NONE / NEW REFERRAL');
+                  setIsReferralDropdownOpen(false);
                   setPatientFirstName('');
                   setPatientLastName('');
                   setPatientDob('');
@@ -1192,23 +1194,76 @@ export default function DentistDashboardPage() {
                 </select>
               </div>
 
-              {/* Field 2: Choice of sent referral (optional) */}
-              <div>
+              {/* Field 2: Choice of sent referral */}
+              <div className="relative">
                 <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Associated Referral (Optional)
+                  Associated Referral
                 </span>
-                <select
-                  value={selectedReferral}
-                  onChange={(e) => handleSelectReferral(e.target.value)}
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none"
-                >
-                  <option value="">NONE / NEW REFERRAL</option>
-                  {filteredReferralsForDoc.map((referral) => (
-                    <option key={referral.id} value={referral.id}>
-                      {getReferralCode(referral.id)} - {referral.patientName}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search or select referral..."
+                    value={referralSearchQuery}
+                    onChange={(e) => {
+                      setReferralSearchQuery(e.target.value);
+                      setIsReferralDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsReferralDropdownOpen(true)}
+                    className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none uppercase"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsReferralDropdownOpen(!isReferralDropdownOpen)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black"
+                  >
+                    <ChevronDown size={16} className={`transition-transform duration-200 ${isReferralDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+
+                {isReferralDropdownOpen && (
+                  <>
+                    <div 
+                      className="fixed inset-0 z-40" 
+                      onClick={closeReferralDropdown} 
+                    />
+                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-60 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
+                      <div
+                        onClick={() => {
+                          handleSelectReferral('');
+                          setReferralSearchQuery('NONE / NEW REFERRAL');
+                          setIsReferralDropdownOpen(false);
+                        }}
+                        className="p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10"
+                      >
+                        NONE / NEW REFERRAL
+                      </div>
+                      {filteredReferralsList.length === 0 ? (
+                        <div className="p-2 text-xs font-bold text-muted-foreground italic text-center">
+                          No matching referrals
+                        </div>
+                      ) : (
+                        filteredReferralsList.map((referral) => {
+                          const code = getReferralCode(referral.id);
+                          const label = `${code} - ${referral.patientName}`;
+                          return (
+                            <div
+                              key={referral.id}
+                              onClick={() => {
+                                handleSelectReferral(referral.id);
+                                setIsReferralDropdownOpen(false);
+                              }}
+                              className={`p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10 ${
+                                selectedReferral === referral.id ? 'bg-zinc-100' : ''
+                              }`}
+                            >
+                              {label}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Attached Files List */}
