@@ -1,0 +1,113 @@
+import type { UnifiedReferral } from '@/lib/referrals';
+import { getReferralCode } from '@/lib/referrals';
+import type { Channel } from './channelTypes';
+
+export type CaseChannel = {
+  id: string;
+  name: string;
+  patientName: string;
+  referralId: string;
+  practiceId: string;
+  isArchived: boolean;
+  lastMessage: string;
+};
+
+type PracticeDirectoryEntry = {
+  id: string;
+  name: string;
+};
+
+export function buildCaseChannels({
+  referrals,
+  isDentist,
+  dentistPractices,
+  specialistClinics,
+}: {
+  referrals: UnifiedReferral[];
+  isDentist: boolean;
+  dentistPractices: PracticeDirectoryEntry[];
+  specialistClinics: PracticeDirectoryEntry[];
+}): CaseChannel[] {
+  const filteredRefs = referrals.filter((ref) => {
+    if (ref.status === 'Draft') return false;
+
+    if (isDentist) {
+      return ref.id.startsWith('D-') || ref.id === '1';
+    }
+
+    return !ref.id.startsWith('D-');
+  });
+
+  return filteredRefs.map((ref) => {
+    let practiceId = '3';
+    if (isDentist) {
+      const match = specialistClinics.find((clinic) =>
+        clinic.name.toLowerCase() === (ref.specialist || '').toLowerCase()
+      );
+      practiceId = match ? match.id : '3';
+    } else {
+      const match = dentistPractices.find((practice) =>
+        practice.name.toLowerCase() === (ref.practice || '').toLowerCase()
+      );
+      practiceId = match ? match.id : '6';
+    }
+
+    const code = getReferralCode(ref.id);
+    return {
+      id: `case_${ref.id}`,
+      name: `${code}: ${ref.patientName.toUpperCase()}`,
+      patientName: ref.patientName,
+      referralId: ref.id,
+      practiceId,
+      isArchived: ref.status === 'Archived',
+      lastMessage: ref.status === 'Archived' ? 'Case archived.' : `Referral status: ${ref.status}`,
+    };
+  });
+}
+
+export function filterChannelsByType(
+  channels: Channel[],
+  type: Channel['type'],
+  query: string
+): Channel[] {
+  const normalizedQuery = query.toLowerCase();
+  return channels
+    .filter((channel) => channel.type === type)
+    .filter((channel) => channel.name.toLowerCase().includes(normalizedQuery));
+}
+
+export function filterCaseChannels(caseChannels: CaseChannel[], query: string): CaseChannel[] {
+  const normalizedQuery = query.toLowerCase();
+  return caseChannels.filter((caseChannel) =>
+    caseChannel.name.toLowerCase().includes(normalizedQuery)
+  );
+}
+
+export function filterPracticeChannels(
+  channels: Channel[],
+  caseChannels: CaseChannel[],
+  query: string
+): Channel[] {
+  const normalizedQuery = query.toLowerCase();
+  return channels
+    .filter((channel) => channel.type === 'inter-practice')
+    .filter((channel) => {
+      const matchesPractice = channel.name.toLowerCase().includes(normalizedQuery);
+      const hasMatchingCase = caseChannels.some((caseChannel) =>
+        caseChannel.practiceId === channel.id &&
+        !caseChannel.isArchived &&
+        caseChannel.name.toLowerCase().includes(normalizedQuery)
+      );
+      return matchesPractice || hasMatchingCase;
+    });
+}
+
+export function splitPracticeChannels(channels: Channel[]): {
+  onPlatform: Channel[];
+  external: Channel[];
+} {
+  return {
+    onPlatform: channels.filter((channel) => !channel.isExternal),
+    external: channels.filter((channel) => channel.isExternal),
+  };
+}

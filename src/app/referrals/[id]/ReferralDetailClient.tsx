@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
-import { initialDocuments } from '@/app/channels/page';
+import { initialDocuments } from '@/prototype/channelFixtures';
 
 import { getReferrals, updateReferralStatus, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
 

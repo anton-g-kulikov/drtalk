@@ -1,5 +1,5 @@
 import type { UnifiedReferral, ReferralStatus } from './referrals';
-import type { SharedDocument, MessageItem, Channel } from '@/app/channels/page';
+import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 
 // Simple seedable pseudo-random generator to ensure deterministic hydration
 function getDeterministicRandom(seed: number) {

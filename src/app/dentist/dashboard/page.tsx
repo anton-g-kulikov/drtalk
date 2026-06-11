@@ -12,13 +12,16 @@ import {
 import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
+import { DashboardStats, type DashboardTimeRange } from '@/components/prototype/DashboardStats';
+import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
+import { PrototypeToast } from '@/components/prototype/PrototypeToast';
+import { getPrototypePageNumbers } from '@/prototype/pagination';
 import {
   initialDocuments,
   initialMessages,
   mockChannels,
-  SharedDocument,
-  MessageItem
-} from '@/app/channels/page';
+} from '@/prototype/channelFixtures';
+import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { getInitialDentistDocs, getInitialDentistArchivedDocs, specialistClinics } from '@/lib/mockGenerator';
 
@@ -43,7 +46,7 @@ import { InviteModal } from '@/components/InviteModal';
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
-  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
+  const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
 
   useEffect(() => {
     setTimeout(() => {
@@ -764,95 +767,32 @@ export default function DentistDashboardPage() {
           </div>
         </div>
 
-        {/* Stats Section with Time Range Selector */}
-        <div className="space-y-2">
-          <div className="flex justify-start items-center">
-            <div className="relative">
-              <select 
-                value={timeRange} 
-                onChange={(e) => setTimeRange(e.target.value as any)}
-                className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
-              >
-                <option value="day">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
-                <option value="quarter">This Quarter</option>
-                <option value="year">This Year</option>
-                <option value="last_year">Last Year</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <ChevronDown size={14} className="text-black" />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {[
-              { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
-              { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
-              { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
-              { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected' },
-            ].map((stat) => (
-              <div 
-                key={stat.label} 
-                onClick={() => router.push(stat.path)}
-                className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
-              >
-                <stat.icon size={32} className="text-black shrink-0" />
-                <div className="space-y-1">
-                  <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-                  <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <DashboardStats
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          onStatClick={(path) => router.push(path)}
+          stats={[
+            { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
+            { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
+            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
+            { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected' },
+          ]}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
-            {/* Documents Inbox */}
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 bg-black"></div>
-                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({documents.length})</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Document Search */}
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="SEARCH DOCUMENTS..."
-                  value={docSearchQuery}
-                  onChange={(e) => setDocSearchQuery(e.target.value)}
-                  className="wireframe-input pl-10 py-2 text-[10px] w-full"
-                />
-                {docSearchQuery && (
-                  <button
-                    onClick={() => setDocSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase hover:underline"
-                  >
-                    Clear
-                  </button>
-                )}
-              </div>
-
-              {filteredDocs.length === 0 ? (
-                <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                  No documents found
-                </div>
-              ) : (
-                <div className="space-y-3">
+            <PrototypeDocumentSection
+              inboxCount={documents.length}
+              searchQuery={docSearchQuery}
+              onSearchQueryChange={setDocSearchQuery}
+              isEmpty={filteredDocs.length === 0}
+              currentPage={docCurrentPage}
+              totalPages={totalDocPages}
+              totalItems={filteredDocs.length}
+              onPageChange={setDocCurrentPage}
+            >
                   {paginatedDocs.map((doc) => {
                     const isArchived = activeInboxTab === 'archived';
                     return (
@@ -933,69 +873,7 @@ export default function DentistDashboardPage() {
                       </div>
                     );
                   })}
-                </div>
-              )}
-
-              {/* Pagination Controls */}
-              {/* Pagination Controls */}
-              {totalDocPages > 1 && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black pt-4 bg-white font-bold text-[10px] gap-4">
-                  <div className="flex items-center gap-3 text-muted-foreground uppercase font-black tracking-wider flex-wrap">
-                    <span>Page {docCurrentPage} of {totalDocPages} ({filteredDocs.length} items)</span>
-                    <div className="flex items-center gap-1.5 text-black">
-                      <span className="font-normal lowercase">go to page:</span>
-                      <select
-                        value={docCurrentPage}
-                        onChange={(e) => setDocCurrentPage(Number(e.target.value))}
-                        className="border-2 border-black bg-white px-1.5 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none"
-                      >
-                        {Array.from({ length: totalDocPages }, (_, i) => i + 1).map(page => (
-                          <option key={page} value={page} className="bg-white text-black">Page {page}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <button
-                      disabled={docCurrentPage === 1}
-                      onClick={() => setDocCurrentPage(prev => Math.max(prev - 1, 1))}
-                      className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-                    >
-                      PREV
-                    </button>
-                    
-                    <div className="flex items-center gap-1">
-                      {getPageNumbers(docCurrentPage, totalDocPages).map((p, idx) => {
-                        if (p === '...') {
-                          return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
-                        }
-                        return (
-                          <button
-                            key={`page-${p}`}
-                            onClick={() => setDocCurrentPage(Number(p))}
-                            className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
-                              docCurrentPage === p 
-                                ? 'bg-black text-white font-black' 
-                                : 'bg-white text-black hover:bg-black hover:text-white font-bold'
-                            }`}
-                          >
-                            {p}
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    <button
-                      disabled={docCurrentPage === totalDocPages}
-                      onClick={() => setDocCurrentPage(prev => Math.min(prev + 1, totalDocPages))}
-                      className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-                    >
-                      NEXT
-                    </button>
-                  </div>
-                </div>
-              )}
-              </div>
+            </PrototypeDocumentSection>
 
             {/* Recent Referrals Section */}
             <div className="space-y-6">
@@ -1082,7 +960,7 @@ export default function DentistDashboardPage() {
                     </button>
                     
                     <div className="flex items-center gap-1">
-                      {getPageNumbers(referralsCurrentPage, totalReferralPages).map((p, idx) => {
+                      {getPrototypePageNumbers(referralsCurrentPage, totalReferralPages).map((p, idx) => {
                         if (p === '...') {
                           return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
                         }
@@ -1207,17 +1085,11 @@ export default function DentistDashboardPage() {
 
       {/* Premium Toast Banner */}
       {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 bg-black text-white border-2 border-white px-4 py-3 font-bold uppercase text-[9px] tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-fade-in flex items-center gap-3">
-          <span>{toastMessage}</span>
-          {toastAction && (
-            <button
-              onClick={toastAction.onClick}
-              className="bg-white text-black px-2 py-0.5 font-black uppercase text-[8px] hover:bg-zinc-200 transition-colors"
-            >
-              {toastAction.label}
-            </button>
-          )}
-        </div>
+        <PrototypeToast
+          message={toastMessage}
+          action={toastAction}
+          placement="top-right"
+        />
       )}
 
       {/* Send Document Modal */}
@@ -1646,34 +1518,3 @@ export default function DentistDashboardPage() {
     </MainLayout>
   );
 }
-
-function ActionCard({ label, desc, onClick }: { label: string, desc: string, onClick?: () => void }) {
-  return (
-    <div
-      onClick={onClick}
-      className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group"
-    >
-      <h4 className="font-bold uppercase text-[10px] tracking-tight">{label}</h4>
-      <p className="text-[8px] uppercase opacity-70 group-hover:opacity-100">{desc}</p>
-    </div>
-  );
-}
-
-function getPageNumbers(currentPage: number, totalPages: number) {
-  const pages: (number | string)[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (currentPage <= 4) {
-      pages.push(1, 2, 3, 4, 5, '...', totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-    } else {
-      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-    }
-  }
-  return pages;
-}
-
