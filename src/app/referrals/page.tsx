@@ -6,6 +6,7 @@ import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy, ChevronDown, Ch
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
+import { getPrototypePageNumbers } from '@/prototype/pagination';
 
 import { ReferralStatus } from '@/lib/referrals';
 type Referral = UnifiedReferral;
@@ -502,6 +503,35 @@ export default function ReferralsPage() {
                     </div>
                   </div>
                 </div>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                  >
+                    PREV
+                  </button>
+                  
+                  <div className="flex items-center gap-1">
+                    {getPrototypePageNumbers(currentPage, totalReferralPages).map((p, idx) => {
+                      if (p === '...') {
+                        return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
+                      }
+                      return (
+                        <button
+                          key={`page-${p}`}
+                          onClick={() => setCurrentPage(Number(p))}
+                          className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
+                            currentPage === p 
+                              ? 'bg-black text-white font-black' 
+                              : 'bg-white text-black hover:bg-black hover:text-white font-bold'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
+                  </div>
 
                 <button
                   disabled={currentPage === totalReferralPages}
@@ -517,6 +547,4 @@ export default function ReferralsPage() {
     </MainLayout>
   );
 }
-
-
 
