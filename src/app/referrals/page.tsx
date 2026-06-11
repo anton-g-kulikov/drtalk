@@ -141,18 +141,18 @@ export default function ReferralsPage() {
   }, [filteredReferrals, currentPage]);
 
   return (
-    <MainLayout title="Referrals">
+    <MainLayout title={isDentist ? "Patients" : "Referrals"}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Top Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">{isDentist ? "Patients" : "Referrals"}</h2>
               <CommentMarker id="referrals-list" title="Referrals Page" description="The list of all practice referrals." />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               {isDentist 
-                ? 'TRACK REFERRALS PROGRESS AND COORDINATE PATIENT CARE'
+                ? 'TRACK PATIENTS PROGRESS AND COORDINATE PATIENT CARE'
                 : 'Specialist intake pipeline and case processing workflow'}
             </p>
           </div>
@@ -223,7 +223,7 @@ export default function ReferralsPage() {
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input 
                   type="text" 
-                  placeholder="SEARCH REFERRALS..." 
+                  placeholder={isDentist ? "SEARCH PATIENTS..." : "SEARCH REFERRALS..."}
                   className="wireframe-input pl-10 py-2.5 text-[11px] w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -436,7 +436,7 @@ export default function ReferralsPage() {
                 ))
               ) : (
                 <div className="p-12 border-2 border-black border-dashed text-center">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground">No referrals found in this category.</p>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground">{isDentist ? "No patients found in this category." : "No referrals found in this category."}</p>
                 </div>
               )}
             </div>

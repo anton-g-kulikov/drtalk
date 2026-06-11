@@ -15,7 +15,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const navItems = isDentist
     ? [
       { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
-      { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
+      { icon: FileText, label: 'Patients', href: '/dentist/referrals' },
       { icon: MessageSquare, label: 'Communication', href: '/dentist/channels' },
       { icon: Users, label: 'Network', href: '/dentist/network' },
       { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },

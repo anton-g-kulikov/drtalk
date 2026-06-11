@@ -788,8 +788,8 @@ export default function DentistDashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {[
-              { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
-              { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
+              { label: 'Patients Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
+              { label: 'Patients Scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
               { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
               { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected' },
             ].map((stat) => (
@@ -1002,14 +1002,14 @@ export default function DentistDashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals Sent</h3>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Patients Sent</h3>
                 </div>
                 <div className="relative">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="SEARCH REFERRALS..."
+                    placeholder="SEARCH PATIENTS..."
                     className="wireframe-input pl-10 py-1.5 text-[9px] w-full sm:w-64"
                   />
                 </div>
