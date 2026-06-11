@@ -590,8 +590,19 @@ function ReferralFormContent() {
   };
 
   return (
-    <div className="w-full flex justify-center">
-      {renderStep()}
+    <div className="w-full flex flex-col items-center">
+      {isInternal && step !== 'SUCCESS' && (
+        <button
+          onClick={() => router.push('/dentist/dashboard')}
+          className="fixed top-8 right-8 z-50 p-2.5 bg-white text-black border-2 border-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 text-[10px] font-black uppercase"
+          title="Exit to Dashboard"
+        >
+          <X size={14} /> Exit
+        </button>
+      )}
+      <div className="w-full flex justify-center">
+        {renderStep()}
+      </div>
     </div>
   );
 }
