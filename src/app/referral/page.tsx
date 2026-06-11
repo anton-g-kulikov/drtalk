@@ -50,7 +50,7 @@ function ReferralFormContent() {
 
   // Determine if public or internal form
   const typeParam = searchParams.get('type');
-  const isInternal = typeParam === 'internal' || pathname.startsWith('/dentist');
+  const isInternal = typeParam === 'internal' || (pathname ? pathname.startsWith('/dentist') : false);
 
   const practiceParam = searchParams.get('practice');
 
