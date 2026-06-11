@@ -1,9 +1,17 @@
 "use client";
 
-import React from 'react';
-import { Sidebar, Header } from './Navigation';
+import React from "react";
+import { Sidebar, Header } from "./Navigation";
 
-export const MainLayout = ({ children, title, noPadding = false }: { children: React.ReactNode, title?: string, noPadding?: boolean }) => {
+export const MainLayout = ({
+  children,
+  title,
+  noPadding = false,
+}: {
+  children: React.ReactNode;
+  title?: string;
+  noPadding?: boolean;
+}) => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   return (
@@ -13,16 +21,14 @@ export const MainLayout = ({ children, title, noPadding = false }: { children: R
 
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden animate-in fade-in duration-200"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* Mobile Sidebar */}
-      {isSidebarOpen && (
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
-      )}
+      {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
 
       <div className="flex-1 flex flex-col min-w-0">
         <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
