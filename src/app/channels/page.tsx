@@ -48,7 +48,7 @@ export interface MessageItem {
   document?: SharedDocument;
 }
 
-const mockData = typeof window !== 'undefined' ? generateMockData() : { documents: [], messages: {} };
+const mockData = generateMockData();
 export const initialDocuments: SharedDocument[] = mockData.documents;
 export const initialMessages: Record<string, MessageItem[]> = mockData.messages;
 
