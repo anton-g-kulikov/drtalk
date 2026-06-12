@@ -1286,9 +1286,6 @@ function ChannelsContent() {
                 </button>
               )}
               <button onClick={() => setShowParticipantsModal(true)} className="hidden sm:block text-[10px] font-bold uppercase underline">Participants</button>
-              <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all">
-                <MoreHorizontal size={18} />
-              </button>
             </div>
           </div>
 
