@@ -9,7 +9,8 @@ import {
   Search, Filter, MapPin, 
   UserPlus, ExternalLink, ShieldCheck, 
   Building2, MessageCircle,
-  ArrowUpRight, CheckCircle2, TrendingUp, Users, ChevronDown
+  ArrowUpRight, CheckCircle2, TrendingUp, Users, ChevronDown,
+  Download, Printer
 } from 'lucide-react';
 import { InviteModal } from '@/components/InviteModal';
 import { ReferralModal } from '@/components/ReferralModal';
@@ -92,22 +93,40 @@ function NetworkAnalytics() {
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="flex justify-between items-center flex-col sm:flex-row gap-4">
         <h3 className="text-xl font-black uppercase italic tracking-tighter">Network Performance</h3>
-        <div className="relative">
-          <select 
-            value={timeRange} 
-            onChange={(e) => setTimeRange(e.target.value as any)}
-            className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
-          >
-            <option value="day">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="quarter">This Quarter</option>
-            <option value="year">This Year</option>
-            <option value="last_year">Last Year</option>
-          </select>
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <ChevronDown size={14} className="text-black" />
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <select 
+              value={timeRange} 
+              onChange={(e) => setTimeRange(e.target.value as any)}
+              className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+            >
+              <option value="day">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="quarter">This Quarter</option>
+              <option value="year">This Year</option>
+              <option value="last_year">Last Year</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={14} className="text-black" />
+            </div>
           </div>
+          <button 
+            type="button"
+            onClick={() => alert("Downloading network report as CSV...")}
+            className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
+            title="Download CSV"
+          >
+            <Download size={16} />
+          </button>
+          <button 
+            type="button"
+            onClick={() => window.print()}
+            className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
+            title="Print PDF"
+          >
+            <Printer size={16} />
+          </button>
         </div>
       </div>
 
