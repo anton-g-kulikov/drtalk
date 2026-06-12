@@ -1685,9 +1685,28 @@ function ChannelsContent() {
                                  Previous Page
                                </button>
                                
-                               <span className="text-[10px] font-black uppercase tracking-widest text-black">
-                                 Page {docPage} of {totalDocPages}
-                               </span>
+                               <div className="flex items-center gap-4">
+                                 <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                                   Page {docPage} of {totalDocPages}
+                                 </span>
+                                 <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+                                   <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+                                   <div className="relative">
+                                     <select
+                                       value={docPage}
+                                       onChange={(e) => setDocPage(Number(e.target.value))}
+                                       className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                                     >
+                                       {Array.from({ length: totalDocPages }, (_, i) => i + 1).map(page => (
+                                         <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                                       ))}
+                                     </select>
+                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                                       <ChevronDown size={10} />
+                                     </div>
+                                   </div>
+                                 </div>
+                               </div>
 
                                <button
                                  disabled={docPage === totalDocPages}
