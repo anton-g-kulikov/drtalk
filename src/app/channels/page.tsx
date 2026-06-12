@@ -1674,30 +1674,30 @@ function ChannelsContent() {
                             ))}
                           </div>
 
-                          {/* Pagination Controls */}
-                          {totalDocPages > 1 && (
-                            <div className="flex items-center justify-between border-2 border-black bg-white p-4">
-                              <button
-                                disabled={docPage === 1}
-                                onClick={() => setDocPage(prev => Math.max(1, prev - 1))}
-                                className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 border-black disabled:opacity-30 disabled:pointer-events-none hover:bg-black hover:text-white transition-colors bg-white text-black"
-                              >
-                                Previous Page
-                              </button>
-                              
-                              <span className="text-[10px] font-black uppercase tracking-wider text-black">
-                                Page {docPage} of {totalDocPages}
-                              </span>
+                           {/* Pagination Controls */}
+                           {totalDocPages > 1 && (
+                             <div className="flex items-center justify-between border-2 border-black bg-white p-4">
+                               <button
+                                 disabled={docPage === 1}
+                                 onClick={() => setDocPage(prev => Math.max(1, prev - 1))}
+                                 className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                               >
+                                 Previous Page
+                               </button>
+                               
+                               <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                                 Page {docPage} of {totalDocPages}
+                               </span>
 
-                              <button
-                                disabled={docPage === totalDocPages}
-                                onClick={() => setDocPage(prev => Math.min(totalDocPages, prev + 1))}
-                                className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 border-black disabled:opacity-30 disabled:pointer-events-none hover:bg-black hover:text-white transition-colors bg-white text-black"
-                              >
-                                Next Page
-                              </button>
-                            </div>
-                          )}
+                               <button
+                                 disabled={docPage === totalDocPages}
+                                 onClick={() => setDocPage(prev => Math.min(totalDocPages, prev + 1))}
+                                 className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                               >
+                                 Next Page
+                               </button>
+                             </div>
+                           )}
                         </div>
                       )}
                     </div>
