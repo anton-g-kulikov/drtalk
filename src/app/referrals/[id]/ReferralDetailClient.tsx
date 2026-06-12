@@ -12,7 +12,7 @@ import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { initialDocuments } from '@/app/channels/page';
 
-import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode, getMessages, saveMessages } from '@/lib/referrals';
 
 const PRACTICE_TEAM = [
   { id: 'none', name: 'UNASSIGNED' },
@@ -38,6 +38,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [practiceName, setPracticeName] = useState(referral.practice);
   const [assignedTo, setAssignedTo] = useState<string>(referral?.assignedTo || 'none');
 
+  const [activityLogs, setActivityLogs] = useState<{user: string; text: string; time: string; isDark?: boolean}[]>([]);
+  const [commentText, setCommentText] = useState('');
+
   useEffect(() => {
     setTimeout(() => {
       const loadedRefs = getReferrals();
@@ -48,6 +51,33 @@ export default function ReferralDetailClient({ id }: { id: string }) {
         setUrgency(ref.urgency || 'Routine');
         setPracticeName(ref.practice);
         setAssignedTo(ref.assignedTo || 'none');
+        
+        // Load or initialize activity logs
+        const key = `drtalk_activity_logs_${ref.id}`;
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            setActivityLogs(JSON.parse(stored));
+          } catch (e) {}
+        } else {
+          const receivedTime = ref.receivedAt || '08:20 AM\n06/30/2026';
+          const datePart = receivedTime.includes('\n') ? receivedTime.split('\n')[1] : '06/30/2026';
+          const initialLogs = [
+            {
+              user: 'System',
+              text: `Referral received from ${ref.practice || ref.dentist} and auto-extracted via Digital Intake Pipeline.`,
+              time: receivedTime
+            },
+            {
+              user: 'Administrator',
+              text: `Clinical records requested from ${ref.dentist}'s office. Pending response.`,
+              time: `09:20 AM\n${datePart}`,
+              isDark: true
+            }
+          ];
+          localStorage.setItem(key, JSON.stringify(initialLogs));
+          setActivityLogs(initialLogs);
+        }
       }
     }, 0);
   }, [id]);
@@ -58,6 +88,80 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     setCurrentStatus(newStatus);
     const updated = updateReferralStatus(referral.id, newStatus);
     setReferrals(updated);
+
+    // Add activity log
+    const now = new Date('2026-06-30T18:00:00+02:00');
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
+    const statusMsg = `Referral status transitioned to ${newStatus.toUpperCase()}.`;
+    
+    const newLog = {
+      user: 'System',
+      text: statusMsg,
+      time: `${timeStr}\n${dateStr}`
+    };
+    
+    const key = `drtalk_activity_logs_${referral.id}`;
+    const stored = localStorage.getItem(key);
+    let logsList = [];
+    if (stored) {
+      try {
+        logsList = JSON.parse(stored);
+      } catch (e) {}
+    }
+    const updatedLogs = [...logsList, newLog];
+    localStorage.setItem(key, JSON.stringify(updatedLogs));
+    setActivityLogs(updatedLogs);
+
+    // Send automated message if transitioning to Accepted
+    if (newStatus === 'Accepted') {
+      const allMessages = getMessages();
+      const channelId = `case_${referral.id}`;
+      if (!allMessages[channelId]) {
+        allMessages[channelId] = [];
+      }
+      
+      const welcomeMessageText = "REFERRAL ACCEPTED. WE ARE REVIEWING THE CLINICAL RECORDS AND WILL COORDINATE APPOINTMENT SCHEDULING SHORTLY.";
+      const hasWelcome = allMessages[channelId].some((m: any) => m.text === welcomeMessageText);
+      if (!hasWelcome) {
+        const welcomeMsg = {
+          id: `m_auto_${Date.now()}`,
+          user: referral.specialist || 'Valley Endodontics',
+          text: welcomeMessageText,
+          time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'other'
+        };
+        allMessages[channelId].push(welcomeMsg);
+        saveMessages(allMessages);
+      }
+    }
+  };
+
+  const handlePostComment = () => {
+    if (!commentText.trim()) return;
+    const now = new Date('2026-06-30T18:00:00+02:00');
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
+    
+    const newLog = {
+      user: 'Administrator',
+      text: commentText,
+      time: `${timeStr}\n${dateStr}`,
+      isDark: true
+    };
+    
+    const key = `drtalk_activity_logs_${referral.id}`;
+    const stored = localStorage.getItem(key);
+    let logsList = [];
+    if (stored) {
+      try {
+        logsList = JSON.parse(stored);
+      } catch (e) {}
+    }
+    const updated = [...logsList, newLog];
+    setActivityLogs(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+    setCommentText('');
   };
 
   const handleProcessReferral = () => {
@@ -72,6 +176,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     switch (currentStatus) {
       case 'Received':
       case 'Sent':
+        handleStatusChange('Accepted');
+        break;
+      case 'Accepted':
         handleStatusChange('Scheduled');
         break;
       case 'Scheduled':
@@ -91,6 +198,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
       case 'Received': return 'bg-gray-100 text-black border-black/30';
+      case 'Accepted': return 'bg-amber-50 text-amber-800 border-amber-200';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
       case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
@@ -142,7 +250,8 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 onClick={handleMainNextAction}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
               >
-                {currentStatus === 'Received' ? 'Schedule Appointment' :
+                {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
+                 currentStatus === 'Accepted' ? 'Schedule Appointment' :
                  currentStatus === 'Scheduled' ? 'Complete Treatment' :
                  currentStatus === 'Completed' ? 'Archive Case' :
                  'Reopen Case'}
@@ -163,6 +272,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </div>
                   {[
                     { status: 'Received', label: 'Received (Review)' },
+                    { status: 'Accepted', label: 'Accepted' },
                     { status: 'Scheduled', label: 'Scheduled' },
                     { status: 'Completed', label: 'Completed' },
                     { status: 'Archived', label: 'Archived' }
@@ -370,31 +480,39 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 </div>
               )}
 
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase">System</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
+              {activityLogs.map((log, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[9px] font-black uppercase">{log.user}</p>
+                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">{log.time}</p>
+                  </div>
+                  <div className={`wireframe-card p-3 text-[10px] uppercase leading-tight ${log.isDark ? 'bg-black text-white' : 'bg-white shadow-sm'}`}>
+                    {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
+                      <>
+                        Referral received from <span className="font-black underline">{practiceName || referral.dentist}</span> and auto-extracted via Digital Intake Pipeline.
+                      </>
+                    ) : log.text.includes(referral.dentist || '') && log.text.includes('clinical records') ? (
+                      <>
+                        Clinical records requested from <span className="font-black underline">{referral.dentist}</span>&apos;s office. Pending response.
+                      </>
+                    ) : (
+                      log.text
+                    )}
+                  </div>
                 </div>
-                <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
-                  Referral received from <span className="font-black underline">{practiceName}</span> and auto-extracted via Digital Intake Pipeline.
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase">Administrator</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">09:20 AM{"\n"}05/11/2026</p>
-                </div>
-                <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
-                  Clinical records requested from {referral.dentist}&apos;s office. Pending response.
-                </div>
-              </div>
+              ))}
             </div>
             <div className="p-6 border-t-2 border-black bg-white space-y-4">
               <textarea 
                 placeholder="ADD INTERNAL NOTE..." 
                 className="wireframe-input h-28 text-[11px] uppercase p-3 resize-none bg-gray-50 focus:bg-white transition-colors"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
               />
-              <button className="wireframe-button w-full bg-black text-white text-[11px] uppercase py-3 font-black tracking-widest">
+              <button 
+                onClick={handlePostComment}
+                className="wireframe-button w-full bg-black text-white text-[11px] uppercase py-3 font-black tracking-widest"
+              >
                 Post Comment
               </button>
             </div>

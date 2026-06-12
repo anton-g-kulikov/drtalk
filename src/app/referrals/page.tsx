@@ -360,11 +360,10 @@ export default function ReferralsPage() {
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
-              <div className={isDentist ? "col-span-3" : "col-span-2"}>Patient</div>
-              <div className={isDentist ? "col-span-2" : "col-span-2"}>Urgency</div>
+              <div className="col-span-3">Patient</div>
+              <div className="col-span-2">Urgency</div>
               <div className="col-span-2">Source / ID</div>
-              <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
-              {!isDentist && <div className="col-span-2">Data Completion</div>}
+              <div className="col-span-3">{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
               <div className="col-span-1">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
@@ -379,7 +378,7 @@ export default function ReferralsPage() {
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
+                      <div className="col-span-3">
                         {isDentist ? (
                           <>
                             <p className="font-bold uppercase text-xs">Patient: {referral.patientName}</p>
@@ -389,7 +388,7 @@ export default function ReferralsPage() {
                           <p className="font-bold uppercase text-xs">{referral.patientName}</p>
                         )}
                       </div>
-                      <div className={isDentist ? "col-span-2" : "col-span-2"}>
+                      <div className="col-span-2">
                         <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-sm border ${
                           referral.urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
                           referral.urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
@@ -407,21 +406,12 @@ export default function ReferralsPage() {
                         </div>
                         <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
                       </div>
-                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
+                      <div className="col-span-3">
                         <p className="text-[10px] font-bold uppercase">{isDentist ? referral.specialist : referral.dentist}</p>
                         {!isDentist && referral.practice && (
                           <p className="text-[8px] font-black uppercase text-black/50">{referral.practice}</p>
                         )}
                       </div>
-                      {!isDentist && (
-                        <div className="col-span-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`text-[10px] uppercase font-bold ${getCompletionColor(referral.completion)}`}>
-                              {getCompletionLabel(referral.completion)}
-                            </div>
-                          </div>
-                        </div>
-                      )}
                       <div className="col-span-1">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock size={12} className="shrink-0" />
