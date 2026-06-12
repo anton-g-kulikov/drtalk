@@ -412,16 +412,18 @@ export default function ReferralsPage() {
                       {/* Referring Practice / Referred To Practice */}
                       <div className={isDentist ? 'col-span-5' : 'col-span-2'}>
                         {isDentist ? (
-                          <>
-                            <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
-                            <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
+                          <div className="grid grid-cols-2 gap-x-4">
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
+                              <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
+                            </div>
                             {referral.specialistDoctor && (
-                              <>
-                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest mt-1">Specialist</p>
+                              <div>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
                                 <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
-                              </>
+                              </div>
                             )}
-                          </>
+                          </div>
                         ) : (
                           <>
                             <p className="text-[10px] font-bold uppercase">{referral.practice || referral.dentist}</p>
