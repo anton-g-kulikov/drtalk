@@ -78,8 +78,27 @@ function ReferralFormContent() {
       if (savedState) {
         setSelectedState(savedState);
       }
+
+      if (isInternal) {
+        const stored = localStorage.getItem('drtalk_profile_dentist');
+        if (stored) {
+          try {
+            const profile = JSON.parse(stored);
+            const name = profile.displayName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+            if (name) {
+              setDoctorName(name);
+            } else {
+              setDoctorName("Dr. Taylor Reed, DDS");
+            }
+          } catch (e) {
+            setDoctorName("Dr. Taylor Reed, DDS");
+          }
+        } else {
+          setDoctorName("Dr. Taylor Reed, DDS");
+        }
+      }
     }
-  }, []);
+  }, [isInternal]);
 
   // Synchronize target practice if query param changes
   useEffect(() => {
@@ -205,53 +224,34 @@ function ReferralFormContent() {
               )}
             </div>
 
-            {/* Printable Referral Sheet Download Helper */}
-            {targetPractice && (
-              <div className="border-2 border-black p-3.5 flex items-center justify-between gap-3 bg-gray-50">
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileText size={16} className="shrink-0 text-black animate-pulse" />
-                  <span className="font-bold uppercase tracking-tight text-[9px] truncate">
-                    Need our offline practice referral sheet?
-                  </span>
-                </div>
-                <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert(`Downloading: ${targetPractice.toLowerCase().replace(/\s+/g, '_')}_referral_sheet_v2.pdf (1.4 MB)`);
-                  }}
-                  className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 shrink-0 flex items-center gap-1"
-                >
-                  <Download size={10} />
-                  <span>Download PDF</span>
-                </a>
-              </div>
-            )}
-
             <div className="space-y-6">
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Enter your email</label>
-                  <input
-                    key="referral-identify-email"
-                    type="email"
-                    placeholder="dr.smith@example.com"
-                    className="wireframe-input"
-                    value={email || ''}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Your practice name</label>
-                  <input
-                    key="referral-identify-practice"
-                    type="text"
-                    placeholder="Smith Dental Care"
-                    className="wireframe-input"
-                    value={practiceName || ''}
-                    onChange={(e) => setPracticeName(e.target.value)}
-                  />
-                </div>
+                {!isInternal && (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase">Enter your email</label>
+                      <input
+                        key="referral-identify-email"
+                        type="email"
+                        placeholder="dr.smith@example.com"
+                        className="wireframe-input"
+                        value={email || ''}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase">Your practice name</label>
+                      <input
+                        key="referral-identify-practice"
+                        type="text"
+                        placeholder="Smith Dental Care"
+                        className="wireframe-input"
+                        value={practiceName || ''}
+                        onChange={(e) => setPracticeName(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
                   <input
@@ -399,12 +399,15 @@ function ReferralFormContent() {
             <div className="space-y-6">
               <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">2. Clinical Information</h3>
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Reason for Referral</label>
-                  <textarea
-                    placeholder="Describe the clinical needs, specific teeth, or symptoms..."
-                    className="wireframe-input h-32 py-3 resize-none"
-                  />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase">Referral Pad / Clinical Notes</label>
+                  <div className="border-2 border-black p-1 bg-white">
+                    <img 
+                      src="/referral-pad.png" 
+                      alt="Referral Pad" 
+                      className="w-full object-contain filter grayscale" 
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Urgency</label>
