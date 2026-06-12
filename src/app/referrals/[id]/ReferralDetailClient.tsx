@@ -410,9 +410,21 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                   </div>
                 </section>
+
               </div>
 
               <div className="space-y-10">
+                <section className="space-y-6">
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referred To</h4>
+                  <div className="space-y-5">
+                    <DataField label="Practice" value={referral.specialist} edit={isEditorMode} />
+                    <DataField
+                      label="Doctor"
+                      value={referral.specialistDoctor || '—'}
+                      edit={isEditorMode}
+                    />
+                  </div>
+                </section>
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Reason for Referral</h4>
                   <div className="space-y-4">

@@ -362,8 +362,8 @@ export default function ReferralsPage() {
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
               <div className={isDentist ? 'col-span-3' : 'col-span-2'}>Patient</div>
               <div className="col-span-2">Urgency</div>
-              <div className="col-span-2">Source / ID</div>
-              <div className={isDentist ? 'col-span-3' : 'col-span-2'}>{isDentist ? 'Referred To' : 'Referring Practice'}</div>
+              {!isDentist && <div className="col-span-2">Source / ID</div>}
+              <div className={isDentist ? 'col-span-5' : 'col-span-2'}>{isDentist ? 'Referred To' : 'Referring Practice'}</div>
               {!isDentist && <div className="col-span-2">Referred To</div>}
               <div className="col-span-1">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
@@ -398,17 +398,19 @@ export default function ReferralsPage() {
                           {referral.urgency || 'Routine'}
                         </span>
                       </div>
-                      <div className="col-span-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border border-black flex items-center justify-center">
-                            <span className="text-[8px] font-bold">{referral.source[0]}</span>
+                      {!isDentist && (
+                        <div className="col-span-2">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 border border-black flex items-center justify-center">
+                              <span className="text-[8px] font-bold">{referral.source[0]}</span>
+                            </div>
+                            <span className="text-[10px] font-bold uppercase">{referral.source}</span>
                           </div>
-                          <span className="text-[10px] font-bold uppercase">{referral.source}</span>
+                          <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
                         </div>
-                        <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
-                      </div>
+                      )}
                       {/* Referring Practice / Referred To Practice */}
-                      <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
+                      <div className={isDentist ? 'col-span-5' : 'col-span-2'}>
                         {isDentist ? (
                           <>
                             <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
