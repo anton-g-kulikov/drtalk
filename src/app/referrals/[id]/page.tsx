@@ -9,6 +9,8 @@ export function generateStaticParams() {
     // Dentist-side
     { id: 'D-1002' }, { id: 'D-1003' }, { id: 'D-1004' },
     { id: 'D-1005' }, { id: 'D-1006' }, { id: 'D-1007' }, { id: 'D-1008' },
+    // External referrals
+    { id: 'ext-ref-1' }, { id: 'ext-ref-2' },
   ];
 }
 

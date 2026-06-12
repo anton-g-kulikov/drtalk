@@ -62,8 +62,10 @@ export const dentistPractices = [
   { id: '21', name: 'Meadowbrook Dental' },
   { id: '22', name: 'Pinecrest Dental Group' },
   { id: '23', name: 'Riverfront Dental Care' },
-  { id: '24', name: 'Summit Ridge Dental' }
+  { id: '24', name: 'Summit Ridge Dental' },
+  { id: '25', name: 'Oakwood Family Dental' },
 ];
+
 
 // Define connected specialist clinics (visible to Sunshine Dental / Dr. Taylor Reed) - 18 clinics
 export const specialistClinics = [

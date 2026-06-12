@@ -232,12 +232,14 @@ export function getChannels(isDentist: boolean): Channel[] {
   if (stored) {
     try {
       const parsed: Channel[] = JSON.parse(stored);
-      // Cache-bust: if any known-external practice is still marked as on-platform, re-seed
+      // Cache-bust: if any known-external practice is still marked as on-platform,
+      // or if Oakwood Family Dental (id '25') is missing (newly added), re-seed
       if (!isDentist) {
         const knownExternal = ['pinecrest dental group', 'oakwood family dental', 'riverfront dental care',
           'heritage dental partners', 'sunrise smiles dental', 'desert rose dentistry',
           'copper state dental', 'cactus park dental', 'red rock dental studio', 'grand canyon dental group'];
-        const needsReset = parsed.some(c =>
+        const missingOakwood = !parsed.some(c => c.id === '25');
+        const needsReset = missingOakwood || parsed.some(c =>
           c.type === 'inter-practice' &&
           !c.isExternal &&
           knownExternal.includes(c.name.toLowerCase())

@@ -146,6 +146,7 @@ function ChannelsContent() {
       }
 
       const code = getReferralCode(ref.id);
+      const isExternalRef = ref.id.startsWith('ext-');
       return {
         id: `case_${ref.id}`,
         name: ref.patientName.toUpperCase(),
@@ -153,6 +154,7 @@ function ChannelsContent() {
         referralId: ref.id,
         practiceId,
         isArchived: ref.status === 'Archived',
+        isExternal: isExternalRef,
         lastMessage: ref.status === 'Archived' ? 'Case archived.' : `Referral status: ${ref.status}`
       };
     });
@@ -538,7 +540,8 @@ function ChannelsContent() {
                 name: ref.patientName.toUpperCase(),
                 type: 'inter-practice',
                 lastMessage: `Referral status: ${ref.status}`,
-                memberCount: parentChannel.memberCount
+                memberCount: parentChannel.memberCount,
+                ...(ref.id.startsWith('ext-') ? { isExternal: true } : {})
               };
               setActiveChannel(caseChannelObj);
               setActiveTab(targetTab);

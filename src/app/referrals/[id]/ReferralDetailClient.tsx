@@ -93,7 +93,13 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     const now = new Date('2026-06-30T18:00:00+02:00');
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
-    const statusMsg = `Referral status transitioned to ${newStatus.toUpperCase()}.`;
+
+    const isExternalReferral = referral.id.startsWith('ext-');
+
+    // Build activity log message — external acceptances note the email dispatch
+    const statusMsg = newStatus === 'Accepted' && isExternalReferral
+      ? `Referral status transitioned to ACCEPTED. Automated secure email sent to referring office (${referral.practice || referral.dentist}).`
+      : `Referral status transitioned to ${newStatus.toUpperCase()}.`;
     
     const newLog = {
       user: 'System',
@@ -124,13 +130,17 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       const welcomeMessageText = "REFERRAL ACCEPTED. WE ARE REVIEWING THE CLINICAL RECORDS AND WILL COORDINATE APPOINTMENT SCHEDULING SHORTLY.";
       const hasWelcome = allMessages[channelId].some((m: any) => m.text === welcomeMessageText);
       if (!hasWelcome) {
-        const welcomeMsg = {
+        const welcomeMsg: Record<string, any> = {
           id: `m_auto_${Date.now()}`,
           user: referral.specialist || 'Valley Endodontics',
           text: welcomeMessageText,
           time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           type: 'other'
         };
+        // External referral → message is dispatched as a secure email
+        if (isExternalReferral) {
+          welcomeMsg.transport = 'Email';
+        }
         allMessages[channelId].push(welcomeMsg);
         saveMessages(allMessages);
       }
