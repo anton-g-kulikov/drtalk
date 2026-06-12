@@ -102,6 +102,7 @@ export default function DashboardPage() {
     patient: string;
     type: string;
     source: string;
+    dentist?: string;
     date: string;
     status: 'new_processing' | 'new_docs';
     detail: string;
@@ -297,11 +298,11 @@ export default function DashboardPage() {
   };
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
-    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
-    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
-    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
+    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', dentist: 'Dr. Taylor Reed', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
+    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Miller & Associates', dentist: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Black Family Dental', dentist: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
+    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', dentist: 'Dr. Taylor Reed', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Desert Bloom Dental', dentist: 'Dr. Jones', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
   ]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
@@ -695,7 +696,9 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Received {ref.date}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {ref.urgency && (
@@ -745,7 +748,9 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Updated {ref.date}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {ref.urgency && (

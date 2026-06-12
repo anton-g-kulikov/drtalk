@@ -14,6 +14,7 @@ export interface UnifiedReferral {
   nextStep?: string;
   dentist: string;
   specialist: string;
+  specialistDoctor?: string;
   practice?: string;
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
   sender?: string;

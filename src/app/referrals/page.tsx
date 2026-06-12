@@ -360,10 +360,11 @@ export default function ReferralsPage() {
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
-              <div className="col-span-3">Patient</div>
+              <div className={isDentist ? 'col-span-3' : 'col-span-2'}>Patient</div>
               <div className="col-span-2">Urgency</div>
               <div className="col-span-2">Source / ID</div>
-              <div className="col-span-3">{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
+              <div className={isDentist ? 'col-span-3' : 'col-span-2'}>{isDentist ? 'Referred To' : 'Referring Practice'}</div>
+              {!isDentist && <div className="col-span-2">Referred To</div>}
               <div className="col-span-1">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
@@ -378,11 +379,11 @@ export default function ReferralsPage() {
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className="col-span-3">
+                      <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
                         {isDentist ? (
                           <>
-                            <p className="font-bold uppercase text-xs">Patient: {referral.patientName}</p>
-                            <p className="text-[9px] uppercase font-bold text-muted-foreground">Sender: {referral.dentist}</p>
+                            <p className="font-bold uppercase text-xs">{referral.patientName}</p>
+                            <p className="text-[9px] uppercase font-bold text-muted-foreground">by {referral.dentist}</p>
                           </>
                         ) : (
                           <p className="font-bold uppercase text-xs">{referral.patientName}</p>
@@ -406,12 +407,43 @@ export default function ReferralsPage() {
                         </div>
                         <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
                       </div>
-                      <div className="col-span-3">
-                        <p className="text-[10px] font-bold uppercase">{isDentist ? referral.specialist : referral.dentist}</p>
-                        {!isDentist && referral.practice && (
-                          <p className="text-[8px] font-black uppercase text-black/50">{referral.practice}</p>
+                      {/* Referring Practice / Referred To Practice */}
+                      <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
+                        {isDentist ? (
+                          <>
+                            <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
+                            <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
+                            {referral.specialistDoctor && (
+                              <>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest mt-1">Specialist</p>
+                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                              </>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <p className="text-[10px] font-bold uppercase">{referral.practice || referral.dentist}</p>
+                            {referral.dentist && referral.practice && (
+                              <p className="text-[8px] font-black uppercase text-black/50 mt-0.5">
+                                Ref. by {referral.dentist}
+                              </p>
+                            )}
+                          </>
                         )}
                       </div>
+                      {/* Specialist side only: Referred To Doctor column */}
+                      {!isDentist && (
+                        <div className="col-span-2">
+                          {referral.specialistDoctor ? (
+                            <>
+                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
+                              <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                            </>
+                          ) : (
+                            <p className="text-[8px] uppercase font-bold text-black/30">—</p>
+                          )}
+                        </div>
+                      )}
                       <div className="col-span-1">
                         <div className="flex items-center gap-2 text-muted-foreground">
                           <Clock size={12} className="shrink-0" />
