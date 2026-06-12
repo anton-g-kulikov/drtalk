@@ -452,9 +452,28 @@ export default function ReferralsPage() {
                   Previous Page
                 </button>
                 
-                <span className="text-[10px] font-black uppercase tracking-widest text-black">
-                  Page {currentPage} of {totalReferralPages}
-                </span>
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                    Page {currentPage} of {totalReferralPages}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+                    <div className="relative">
+                      <select
+                        value={currentPage}
+                        onChange={(e) => setCurrentPage(Number(e.target.value))}
+                        className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                      >
+                        {Array.from({ length: totalReferralPages }, (_, i) => i + 1).map(page => (
+                          <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                        <ChevronDown size={10} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <button
                   disabled={currentPage === totalReferralPages}
@@ -471,21 +490,5 @@ export default function ReferralsPage() {
   );
 }
 
-function getPageNumbers(currentPage: number, totalPages: number) {
-  const pages: (number | string)[] = [];
-  if (totalPages <= 7) {
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-  } else {
-    if (currentPage <= 4) {
-      pages.push(1, 2, 3, 4, 5, '...', totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-    } else {
-      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-    }
-  }
-  return pages;
-}
+
 
