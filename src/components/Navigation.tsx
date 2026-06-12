@@ -297,7 +297,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
               {[
                 { label: 'View Profile', href: isDentist ? '/dentist/settings/profile/user' : '/settings/profile/user' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
-                { label: 'Billing & Usage', href: isDentist ? '/dentist/settings#billing' : '/settings#billing' },
+                { label: 'Subscription', href: isDentist ? '/dentist/settings#subscription' : '/settings#subscription' },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link

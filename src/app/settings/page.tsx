@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.location.hash === '#billing') {
+    if (typeof window !== 'undefined' && window.location.hash === '#subscription') {
       const timer = setTimeout(() => {
         setIsBillingModalOpen(true);
       }, 0);
@@ -35,7 +35,7 @@ export default function SettingsPage() {
     ...(!isDentist ? [{ icon: Inbox, label: 'Referral Intake', desc: 'Configure and copy credentials for inbound email, eFax, and public referral link.', href: '/settings/intake' }] : []),
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
-    { icon: CreditCard, label: 'Billing & Plan', desc: isDentist ? 'View subscription status for sending referrals.' : 'View subscription status for referral processing.', href: '#' },
+    { icon: CreditCard, label: 'Subscription', desc: isDentist ? 'View subscription status for sending referrals.' : 'View subscription status for referral processing.', href: '#' },
   ];
 
   return (
@@ -58,7 +58,7 @@ export default function SettingsPage() {
             <div 
               key={section.label} 
               onClick={() => {
-                if (section.label === 'Billing & Plan') {
+                if (section.label === 'Subscription') {
                   setIsBillingModalOpen(true);
                 } else if (section.href !== '#') {
                   router.push(section.href);
