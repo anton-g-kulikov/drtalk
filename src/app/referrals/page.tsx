@@ -62,7 +62,7 @@ export default function ReferralsPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam && ['Received', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
+      if (tabParam && ['Received', 'Accepted', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
         const timer = setTimeout(() => {
           setActiveTab(tabParam as ReferralStatus);
         }, 0);
@@ -84,12 +84,13 @@ export default function ReferralsPage() {
     }
   };
 
-  const tabs: ReferralStatus[] = ['Received', 'Scheduled', 'Completed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Completed', 'Archived'];
 
   const getTabLabel = (tab: ReferralStatus) => {
     if (isDentist) {
       switch (tab) {
         case 'Received': return 'SENT';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Completed': return 'COMPLETED';
         case 'Archived': return 'ARCHIVED';
@@ -98,6 +99,7 @@ export default function ReferralsPage() {
     } else {
       switch (tab) {
         case 'Received': return 'RECEIVED (REVIEW)';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Completed': return 'COMPLETED';
         case 'Archived': return 'ARCHIVED';
