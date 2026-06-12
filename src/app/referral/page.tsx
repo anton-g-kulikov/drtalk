@@ -444,17 +444,6 @@ function ReferralFormContent() {
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b-2 border-black pb-2">
                 <h3 className="text-xs font-bold uppercase">3. X-Rays & Records</h3>
-                <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Downloading: referral_sheet_v2.pdf (1.4 MB)");
-                  }}
-                  className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 flex items-center gap-1"
-                >
-                  <Download size={10} />
-                  <span>Download Referral Sheet</span>
-                </a>
               </div>
               <div className="space-y-6">
                 <div className="border-4 border-black border-dashed p-12 text-center space-y-4 hover:bg-gray-50 transition-all cursor-pointer">
