@@ -221,6 +221,11 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / {getReferralCode(referral.id)}</p>
+                {referral.id.startsWith('ext-') && (
+                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm">
+                    {referral.source === 'Fax' ? 'External — Secure Fax Referral' : 'External — Secure Email Referral'}
+                  </span>
+                )}
                 {urgency === 'Urgent' && (
                   <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
                     Urgent

@@ -1138,14 +1138,47 @@ function ChannelsContent() {
                   {filteredExternalChannels.length === 0 ? (
                     <p className="text-[8px] text-muted-foreground italic uppercase">No external connections yet.</p>
                   ) : (
-                    filteredExternalChannels.map(c => (
-                      <ChannelItem
-                        key={c.id}
-                        channel={c}
-                        isActive={activeChannel.id === c.id}
-                        onClick={() => handleSelectChannel(c)}
-                      />
-                    ))
+                    filteredExternalChannels.map(c => {
+                      const practiceCases = filteredCaseChannels.filter(cc => cc.practiceId === c.id && !cc.isArchived);
+                      return (
+                        <div key={c.id} className="space-y-0.5">
+                          <ChannelItem
+                            channel={c}
+                            isActive={activeChannel.id === c.id}
+                            onClick={() => handleSelectChannel(c)}
+                            isExpanded={!!expandedPractices[c.id]}
+                            hasSubChannels={practiceCases.length > 0}
+                          />
+                          {expandedPractices[c.id] && practiceCases.map(cc => {
+                            const isCaseActive = activeChannel.id === cc.id;
+                            return (
+                              <button
+                                key={cc.id}
+                                onClick={() => {
+                                  const caseChannelObj: Channel = {
+                                    id: cc.id,
+                                    name: cc.name,
+                                    type: 'inter-practice',
+                                    lastMessage: cc.lastMessage,
+                                    memberCount: c.memberCount,
+                                    isExternal: true
+                                  };
+                                  handleSelectChannel(caseChannelObj);
+                                }}
+                                className={`w-full flex items-center gap-2 py-1.5 pl-10 text-left transition-all ${
+                                  isCaseActive 
+                                    ? 'bg-black text-white font-black' 
+                                    : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                                }`}
+                              >
+                                <FileText size={10} className={isCaseActive ? "text-white" : "text-black"} />
+                                <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               )}

@@ -80,22 +80,6 @@ export default function DashboardPage() {
       router.push('/verify');
       return;
     }
-    if (ref.isExternal) {
-      // Extract clean practice name from source string like "Pinecrest Dental (External)"
-      const practiceName = ref.source.replace(/\s*\(External\)/i, '').trim();
-      // Build a synthetic DocumentItem-like object so handleOpenInChannel can open/create the channel
-      const syntheticDoc: DocumentItem = {
-        id: ref.id,
-        name: `Referral — ${ref.patient}`,
-        sender: practiceName,
-        date: ref.date,
-        size: '',
-        isExternal: true,
-        transport: ref.transport,
-      };
-      handleOpenInChannel(syntheticDoc);
-      return;
-    }
     router.push(`/referrals/${ref.id}`);
   };
 
