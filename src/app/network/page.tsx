@@ -112,7 +112,7 @@ function NetworkAnalytics() {
           <button 
             type="button"
             onClick={() => alert("Downloading network report as CSV...")}
-            className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
+            className="wireframe-button h-10 w-10 p-0 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
             title="Download CSV"
           >
             <Download size={20} />
@@ -120,7 +120,7 @@ function NetworkAnalytics() {
           <button 
             type="button"
             onClick={() => window.print()}
-            className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
+            className="wireframe-button h-10 w-10 p-0 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
             title="Print PDF"
           >
             <Printer size={20} />
