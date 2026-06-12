@@ -318,12 +318,6 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 Archive Case
               </button>
             )}
-
-            {currentStatus === 'Accepted' && assignedTo === 'none' && (
-              <span className="text-[9px] text-red-600 font-bold uppercase border border-red-300 bg-red-50 px-2.5 py-1.5 rounded-sm animate-pulse">
-                Assignee Required to Schedule
-              </span>
-            )}
           </div>
         </div>
 
