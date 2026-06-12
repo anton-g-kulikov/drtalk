@@ -17,6 +17,7 @@ export interface UnifiedReferral {
   practice?: string;
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
   sender?: string;
+  assignedTo?: string;
 }
 
 import { generateMockData, dentistPractices, specialistClinics } from './mockGenerator';
@@ -61,6 +62,13 @@ export function saveReferrals(referrals: UnifiedReferral[]) {
 export function updateReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
   const referrals = getReferrals();
   const updated = referrals.map(r => r.id === id ? { ...r, status } : r);
+  saveReferrals(updated);
+  return updated;
+}
+
+export function updateReferralAssignee(id: string, assignedTo?: string): UnifiedReferral[] {
+  const referrals = getReferrals();
+  const updated = referrals.map(r => r.id === id ? { ...r, assignedTo } : r);
   saveReferrals(updated);
   return updated;
 }
