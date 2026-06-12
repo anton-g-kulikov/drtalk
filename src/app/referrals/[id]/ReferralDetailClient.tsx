@@ -221,9 +221,6 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / {getReferralCode(referral.id)}</p>
-                <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
-                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
-                </span>
                 {urgency === 'Urgent' && (
                   <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
                     Urgent
@@ -441,8 +438,11 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
           {/* Activity Sidebar */}
           <div className="w-full md:w-96 flex flex-col bg-gray-50/50">
-            <div className="p-6 border-b-2 border-black bg-white">
+            <div className="p-6 border-b-2 border-black bg-white flex items-center justify-between">
               <h3 className="font-bold uppercase text-xs tracking-widest">Case Activity</h3>
+              <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
+                {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
+              </span>
             </div>
             
             {/* Case Assignee */}
