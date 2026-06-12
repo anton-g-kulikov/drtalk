@@ -145,7 +145,7 @@ function ChannelsContent() {
       const code = getReferralCode(ref.id);
       return {
         id: `case_${ref.id}`,
-        name: `${code}: ${ref.patientName.toUpperCase()}`,
+        name: ref.patientName.toUpperCase(),
         patientName: ref.patientName,
         referralId: ref.id,
         practiceId,
@@ -532,7 +532,7 @@ function ChannelsContent() {
               }
               const caseChannelObj: Channel = {
                 id: `case_${ref.id}`,
-                name: `${getReferralCode(ref.id)}: ${ref.patientName.toUpperCase()}`,
+                name: ref.patientName.toUpperCase(),
                 type: 'inter-practice',
                 lastMessage: `Referral status: ${ref.status}`,
                 memberCount: parentChannel.memberCount
