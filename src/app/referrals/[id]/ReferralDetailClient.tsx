@@ -12,7 +12,15 @@ import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { initialDocuments } from '@/app/channels/page';
 
-import { getReferrals, updateReferralStatus, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
+
+const PRACTICE_TEAM = [
+  { id: 'none', name: 'UNASSIGNED' },
+  { id: '1', name: 'DR. EMMA SMITH', specialty: 'ENDODONTICS' },
+  { id: '2', name: 'ALICE JOHNSON', specialty: 'PRACTICE ADMIN' },
+  { id: '3', name: 'BOB WILSON', specialty: 'ORAL SURGERY' },
+  { id: '4', name: 'CAROL DANVERS', specialty: 'PERIODONTICS' },
+];
 
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
@@ -28,6 +36,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
+  const [assignedTo, setAssignedTo] = useState<string>(referral?.assignedTo || 'none');
 
   useEffect(() => {
     setTimeout(() => {
@@ -38,6 +47,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
         setCurrentStatus(ref.status);
         setUrgency(ref.urgency || 'Routine');
         setPracticeName(ref.practice);
+        setAssignedTo(ref.assignedTo || 'none');
       }
     }, 0);
   }, [id]);
@@ -320,20 +330,46 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             <div className="p-6 border-b-2 border-black bg-white">
               <h3 className="font-bold uppercase text-xs tracking-widest">Case Activity</h3>
             </div>
-            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase text-black">Practice Communication</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">ACTIVE NOW</p>
-                </div>
-                <div 
-                  onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-                  className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white border-dashed border-2 border-black hover:bg-black hover:text-white cursor-pointer transition-all flex items-center justify-between gap-3 group shadow-sm"
+            
+            {/* Case Assignee */}
+            <div className="p-6 border-b-2 border-black bg-white space-y-2">
+              <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Assign Case To</label>
+              <div className="relative">
+                <select
+                  value={assignedTo}
+                  onChange={(e) => {
+                    const newAssignee = e.target.value;
+                    setAssignedTo(newAssignee);
+                    const updated = updateReferralAssignee(referral.id, newAssignee === 'none' ? undefined : newAssignee);
+                    setReferrals(updated);
+                  }}
+                  className="wireframe-input w-full py-2.5 px-3 text-[10px] uppercase font-bold appearance-none bg-white pr-8 cursor-pointer focus:ring-1 focus:ring-black border-2 border-black"
                 >
-                  <span className="font-medium">Click here to reply to <span className="font-black underline">{referral.dentist}</span> / share post-op reports or additional scans.</span>
-                  <MessageSquare size={14} className="shrink-0 text-black group-hover:text-white" />
+                  {PRACTICE_TEAM.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} {member.specialty ? `(${member.specialty})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-black">
+                  <ChevronDown size={14} />
                 </div>
               </div>
+            </div>
+
+            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+              {assignedTo !== 'none' && (
+                <div className="space-y-2 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[9px] font-black uppercase text-black">System</p>
+                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">Active Assignment</p>
+                  </div>
+                  <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-zinc-100 border-black border-2 shadow-sm">
+                    Case is currently assigned to <span className="font-black underline">{PRACTICE_TEAM.find(m => m.id === assignedTo)?.name}</span>.
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <div className="flex justify-between items-baseline">
                   <p className="text-[9px] font-black uppercase">System</p>
