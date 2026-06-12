@@ -89,6 +89,28 @@ export const specialistClinics = [
   { id: '42', name: 'Westside Endodontics' }
 ];
 
+// Map of specialist clinic -> doctor roster (used to populate specialistDoctor on generated referrals)
+const SPECIALIST_DOCTORS: Record<string, string[]> = {
+  'Valley Endodontics':         ['Dr. Emma Smith', 'Dr. Robert Hayes'],
+  'Downtown Oral Surgery':      ['Dr. Bob Wilson', 'Dr. Lisa Park'],
+  'Metro Orthodontics':         ['Dr. Carol Danvers', 'Dr. James Lee'],
+  'Arizona Periodontics':       ['Dr. Carol Danvers', 'Dr. Priya Nair'],
+  'Beverly Hills Dental':       ['Dr. Mark Holloway'],
+  'Apex Pediatric Dentistry':   ['Dr. Sarah Okonkwo'],
+  'Boulder Oral Surgery':       ['Dr. Tom Reeves', 'Dr. Nancy Wu'],
+  'Canyon View Orthodontics':   ['Dr. Daniel Cruz'],
+  'Desert Ridge Endodontics':   ['Dr. Emma Smith', 'Dr. Ahmed Syed'],
+  'Evergreen Periodontics':     ['Dr. Priya Nair'],
+  'Foothills Oral Surgery':     ['Dr. Bob Wilson', 'Dr. Tom Reeves'],
+  'Glacier Peak Endodontics':   ['Dr. Robert Hayes'],
+  'Harbor Light Orthodontics':  ['Dr. Carol Danvers', 'Dr. James Lee'],
+  'Meadowbrook Prosthodontics': ['Dr. Lisa Park'],
+  'Pinecrest Oral Surgery':     ['Dr. Nancy Wu', 'Dr. Mark Holloway'],
+  'Riverfront Periodontics':    ['Dr. Ahmed Syed'],
+  'Summit Ridge Orthodontics':  ['Dr. Daniel Cruz', 'Dr. James Lee'],
+  'Westside Endodontics':       ['Dr. Emma Smith', 'Dr. Robert Hayes'],
+};
+
 export interface DashboardDoc {
   id: string;
   name: string;
@@ -247,6 +269,7 @@ export function generateMockData() {
       let refId = '';
       let dentist = '';
       let specialist = '';
+      let specialistDoctor = '';
       let practice = '';
       let sender = '';
       let type = '';
@@ -265,6 +288,12 @@ export function generateMockData() {
         type = clinic.name.includes('Endodontics') || clinic.name.includes('Endodontic')
           ? ENDO_PROCEDURES[Math.floor(r3 * ENDO_PROCEDURES.length)]
           : OTHER_PROCEDURES[Math.floor(r3 * OTHER_PROCEDURES.length)];
+
+        // Populate specialist doctor ~70% of the time
+        const doctors = SPECIALIST_DOCTORS[specialist];
+        if (doctors && getDeterministicRandom(i + 500) < 0.70) {
+          specialistDoctor = doctors[Math.floor(getDeterministicRandom(i + 600) * doctors.length)];
+        }
       } else {
         // Received by specialist Valley Endodontics from various referring dentists
         refId = `${i}`;
@@ -275,6 +304,12 @@ export function generateMockData() {
         dentist = `Dr. ${LAST_NAMES[Math.floor(r3 * LAST_NAMES.length)]}`;
         sender = dentist;
         type = ENDO_PROCEDURES[Math.floor(r3 * ENDO_PROCEDURES.length)];
+
+        // Populate specialist doctor ~70% of the time (Valley Endodontics doctors)
+        const veeDoctors = SPECIALIST_DOCTORS['Valley Endodontics'];
+        if (getDeterministicRandom(i + 500) < 0.70) {
+          specialistDoctor = veeDoctors[Math.floor(getDeterministicRandom(i + 600) * veeDoctors.length)];
+        }
       }
 
       // Determine completion
@@ -324,6 +359,7 @@ export function generateMockData() {
         nextStep,
         dentist,
         specialist,
+        ...(specialistDoctor ? { specialistDoctor } : {}),
         practice,
         urgency,
         sender
