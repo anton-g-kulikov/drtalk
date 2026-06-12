@@ -123,6 +123,9 @@ function ChannelsContent() {
       const isDraft = ref.status === 'Draft';
       if (isDraft) return false;
       
+      const isPending = ref.status === 'Received' || ref.status === 'Sent';
+      if (isPending) return false;
+      
       if (isDentist) {
         // Dentist side: show referrals sent by dentist
         return ref.id.startsWith('D-') || ref.id === '1';
