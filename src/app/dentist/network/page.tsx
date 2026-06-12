@@ -117,7 +117,7 @@ function NetworkAnalytics() {
             className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
             title="Download CSV"
           >
-            <Download size={16} />
+            <Download size={20} />
           </button>
           <button 
             type="button"
@@ -125,7 +125,7 @@ function NetworkAnalytics() {
             className="wireframe-button h-10 w-10 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center text-black" 
             title="Print PDF"
           >
-            <Printer size={16} />
+            <Printer size={20} />
           </button>
         </div>
       </div>
