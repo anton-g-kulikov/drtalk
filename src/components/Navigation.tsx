@@ -267,9 +267,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
         </div>
       </div>
       <div className="flex items-center gap-3 sm:gap-6">
-        <div className="hidden md:flex gap-4 border-r-2 border-black pr-6 mr-2">
-          <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Support</div>
-        </div>
+
 
         <div
           className="flex items-center gap-3 cursor-pointer group relative"
