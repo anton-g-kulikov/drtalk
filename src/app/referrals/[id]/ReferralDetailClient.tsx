@@ -248,7 +248,8 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               {/* Left Action Button (Direct One-Click Status Advance) */}
               <button 
                 onClick={handleMainNextAction}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
+                disabled={currentStatus === 'Accepted' && assignedTo === 'none'}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               >
                 {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
                  currentStatus === 'Accepted' ? 'Schedule Appointment' :
@@ -256,7 +257,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                  currentStatus === 'Completed' ? 'Archive Case' :
                  'Reopen Case'}
               </button>
- 
+  
               {/* Right Dropdown Toggle Segment */}
               <button 
                 onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
@@ -264,7 +265,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               >
                 <ChevronDown size={14} className={`transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
- 
+  
               {isStatusDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 py-1 divide-y divide-black/10 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-3 py-1.5 bg-gray-50 border-b border-black">
@@ -279,6 +280,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   ].map((item) => (
                     <button
                       key={item.status}
+                      disabled={item.status === 'Scheduled' && assignedTo === 'none'}
                       onClick={() => {
                         if (item.status === 'Completed') {
                           handleProcessReferral();
@@ -289,7 +291,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                       }}
                       className={`w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase transition-all flex items-center justify-between hover:bg-black hover:text-white ${
                         currentStatus === item.status ? 'bg-zinc-100 text-black font-black' : 'text-black bg-white'
-                      }`}
+                      } disabled:opacity-40 disabled:cursor-not-allowed`}
                     >
                       <span>{item.label}</span>
                       {currentStatus === item.status && <Check size={10} />}
@@ -315,6 +317,12 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               >
                 Archive Case
               </button>
+            )}
+
+            {currentStatus === 'Accepted' && assignedTo === 'none' && (
+              <span className="text-[9px] text-red-600 font-bold uppercase border border-red-300 bg-red-50 px-2.5 py-1.5 rounded-sm animate-pulse">
+                Assignee Required to Schedule
+              </span>
             )}
           </div>
         </div>
