@@ -863,11 +863,25 @@ function ChannelsContent() {
     triggerToast(`Downloading "${name}"...`);
   };
 
+  const [docPage, setDocPage] = useState(1);
+  const DOCS_PER_PAGE = 6;
+
+  useEffect(() => {
+    setDocPage(1);
+  }, [docSearchQuery, activeChannel.id]);
+
   const filteredDocuments = React.useMemo(() => {
     return documents
       .filter(d => d.channelId === activeChannel.id)
       .filter(d => d.name.toLowerCase().includes(docSearchQuery.toLowerCase()));
   }, [documents, activeChannel.id, docSearchQuery]);
+
+  const paginatedDocuments = React.useMemo(() => {
+    const startIndex = (docPage - 1) * DOCS_PER_PAGE;
+    return filteredDocuments.slice(startIndex, startIndex + DOCS_PER_PAGE);
+  }, [filteredDocuments, docPage]);
+
+  const totalDocPages = Math.max(1, Math.ceil(filteredDocuments.length / DOCS_PER_PAGE));
 
   const getMessageRoleAndUser = (msg: MessageItem) => {
     if (activeChannel.type !== 'inter-practice') {
@@ -1616,47 +1630,74 @@ function ChannelsContent() {
                           </p>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {filteredDocuments.map((doc) => (
-                            <div
-                              key={doc.id}
-                              className="wireframe-card p-4 flex flex-col justify-between bg-white border-2 border-black hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-                            >
-                              <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
-                                  {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
-                                    doc.type === 'image' ? <ImageIcon size={20} className="text-black" /> :
-                                      <Paperclip size={20} className="text-black" />}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <h4 className="text-[11px] font-black uppercase tracking-tight truncate text-black" title={doc.name}>
-                                    {doc.name}
-                                  </h4>
-                                  <p className="text-[8px] uppercase font-bold text-muted-foreground mt-0.5">
-                                    {doc.size} • {doc.type.toUpperCase()} File
-                                  </p>
-                                  <div className="mt-2 text-[8px] font-medium uppercase tracking-tight text-gray-500">
-                                    Shared by <span className="font-bold text-black">{getDocSender(doc.sentBy)}</span> • {doc.sentAt}
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {paginatedDocuments.map((doc) => (
+                              <div
+                                key={doc.id}
+                                className="wireframe-card p-4 flex flex-col justify-between bg-white border-2 border-black hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                              >
+                                <div className="flex items-start gap-4">
+                                  <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-gray-50 shrink-0">
+                                    {doc.type === 'pdf' ? <FileText size={20} className="text-black" /> :
+                                      doc.type === 'image' ? <ImageIcon size={20} className="text-black" /> :
+                                        <Paperclip size={20} className="text-black" />}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <h4 className="text-[11px] font-black uppercase tracking-tight truncate text-black" title={doc.name}>
+                                      {doc.name}
+                                    </h4>
+                                    <p className="text-[8px] uppercase font-bold text-muted-foreground mt-0.5">
+                                      {doc.size} • {doc.type.toUpperCase()} File
+                                    </p>
+                                    <div className="mt-2 text-[8px] font-medium uppercase tracking-tight text-gray-500">
+                                      Shared by <span className="font-bold text-black">{getDocSender(doc.sentBy)}</span> • {doc.sentAt}
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
 
-                              <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
-                                <button
-                                  onClick={() => setPreviewDocument(doc)}
-                                  className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
-                                >
-                                  <Eye size={10} /> View
-                                </button>
-                                <button
-                                  onClick={() => handleDownloadDocument(doc.name)}
-                                  className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
-                                >
-                                  <Download size={10} /> Download
-                                </button>
+                                <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
+                                  <button
+                                    onClick={() => setPreviewDocument(doc)}
+                                    className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
+                                  >
+                                    <Eye size={10} /> View
+                                  </button>
+                                  <button
+                                    onClick={() => handleDownloadDocument(doc.name)}
+                                    className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
+                                  >
+                                    <Download size={10} /> Download
+                                  </button>
+                                </div>
                               </div>
+                            ))}
+                          </div>
+
+                          {/* Pagination Controls */}
+                          {totalDocPages > 1 && (
+                            <div className="flex items-center justify-between border-2 border-black bg-white p-4">
+                              <button
+                                disabled={docPage === 1}
+                                onClick={() => setDocPage(prev => Math.max(1, prev - 1))}
+                                className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 border-black disabled:opacity-30 disabled:pointer-events-none hover:bg-black hover:text-white transition-colors bg-white text-black"
+                              >
+                                Previous Page
+                              </button>
+                              
+                              <span className="text-[10px] font-black uppercase tracking-wider text-black">
+                                Page {docPage} of {totalDocPages}
+                              </span>
+
+                              <button
+                                disabled={docPage === totalDocPages}
+                                onClick={() => setDocPage(prev => Math.min(totalDocPages, prev + 1))}
+                                className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 border-black disabled:opacity-30 disabled:pointer-events-none hover:bg-black hover:text-white transition-colors bg-white text-black"
+                              >
+                                Next Page
+                              </button>
                             </div>
-                          ))}
+                          )}
                         </div>
                       )}
                     </div>
