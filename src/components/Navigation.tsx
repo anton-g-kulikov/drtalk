@@ -33,7 +33,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
     : navItems;
 
   return (
-    <div className={`w-64 h-full border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'hidden lg:flex'}`}>
+    <div className={`w-64 h-screen border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'fixed inset-y-0 left-0 z-30 hidden lg:flex'}`}>
       {onClose && (
         <button
           onClick={onClose}
