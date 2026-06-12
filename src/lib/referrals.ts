@@ -1,6 +1,6 @@
 "use client";
 
-export type ReferralStatus = 'Received' | 'Sent' | 'Scheduled' | 'Completed' | 'Archived' | 'Draft';
+export type ReferralStatus = 'Received' | 'Sent' | 'Accepted' | 'Scheduled' | 'Completed' | 'Archived' | 'Draft';
 
 export interface UnifiedReferral {
   id: string;
