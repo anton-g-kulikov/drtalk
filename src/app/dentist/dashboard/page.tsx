@@ -907,27 +907,22 @@ export default function DentistDashboardPage() {
                               </div>
                             )}
 
-                            {doc.fromChannel ? (
-                              <button 
-                                onClick={() => {
+                            <button
+                              onClick={() => {
+                                if (doc.fromChannel) {
                                   const practiceName = doc.channelName || doc.sender;
                                   const url = doc.channelType === 'case'
                                     ? `/dentist/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
                                     : `/dentist/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                                   router.push(url);
-                                }}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
-                              >
-                                View & Discuss in {doc.channelType === 'case' ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => handleOpenInChannel(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
-                              >
-                                Open / Reply in Channel <MessageSquare size={12} />
-                              </button>
-                            )}
+                                } else {
+                                  handleOpenInChannel(doc);
+                                }
+                              }}
+                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
+                            >
+                              Open in Channel <ArrowUpRight size={12} />
+                            </button>
                           </div>
                         )}
                       </div>
