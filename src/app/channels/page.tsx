@@ -874,9 +874,15 @@ function ChannelsContent() {
   }, [docSearchQuery, activeChannel.id]);
 
   const filteredDocuments = React.useMemo(() => {
+    const seen = new Set<string>();
     return documents
       .filter(d => d.channelId === activeChannel.id)
-      .filter(d => d.name.toLowerCase().includes(docSearchQuery.toLowerCase()));
+      .filter(d => d.name.toLowerCase().includes(docSearchQuery.toLowerCase()))
+      .filter(d => {
+        if (seen.has(d.id)) return false;
+        seen.add(d.id);
+        return true;
+      });
   }, [documents, activeChannel.id, docSearchQuery]);
 
   const paginatedDocuments = React.useMemo(() => {
