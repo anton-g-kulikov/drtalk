@@ -299,12 +299,14 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               )}
             </div>
  
-            <button 
-              onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-              className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
-            >
-              Continue Communication <MessageSquare size={12} />
-            </button>
+            {currentStatus !== 'Received' && currentStatus !== 'Sent' && currentStatus !== 'Draft' && (
+              <button 
+                onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
+                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
+              >
+                Open Case Chat <MessageSquare size={12} />
+              </button>
+            )}
  
             {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
               <button 
