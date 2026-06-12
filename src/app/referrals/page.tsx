@@ -6,7 +6,6 @@ import { Search, Filter, AlertCircle, Clock, MoreVertical, Copy, ChevronDown, Ch
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
-import { getPrototypePageNumbers } from '@/prototype/pagination';
 
 import { ReferralStatus } from '@/lib/referrals';
 type Referral = UnifiedReferral;
@@ -63,7 +62,7 @@ export default function ReferralsPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam && ['Received', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
+      if (tabParam && ['Received', 'Accepted', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
         const timer = setTimeout(() => {
           setActiveTab(tabParam as ReferralStatus);
         }, 0);
@@ -85,12 +84,13 @@ export default function ReferralsPage() {
     }
   };
 
-  const tabs: ReferralStatus[] = ['Received', 'Scheduled', 'Completed', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Completed', 'Archived'];
 
   const getTabLabel = (tab: ReferralStatus) => {
     if (isDentist) {
       switch (tab) {
         case 'Received': return 'SENT';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Completed': return 'COMPLETED';
         case 'Archived': return 'ARCHIVED';
@@ -99,6 +99,7 @@ export default function ReferralsPage() {
     } else {
       switch (tab) {
         case 'Received': return 'RECEIVED (REVIEW)';
+        case 'Accepted': return 'ACCEPTED';
         case 'Scheduled': return 'SCHEDULED';
         case 'Completed': return 'COMPLETED';
         case 'Archived': return 'ARCHIVED';
@@ -142,18 +143,18 @@ export default function ReferralsPage() {
   }, [filteredReferrals, currentPage]);
 
   return (
-    <MainLayout title="Referrals">
+    <MainLayout title={isDentist ? "Patients" : "Referrals"}>
       <div className="space-y-8 max-w-6xl mx-auto">
         {/* Top Section */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-0">
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Referrals</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">{isDentist ? "Patients" : "Referrals"}</h2>
               <CommentMarker id="referrals-list" title="Referrals Page" description="The list of all practice referrals." />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               {isDentist 
-                ? 'TRACK REFERRALS PROGRESS AND COORDINATE PATIENT CARE'
+                ? 'TRACK PATIENTS PROGRESS AND COORDINATE PATIENT CARE'
                 : 'Specialist intake pipeline and case processing workflow'}
             </p>
           </div>
@@ -224,7 +225,7 @@ export default function ReferralsPage() {
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input 
                   type="text" 
-                  placeholder="SEARCH REFERRALS..." 
+                  placeholder={isDentist ? "SEARCH PATIENTS..." : "SEARCH REFERRALS..."}
                   className="wireframe-input pl-10 py-2.5 text-[11px] w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -359,11 +360,11 @@ export default function ReferralsPage() {
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
-              <div className={isDentist ? "col-span-3" : "col-span-2"}>Patient</div>
-              <div className={isDentist ? "col-span-2" : "col-span-2"}>Urgency</div>
-              <div className="col-span-2">Source / ID</div>
-              <div className={isDentist ? "col-span-3" : "col-span-2"}>{isDentist ? 'Specialist Practice' : 'Referring Dentist'}</div>
-              {!isDentist && <div className="col-span-2">Data Completion</div>}
+              <div className={isDentist ? 'col-span-3' : 'col-span-2'}>Patient</div>
+              <div className="col-span-2">Urgency</div>
+              {!isDentist && <div className="col-span-2">Source / ID</div>}
+              <div className={isDentist ? 'col-span-5' : 'col-span-2'}>{isDentist ? 'Referred To' : 'Referring Practice'}</div>
+              {!isDentist && <div className="col-span-2">Referred To</div>}
               <div className="col-span-1">{isDentist ? 'Last Update' : 'Received'}</div>
               <div className="col-span-1 text-right">Action</div>
             </div>
@@ -378,17 +379,17 @@ export default function ReferralsPage() {
                     className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
                   >
                     <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
+                      <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
                         {isDentist ? (
                           <>
-                            <p className="font-bold uppercase text-xs">Patient: {referral.patientName}</p>
-                            <p className="text-[9px] uppercase font-bold text-muted-foreground">Sender: {referral.dentist}</p>
+                            <p className="font-bold uppercase text-xs">{referral.patientName}</p>
+                            <p className="text-[9px] uppercase font-bold text-muted-foreground">by {referral.dentist}</p>
                           </>
                         ) : (
                           <p className="font-bold uppercase text-xs">{referral.patientName}</p>
                         )}
                       </div>
-                      <div className={isDentist ? "col-span-2" : "col-span-2"}>
+                      <div className="col-span-2">
                         <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-sm border ${
                           referral.urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
                           referral.urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
@@ -397,28 +398,54 @@ export default function ReferralsPage() {
                           {referral.urgency || 'Routine'}
                         </span>
                       </div>
-                      <div className="col-span-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 border border-black flex items-center justify-center">
-                            <span className="text-[8px] font-bold">{referral.source[0]}</span>
-                          </div>
-                          <span className="text-[10px] font-bold uppercase">{referral.source}</span>
-                        </div>
-                        <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
-                      </div>
-                      <div className={isDentist ? "col-span-3" : "col-span-2"}>
-                        <p className="text-[10px] font-bold uppercase">{isDentist ? referral.specialist : referral.dentist}</p>
-                        {!isDentist && referral.practice && (
-                          <p className="text-[8px] font-black uppercase text-black/50">{referral.practice}</p>
-                        )}
-                      </div>
                       {!isDentist && (
                         <div className="col-span-2">
                           <div className="flex items-center gap-2">
-                            <div className={`text-[10px] uppercase font-bold ${getCompletionColor(referral.completion)}`}>
-                              {getCompletionLabel(referral.completion)}
+                            <div className="w-4 h-4 border border-black flex items-center justify-center">
+                              <span className="text-[8px] font-bold">{referral.source[0]}</span>
                             </div>
+                            <span className="text-[10px] font-bold uppercase">{referral.source}</span>
                           </div>
+                          <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
+                        </div>
+                      )}
+                      {/* Referring Practice / Referred To Practice */}
+                      <div className={isDentist ? 'col-span-5' : 'col-span-2'}>
+                        {isDentist ? (
+                          <div className="grid grid-cols-2 gap-x-4">
+                            <div>
+                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
+                              <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
+                            </div>
+                            {referral.specialistDoctor && (
+                              <div>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
+                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-[10px] font-bold uppercase">{referral.practice || referral.dentist}</p>
+                            {referral.dentist && referral.practice && (
+                              <p className="text-[8px] font-black uppercase text-black/50 mt-0.5">
+                                Ref. by {referral.dentist}
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      {/* Specialist side only: Referred To Doctor column */}
+                      {!isDentist && (
+                        <div className="col-span-2">
+                          {referral.specialistDoctor ? (
+                            <>
+                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
+                              <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                            </>
+                          ) : (
+                            <p className="text-[8px] uppercase font-bold text-black/30">—</p>
+                          )}
                         </div>
                       )}
                       <div className="col-span-1">
@@ -437,67 +464,52 @@ export default function ReferralsPage() {
                 ))
               ) : (
                 <div className="p-12 border-2 border-black border-dashed text-center">
-                  <p className="text-[10px] font-bold uppercase text-muted-foreground">No referrals found in this category.</p>
+                  <p className="text-[10px] font-bold uppercase text-muted-foreground">{isDentist ? "No patients found in this category." : "No referrals found in this category."}</p>
                 </div>
               )}
             </div>
 
             {/* Pagination Controls */}
             {totalReferralPages > 1 && (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black pt-4 bg-white font-bold text-[10px] gap-4">
-                <div className="flex items-center gap-3 text-muted-foreground uppercase font-black tracking-wider flex-wrap">
-                  <span>Page {currentPage} of {totalReferralPages} ({filteredReferrals.length} items)</span>
-                  <div className="flex items-center gap-1.5 text-black">
-                    <span className="font-normal lowercase">go to page:</span>
-                    <select
-                      value={currentPage}
-                      onChange={(e) => setCurrentPage(Number(e.target.value))}
-                      className="border-2 border-black bg-white px-1.5 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none"
-                    >
-                      {Array.from({ length: totalReferralPages }, (_, i) => i + 1).map(page => (
-                        <option key={page} value={page} className="bg-white text-black">Page {page}</option>
-                      ))}
-                    </select>
+              <div className="flex items-center justify-between border-2 border-black bg-white p-4 mt-6">
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                >
+                  Previous Page
+                </button>
+                
+                <div className="flex items-center gap-4">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                    Page {currentPage} of {totalReferralPages}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+                    <div className="relative">
+                      <select
+                        value={currentPage}
+                        onChange={(e) => setCurrentPage(Number(e.target.value))}
+                        className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                      >
+                        {Array.from({ length: totalReferralPages }, (_, i) => i + 1).map(page => (
+                          <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                        <ChevronDown size={10} />
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-                  >
-                    PREV
-                  </button>
-                  
-                  <div className="flex items-center gap-1">
-                    {getPrototypePageNumbers(currentPage, totalReferralPages).map((p, idx) => {
-                      if (p === '...') {
-                        return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
-                      }
-                      return (
-                        <button
-                          key={`page-${p}`}
-                          onClick={() => setCurrentPage(Number(p))}
-                          className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
-                            currentPage === p 
-                              ? 'bg-black text-white font-black' 
-                              : 'bg-white text-black hover:bg-black hover:text-white font-bold'
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
 
-                  <button
-                    disabled={currentPage === totalReferralPages}
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalReferralPages))}
-                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-                  >
-                    NEXT
-                  </button>
-                </div>
+                <button
+                  disabled={currentPage === totalReferralPages}
+                  onClick={() => setCurrentPage(prev => Math.min(totalReferralPages, prev + 1))}
+                  className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                >
+                  Next Page
+                </button>
               </div>
             )}
         </div>
@@ -505,4 +517,6 @@ export default function ReferralsPage() {
     </MainLayout>
   );
 }
+
+
 

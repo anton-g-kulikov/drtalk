@@ -12,7 +12,15 @@ import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { initialDocuments } from '@/prototype/channelFixtures';
 
-import { getReferrals, updateReferralStatus, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode, getMessages, saveMessages } from '@/lib/referrals';
+
+const PRACTICE_TEAM = [
+  { id: 'none', name: 'UNASSIGNED' },
+  { id: '1', name: 'DR. EMMA SMITH', specialty: 'ENDODONTICS' },
+  { id: '2', name: 'ALICE JOHNSON', specialty: 'PRACTICE ADMIN' },
+  { id: '3', name: 'BOB WILSON', specialty: 'ORAL SURGERY' },
+  { id: '4', name: 'CAROL DANVERS', specialty: 'PERIODONTICS' },
+];
 
 export default function ReferralDetailClient({ id }: { id: string }) {
   const router = useRouter();
@@ -28,6 +36,10 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
+  const [assignedTo, setAssignedTo] = useState<string>(referral?.assignedTo || 'none');
+
+  const [activityLogs, setActivityLogs] = useState<{user: string; text: string; time: string; isDark?: boolean}[]>([]);
+  const [commentText, setCommentText] = useState('');
 
   useEffect(() => {
     setTimeout(() => {
@@ -38,6 +50,34 @@ export default function ReferralDetailClient({ id }: { id: string }) {
         setCurrentStatus(ref.status);
         setUrgency(ref.urgency || 'Routine');
         setPracticeName(ref.practice);
+        setAssignedTo(ref.assignedTo || 'none');
+        
+        // Load or initialize activity logs
+        const key = `drtalk_activity_logs_${ref.id}`;
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          try {
+            setActivityLogs(JSON.parse(stored));
+          } catch (e) {}
+        } else {
+          const receivedTime = ref.receivedAt || '08:20 AM\n06/30/2026';
+          const datePart = receivedTime.includes('\n') ? receivedTime.split('\n')[1] : '06/30/2026';
+          const initialLogs = [
+            {
+              user: 'System',
+              text: `Referral received from ${ref.practice || ref.dentist} and auto-extracted via Digital Intake Pipeline.`,
+              time: receivedTime
+            },
+            {
+              user: 'Administrator',
+              text: `Clinical records requested from ${ref.dentist}'s office. Pending response.`,
+              time: `09:20 AM\n${datePart}`,
+              isDark: true
+            }
+          ];
+          localStorage.setItem(key, JSON.stringify(initialLogs));
+          setActivityLogs(initialLogs);
+        }
       }
     }, 0);
   }, [id]);
@@ -48,6 +88,90 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     setCurrentStatus(newStatus);
     const updated = updateReferralStatus(referral.id, newStatus);
     setReferrals(updated);
+
+    // Add activity log
+    const now = new Date('2026-06-30T18:00:00+02:00');
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
+
+    const isExternalReferral = referral.id.startsWith('ext-');
+
+    // Build activity log message — external acceptances note the email dispatch
+    const statusMsg = newStatus === 'Accepted' && isExternalReferral
+      ? `Referral status transitioned to ACCEPTED. Automated secure email sent to referring office (${referral.practice || referral.dentist}).`
+      : `Referral status transitioned to ${newStatus.toUpperCase()}.`;
+    
+    const newLog = {
+      user: 'System',
+      text: statusMsg,
+      time: `${timeStr}\n${dateStr}`
+    };
+    
+    const key = `drtalk_activity_logs_${referral.id}`;
+    const stored = localStorage.getItem(key);
+    let logsList = [];
+    if (stored) {
+      try {
+        logsList = JSON.parse(stored);
+      } catch (e) {}
+    }
+    const updatedLogs = [...logsList, newLog];
+    localStorage.setItem(key, JSON.stringify(updatedLogs));
+    setActivityLogs(updatedLogs);
+
+    // Send automated message if transitioning to Accepted
+    if (newStatus === 'Accepted') {
+      const allMessages = getMessages();
+      const channelId = `case_${referral.id}`;
+      if (!allMessages[channelId]) {
+        allMessages[channelId] = [];
+      }
+      
+      const welcomeMessageText = "REFERRAL ACCEPTED. WE ARE REVIEWING THE CLINICAL RECORDS AND WILL COORDINATE APPOINTMENT SCHEDULING SHORTLY.";
+      const hasWelcome = allMessages[channelId].some((m: any) => m.text === welcomeMessageText);
+      if (!hasWelcome) {
+        const welcomeMsg: Record<string, any> = {
+          id: `m_auto_${Date.now()}`,
+          user: referral.specialist || 'Valley Endodontics',
+          text: welcomeMessageText,
+          time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          type: 'other'
+        };
+        // External referral → message is dispatched as a secure email
+        if (isExternalReferral) {
+          welcomeMsg.transport = 'Email';
+        }
+        allMessages[channelId].push(welcomeMsg);
+        saveMessages(allMessages);
+      }
+    }
+  };
+
+  const handlePostComment = () => {
+    if (!commentText.trim()) return;
+    const now = new Date('2026-06-30T18:00:00+02:00');
+    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
+    
+    const newLog = {
+      user: 'Administrator',
+      text: commentText,
+      time: `${timeStr}\n${dateStr}`,
+      isDark: true
+    };
+    
+    const key = `drtalk_activity_logs_${referral.id}`;
+    const stored = localStorage.getItem(key);
+    let logsList = [];
+    if (stored) {
+      try {
+        logsList = JSON.parse(stored);
+      } catch (e) {}
+    }
+    const updated = [...logsList, newLog];
+    setActivityLogs(updated);
+    localStorage.setItem(key, JSON.stringify(updated));
+    setCommentText('');
   };
 
   const handleProcessReferral = () => {
@@ -62,6 +186,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     switch (currentStatus) {
       case 'Received':
       case 'Sent':
+        handleStatusChange('Accepted');
+        break;
+      case 'Accepted':
         handleStatusChange('Scheduled');
         break;
       case 'Scheduled':
@@ -81,6 +208,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
       case 'Received': return 'bg-gray-100 text-black border-black/30';
+      case 'Accepted': return 'bg-amber-50 text-amber-800 border-amber-200';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
       case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
@@ -103,9 +231,11 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / {getReferralCode(referral.id)}</p>
-                <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
-                  {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
-                </span>
+                {referral.id.startsWith('ext-') && (
+                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm">
+                    {referral.source === 'Fax' ? 'External — Secure Fax Referral' : 'External — Secure Email Referral'}
+                  </span>
+                )}
                 {urgency === 'Urgent' && (
                   <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
                     Urgent
@@ -130,14 +260,16 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               {/* Left Action Button (Direct One-Click Status Advance) */}
               <button 
                 onClick={handleMainNextAction}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11"
+                disabled={currentStatus === 'Accepted' && assignedTo === 'none'}
+                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
               >
-                {currentStatus === 'Received' ? 'Schedule Appointment' :
+                {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
+                 currentStatus === 'Accepted' ? 'Schedule Appointment' :
                  currentStatus === 'Scheduled' ? 'Complete Treatment' :
                  currentStatus === 'Completed' ? 'Archive Case' :
                  'Reopen Case'}
               </button>
- 
+  
               {/* Right Dropdown Toggle Segment */}
               <button 
                 onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
@@ -145,7 +277,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               >
                 <ChevronDown size={14} className={`transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
               </button>
- 
+  
               {isStatusDropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 py-1 divide-y divide-black/10 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-3 py-1.5 bg-gray-50 border-b border-black">
@@ -153,12 +285,14 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </div>
                   {[
                     { status: 'Received', label: 'Received (Review)' },
+                    { status: 'Accepted', label: 'Accepted' },
                     { status: 'Scheduled', label: 'Scheduled' },
                     { status: 'Completed', label: 'Completed' },
                     { status: 'Archived', label: 'Archived' }
                   ].map((item) => (
                     <button
                       key={item.status}
+                      disabled={item.status === 'Scheduled' && assignedTo === 'none'}
                       onClick={() => {
                         if (item.status === 'Completed') {
                           handleProcessReferral();
@@ -169,7 +303,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                       }}
                       className={`w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase transition-all flex items-center justify-between hover:bg-black hover:text-white ${
                         currentStatus === item.status ? 'bg-zinc-100 text-black font-black' : 'text-black bg-white'
-                      }`}
+                      } disabled:opacity-40 disabled:cursor-not-allowed`}
                     >
                       <span>{item.label}</span>
                       {currentStatus === item.status && <Check size={10} />}
@@ -179,12 +313,14 @@ export default function ReferralDetailClient({ id }: { id: string }) {
               )}
             </div>
  
-            <button 
-              onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-              className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
-            >
-              Continue Communication <MessageSquare size={12} />
-            </button>
+            {currentStatus !== 'Received' && currentStatus !== 'Sent' && currentStatus !== 'Draft' && (
+              <button 
+                onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
+                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
+              >
+                Open Case Chat <MessageSquare size={12} />
+              </button>
+            )}
  
             {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
               <button 
@@ -274,9 +410,21 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                   </div>
                 </section>
+
               </div>
 
               <div className="space-y-10">
+                <section className="space-y-6">
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referred To</h4>
+                  <div className="space-y-5">
+                    <DataField label="Practice" value={referral.specialist} edit={isEditorMode} />
+                    <DataField
+                      label="Doctor"
+                      value={referral.specialistDoctor || '—'}
+                      edit={isEditorMode}
+                    />
+                  </div>
+                </section>
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Reason for Referral</h4>
                   <div className="space-y-4">
@@ -317,48 +465,85 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
           {/* Activity Sidebar */}
           <div className="w-full md:w-96 flex flex-col bg-gray-50/50">
-            <div className="p-6 border-b-2 border-black bg-white">
+            <div className="p-6 border-b-2 border-black bg-white flex items-center justify-between">
               <h3 className="font-bold uppercase text-xs tracking-widest">Case Activity</h3>
+              <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
+                {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
+              </span>
             </div>
-            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase text-black">Practice Communication</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">ACTIVE NOW</p>
-                </div>
-                <div 
-                  onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-                  className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white border-dashed border-2 border-black hover:bg-black hover:text-white cursor-pointer transition-all flex items-center justify-between gap-3 group shadow-sm"
+            
+            {/* Case Assignee */}
+            <div className="p-6 border-b-2 border-black bg-white space-y-2">
+              <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Assign Case To</label>
+              <div className="relative">
+                <select
+                  value={assignedTo}
+                  onChange={(e) => {
+                    const newAssignee = e.target.value;
+                    setAssignedTo(newAssignee);
+                    const updated = updateReferralAssignee(referral.id, newAssignee === 'none' ? undefined : newAssignee);
+                    setReferrals(updated);
+                  }}
+                  className="wireframe-input w-full py-2.5 px-3 text-[10px] uppercase font-bold appearance-none bg-white pr-8 cursor-pointer focus:ring-1 focus:ring-black border-2 border-black"
                 >
-                  <span className="font-medium">Click here to reply to <span className="font-black underline">{referral.dentist}</span> / share post-op reports or additional scans.</span>
-                  <MessageSquare size={14} className="shrink-0 text-black group-hover:text-white" />
+                  {PRACTICE_TEAM.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} {member.specialty ? `(${member.specialty})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-black">
+                  <ChevronDown size={14} />
                 </div>
               </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase">System</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">08:20 AM{"\n"}05/11/2026</p>
+            </div>
+
+            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
+              {assignedTo !== 'none' && (
+                <div className="space-y-2 animate-in fade-in duration-200">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[9px] font-black uppercase text-black">System</p>
+                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">Active Assignment</p>
+                  </div>
+                  <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-zinc-100 border-black border-2 shadow-sm">
+                    Case is currently assigned to <span className="font-black underline">{PRACTICE_TEAM.find(m => m.id === assignedTo)?.name}</span>.
+                  </div>
                 </div>
-                <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-white shadow-sm">
-                  Referral received from <span className="font-black underline">{practiceName}</span> and auto-extracted via Digital Intake Pipeline.
+              )}
+
+              {activityLogs.map((log, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-baseline">
+                    <p className="text-[9px] font-black uppercase">{log.user}</p>
+                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">{log.time}</p>
+                  </div>
+                  <div className={`wireframe-card p-3 text-[10px] uppercase leading-tight ${log.isDark ? 'bg-black text-white' : 'bg-white shadow-sm'}`}>
+                    {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
+                      <>
+                        Referral received from <span className="font-black underline">{practiceName || referral.dentist}</span> and auto-extracted via Digital Intake Pipeline.
+                      </>
+                    ) : log.text.includes(referral.dentist || '') && log.text.includes('clinical records') ? (
+                      <>
+                        Clinical records requested from <span className="font-black underline">{referral.dentist}</span>&apos;s office. Pending response.
+                      </>
+                    ) : (
+                      log.text
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between items-baseline">
-                  <p className="text-[9px] font-black uppercase">Administrator</p>
-                  <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">09:20 AM{"\n"}05/11/2026</p>
-                </div>
-                <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-black text-white">
-                  Clinical records requested from {referral.dentist}&apos;s office. Pending response.
-                </div>
-              </div>
+              ))}
             </div>
             <div className="p-6 border-t-2 border-black bg-white space-y-4">
               <textarea 
                 placeholder="ADD INTERNAL NOTE..." 
                 className="wireframe-input h-28 text-[11px] uppercase p-3 resize-none bg-gray-50 focus:bg-white transition-colors"
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
               />
-              <button className="wireframe-button w-full bg-black text-white text-[11px] uppercase py-3 font-black tracking-widest">
+              <button 
+                onClick={handlePostComment}
+                className="wireframe-button w-full bg-black text-white text-[11px] uppercase py-3 font-black tracking-widest"
+              >
                 Post Comment
               </button>
             </div>

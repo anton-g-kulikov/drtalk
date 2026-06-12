@@ -12,16 +12,13 @@ import {
 import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
-import { DashboardStats, type DashboardTimeRange } from '@/components/prototype/DashboardStats';
-import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
-import { PrototypeToast } from '@/components/prototype/PrototypeToast';
-import { getPrototypePageNumbers } from '@/prototype/pagination';
 import {
   initialDocuments,
   initialMessages,
   mockChannels,
-} from '@/prototype/channelFixtures';
-import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
+  SharedDocument,
+  MessageItem
+} from '@/app/channels/page';
 import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { getInitialDentistDocs, getInitialDentistArchivedDocs, specialistClinics } from '@/lib/mockGenerator';
 
@@ -46,7 +43,7 @@ import { InviteModal } from '@/components/InviteModal';
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
-  const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
 
   useEffect(() => {
     setTimeout(() => {
@@ -757,7 +754,7 @@ export default function DentistDashboardPage() {
                 if (isTrialEnded) {
                   setShowPaywall(true);
                 } else {
-                  setIsSendDocOpen(true);
+                  router.push('/dentist/dashboard/send-document');
                 }
               }}
               className="wireframe-button bg-white text-black border-black text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none hover:bg-zinc-100 transition-colors"
@@ -767,32 +764,95 @@ export default function DentistDashboardPage() {
           </div>
         </div>
 
-        <DashboardStats
-          timeRange={timeRange}
-          onTimeRangeChange={setTimeRange}
-          onStatClick={(path) => router.push(path)}
-          stats={[
-            { label: 'Referrals Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
-            { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
-            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
-            { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected' },
-          ]}
-        />
+        {/* Stats Section with Time Range Selector */}
+        <div className="space-y-2">
+          <div className="flex justify-start items-center">
+            <div className="relative">
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+              >
+                <option value="day">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="last_year">Last Year</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-black" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Patients Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received' },
+              { label: 'Patients Scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled' },
+              { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed' },
+              { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected' },
+            ].map((stat) => (
+              <div 
+                key={stat.label} 
+                onClick={() => router.push(stat.path)}
+                className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+              >
+                <stat.icon size={32} className="text-black shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
+                  <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
-            <PrototypeDocumentSection
-              inboxCount={documents.length}
-              searchQuery={docSearchQuery}
-              onSearchQueryChange={setDocSearchQuery}
-              isEmpty={filteredDocs.length === 0}
-              currentPage={docCurrentPage}
-              totalPages={totalDocPages}
-              totalItems={filteredDocs.length}
-              onPageChange={setDocCurrentPage}
-            >
+            {/* Documents Inbox */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-black"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({documents.length})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="SEARCH DOCUMENTS..."
+                  value={docSearchQuery}
+                  onChange={(e) => setDocSearchQuery(e.target.value)}
+                  className="wireframe-input pl-10 py-2 text-[10px] w-full"
+                />
+                {docSearchQuery && (
+                  <button
+                    onClick={() => setDocSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              {filteredDocs.length === 0 ? (
+                <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                  No documents found
+                </div>
+              ) : (
+                <div className="space-y-3">
                   {paginatedDocs.map((doc) => {
                     const isArchived = activeInboxTab === 'archived';
                     return (
@@ -847,47 +907,89 @@ export default function DentistDashboardPage() {
                               </div>
                             )}
 
-                            {doc.fromChannel ? (
-                              <button 
-                                onClick={() => {
+                            <button
+                              onClick={() => {
+                                if (doc.fromChannel) {
                                   const practiceName = doc.channelName || doc.sender;
                                   const url = doc.channelType === 'case'
                                     ? `/dentist/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
                                     : `/dentist/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                                   router.push(url);
-                                }}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
-                              >
-                                View & Discuss in {doc.channelType === 'case' ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={() => handleOpenInChannel(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
-                              >
-                                Open / Reply in Channel <MessageSquare size={12} />
-                              </button>
-                            )}
+                                } else {
+                                  handleOpenInChannel(doc);
+                                }
+                              }}
+                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
+                            >
+                              Open in Channel <ArrowUpRight size={12} />
+                            </button>
                           </div>
                         )}
                       </div>
                     );
                   })}
-            </PrototypeDocumentSection>
+                </div>
+              )}
+
+              {/* Pagination Controls */}
+              {/* Pagination Controls */}
+              {totalDocPages > 1 && (
+                <div className="flex items-center justify-between border-2 border-black bg-white p-4 mt-6">
+                  <button
+                    disabled={docCurrentPage === 1}
+                    onClick={() => setDocCurrentPage(prev => Math.max(1, prev - 1))}
+                    className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                  >
+                    Previous Page
+                  </button>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                      Page {docCurrentPage} of {totalDocPages}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+                      <div className="relative">
+                        <select
+                          value={docCurrentPage}
+                          onChange={(e) => setDocCurrentPage(Number(e.target.value))}
+                          className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                        >
+                          {Array.from({ length: totalDocPages }, (_, i) => i + 1).map(page => (
+                            <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                          <ChevronDown size={10} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    disabled={docCurrentPage === totalDocPages}
+                    onClick={() => setDocCurrentPage(prev => Math.min(totalDocPages, prev + 1))}
+                    className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                  >
+                    Next Page
+                  </button>
+                </div>
+              )}
+              </div>
 
             {/* Recent Referrals Section */}
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals Sent</h3>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Patients Sent</h3>
                 </div>
                 <div className="relative">
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     value={searchQuery}
                     onChange={(event) => setSearchQuery(event.target.value)}
-                    placeholder="SEARCH REFERRALS..."
+                    placeholder="SEARCH PATIENTS..."
                     className="wireframe-input pl-10 py-1.5 text-[9px] w-full sm:w-64"
                   />
                 </div>
@@ -960,7 +1062,7 @@ export default function DentistDashboardPage() {
                     </button>
                     
                     <div className="flex items-center gap-1">
-                      {getPrototypePageNumbers(referralsCurrentPage, totalReferralPages).map((p, idx) => {
+                      {getPageNumbers(referralsCurrentPage, totalReferralPages).map((p, idx) => {
                         if (p === '...') {
                           return <span key={`ellipsis-${idx}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
                         }
@@ -1085,299 +1187,16 @@ export default function DentistDashboardPage() {
 
       {/* Premium Toast Banner */}
       {toastMessage && (
-        <PrototypeToast
-          message={toastMessage}
-          action={toastAction}
-          placement="top-right"
-        />
-      )}
-
-      {/* Send Document Modal */}
-      {isSendDocOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white border-4 border-black p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
-              <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
-                <FileText size={16} /> Send Document
-              </h3>
-              <button
-                onClick={() => {
-                  setIsSendDocOpen(false);
-                  setCustomDocName('');
-                  setAttachedFiles([]);
-                  setSelectedPractice('');
-                  setSelectedReferral('');
-                  setReferralSearchQuery('NONE / NEW REFERRAL');
-                  setIsReferralDropdownOpen(false);
-                  setPatientFirstName('');
-                  setPatientLastName('');
-                  setPatientDob('');
-                  setUploadMessage('');
-                }}
-                className="hover:text-black text-black"
-              >
-                <X size={16} />
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              {/* Field 1: Choice of connected practice */}
-              <div>
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Connected Practice <span className="text-red-500">*</span>
-                </span>
-                <select
-                  value={selectedPractice}
-                  onChange={(e) => handleSelectPractice(e.target.value)}
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none"
-                >
-                  <option value="">SELECT PRACTICE...</option>
-                  {connectedPractices.map((practice) => (
-                    <option key={practice.id} value={practice.name}>
-                      {practice.name} {practice.isVerified === false ? '(UNVERIFIED)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Field 2: Choice of sent referral */}
-              <div className="relative">
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Associated Referral
-                </span>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="Search or select referral..."
-                    value={referralSearchQuery}
-                    onChange={(e) => {
-                      setReferralSearchQuery(e.target.value);
-                      setIsReferralDropdownOpen(true);
-                    }}
-                    onFocus={() => setIsReferralDropdownOpen(true)}
-                    className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none uppercase"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsReferralDropdownOpen(!isReferralDropdownOpen)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black"
-                  >
-                    <ChevronDown size={16} className={`transition-transform duration-200 ${isReferralDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
-
-                {isReferralDropdownOpen && (
-                  <>
-                    <div 
-                      className="fixed inset-0 z-40" 
-                      onClick={closeReferralDropdown} 
-                    />
-                    <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-60 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase">
-                      <div
-                        onClick={() => {
-                          handleSelectReferral('');
-                          setReferralSearchQuery('NONE / NEW REFERRAL');
-                          setIsReferralDropdownOpen(false);
-                        }}
-                        className="p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10"
-                      >
-                        NONE / NEW REFERRAL
-                      </div>
-                      {filteredReferralsList.length === 0 ? (
-                        <div className="p-2 text-xs font-bold text-muted-foreground italic text-center">
-                          No matching referrals
-                        </div>
-                      ) : (
-                        filteredReferralsList.map((referral) => {
-                          const code = getReferralCode(referral.id);
-                          const label = `${code} - ${referral.patientName}`;
-                          return (
-                            <div
-                              key={referral.id}
-                              onClick={() => {
-                                handleSelectReferral(referral.id);
-                                setIsReferralDropdownOpen(false);
-                              }}
-                              className={`p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10 ${
-                                selectedReferral === referral.id ? 'bg-zinc-100' : ''
-                              }`}
-                            >
-                              {label}
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Attached Files List */}
-              {attachedFiles.length > 0 && (
-                <div className="space-y-2 border-b border-black border-dashed pb-3">
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                    Attached Files ({attachedFiles.length})
-                  </span>
-                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                    {attachedFiles.map((file) => (
-                      <div key={file.id} className="flex items-center justify-between p-2 border-2 border-black bg-zinc-50">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={12} className="shrink-0 text-black" />
-                          <div className="truncate">
-                            <p className="text-[10px] font-black uppercase truncate">{file.name}</p>
-                            <p className="text-[8px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setAttachedFiles(prev => {
-                              const remaining = prev.filter(f => f.id !== file.id);
-                              if (remaining.length === 0) {
-                                setCustomDocName('');
-                              } else {
-                                const last = remaining[remaining.length - 1];
-                                setCustomDocName(last.name);
-                                setCustomDocType(last.type);
-                                setCustomDocSize(last.size);
-                              }
-                              return remaining;
-                            });
-                          }}
-                          className="text-black hover:text-red-600 p-0.5 transition-colors"
-                        >
-                          <X size={10} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Drag and Drop / Click Zone */}
-              <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
-                <input
-                  type="file"
-                  id="dashboard-file-input"
-                  className="hidden"
-                  onChange={handleRealFileSelect}
-                />
-
-                <div
-                  onClick={() => document.getElementById('dashboard-file-input')?.click()}
-                  className="absolute inset-0 z-0"
-                />
-
-                <Upload size={20} className="text-black z-10" />
-                <span className="text-xs font-black uppercase tracking-wider text-black z-10">
-                  Attach Document
-                </span>
-                <span className="text-[8px] font-bold text-muted-foreground uppercase z-10">
-                  Click to browse files or drag and drop here
-                </span>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAttachMockScan();
-                  }}
-                  className="relative z-10 mt-1 px-4 py-1.5 bg-black text-white hover:bg-gray-800 text-[8px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
-                >
-                  Quick attach mock scan
-                </button>
-              </div>
-
-              {/* Patient Association Fields */}
-              <div className="border-t border-black pt-3 space-y-3">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                  Patient Information
-                </span>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient first name</span>
-                    <input
-                      type="text"
-                      placeholder="Enter patient first name"
-                      value={patientFirstName}
-                      onChange={(e) => setPatientFirstName(e.target.value)}
-                      disabled={!!selectedReferral}
-                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
-                    />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient last name</span>
-                    <input
-                      type="text"
-                      placeholder="Enter patient last name"
-                      value={patientLastName}
-                      onChange={(e) => setPatientLastName(e.target.value)}
-                      disabled={!!selectedReferral}
-                      className={`wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Date of birth</span>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="MM/DD/YYYY"
-                      value={patientDob}
-                      onChange={(e) => setPatientDob(e.target.value)}
-                      disabled={!!selectedReferral}
-                      className={`wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none ${selectedReferral ? 'bg-zinc-100 cursor-not-allowed opacity-80' : ''}`}
-                    />
-                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2" />
-                        <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2" />
-                        <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Message</span>
-                  <textarea
-                    placeholder="Enter message"
-                    value={uploadMessage}
-                    rows={2}
-                    onChange={(e) => setUploadMessage(e.target.value)}
-                    className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full resize-none focus:ring-0 focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6 pt-4 border-t-2 border-black">
-              <button
-                onClick={() => {
-                  setIsSendDocOpen(false);
-                  setCustomDocName('');
-                  setAttachedFiles([]);
-                  setSelectedPractice('');
-                  setSelectedReferral('');
-                  setPatientFirstName('');
-                  setPatientLastName('');
-                  setPatientDob('');
-                  setUploadMessage('');
-                }}
-                className="flex-1 wireframe-button bg-white text-black border-black text-[10px] uppercase py-2.5 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSendDocumentSubmit}
-                disabled={!selectedPractice || (attachedFiles.length === 0 && !customDocName.trim())}
-                className="flex-1 wireframe-button bg-black text-white border-black text-[10px] uppercase py-2.5 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
-              >
-                <Send size={10} /> Send Document
-              </button>
-            </div>
-          </div>
+        <div className="fixed top-20 right-6 z-50 bg-black text-white border-2 border-white px-4 py-3 font-bold uppercase text-[9px] tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-fade-in flex items-center gap-3">
+          <span>{toastMessage}</span>
+          {toastAction && (
+            <button
+              onClick={toastAction.onClick}
+              className="bg-white text-black px-2 py-0.5 font-black uppercase text-[8px] hover:bg-zinc-200 transition-colors"
+            >
+              {toastAction.label}
+            </button>
+          )}
         </div>
       )}
 
@@ -1518,3 +1337,34 @@ export default function DentistDashboardPage() {
     </MainLayout>
   );
 }
+
+function ActionCard({ label, desc, onClick }: { label: string, desc: string, onClick?: () => void }) {
+  return (
+    <div
+      onClick={onClick}
+      className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group"
+    >
+      <h4 className="font-bold uppercase text-[10px] tracking-tight">{label}</h4>
+      <p className="text-[8px] uppercase opacity-70 group-hover:opacity-100">{desc}</p>
+    </div>
+  );
+}
+
+function getPageNumbers(currentPage: number, totalPages: number) {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+  return pages;
+}
+

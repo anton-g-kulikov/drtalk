@@ -15,7 +15,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const navItems = isDentist
     ? [
       { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
-      { icon: FileText, label: 'Referrals', href: '/dentist/referrals' },
+      { icon: FileText, label: 'Patients', href: '/dentist/referrals' },
       { icon: MessageSquare, label: 'Communication', href: '/dentist/channels' },
       { icon: Users, label: 'Network', href: '/dentist/network' },
       { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
@@ -33,7 +33,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
     : navItems;
 
   return (
-    <div className={`w-64 h-full border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'hidden lg:flex'}`}>
+    <div className={`w-64 h-screen border-r-2 border-black flex flex-col bg-white ${onClose ? 'fixed inset-y-0 left-0 z-50' : 'fixed inset-y-0 left-0 z-30 hidden lg:flex'}`}>
       {onClose && (
         <button
           onClick={onClose}
@@ -89,109 +89,97 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
         })}
       </nav>
 
-      {/* Switch Prototype Menu */}
-      <div className="px-4 py-2 border-t border-black border-dashed">
-        <div className="flex items-center gap-2 px-3 mb-2">
-          <Building2Icon size={12} />
-          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Switch Prototype</p>
-        </div>
-        <div className="space-y-1">
-          <Link
-            href="/dentist/dashboard"
-            onClick={() => {
-              if (userRole === 'individual') verify('owner');
-              if (onClose) onClose();
-            }}
-            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
-          >
-            Dentist Practice
-          </Link>
-          <Link
-            href="/dashboard"
-            onClick={() => {
-              if (userRole === 'individual') verify('owner');
-              if (onClose) onClose();
-            }}
-            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${!isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
-          >
-            Specialist Practice
-          </Link>
-          <Link
-            href="/academy"
-            onClick={() => {
-              verify('individual');
-              if (onClose) onClose();
-            }}
-            className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${userRole === 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
-          >
-            Individual Learner
-          </Link>
-        </div>
-      </div>
-
-      {/* Debug Controls */}
-      <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
-        <div className="flex items-center gap-2 px-3 mb-2">
-          <Bug size={12} />
-          <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
-        </div>
-        <div className="space-y-1">
-            <button
-              onClick={setNoOwnerYet}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              No Owner Yet
-            </button>
-            <button
-              onClick={resetVerification}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-            >
-              Reset Verification
-            </button>
-            <button
+      {/* Bottom sections */}
+      <div className="mt-auto flex flex-col">
+        {/* Switch Prototype Menu */}
+        <div className="px-4 py-2 border-t border-black border-dashed">
+          <div className="flex items-center gap-2 px-3 mb-2">
+            <Building2Icon size={12} />
+            <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Switch Prototype</p>
+          </div>
+          <div className="space-y-1">
+            <Link
+              href="/dentist/dashboard"
               onClick={() => {
-                // Clear all localStorage entries related to the prototype
-                localStorage.clear();
-                // Reload page to apply reset
-                window.location.reload();
+                if (userRole === 'individual') verify('owner');
+                if (onClose) onClose();
               }}
-              className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+              className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
             >
-              Reset Prototype
-            </button>
-          {/* Commented out Trial widget and subscription options from debug menu for Dentist profile */}
-          {/* 
-          <button
-            onClick={endTrial}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            End Trial
-          </button>
-          <button
-            onClick={resetSubscription}
-            className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
-          >
-            Reset Subscription
-          </button>
-          */}
+              Dentist Practice
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => {
+                if (userRole === 'individual') verify('owner');
+                if (onClose) onClose();
+              }}
+              className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${!isDentist && userRole !== 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+            >
+              Specialist Practice
+            </Link>
+            <Link
+              href="/academy"
+              onClick={() => {
+                verify('individual');
+                if (onClose) onClose();
+              }}
+              className={`w-full flex items-center px-3 py-1.5 text-[9px] font-bold uppercase transition-all border border-transparent hover:border-black ${userRole === 'individual' ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+            >
+              Individual Learner
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <div className="p-4 border-t-2 border-black space-y-2">
-        <Link
-          href={isDentist ? '/dentist/settings' : '/settings'}
-          onClick={onClose}
-          className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${pathname === (isDentist ? '/dentist/settings' : '/settings')
-              ? 'bg-black text-white'
-              : 'hover:bg-gray-100'
-            } ${userRole === 'individual' ? 'hidden' : ''}`}
-        >
-          <Settings size={18} />
-          Practice
-        </Link>
-        <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
-          {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.5
-        </p>
+        {/* Debug Controls */}
+        <div className="px-4 py-2 border-t border-black border-dashed opacity-20 hover:opacity-100 transition-opacity">
+          <div className="flex items-center gap-2 px-3 mb-2">
+            <Bug size={12} />
+            <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
+          </div>
+          <div className="space-y-1">
+              <button
+                onClick={setNoOwnerYet}
+                className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+              >
+                No Owner Yet
+              </button>
+              <button
+                onClick={resetVerification}
+                className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+              >
+                Reset Verification
+              </button>
+              <button
+                onClick={() => {
+                  // Clear all localStorage entries related to the prototype
+                  localStorage.clear();
+                  // Reload page to apply reset
+                  window.location.reload();
+                }}
+                className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+              >
+                Reset Prototype
+              </button>
+          </div>
+        </div>
+
+        <div className="p-4 border-t-2 border-black space-y-2">
+          <Link
+            href={isDentist ? '/dentist/settings' : '/settings'}
+            onClick={onClose}
+            className={`w-full flex items-center gap-3 p-3 text-xs uppercase font-bold transition-all ${pathname === (isDentist ? '/dentist/settings' : '/settings')
+                ? 'bg-black text-white'
+                : 'hover:bg-gray-100'
+              } ${userRole === 'individual' ? 'hidden' : ''}`}
+          >
+            <Settings size={18} />
+            Practice
+          </Link>
+          <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
+            {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.5
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -279,9 +267,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
         </div>
       </div>
       <div className="flex items-center gap-3 sm:gap-6">
-        <div className="hidden md:flex gap-4 border-r-2 border-black pr-6 mr-2">
-          <div className="text-[10px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-black transition-colors">Support</div>
-        </div>
+
 
         <div
           className="flex items-center gap-3 cursor-pointer group relative"
@@ -309,7 +295,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
               {[
                 { label: 'View Profile', href: isDentist ? '/dentist/settings/profile/user' : '/settings/profile/user' },
                 { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
-                { label: 'Billing & Usage', href: isDentist ? '/dentist/settings#billing' : '/settings#billing' },
+                { label: 'Subscription', href: isDentist ? '/dentist/settings#subscription' : '/settings#subscription' },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link

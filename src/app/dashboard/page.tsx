@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import {
   AlertCircle, MessageSquare, ArrowUpRight,
-  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar, Search
+  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar, Search, ChevronDown
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -12,16 +12,14 @@ import { useVerification } from '@/components/VerificationContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from '@/components/InviteModal';
-import { DashboardStats, type DashboardTimeRange } from '@/components/prototype/DashboardStats';
-import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
-import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 
 import { 
   initialDocuments, 
   initialMessages, 
   mockChannels, 
-} from '@/prototype/channelFixtures';
-import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
+  SharedDocument, 
+  MessageItem 
+} from '@/app/channels/page';
 import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { 
   getInitialSpecialistDocs, 
@@ -62,7 +60,7 @@ export default function DashboardPage() {
   const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteRole, setInviteRole] = useState('Team Member');
-  const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
+  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year'>('month');
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>([]);
 
   useEffect(() => {
@@ -80,22 +78,6 @@ export default function DashboardPage() {
   const handleReferralClick = (ref: ReferralItem) => {
     if (!isVerified) {
       router.push('/verify');
-      return;
-    }
-    if (ref.isExternal) {
-      // Extract clean practice name from source string like "Pinecrest Dental (External)"
-      const practiceName = ref.source.replace(/\s*\(External\)/i, '').trim();
-      // Build a synthetic DocumentItem-like object so handleOpenInChannel can open/create the channel
-      const syntheticDoc: DocumentItem = {
-        id: ref.id,
-        name: `Referral — ${ref.patient}`,
-        sender: practiceName,
-        date: ref.date,
-        size: '',
-        isExternal: true,
-        transport: ref.transport,
-      };
-      handleOpenInChannel(syntheticDoc);
       return;
     }
     router.push(`/referrals/${ref.id}`);
@@ -120,6 +102,7 @@ export default function DashboardPage() {
     patient: string;
     type: string;
     source: string;
+    dentist?: string;
     date: string;
     status: 'new_processing' | 'new_docs';
     detail: string;
@@ -315,11 +298,11 @@ export default function DashboardPage() {
   };
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
-    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
-    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
-    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Dr. Smith', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
+    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', dentist: 'Dr. Taylor Reed', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
+    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Miller & Associates', dentist: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Black Family Dental', dentist: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
+    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', dentist: 'Dr. Taylor Reed', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Desert Bloom Dental', dentist: 'Dr. Jones', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
   ]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
@@ -615,7 +598,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex gap-4 w-full sm:w-auto">
             <button
-              onClick={() => setIsSendDocOpen(true)}
+              onClick={() => router.push('/dashboard/send-document')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black transition-all"
             >
               Send Document <FileText size={14} />
@@ -624,17 +607,49 @@ export default function DashboardPage() {
         </div>
 
 
-        <DashboardStats
-          timeRange={timeRange}
-          onTimeRangeChange={setTimeRange}
-          onStatClick={(path) => router.push(path)}
-          stats={[
-            { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received' },
-            { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled' },
-            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed' },
-            { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected' },
-          ]}
-        />
+        {/* Stats Section with Time Range Selector */}
+        <div className="space-y-2">
+          <div className="flex justify-start items-center">
+            <div className="relative">
+              <select 
+                value={timeRange} 
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+              >
+                <option value="day">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="quarter">This Quarter</option>
+                <option value="year">This Year</option>
+                <option value="last_year">Last Year</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-black" />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[
+              { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received' },
+              { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled' },
+              { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed' },
+              { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected' },
+            ].map((stat) => (
+              <div 
+                key={stat.label} 
+                onClick={() => router.push(stat.path)}
+                className="wireframe-card p-5 bg-white flex items-center gap-4 hover:bg-zinc-50 cursor-pointer transition-colors"
+              >
+                <stat.icon size={32} className="text-black shrink-0" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
+                  <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -681,7 +696,9 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Received {ref.date}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Received {ref.date}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {ref.urgency && (
@@ -731,7 +748,9 @@ export default function DashboardPage() {
                             )}
                           </div>
                           <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">From: {ref.source} • Updated {ref.date}</p>
+                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Updated {ref.date}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2">
                           {ref.urgency && (
@@ -761,17 +780,49 @@ export default function DashboardPage() {
               View all Referrals
             </button>
             
-            <PrototypeDocumentSection
-              className="pt-4"
-              inboxCount={documents.length}
-              searchQuery={docSearchQuery}
-              onSearchQueryChange={setDocSearchQuery}
-              isEmpty={filteredDocs.length === 0}
-              currentPage={docCurrentPage}
-              totalPages={totalDocPages}
-              totalItems={filteredDocs.length}
-              onPageChange={setDocCurrentPage}
-            >
+            {/* Documents Section */}
+            <div className="space-y-4 pt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 bg-black"></div>
+                  <h3 className="font-black uppercase text-sm tracking-widest italic">Documents</h3>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 bg-black"></div>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({documents.length})</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Document Search */}
+              <div className="relative">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="SEARCH DOCUMENTS..."
+                  value={docSearchQuery}
+                  onChange={(e) => setDocSearchQuery(e.target.value)}
+                  className="wireframe-input pl-10 py-2 text-[10px] w-full"
+                />
+                {docSearchQuery && (
+                  <button
+                    onClick={() => setDocSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-black uppercase hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+                
+              {filteredDocs.length === 0 && (
+                <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+                  No documents found
+                </div>
+              )}
+
+              {filteredDocs.length > 0 && (
+                <div className="space-y-3">
                   {paginatedDocs.map((doc) => {
                     const isCase = doc.channelType === 'case';
                     return (
@@ -824,9 +875,9 @@ export default function DashboardPage() {
                             </div>
                           )}
 
-                          {doc.fromChannel ? (
-                            <button 
-                              onClick={() => {
+                          <button
+                            onClick={() => {
+                              if (doc.fromChannel) {
                                 const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
                                   ? 'Sunshine Dental'
                                   : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
@@ -838,24 +889,66 @@ export default function DashboardPage() {
                                   ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
                                   : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
                                 router.push(url);
-                              }}
-                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1 ml-auto"
-                            >
-                              View & Discuss in {isCase ? 'Case' : 'Practice'} Channel <ArrowUpRight size={12} />
-                            </button>
-                          ) : (
-                            <button 
-                              onClick={() => handleOpenInChannel(doc)}
-                              className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
-                            >
-                              Open / Reply in Channel <MessageSquare size={12} />
-                            </button>
-                          )}
+                              } else {
+                                handleOpenInChannel(doc);
+                              }
+                            }}
+                            className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
+                          >
+                            Open in Channel <ArrowUpRight size={12} />
+                          </button>
                         </div>
                       </div>
                     );
                   })}
-            </PrototypeDocumentSection>
+                </div>
+              )}
+
+              {/* Pagination Controls */}
+              {/* Pagination Controls */}
+              {totalDocPages > 1 && (
+                <div className="flex items-center justify-between border-2 border-black bg-white p-4 mt-6">
+                  <button
+                    disabled={docCurrentPage === 1}
+                    onClick={() => setDocCurrentPage(prev => Math.max(1, prev - 1))}
+                    className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                  >
+                    Previous Page
+                  </button>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                      Page {docCurrentPage} of {totalDocPages}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+                      <div className="relative">
+                        <select
+                          value={docCurrentPage}
+                          onChange={(e) => setDocCurrentPage(Number(e.target.value))}
+                          className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                        >
+                          {Array.from({ length: totalDocPages }, (_, i) => i + 1).map(page => (
+                            <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                          <ChevronDown size={10} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    disabled={docCurrentPage === totalDocPages}
+                    onClick={() => setDocCurrentPage(prev => Math.min(totalDocPages, prev + 1))}
+                    className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+                  >
+                    Next Page
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Recent Conversations / Side Column */}
@@ -1063,233 +1156,36 @@ export default function DashboardPage() {
           </div>
         )}
 
-      {/* Send Document Modal */}
-      {isSendDocOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
-          <div className="bg-white border-4 border-black p-6 max-w-md w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-slide-in max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
-              <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
-                <FileText size={16} /> Send Document
-              </h3>
-              <button
-                onClick={() => {
-                  setIsSendDocOpen(false);
-                  setCustomDocName('');
-                  setAttachedFiles([]);
-                  setSelectedPractice('');
-                  setPatientFirstName('');
-                  setPatientLastName('');
-                  setPatientDob('');
-                  setUploadMessage('');
-                }}
-                className="hover:text-black text-black"
-              >
-                <X size={16} />
-              </button>
-            </div>
 
-            <div className="space-y-4">
-              {/* Field 1: Choice of connected practice */}
-              <div>
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                  Connected Practice <span className="text-red-500">*</span>
-                </span>
-                <select
-                  value={selectedPractice}
-                  onChange={(e) => setSelectedPractice(e.target.value)}
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none"
-                >
-                  <option value="">SELECT PRACTICE...</option>
-                  {connectedPractices.map((practice) => (
-                    <option key={practice.id} value={practice.name}>
-                      {practice.name} {(practice as any).isVerified === false ? '(UNVERIFIED)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Attached Files List */}
-              {attachedFiles.length > 0 && (
-                <div className="space-y-2 border-b border-black border-dashed pb-3">
-                  <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                    Attached Files ({attachedFiles.length})
-                  </span>
-                  <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                    {attachedFiles.map((file) => (
-                      <div key={file.id} className="flex items-center justify-between p-2 border-2 border-black bg-zinc-50">
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          <FileText size={12} className="shrink-0 text-black" />
-                          <div className="truncate">
-                            <p className="text-[10px] font-black uppercase truncate">{file.name}</p>
-                            <p className="text-[8px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            setAttachedFiles(prev => {
-                              const remaining = prev.filter(f => f.id !== file.id);
-                              if (remaining.length === 0) {
-                                setCustomDocName('');
-                              } else {
-                                const last = remaining[remaining.length - 1];
-                                setCustomDocName(last.name);
-                                setCustomDocType(last.type);
-                                setCustomDocSize(last.size);
-                              }
-                              return remaining;
-                            });
-                          }}
-                          className="text-black hover:text-red-600 p-0.5 transition-colors"
-                        >
-                          <X size={10} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Drag and Drop / Click Zone */}
-              <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
-                <input
-                  type="file"
-                  id="dashboard-file-input"
-                  className="hidden"
-                  onChange={handleRealFileSelect}
-                />
-
-                <div
-                  onClick={() => document.getElementById('dashboard-file-input')?.click()}
-                  className="absolute inset-0 z-0"
-                />
-
-                <Upload size={20} className="text-black z-10" />
-                <span className="text-xs font-black uppercase tracking-wider text-black z-10">
-                  Attach Document
-                </span>
-                <span className="text-[8px] font-bold text-muted-foreground uppercase z-10">
-                  Click to browse files or drag and drop here
-                </span>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAttachMockScan();
-                  }}
-                  className="relative z-10 mt-1 px-4 py-1.5 bg-black text-white hover:bg-gray-800 text-[8px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
-                >
-                  Quick attach mock scan
-                </button>
-              </div>
-
-              {/* Patient Association Fields */}
-              <div className="border-t border-black pt-3 space-y-3">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                  Patient Information
-                </span>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient first name</span>
-                    <input
-                      type="text"
-                      placeholder="Enter patient first name"
-                      value={patientFirstName}
-                      onChange={(e) => setPatientFirstName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient last name</span>
-                    <input
-                      type="text"
-                      placeholder="Enter patient last name"
-                      value={patientLastName}
-                      onChange={(e) => setPatientLastName(e.target.value)}
-                      className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Date of birth</span>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="MM/DD/YYYY"
-                      value={patientDob}
-                      onChange={(e) => setPatientDob(e.target.value)}
-                      className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                    />
-                    <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
-                      <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2" />
-                        <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2" />
-                        <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Message</span>
-                  <textarea
-                    placeholder="Enter message"
-                    value={uploadMessage}
-                    rows={2}
-                    onChange={(e) => setUploadMessage(e.target.value)}
-                    className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full resize-none focus:ring-0 focus:outline-none"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3 mt-6 pt-4 border-t-2 border-black">
-              <button
-                onClick={() => {
-                  setIsSendDocOpen(false);
-                  setCustomDocName('');
-                  setAttachedFiles([]);
-                  setSelectedPractice('');
-                  setPatientFirstName('');
-                  setPatientLastName('');
-                  setPatientDob('');
-                  setUploadMessage('');
-                }}
-                className="flex-1 wireframe-button bg-white text-black border-black text-[10px] uppercase py-2.5 hover:bg-gray-100 font-bold flex items-center justify-center gap-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSendDocumentSubmit}
-                disabled={!selectedPractice || (attachedFiles.length === 0 && !customDocName.trim())}
-                className="flex-1 wireframe-button bg-black text-white border-black text-[10px] uppercase py-2.5 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
-              >
-                <Send size={10} /> Send Document
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Toast Notification */}
       {toast && (
-        <PrototypeToast
-          message={toast.message}
-          action={toastAction ? {
-            label: toastAction.label,
-            onClick: () => {
-              toastAction.onClick();
-              setToast(null);
-              setToastAction(null);
-            },
-          } : null}
-          onDismiss={() => {
-            setToast(null);
-            setToastAction(null);
-          }}
-        />
+        <div className="fixed bottom-4 right-4 z-50 bg-black text-white border-2 border-white p-4 max-w-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-in slide-in-from-bottom-4 duration-300 flex flex-col gap-2">
+          <p className="text-[10px] font-black uppercase tracking-tight">{toast.message}</p>
+          <div className="flex gap-3 justify-end items-center">
+            {toastAction && (
+              <button
+                onClick={() => {
+                  toastAction.onClick();
+                  setToast(null);
+                  setToastAction(null);
+                }}
+                className="text-[9px] font-black uppercase bg-white text-black px-1.5 py-0.5 hover:bg-zinc-200 transition-all border border-white"
+              >
+                {toastAction.label}
+              </button>
+            )}
+            <button 
+              onClick={() => {
+                setToast(null);
+                setToastAction(null);
+              }}
+              className="text-[9px] font-black uppercase underline hover:text-zinc-300"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
       )}
 
       </div>
@@ -1304,3 +1200,34 @@ export default function DashboardPage() {
     </MainLayout>
   );
 }
+
+function ActionCard({ label, desc, onClick }: { label: string, desc: string, onClick?: () => void }) {
+  return (
+    <div 
+      onClick={onClick}
+      className="wireframe-card p-4 bg-white hover:bg-black hover:text-white cursor-pointer transition-all group"
+    >
+      <h4 className="font-bold uppercase text-[10px] tracking-tight">{label}</h4>
+      <p className="text-[8px] uppercase opacity-70 group-hover:opacity-100">{desc}</p>
+    </div>
+  );
+}
+
+function getPageNumbers(currentPage: number, totalPages: number) {
+  const pages: (number | string)[] = [];
+  if (totalPages <= 7) {
+    for (let i = 1; i <= totalPages; i++) {
+      pages.push(i);
+    }
+  } else {
+    if (currentPage <= 4) {
+      pages.push(1, 2, 3, 4, 5, '...', totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+    }
+  }
+  return pages;
+}
+

@@ -22,7 +22,7 @@ export function BillingModal({
           <div className="w-16 h-16 border-4 border-black rounded-full flex items-center justify-center mx-auto bg-gray-50">
             <CreditCard size={32} />
           </div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Billing & Plan</h2>
+          <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Subscription</h2>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
             Manage your subscription and payment methods.
           </p>

@@ -30,7 +30,7 @@ export const MainLayout = ({
       {/* Mobile Sidebar */}
       {isSidebarOpen && <Sidebar onClose={() => setIsSidebarOpen(false)} />}
 
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-64">
         <Header title={title} onMenuClick={() => setIsSidebarOpen(true)} />
         <main className="flex-1 flex flex-col">
           <div className="animate-fade-in flex-1 flex flex-col">

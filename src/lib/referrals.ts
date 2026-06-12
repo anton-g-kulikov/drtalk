@@ -1,6 +1,6 @@
 "use client";
 
-export type ReferralStatus = 'Received' | 'Sent' | 'Scheduled' | 'Completed' | 'Archived' | 'Draft';
+export type ReferralStatus = 'Received' | 'Sent' | 'Accepted' | 'Scheduled' | 'Completed' | 'Archived' | 'Draft';
 
 export interface UnifiedReferral {
   id: string;
@@ -14,9 +14,11 @@ export interface UnifiedReferral {
   nextStep?: string;
   dentist: string;
   specialist: string;
+  specialistDoctor?: string;
   practice?: string;
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
   sender?: string;
+  assignedTo?: string;
 }
 
 import { generateMockData, dentistPractices, specialistClinics } from './mockGenerator';
@@ -61,6 +63,13 @@ export function saveReferrals(referrals: UnifiedReferral[]) {
 export function updateReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
   const referrals = getReferrals();
   const updated = referrals.map(r => r.id === id ? { ...r, status } : r);
+  saveReferrals(updated);
+  return updated;
+}
+
+export function updateReferralAssignee(id: string, assignedTo?: string): UnifiedReferral[] {
+  const referrals = getReferrals();
+  const updated = referrals.map(r => r.id === id ? { ...r, assignedTo } : r);
   saveReferrals(updated);
   return updated;
 }
@@ -224,12 +233,14 @@ export function getChannels(isDentist: boolean): Channel[] {
   if (stored) {
     try {
       const parsed: Channel[] = JSON.parse(stored);
-      // Cache-bust: if any known-external practice is still marked as on-platform, re-seed
+      // Cache-bust: if any known-external practice is still marked as on-platform,
+      // or if Oakwood Family Dental (id '25') is missing (newly added), re-seed
       if (!isDentist) {
         const knownExternal = ['pinecrest dental group', 'oakwood family dental', 'riverfront dental care',
           'heritage dental partners', 'sunrise smiles dental', 'desert rose dentistry',
           'copper state dental', 'cactus park dental', 'red rock dental studio', 'grand canyon dental group'];
-        const needsReset = parsed.some(c =>
+        const missingOakwood = !parsed.some(c => c.id === '25');
+        const needsReset = missingOakwood || parsed.some(c =>
           c.type === 'inter-practice' &&
           !c.isExternal &&
           knownExternal.includes(c.name.toLowerCase())

@@ -3,12 +3,13 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import {
   ChevronRight, ArrowLeft, CheckCircle2,
-  Upload, FileText, X, Shield, Lock, Download, Search
+  Upload, FileText, X, Shield, Lock, Download, Search, ChevronDown
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
+import { MainLayout } from '@/components/MainLayout';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -69,6 +70,7 @@ function ReferralFormContent() {
   const [selectedState, setSelectedState] = useState('');
   const [practiceSearch, setPracticeSearch] = useState('');
   const [targetPractice, setTargetPractice] = useState(practiceParam || '');
+  const [targetPractices, setTargetPractices] = useState<string[]>(practiceParam ? [practiceParam] : []);
   const [showDropdown, setShowDropdown] = useState(false);
 
   // Load remembered state on mount
@@ -78,8 +80,27 @@ function ReferralFormContent() {
       if (savedState) {
         setSelectedState(savedState);
       }
+
+      if (isInternal) {
+        const stored = localStorage.getItem('drtalk_profile_dentist');
+        if (stored) {
+          try {
+            const profile = JSON.parse(stored);
+            const name = profile.displayName || `${profile.firstName || ''} ${profile.lastName || ''}`.trim();
+            if (name) {
+              setDoctorName(name);
+            } else {
+              setDoctorName("Dr. Taylor Reed, DDS");
+            }
+          } catch (e) {
+            setDoctorName("Dr. Taylor Reed, DDS");
+          }
+        } else {
+          setDoctorName("Dr. Taylor Reed, DDS");
+        }
+      }
     }
-  }, []);
+  }, [isInternal]);
 
   // Synchronize target practice if query param changes
   useEffect(() => {
@@ -108,8 +129,15 @@ function ReferralFormContent() {
     : [];
 
   const handleSelectPractice = (name: string) => {
-    setTargetPractice(name);
-    setPracticeSearch(name);
+    if (isInternal) {
+      if (!targetPractices.includes(name)) {
+        setTargetPractices(prev => [...prev, name]);
+      }
+      setPracticeSearch('');
+    } else {
+      setTargetPractice(name);
+      setPracticeSearch(name);
+    }
     setShowDropdown(false);
   };
 
@@ -133,8 +161,94 @@ function ReferralFormContent() {
                 <div className="p-3 border-2 border-black bg-gray-50 flex items-center justify-between">
                   <p className="text-xl font-black uppercase italic tracking-tighter">{targetPractice}</p>
                 </div>
+              ) : isInternal ? (
+                // Platform/Internal Multi-recipient Selection UX (matches send document form)
+                <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50 relative">
+                  <span className="text-[10px] font-black uppercase block mb-1 text-black">
+                    Connected Practices (Select Multiple) <span className="text-red-500">*</span>
+                  </span>
+                  <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
+                    <div className="flex flex-wrap gap-1.5 mb-1.5">
+                      {targetPractices.map(pName => (
+                        <span key={pName} className="px-2 py-0.5 font-bold uppercase text-[8px] border border-black flex items-center gap-1 bg-black text-white">
+                          {pName}
+                          <button
+                            type="button"
+                            onClick={() => setTargetPractices(prev => prev.filter(p => p !== pName))}
+                            className="font-bold ml-1 text-[9px] hover:text-red-500"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Type to search and add practices..."
+                        value={practiceSearch}
+                        onChange={(e) => {
+                          setPracticeSearch(e.target.value);
+                          setShowDropdown(true);
+                        }}
+                        onFocus={() => setShowDropdown(true)}
+                        className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 text-[10px] uppercase font-bold text-black placeholder:text-zinc-400 h-5"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowDropdown(!showDropdown)}
+                        className="text-black"
+                      >
+                        <ChevronDown size={14} className={`transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {showDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
+                      <div className="absolute left-4 right-4 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
+                        {allMockPractices
+                          .filter(p => p.name.toLowerCase().includes(practiceSearch.toLowerCase()))
+                          .filter(p => !targetPractices.includes(p.name))
+                          .map(p => (
+                            <div
+                              key={p.name}
+                              onClick={() => {
+                                setTargetPractices(prev => [...prev, p.name]);
+                                setPracticeSearch('');
+                                setShowDropdown(false);
+                              }}
+                              className="p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 flex justify-between items-center bg-white text-black"
+                            >
+                              <span>{p.name}</span>
+                              <span className="text-[7px] text-zinc-500">{p.specialty}</span>
+                            </div>
+                          ))}
+                        {allMockPractices.filter(p => p.name.toLowerCase().includes(practiceSearch.toLowerCase())).filter(p => !targetPractices.includes(p.name)).length === 0 && (
+                          <div className="p-2 text-zinc-400 font-bold bg-white text-center">No practices found</div>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {targetPractices.length > 0 && (
+                    <div className="p-2 bg-black text-white text-[10px] font-black uppercase tracking-tight flex justify-between items-center">
+                      <span>Selected: {targetPractices.join(', ')}</span>
+                      <button 
+                        onClick={() => {
+                          setTargetPractices([]);
+                          setPracticeSearch('');
+                        }} 
+                        className="text-white hover:text-red-400 font-bold"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
-                // State selector + practice search box for both public and internal forms
+                // Guest/Public Single-recipient Selection (State select + Search input)
                 <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50">
                   <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Select receiving practice</p>
                   <div className="grid grid-cols-3 gap-2">
@@ -205,53 +319,34 @@ function ReferralFormContent() {
               )}
             </div>
 
-            {/* Printable Referral Sheet Download Helper */}
-            {targetPractice && (
-              <div className="border-2 border-black p-3.5 flex items-center justify-between gap-3 bg-gray-50">
-                <div className="flex items-center gap-2 min-w-0">
-                  <FileText size={16} className="shrink-0 text-black animate-pulse" />
-                  <span className="font-bold uppercase tracking-tight text-[9px] truncate">
-                    Need our offline practice referral sheet?
-                  </span>
-                </div>
-                <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert(`Downloading: ${targetPractice.toLowerCase().replace(/\s+/g, '_')}_referral_sheet_v2.pdf (1.4 MB)`);
-                  }}
-                  className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 shrink-0 flex items-center gap-1"
-                >
-                  <Download size={10} />
-                  <span>Download PDF</span>
-                </a>
-              </div>
-            )}
-
             <div className="space-y-6">
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Enter your email</label>
-                  <input
-                    key="referral-identify-email"
-                    type="email"
-                    placeholder="dr.smith@example.com"
-                    className="wireframe-input"
-                    value={email || ''}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Your practice name</label>
-                  <input
-                    key="referral-identify-practice"
-                    type="text"
-                    placeholder="Smith Dental Care"
-                    className="wireframe-input"
-                    value={practiceName || ''}
-                    onChange={(e) => setPracticeName(e.target.value)}
-                  />
-                </div>
+                {!isInternal && (
+                  <>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase">Enter your email</label>
+                      <input
+                        key="referral-identify-email"
+                        type="email"
+                        placeholder="dr.smith@example.com"
+                        className="wireframe-input"
+                        value={email || ''}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase">Your practice name</label>
+                      <input
+                        key="referral-identify-practice"
+                        type="text"
+                        placeholder="Smith Dental Care"
+                        className="wireframe-input"
+                        value={practiceName || ''}
+                        onChange={(e) => setPracticeName(e.target.value)}
+                      />
+                    </div>
+                  </>
+                )}
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Referring Doctor Name</label>
                   <input
@@ -269,7 +364,7 @@ function ReferralFormContent() {
                   <select 
                     value={receivingDoctor}
                     onChange={(e) => setReceivingDoctor(e.target.value)}
-                    disabled={!targetPractice}
+                    disabled={isInternal ? targetPractices.length === 0 : !targetPractice}
                     className="wireframe-input bg-white appearance-none cursor-pointer disabled:opacity-40"
                   >
                     <option value="">Select a doctor</option>
@@ -282,7 +377,7 @@ function ReferralFormContent() {
               <div className="space-y-4">
                 <button
                   onClick={() => nextStep('PATIENT')}
-                  disabled={!targetPractice || !receivingDoctor}
+                  disabled={isInternal ? (targetPractices.length === 0 || !receivingDoctor) : (!targetPractice || !receivingDoctor)}
                   className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
                 >
                   Continue to Patient Details <ChevronRight size={16} />
@@ -399,12 +494,15 @@ function ReferralFormContent() {
             <div className="space-y-6">
               <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">2. Clinical Information</h3>
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Reason for Referral</label>
-                  <textarea
-                    placeholder="Describe the clinical needs, specific teeth, or symptoms..."
-                    className="wireframe-input h-32 py-3 resize-none"
-                  />
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase">Referral Pad / Clinical Notes</label>
+                  <div className="border-2 border-black p-1 bg-white">
+                    <img 
+                      src="/referral-pad.png" 
+                      alt="Referral Pad" 
+                      className="w-full object-contain filter grayscale" 
+                    />
+                  </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold uppercase">Urgency</label>
@@ -441,17 +539,6 @@ function ReferralFormContent() {
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b-2 border-black pb-2">
                 <h3 className="text-xs font-bold uppercase">3. X-Rays & Records</h3>
-                <a 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    alert("Downloading: referral_sheet_v2.pdf (1.4 MB)");
-                  }}
-                  className="font-black uppercase tracking-widest text-[9px] underline hover:text-gray-600 flex items-center gap-1"
-                >
-                  <Download size={10} />
-                  <span>Download Referral Sheet</span>
-                </a>
               </div>
               <div className="space-y-6">
                 <div className="border-4 border-black border-dashed p-12 text-center space-y-4 hover:bg-gray-50 transition-all cursor-pointer">
@@ -543,7 +630,7 @@ function ReferralFormContent() {
               <div className="space-y-2">
                 <h1 className="text-4xl font-bold uppercase tracking-tighter italic">Thank You!</h1>
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">
-                  Referral Successfully Sent to {targetPractice || 'Sunshine Dental'}
+                  Referral Successfully Sent to {isInternal ? (targetPractices.join(', ') || 'selected practices') : (targetPractice || 'Sunshine Dental')}
                 </p>
               </div>
             </div>
@@ -592,13 +679,14 @@ function ReferralFormContent() {
   return (
     <div className="w-full flex flex-col items-center">
       {isInternal && step !== 'SUCCESS' && (
-        <button
-          onClick={() => router.push('/dentist/dashboard')}
-          className="fixed top-8 right-8 z-50 p-2.5 bg-white text-black border-2 border-black hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center gap-1.5 text-[10px] font-black uppercase"
-          title="Exit to Dashboard"
-        >
-          <X size={14} /> Exit
-        </button>
+        <div className="w-full max-w-lg mb-4 flex justify-start">
+          <button
+            onClick={() => router.push('/dentist/dashboard')}
+            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-black hover:underline"
+          >
+            <ArrowLeft size={14} /> Back to Dashboard
+          </button>
+        </div>
       )}
       <div className="w-full flex justify-center">
         {renderStep()}
@@ -607,12 +695,33 @@ function ReferralFormContent() {
   );
 }
 
-export default function GuestReferralPage() {
+function GuestReferralPageContent() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get('type');
+  const isInternal = typeParam === 'internal' || (pathname ? pathname.startsWith('/dentist') : false);
+
+  if (isInternal) {
+    return (
+      <MainLayout title="New Referral">
+        <div className="max-w-xl mx-auto py-8">
+          <ReferralFormContent />
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-white flex flex-col items-center justify-center p-8 font-sans border-t-[12px] border-black">
-      <Suspense fallback={<div className="text-[10px] font-black uppercase">Loading Referral Form...</div>}>
-        <ReferralFormContent />
-      </Suspense>
+      <ReferralFormContent />
     </main>
+  );
+}
+
+export default function GuestReferralPage() {
+  return (
+    <Suspense fallback={<div className="text-[10px] font-black uppercase flex items-center justify-center min-h-screen">Loading Referral Form...</div>}>
+      <GuestReferralPageContent />
+    </Suspense>
   );
 }
