@@ -47,6 +47,8 @@ function OnboardingContent() {
   const [zipCode, setZipCode] = useState('');
   const [fullAddress, setFullAddress] = useState('');
   const [selectedState, setSelectedState] = useState('CA');
+  const [wantsFax, setWantsFax] = useState(false);
+  const [faxNumber, setFaxNumber] = useState('');
   const [isPracticeDetailsLoading, setIsPracticeDetailsLoading] = useState(false);
   const [showNpiTooltip, setShowNpiTooltip] = useState(false);
 
@@ -60,6 +62,8 @@ function OnboardingContent() {
       setZipCode("90210");
       setFullAddress("123 Dental Way, Ste 100");
       setPhone("(310) 555-0199");
+      setFaxNumber("(310) 555-0198");
+      setWantsFax(true);
       setPracticeType("Endodontist");
       setIsPracticeDetailsLoading(false);
       setShowNpiTooltip(true);
@@ -538,6 +542,37 @@ function OnboardingContent() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                 />
+              </div>
+
+              {/* Fax Option */}
+              <div className="space-y-4 pt-1">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input 
+                    type="checkbox" 
+                    className="w-3.5 h-3.5 border-2 border-black rounded-none appearance-none checked:bg-black transition-all cursor-pointer"
+                    checked={wantsFax}
+                    onChange={(e) => setWantsFax(e.target.checked)}
+                  />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-black">
+                    We want to receive fax messages on drtalk platform
+                  </span>
+                </label>
+
+                {wantsFax && (
+                  <div className="space-y-1 animate-in fade-in duration-300">
+                    <label className="text-[10px] font-black uppercase tracking-widest">CURRENT FAX NUMBER</label>
+                    <input 
+                      type="tel" 
+                      placeholder="e.g., (555) 000-0000" 
+                      className={`wireframe-input py-4 px-4 text-sm transition-all duration-500 ${isPracticeDetailsLoading ? 'opacity-50' : ''}`} 
+                      value={faxNumber}
+                      onChange={(e) => setFaxNumber(e.target.value)}
+                    />
+                    <p className="text-[9px] uppercase font-bold text-gray-400 mt-1">
+                      💡 Leave blank to get eFax number assigned automatically
+                    </p>
+                  </div>
+                )}
               </div>
 
               <button 
