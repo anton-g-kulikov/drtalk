@@ -1077,7 +1077,7 @@ function ChannelsContent() {
                                     : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
                                 }`}
                               >
-                                <span className={isCaseActive ? "text-white font-black text-[11px]" : "text-black font-black text-[11px]"}>#</span>
+                                <FileText size={10} className={isCaseActive ? "text-white" : "text-black"} />
                                 <span className="text-[10px] uppercase tracking-tight">{cc.name}</span>
                               </button>
                             );
@@ -1243,7 +1243,13 @@ function ChannelsContent() {
                 </button>
               )}
               <div className="w-8 h-8 border-2 border-black flex items-center justify-center shrink-0 text-black">
-                {activeChannel.type === 'internal' ? <Hash size={16} /> : <Users size={16} />}
+                {activeChannel.id.startsWith('case_') ? (
+                  <FileText size={16} />
+                ) : activeChannel.type === 'internal' ? (
+                  <Hash size={16} />
+                ) : (
+                  <Users size={16} />
+                )}
               </div>
               <div className="min-w-0">
                 <h3 className="font-black uppercase text-xs truncate text-black">
