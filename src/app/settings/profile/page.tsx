@@ -5,11 +5,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { ArrowLeft, User } from 'lucide-react';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { useSubscription } from '@/components/SubscriptionContext';
 
 export default function ProfilePage() {
   const router = useRouter();
   const pathname = usePathname();
   const isDentist = pathname.includes('/dentist');
+  const { plan, setShowPaywall } = useSubscription();
 
   // Form states initialized with realistic values
   const [practiceName, setPracticeName] = useState(isDentist ? "Valley Dental Care" : "Valley Endodontics");
@@ -19,6 +21,8 @@ export default function ProfilePage() {
   const [zipCode, setZipCode] = useState("90210");
   const [fullAddress, setFullAddress] = useState("123 Dental Way, Ste 100");
   const [phone, setPhone] = useState("(310) 555-0199");
+  const [wantsFax, setWantsFax] = useState(true);
+  const [faxNumber, setFaxNumber] = useState("(310) 555-0198");
 
   // Notification / Toast states
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -132,6 +136,37 @@ export default function ProfilePage() {
                     onChange={(e) => setPhone(e.target.value)}
                     className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black hover:border-black focus:bg-black focus:text-white transition-colors"
                   />
+                </div>
+
+                {/* Fax Option */}
+                <div className="space-y-4 pt-1">
+                  {plan === 'Trial' ? (
+                    <div className="flex flex-col gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest text-black/60">Fax Integration</span>
+                      <button 
+                        type="button"
+                        onClick={() => setShowPaywall(true)}
+                        className="wireframe-button w-fit text-[10px] font-black uppercase tracking-widest px-5 py-3 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all"
+                      >
+                        Receive Fax Messages
+                      </button>
+                      <p className="text-[9px] uppercase font-bold text-gray-400">
+                        Upgrade your plan to unlock receiving fax messages on the drtalk platform.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase tracking-widest">Assigned eFax Number</label>
+                        <div className="text-sm font-mono font-bold select-all text-black break-all pb-1.5 border-b border-black w-full">
+                          +1 (310) 555-0155
+                        </div>
+                      </div>
+                      <p className="text-[9px] uppercase font-bold text-gray-400 leading-normal">
+                        All messages faxed to this number will be received and processed on drtalk platform
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
