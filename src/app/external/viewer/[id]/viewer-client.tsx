@@ -343,7 +343,7 @@ export default function ExternalViewerClient() {
 
               {showStatusSuccess && (
                 <p className="text-[8px] font-bold uppercase text-green-700 text-center animate-pulse">
-                  ✓ Pipeline updated in referring dentist's portal!
+                  ✓ Pipeline updated in referring dentist&apos;s portal!
                 </p>
               )}
             </div>
@@ -415,7 +415,7 @@ export default function ExternalViewerClient() {
                         <div>
                           <p className="font-bold text-gray-400">Reason for Referral:</p>
                           <p className="font-bold text-black mt-1 leading-relaxed border border-black/10 p-2 bg-zinc-50">
-                            "Patient presents with localized thermal sensitivity and periapical lesion on Tooth #14. Please evaluate for endodontic root canal therapy or retreatment."
+                            &quot;Patient presents with localized thermal sensitivity and periapical lesion on Tooth #14. Please evaluate for endodontic root canal therapy or retreatment.&quot;
                           </p>
                         </div>
 
