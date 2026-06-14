@@ -114,6 +114,22 @@ Expected visible outcome: Settings pages render their expected prototype section
 
 Automated coverage: `test/prototype-routes.test.tsx`
 
+### UC-06A Network Directory
+
+Intent: Specialist and dentist network pages preserve role-specific analytics, tabs, directory filtering, and primary actions after shared component extraction.
+
+Setup: Open `/network` and `/dentist/network` with seeded network data.
+
+Steps:
+
+1. View analytics copy for each role.
+2. Switch to My Network.
+3. Locate specialist chat actions and dentist send-referral actions.
+
+Expected visible outcome: Both routes render from the shared network prototype view while keeping role-specific copy and actions.
+
+Automated coverage: `test/prototype-routes.test.tsx`
+
 ### UC-07 Shared Prototype State
 
 Intent: Mock data remains stable enough for future visual and UX iteration.
@@ -130,6 +146,41 @@ Steps:
 Expected visible outcome: Empty or stale browser state falls back to usable mock defaults, and shared data does not require importing route pages.
 
 Automated coverage: `test/prototype-state.test.ts`
+
+### UC-07B Detail Views
+
+Intent: Document and referral detail screens remain editable as smaller prototype chunks while preserving mock state side effects.
+
+Setup: Open `/documents/[id]` and `/referrals/[id]` with seeded localStorage.
+
+Steps:
+
+1. View document preview metadata.
+2. Archive an active inbox document.
+3. View referral case activity.
+4. Advance a referral status.
+
+Expected visible outcome: Detail headers, preview/action regions, status controls, and activity logs render without route composition regressions.
+
+Automated coverage: `test/prototype-routes.test.tsx`
+
+### UC-07A Onboarding
+
+Intent: A practice or individual user can move through the visible onboarding prototype without losing route-level state.
+
+Setup: Open `/onboarding` with empty localStorage.
+
+Steps:
+
+1. Create an account from the entry screen.
+2. Verify the email code.
+3. Choose whether to create or join a practice.
+4. In create-practice mode, trigger the mock NPI autofill and continue through role/team invite.
+5. In individual mode, verify directly into the learning success state.
+
+Expected visible outcome: Each step renders the expected section copy, practice detail autofill remains visible, and success routes can be identified without a route composition regression.
+
+Automated coverage: `test/prototype-routes.test.tsx`
 
 ### UC-08 Shared Prototype Components
 
@@ -176,7 +227,7 @@ Steps:
 
 Expected visible outcome: The shared components preserve the same visible controls used by role dashboards and channels while delegating page-specific actions to their parent page.
 
-Automated coverage: `test/prototype-components.test.tsx`
+Automated coverage: `test/prototype-components.test.tsx`, `test/prototype-components.shared.test.tsx`, `test/prototype-components.dashboards.test.tsx`, `test/prototype-components.referral-flows.test.tsx`, `test/prototype-components.send-document.test.tsx`, `test/prototype-components.channels.test.tsx`
 
 ## Manual Smoke Checklist
 
