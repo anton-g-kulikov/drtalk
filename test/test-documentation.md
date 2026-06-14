@@ -146,10 +146,33 @@ Steps:
 5. Render the shared document section with rows and pagination.
 6. Clear document search and move to the next page.
 7. Confirm long pagination windows use the shared ellipsis behavior across document and referral lists.
-8. Render shared channel list and message primitives with external, unread, document, and transport states.
-9. Render shared channel attachment controls, attach a recent mock document, open the new-document action, and remove an attached document preview.
-10. Render the shared channel document pane, search/clear documents, open the send-new-document action, and trigger view/download callbacks.
-11. Render the shared channel document preview overlay for PDF and image mock documents, close it, and trigger the download callback.
+8. Render shared dashboard document rows with external, archived, convert/attach, and open-in-channel states.
+9. Render the shared dashboard document action modals for convert-to-referral and attach-to-referral flows.
+10. Change the convert patient name, clear the attach search, and choose a target referral.
+11. Render shared dashboard sidebar lists for recent conversations and suggested connections.
+12. Click a sidebar conversation and a suggested connection action.
+13. Render the dentist sent-referrals list with search, row navigation, urgency labels, and pagination actions.
+14. Render the dentist dashboard header with verification banner, owner banner, role copy, quick referral/document actions, and comment-marker-safe mode.
+15. Render the specialist dashboard header with verification banner, owner banner, role copy, send-document action, and comment-marker-safe mode.
+16. Render the specialist referral queues with processing and newly received document states.
+17. Click a specialist referral row and the view-all referrals action.
+18. Render shared referral pipeline controls with role-aware tabs, search, time range, filter drawer, practice options, incomplete toggle, and clear-filters action.
+19. Render shared guest-referral practice selector with preselected, internal multi-practice, guest state/search, selected summary, clear, and empty states.
+20. Render shared guest-referral attachment step with upload dropzone, mock file row, patient-copy toggle, patient contact fields, disabled submit, and back/submit actions.
+21. Render shared send-document practice selector with selected chips, search/open states, option selection, unverified badges, and empty state.
+22. Render shared send-document referral selector with none/new-referral, referral row, search/open, and empty states.
+23. Render shared send-document patient fields with name, date-of-birth, message, and edit callbacks.
+24. Render shared send-document upload section with attached files, remove-file, real upload, and quick mock attach states.
+25. Render shared channel list and message primitives with external, unread, document, and transport states.
+26. Render shared channel sidebar sections with collapse, unread badge, optional action, and visible child states.
+27. Render the full shared channel sidebar with search/clear, mobile close, connected/external practice case rows, group creation action, patient tip, and role-specific network link.
+28. Render the shared channel content pane with conversation header actions, archived reactivation, message history, verification note, composer, and document-pane callbacks.
+29. Render the shared channel conversation header with case-channel controls and message/document tab switching.
+30. Render archived channel conversations with reactivation and empty-practice states.
+31. Render the shared channel message composer with secure-email hints, patient delivery controls, attachment drawer, attached preview, and send states.
+32. Render shared channel attachment controls, attach a recent mock document, open the new-document action, and remove an attached document preview.
+33. Render shared channel document pane, search/clear documents, open the send-new-document action, and trigger view/download callbacks.
+34. Render the shared channel document preview overlay for PDF and image mock documents, close it, and trigger the download callback.
 
 Expected visible outcome: The shared components preserve the same visible controls used by role dashboards and channels while delegating page-specific actions to their parent page.
 
