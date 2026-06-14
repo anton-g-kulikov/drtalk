@@ -2,17 +2,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
-  ArrowLeft, FileText, Download, 
+  FileText, Download, 
   AlertTriangle, Send, MoreHorizontal,
-  MessageSquare, Users, ChevronDown, Check
+  Users
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { initialDocuments } from '@/prototype/channelFixtures';
+import { ReferralDetailHeader } from '@/components/prototype/ReferralDetailHeader';
+import { ReferralActivitySidebar } from '@/components/prototype/ReferralActivitySidebar';
 
-import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getReferralCode, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getMessages, saveMessages } from '@/lib/referrals';
 
 const PRACTICE_TEAM = [
   { id: 'none', name: 'UNASSIGNED' },
@@ -205,133 +206,23 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     }
   };
 
-  const getStatusColor = (status: ReferralStatus) => {
-    switch (status) {
-      case 'Received': return 'bg-gray-100 text-black border-black/30';
-      case 'Accepted': return 'bg-amber-50 text-amber-800 border-amber-200';
-      case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
-      case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
-      case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
-      default: return 'bg-white';
-    }
-  };
-
   return (
     <MainLayout title="Referral Detail">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Top Header / Actions Row */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black pb-6">
-          <div className="flex items-start gap-3 sm:gap-5">
-            <button 
-              onClick={() => router.push('/referrals')}
-              className="mt-1 p-2 border-2 border-black hover:bg-black hover:text-white transition-all bg-white"
-            >
-              <ArrowLeft size={16} />
-            </button>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <p className="text-[10px] font-bold uppercase text-muted-foreground tracking-widest">Referrals / {getReferralCode(referral.id)}</p>
-                {referral.id.startsWith('ext-') && (
-                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm">
-                    {referral.source === 'Fax' ? 'External — Secure Fax Referral' : 'External — Secure Email Referral'}
-                  </span>
-                )}
-                {urgency === 'Urgent' && (
-                  <span className="bg-amber-50 text-amber-800 border-amber-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
-                    Urgent
-                  </span>
-                )}
-                {urgency === 'Emergency' && (
-                  <span className="bg-red-50 text-red-800 border-red-200 px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm animate-pulse">
-                    Emergency
-                  </span>
-                )}
-              </div>
-              <div className="flex items-center gap-4">
-                <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tighter">{referral.patientName}</h1>
-                <CommentMarker id="referral-page-detail" title="Referral Detail Page" description="The full-page detailed view of a referral." />
-              </div>
-            </div>
-          </div>
- 
-          {/* Dynamic Actions Row */}
-          <div className="flex flex-wrap items-center gap-3 relative">
-            <div className="relative flex items-stretch">
-              {/* Left Action Button (Direct One-Click Status Advance) */}
-              <button 
-                onClick={handleMainNextAction}
-                disabled={currentStatus === 'Accepted' && assignedTo === 'none'}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed"
-              >
-                {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
-                 currentStatus === 'Accepted' ? 'Schedule Appointment' :
-                 currentStatus === 'Scheduled' ? 'Complete Treatment' :
-                 currentStatus === 'Completed' ? 'Archive Case' :
-                 'Reopen Case'}
-              </button>
-  
-              {/* Right Dropdown Toggle Segment */}
-              <button 
-                onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                className="wireframe-button bg-black text-white px-3 py-3 flex items-center justify-center border-2 border-black hover:bg-zinc-800 transition-colors rounded-l-none h-11 border-l-zinc-700"
-              >
-                <ChevronDown size={14} className={`transition-transform duration-200 ${isStatusDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-  
-              {isStatusDropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] z-50 py-1 divide-y divide-black/10 animate-in fade-in slide-in-from-top-2 duration-150">
-                  <div className="px-3 py-1.5 bg-gray-50 border-b border-black">
-                    <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">Change Status</p>
-                  </div>
-                  {[
-                    { status: 'Received', label: 'Received (Review)' },
-                    { status: 'Accepted', label: 'Accepted' },
-                    { status: 'Scheduled', label: 'Scheduled' },
-                    { status: 'Completed', label: 'Completed' },
-                    { status: 'Archived', label: 'Archived' }
-                  ].map((item) => (
-                    <button
-                      key={item.status}
-                      disabled={item.status === 'Scheduled' && assignedTo === 'none'}
-                      onClick={() => {
-                        if (item.status === 'Completed') {
-                          handleProcessReferral();
-                        } else {
-                          handleStatusChange(item.status as ReferralStatus);
-                        }
-                        setIsStatusDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-4 py-2.5 text-[10px] font-bold uppercase transition-all flex items-center justify-between hover:bg-black hover:text-white ${
-                        currentStatus === item.status ? 'bg-zinc-100 text-black font-black' : 'text-black bg-white'
-                      } disabled:opacity-40 disabled:cursor-not-allowed`}
-                    >
-                      <span>{item.label}</span>
-                      {currentStatus === item.status && <Check size={10} />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
- 
-            {currentStatus !== 'Received' && currentStatus !== 'Sent' && currentStatus !== 'Draft' && (
-              <button 
-                onClick={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
-                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black"
-              >
-                Open Case Chat <MessageSquare size={12} />
-              </button>
-            )}
- 
-            {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
-              <button 
-                onClick={() => handleStatusChange('Archived')}
-                className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black"
-              >
-                Archive Case
-              </button>
-            )}
-          </div>
-        </div>
+        <ReferralDetailHeader
+          referral={referral}
+          urgency={urgency}
+          currentStatus={currentStatus}
+          assignedTo={assignedTo}
+          targetPractice={targetPractice}
+          isStatusDropdownOpen={isStatusDropdownOpen}
+          setIsStatusDropdownOpen={setIsStatusDropdownOpen}
+          onBack={() => router.push('/referrals')}
+          onMainNextAction={handleMainNextAction}
+          onStatusChange={handleStatusChange}
+          onProcessReferral={handleProcessReferral}
+          onOpenCaseChat={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
+        />
 
         {/* Content Layout */}
         <div className="wireframe-card p-0 flex flex-col md:flex-row overflow-hidden bg-white min-h-[75vh]">
@@ -463,92 +354,23 @@ export default function ReferralDetailClient({ id }: { id: string }) {
             </div>
           </div>
 
-          {/* Activity Sidebar */}
-          <div className="w-full md:w-96 flex flex-col bg-gray-50/50">
-            <div className="p-6 border-b-2 border-black bg-white flex items-center justify-between">
-              <h3 className="font-bold uppercase text-xs tracking-widest">Case Activity</h3>
-              <span className={`px-2 py-0.5 border text-[9px] font-black uppercase rounded-sm ${getStatusColor(currentStatus)}`}>
-                {currentStatus === 'Received' ? 'Received (Review)' : currentStatus}
-              </span>
-            </div>
-            
-            {/* Case Assignee */}
-            <div className="p-6 border-b-2 border-black bg-white space-y-2">
-              <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Assign Case To</label>
-              <div className="relative">
-                <select
-                  value={assignedTo}
-                  onChange={(e) => {
-                    const newAssignee = e.target.value;
-                    setAssignedTo(newAssignee);
-                    const updated = updateReferralAssignee(referral.id, newAssignee === 'none' ? undefined : newAssignee);
-                    setReferrals(updated);
-                  }}
-                  className="wireframe-input w-full py-2.5 px-3 text-[10px] uppercase font-bold appearance-none bg-white pr-8 cursor-pointer focus:ring-1 focus:ring-black border-2 border-black"
-                >
-                  {PRACTICE_TEAM.map((member) => (
-                    <option key={member.id} value={member.id}>
-                      {member.name} {member.specialty ? `(${member.specialty})` : ''}
-                    </option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-black">
-                  <ChevronDown size={14} />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-              {assignedTo !== 'none' && (
-                <div className="space-y-2 animate-in fade-in duration-200">
-                  <div className="flex justify-between items-baseline">
-                    <p className="text-[9px] font-black uppercase text-black">System</p>
-                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">Active Assignment</p>
-                  </div>
-                  <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-zinc-100 border-black border-2 shadow-sm">
-                    Case is currently assigned to <span className="font-black underline">{PRACTICE_TEAM.find(m => m.id === assignedTo)?.name}</span>.
-                  </div>
-                </div>
-              )}
-
-              {activityLogs.map((log, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-baseline">
-                    <p className="text-[9px] font-black uppercase">{log.user}</p>
-                    <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">{log.time}</p>
-                  </div>
-                  <div className={`wireframe-card p-3 text-[10px] uppercase leading-tight ${log.isDark ? 'bg-black text-white' : 'bg-white shadow-sm'}`}>
-                    {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
-                      <>
-                        Referral received from <span className="font-black underline">{practiceName || referral.dentist}</span> and auto-extracted via Digital Intake Pipeline.
-                      </>
-                    ) : log.text.includes(referral.dentist || '') && log.text.includes('clinical records') ? (
-                      <>
-                        Clinical records requested from <span className="font-black underline">{referral.dentist}</span>&apos;s office. Pending response.
-                      </>
-                    ) : (
-                      log.text
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="p-6 border-t-2 border-black bg-white space-y-4">
-              <textarea 
-                placeholder="ADD INTERNAL NOTE..." 
-                className="wireframe-input h-28 text-[11px] uppercase p-3 resize-none bg-gray-50 focus:bg-white transition-colors"
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-              />
-              <button 
-                onClick={handlePostComment}
-                className="wireframe-button w-full bg-black text-white text-[11px] uppercase py-3 font-black tracking-widest"
-              >
-                Post Comment
-              </button>
-            </div>
+          <ReferralActivitySidebar
+            assignedTo={assignedTo}
+            activityLogs={activityLogs}
+            commentText={commentText}
+            currentStatus={currentStatus}
+            dentistName={referral.dentist || ''}
+            practiceName={practiceName}
+            team={PRACTICE_TEAM}
+            onAssign={(newAssignee) => {
+              setAssignedTo(newAssignee);
+              const updated = updateReferralAssignee(referral.id, newAssignee === 'none' ? undefined : newAssignee);
+              setReferrals(updated);
+            }}
+            onCommentTextChange={setCommentText}
+            onPostComment={handlePostComment}
+          />
         </div>
-      </div>
       </div>
     </MainLayout>
   );
