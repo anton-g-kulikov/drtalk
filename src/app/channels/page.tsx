@@ -9,7 +9,14 @@ import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDoc
 import { ChannelGroupModal } from '@/components/prototype/ChannelGroupModal';
 import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticipantsModal';
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
-import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
+import {
+  buildCaseChannels,
+  filterCaseChannels,
+  filterChannelsByType,
+  filterPracticeChannels,
+  splitPracticeChannels,
+} from '@/prototype/channelModel';
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import {
   dentistPractices,
@@ -47,11 +54,14 @@ function ChannelsContent() {
     }, 0);
   }, []);
 
+  // Derive Case Channels dynamically from the referrals
   const caseChannels = React.useMemo(() => buildCaseChannels({
     referrals,
     isDentist,
     dentistPractices,
     specialistClinics,
+    hidePending: true,
+    includeCodeInName: false,
   }), [referrals, isDentist]);
 
   // State managed data
@@ -129,13 +139,8 @@ function ChannelsContent() {
     [channels, caseChannels, sidebarSearchQuery]
   );
 
-  const filteredOnPlatformChannels = React.useMemo(
-    () => splitPracticeChannels(filteredPracticeChannels).onPlatform,
-    [filteredPracticeChannels]
-  );
-
-  const filteredExternalChannels = React.useMemo(
-    () => splitPracticeChannels(filteredPracticeChannels).external,
+  const { onPlatform: filteredOnPlatformChannels, external: filteredExternalChannels } = React.useMemo(
+    () => splitPracticeChannels(filteredPracticeChannels),
     [filteredPracticeChannels]
   );
 

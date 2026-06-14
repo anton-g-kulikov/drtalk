@@ -23,18 +23,19 @@ export function buildCaseChannels({
   isDentist,
   dentistPractices,
   specialistClinics,
+  hidePending,
+  includeCodeInName,
 }: {
   referrals: UnifiedReferral[];
   isDentist: boolean;
   dentistPractices: PracticeDirectoryEntry[];
   specialistClinics: PracticeDirectoryEntry[];
+  hidePending?: boolean;
+  includeCodeInName?: boolean;
 }): CaseChannel[] {
   const filteredRefs = referrals.filter((ref) => {
-    const isDraft = ref.status === 'Draft';
-    if (isDraft) return false;
-
-    const isPending = ref.status === 'Received' || ref.status === 'Sent';
-    if (isPending) return false;
+    if (ref.status === 'Draft') return false;
+    if (hidePending && (ref.status === 'Received' || ref.status === 'Sent')) return false;
 
     if (isDentist) {
       return ref.id.startsWith('D-') || ref.id === '1';
@@ -44,6 +45,7 @@ export function buildCaseChannels({
   });
 
   return filteredRefs.map((ref) => {
+    const code = getReferralCode(ref.id);
     let practiceId = '3';
     if (isDentist) {
       const match = specialistClinics.find((clinic) =>
@@ -59,7 +61,7 @@ export function buildCaseChannels({
 
     return {
       id: `case_${ref.id}`,
-      name: ref.patientName.toUpperCase(),
+      name: includeCodeInName === false ? ref.patientName.toUpperCase() : `${code}: ${ref.patientName.toUpperCase()}`,
       patientName: ref.patientName,
       referralId: ref.id,
       practiceId,
