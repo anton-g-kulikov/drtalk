@@ -9,7 +9,14 @@ import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDoc
 import { ChannelGroupModal } from '@/components/prototype/ChannelGroupModal';
 import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticipantsModal';
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
-import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getReferralCode, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
+import {
+  buildCaseChannels,
+  filterCaseChannels,
+  filterChannelsByType,
+  filterPracticeChannels,
+  splitPracticeChannels,
+} from '@/prototype/channelModel';
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import {
   dentistPractices,
@@ -46,49 +53,14 @@ function ChannelsContent() {
   }, []);
 
   // Derive Case Channels dynamically from the referrals
-  const caseChannels = React.useMemo(() => {
-    // Filter referrals based on user's role (Dentist vs Specialist)
-    // Also ignore Draft referrals
-    const filteredRefs = referrals.filter(ref => {
-      const isDraft = ref.status === 'Draft';
-      if (isDraft) return false;
-      
-      const isPending = ref.status === 'Received' || ref.status === 'Sent';
-      if (isPending) return false;
-      
-      if (isDentist) {
-        // Dentist side: show referrals sent by dentist
-        return ref.id.startsWith('D-') || ref.id === '1';
-      } else {
-        // Specialist side: show referrals received by specialist
-        return !ref.id.startsWith('D-');
-      }
-    });
-
-    return filteredRefs.map(ref => {
-      let practiceId = '3';
-      if (isDentist) {
-        const match = specialistClinics.find(c => c.name.toLowerCase() === (ref.specialist || '').toLowerCase());
-        practiceId = match ? match.id : '3';
-      } else {
-        const match = dentistPractices.find(p => p.name.toLowerCase() === (ref.practice || '').toLowerCase());
-        practiceId = match ? match.id : '6';
-      }
-
-      const code = getReferralCode(ref.id);
-      const isExternalRef = ref.id.startsWith('ext-');
-      return {
-        id: `case_${ref.id}`,
-        name: ref.patientName.toUpperCase(),
-        patientName: ref.patientName,
-        referralId: ref.id,
-        practiceId,
-        isArchived: ref.status === 'Archived',
-        isExternal: isExternalRef,
-        lastMessage: ref.status === 'Archived' ? 'Case archived.' : `Referral status: ${ref.status}`
-      };
-    });
-  }, [referrals, isDentist]);
+  const caseChannels = React.useMemo(() => buildCaseChannels({
+    referrals,
+    isDentist,
+    dentistPractices,
+    specialistClinics,
+    hidePending: true,
+    includeCodeInName: false,
+  }), [referrals, isDentist]);
 
   // State managed data
   const [channels, setChannels] = useState<Channel[]>([]);
@@ -140,51 +112,33 @@ function ChannelsContent() {
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('');
   const [docSearchQuery, setDocSearchQuery] = useState('');
 
-  const filteredInternalChannels = React.useMemo(() => {
-    return channels
-      .filter(c => c.type === 'internal')
-      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
-  }, [channels, sidebarSearchQuery]);
-
-  const filteredPatientChannels = React.useMemo(() => {
-    return channels
-      .filter(c => c.type === 'patient')
-      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
-  }, [channels, sidebarSearchQuery]);
-
-  const filteredGroupChannels = React.useMemo(() => {
-    return channels
-      .filter(c => c.type === 'group')
-      .filter(c => c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase()));
-  }, [channels, sidebarSearchQuery]);
-
-  const filteredCaseChannels = React.useMemo(() => {
-    return caseChannels.filter(cc => 
-      cc.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase())
-    );
-  }, [caseChannels, sidebarSearchQuery]);
-
-  const filteredPracticeChannels = React.useMemo(() => {
-    return channels
-      .filter(c => c.type === 'inter-practice')
-      .filter(c => {
-        const matchesPractice = c.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase());
-        const hasMatchingCase = caseChannels.some(cc => 
-          cc.practiceId === c.id && 
-          !cc.isArchived && 
-          cc.name.toLowerCase().includes(sidebarSearchQuery.toLowerCase())
-        );
-        return matchesPractice || hasMatchingCase;
-      });
-  }, [channels, caseChannels, sidebarSearchQuery]);
-
-  const filteredOnPlatformChannels = React.useMemo(
-    () => filteredPracticeChannels.filter(c => !c.isExternal),
-    [filteredPracticeChannels]
+  const filteredInternalChannels = React.useMemo(
+    () => filterChannelsByType(channels, 'internal', sidebarSearchQuery),
+    [channels, sidebarSearchQuery]
   );
 
-  const filteredExternalChannels = React.useMemo(
-    () => filteredPracticeChannels.filter(c => c.isExternal),
+  const filteredPatientChannels = React.useMemo(
+    () => filterChannelsByType(channels, 'patient', sidebarSearchQuery),
+    [channels, sidebarSearchQuery]
+  );
+
+  const filteredGroupChannels = React.useMemo(
+    () => filterChannelsByType(channels, 'group', sidebarSearchQuery),
+    [channels, sidebarSearchQuery]
+  );
+
+  const filteredCaseChannels = React.useMemo(
+    () => filterCaseChannels(caseChannels, sidebarSearchQuery),
+    [caseChannels, sidebarSearchQuery]
+  );
+
+  const filteredPracticeChannels = React.useMemo(
+    () => filterPracticeChannels(channels, caseChannels, sidebarSearchQuery),
+    [channels, caseChannels, sidebarSearchQuery]
+  );
+
+  const { onPlatform: filteredOnPlatformChannels, external: filteredExternalChannels } = React.useMemo(
+    () => splitPracticeChannels(filteredPracticeChannels),
     [filteredPracticeChannels]
   );
 

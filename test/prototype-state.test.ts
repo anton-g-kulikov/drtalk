@@ -113,6 +113,14 @@ describe('shared prototype state use cases', () => {
       isArchived: true,
       lastMessage: 'Case archived.',
     });
+
+    expect(buildCaseChannels({
+      referrals,
+      isDentist: true,
+      dentistPractices: [{ id: 'dn-1', name: 'Sunshine Dental' }],
+      specialistClinics: [{ id: 'sp-1', name: 'Valley Endodontics' }],
+      hidePending: true,
+    })).toHaveLength(0);
   });
 
   it('filters channel sidebar groups by type, practice, and visible case matches', () => {
