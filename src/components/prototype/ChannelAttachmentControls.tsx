@@ -1,6 +1,6 @@
 import { FileText, ImageIcon, Paperclip, Plus, X } from 'lucide-react';
 
-type AttachmentOption = {
+export type AttachmentOption = {
   name: string;
   size: string;
   type: 'pdf' | 'image' | 'zip' | 'doc';
