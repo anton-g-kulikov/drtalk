@@ -2,9 +2,13 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '@/components/MainLayout';
+import { SendDocumentPatientFields } from '@/components/prototype/SendDocumentPatientFields';
+import { SendDocumentPracticeSelector } from '@/components/prototype/SendDocumentPracticeSelector';
+import { SendDocumentReferralSelector } from '@/components/prototype/SendDocumentReferralSelector';
+import { SendDocumentUploadSection } from '@/components/prototype/SendDocumentUploadSection';
 import { useRouter } from 'next/navigation';
 import {
-  FileText, Send, Upload, X, ChevronDown, ArrowLeft, Plus
+  FileText, Send, ArrowLeft
 } from 'lucide-react';
 
 import { useSubscription } from '@/components/SubscriptionContext';
@@ -12,9 +16,8 @@ import {
   initialDocuments,
   initialMessages,
   mockChannels,
-  SharedDocument,
-  MessageItem
-} from '@/app/channels/page';
+} from '@/prototype/channelFixtures';
+import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import { getReferrals, initialReferrals, getReferralCode, UnifiedReferral } from '@/lib/referrals';
 
 export default function DentistSendDocumentPage() {
@@ -371,273 +374,77 @@ export default function DentistSendDocumentPage() {
           </div>
 
           <div className="space-y-4">
-            {/* Field 1: Connected Practice Multi-Select */}
-            <div className="relative">
-              <span className="text-[10px] font-black uppercase block mb-1 text-black">
-                Connected Practices (Select Multiple) <span className="text-red-500">*</span>
-              </span>
-              <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
-                <div className="flex flex-wrap gap-1.5 mb-1.5">
-                  {selectedPractices.map(pName => (
-                    <span key={pName} className="px-2 py-0.5 font-bold uppercase text-[8px] border border-black flex items-center gap-1 bg-black text-white">
-                      {pName}
-                      <button
-                        type="button"
-                        onClick={() => setSelectedPractices(prev => prev.filter(p => p !== pName))}
-                        className="font-bold ml-1 text-[9px] hover:text-red-500"
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Type to search and add practices..."
-                    value={practiceSearchQuery}
-                    onChange={(e) => {
-                      setPracticeSearchQuery(e.target.value);
-                      setIsPracticeDropdownOpen(true);
-                    }}
-                    onFocus={() => setIsPracticeDropdownOpen(true)}
-                    className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 text-[10px] uppercase font-bold text-black placeholder:text-zinc-400 h-5"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setIsPracticeDropdownOpen(!isPracticeDropdownOpen)}
-                    className="text-black"
-                  >
-                    <ChevronDown size={14} className={`transition-transform duration-200 ${isPracticeDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
-              </div>
+            <SendDocumentPracticeSelector
+              selectedPractices={selectedPractices}
+              searchQuery={practiceSearchQuery}
+              isOpen={isPracticeDropdownOpen}
+              practices={connectedPractices
+                .filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase()))
+                .filter(p => !selectedPractices.includes(p.name))}
+              onSearchQueryChange={setPracticeSearchQuery}
+              onOpenChange={setIsPracticeDropdownOpen}
+              onRemovePractice={(practiceName) => setSelectedPractices(prev => prev.filter(p => p !== practiceName))}
+              onSelectPractice={(practiceName) => {
+                setSelectedPractices(prev => [...prev, practiceName]);
+                setPracticeSearchQuery('');
+                setIsPracticeDropdownOpen(false);
+              }}
+            />
 
-              {isPracticeDropdownOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsPracticeDropdownOpen(false)} />
-                  <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
-                    {connectedPractices
-                      .filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase()))
-                      .filter(p => !selectedPractices.includes(p.name))
-                      .map(p => (
-                        <div
-                          key={p.id}
-                          onClick={() => {
-                            setSelectedPractices(prev => [...prev, p.name]);
-                            setPracticeSearchQuery('');
-                            setIsPracticeDropdownOpen(false);
-                          }}
-                          className="p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 flex justify-between items-center bg-white text-black"
-                        >
-                          <span>{p.name}</span>
-                        </div>
-                      ))}
-                    {connectedPractices.filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase())).filter(p => !selectedPractices.includes(p.name)).length === 0 && (
-                      <div className="p-2 text-zinc-400 font-bold bg-white text-center">No practices found</div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
+            <SendDocumentReferralSelector
+              searchQuery={referralSearchQuery}
+              isOpen={isReferralDropdownOpen}
+              referrals={filteredReferralsList.map((ref) => ({
+                id: ref.id,
+                code: getReferralCode(ref.id),
+                patientName: ref.patientName,
+                specialist: ref.specialist,
+              }))}
+              onSearchQueryChange={setReferralSearchQuery}
+              onOpenChange={(open) => {
+                if (!open) {
+                  closeReferralDropdown();
+                } else {
+                  setIsReferralDropdownOpen(true);
+                }
+              }}
+              onSelectReferral={(referralId) => {
+                handleSelectReferral(referralId);
+                setIsReferralDropdownOpen(false);
+              }}
+            />
 
-            {/* Field 2: Associated Referral */}
-            <div className="relative">
-              <span className="text-[10px] font-black uppercase block mb-1.5 text-black">
-                Associated Referral
-              </span>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search or select referral..."
-                  value={referralSearchQuery}
-                  onChange={(e) => {
-                    setReferralSearchQuery(e.target.value);
-                    setIsReferralDropdownOpen(true);
-                  }}
-                  onFocus={() => setIsReferralDropdownOpen(true)}
-                  className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full h-10 focus:ring-0 focus:outline-none uppercase"
-                />
-                <button
-                  type="button"
-                  onClick={() => setIsReferralDropdownOpen(!isReferralDropdownOpen)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black"
-                >
-                  <ChevronDown size={16} className={`transition-transform duration-200 ${isReferralDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
+            <SendDocumentUploadSection
+              inputId="dentist-file-input"
+              attachedFiles={attachedFiles}
+              onFileSelect={handleRealFileSelect}
+              onRemoveFile={(fileId) => {
+                setAttachedFiles(prev => {
+                  const remaining = prev.filter(f => f.id !== fileId);
+                  if (remaining.length === 0) {
+                    setCustomDocName('');
+                  } else {
+                    const last = remaining[remaining.length - 1];
+                    setCustomDocName(last.name);
+                    setCustomDocType(last.type);
+                    setCustomDocSize(last.size);
+                  }
+                  return remaining;
+                });
+              }}
+              onAttachMockScan={handleAttachMockScan}
+            />
 
-              {isReferralDropdownOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={closeReferralDropdown} />
-                  <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
-                    <div
-                      onClick={() => {
-                        handleSelectReferral('');
-                        setIsReferralDropdownOpen(false);
-                      }}
-                      className={`p-2 hover:bg-black hover:text-white cursor-pointer font-black border-b border-black/10 bg-zinc-50 text-black`}
-                    >
-                      NONE / NEW REFERRAL
-                    </div>
-                    {filteredReferralsList.map((ref) => (
-                      <div
-                        key={ref.id}
-                        onClick={() => {
-                          handleSelectReferral(ref.id);
-                          setIsReferralDropdownOpen(false);
-                        }}
-                        className={`p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 bg-white text-black`}
-                      >
-                        <div className="flex justify-between items-center">
-                          <span>{getReferralCode(ref.id)} - {ref.patientName}</span>
-                          <span className="text-[7px] px-1 font-black bg-black text-white">{ref.specialist}</span>
-                        </div>
-                      </div>
-                    ))}
-                    {filteredReferralsList.length === 0 && (
-                      <div className="p-2 text-zinc-400 font-bold bg-white text-center">No referrals found</div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Attached Files List */}
-            {attachedFiles.length > 0 && (
-              <div className="space-y-2 border-b border-black border-dashed pb-3">
-                <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                  Attached Files ({attachedFiles.length})
-                </span>
-                <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                  {attachedFiles.map((file) => (
-                    <div key={file.id} className="flex items-center justify-between p-2 border-2 border-black bg-zinc-50">
-                      <div className="flex items-center gap-2 overflow-hidden">
-                        <FileText size={12} className="shrink-0 text-black" />
-                        <div className="truncate">
-                          <p className="text-[10px] font-black uppercase truncate">{file.name}</p>
-                          <p className="text-[8px] font-bold uppercase text-muted-foreground">{file.size} • {file.type.toUpperCase()}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => {
-                          setAttachedFiles(prev => {
-                            const remaining = prev.filter(f => f.id !== file.id);
-                            if (remaining.length === 0) {
-                              setCustomDocName('');
-                            } else {
-                              const last = remaining[remaining.length - 1];
-                              setCustomDocName(last.name);
-                              setCustomDocType(last.type);
-                              setCustomDocSize(last.size);
-                            }
-                            return remaining;
-                          });
-                        }}
-                        className="text-black hover:text-red-600 p-0.5 transition-colors"
-                      >
-                        <X size={10} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Drag and Drop / Click Zone */}
-            <div className="relative border-2 border-dashed border-black p-4 bg-gray-50 hover:bg-black/5 cursor-pointer transition-all text-center flex flex-col items-center justify-center gap-1.5 min-h-[120px]">
-              <input
-                type="file"
-                id="dentist-file-input"
-                className="hidden"
-                onChange={handleRealFileSelect}
-              />
-
-              <div
-                onClick={() => document.getElementById('dentist-file-input')?.click()}
-                className="absolute inset-0 z-0"
-              />
-
-              <Upload size={20} className="text-black z-10" />
-              <span className="text-xs font-black uppercase tracking-wider text-black z-10">
-                Attach Document
-              </span>
-              <span className="text-[8px] font-bold text-muted-foreground uppercase z-10">
-                Click to browse files or drag and drop here
-              </span>
-
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleAttachMockScan();
-                }}
-                className="relative z-10 mt-1 px-4 py-1.5 bg-black text-white hover:bg-gray-800 text-[8px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
-              >
-                Quick attach mock scan
-              </button>
-            </div>
-
-            {/* Patient Association Fields */}
-            <div className="border-t border-black pt-3 space-y-3">
-              <span className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block">
-                Patient Information
-              </span>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient first name</span>
-                  <input
-                    type="text"
-                    placeholder="Enter patient first name"
-                    value={patientFirstName}
-                    onChange={(e) => setPatientFirstName(e.target.value)}
-                    className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Patient last name</span>
-                  <input
-                    type="text"
-                    placeholder="Enter patient last name"
-                    value={patientLastName}
-                    onChange={(e) => setPatientLastName(e.target.value)}
-                    className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Date of birth</span>
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="MM/DD/YYYY"
-                    value={patientDob}
-                    onChange={(e) => setPatientDob(e.target.value)}
-                    className="wireframe-input py-2 px-3 pr-10 text-xs font-bold text-black border-black bg-white w-full focus:ring-0 focus:outline-none"
-                  />
-                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400">
-                    <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2" />
-                      <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2" />
-                      <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <span className="text-[10px] font-black uppercase block mb-1.5 text-black">Message</span>
-                <textarea
-                  placeholder="Enter message"
-                  value={uploadMessage}
-                  rows={2}
-                  onChange={(e) => setUploadMessage(e.target.value)}
-                  className="wireframe-input py-2 px-3 text-xs font-bold text-black border-black bg-white w-full resize-none focus:ring-0 focus:outline-none"
-                />
-              </div>
-            </div>
+            <SendDocumentPatientFields
+              patientFirstName={patientFirstName}
+              patientLastName={patientLastName}
+              patientDob={patientDob}
+              uploadMessage={uploadMessage}
+              onPatientFirstNameChange={setPatientFirstName}
+              onPatientLastNameChange={setPatientLastName}
+              onPatientDobChange={setPatientDob}
+              onUploadMessageChange={setUploadMessage}
+            />
           </div>
 
           <div className="flex gap-3 mt-6 pt-4 border-t-2 border-black">

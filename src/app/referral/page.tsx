@@ -3,13 +3,15 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import {
   ChevronRight, ArrowLeft, CheckCircle2,
-  Upload, FileText, X, Shield, Lock, Download, Search, ChevronDown
+  Lock
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { MainLayout } from '@/components/MainLayout';
+import { GuestReferralAttachmentsStep } from '@/components/prototype/GuestReferralAttachmentsStep';
+import { GuestReferralPracticeSelector } from '@/components/prototype/GuestReferralPracticeSelector';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -128,19 +130,6 @@ function ReferralFormContent() {
       )
     : [];
 
-  const handleSelectPractice = (name: string) => {
-    if (isInternal) {
-      if (!targetPractices.includes(name)) {
-        setTargetPractices(prev => [...prev, name]);
-      }
-      setPracticeSearch('');
-    } else {
-      setTargetPractice(name);
-      setPracticeSearch(name);
-    }
-    setShowDropdown(false);
-  };
-
   const renderStep = () => {
     switch (step) {
       case 'IDENTIFY':
@@ -156,167 +145,23 @@ function ReferralFormContent() {
                 />
               </div>
               
-              {/* Display preselected practice statically if provided, otherwise show selector */}
-              {practiceParam ? (
-                <div className="p-3 border-2 border-black bg-gray-50 flex items-center justify-between">
-                  <p className="text-xl font-black uppercase italic tracking-tighter">{targetPractice}</p>
-                </div>
-              ) : isInternal ? (
-                // Platform/Internal Multi-recipient Selection UX (matches send document form)
-                <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50 relative">
-                  <span className="text-[10px] font-black uppercase block mb-1 text-black">
-                    Connected Practices (Select Multiple) <span className="text-red-500">*</span>
-                  </span>
-                  <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
-                    <div className="flex flex-wrap gap-1.5 mb-1.5">
-                      {targetPractices.map(pName => (
-                        <span key={pName} className="px-2 py-0.5 font-bold uppercase text-[8px] border border-black flex items-center gap-1 bg-black text-white">
-                          {pName}
-                          <button
-                            type="button"
-                            onClick={() => setTargetPractices(prev => prev.filter(p => p !== pName))}
-                            className="font-bold ml-1 text-[9px] hover:text-red-500"
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Type to search and add practices..."
-                        value={practiceSearch}
-                        onChange={(e) => {
-                          setPracticeSearch(e.target.value);
-                          setShowDropdown(true);
-                        }}
-                        onFocus={() => setShowDropdown(true)}
-                        className="w-full bg-transparent outline-none border-none p-0 focus:ring-0 text-[10px] uppercase font-bold text-black placeholder:text-zinc-400 h-5"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowDropdown(!showDropdown)}
-                        className="text-black"
-                      >
-                        <ChevronDown size={14} className={`transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {showDropdown && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setShowDropdown(false)} />
-                      <div className="absolute left-4 right-4 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
-                        {allMockPractices
-                          .filter(p => p.name.toLowerCase().includes(practiceSearch.toLowerCase()))
-                          .filter(p => !targetPractices.includes(p.name))
-                          .map(p => (
-                            <div
-                              key={p.name}
-                              onClick={() => {
-                                setTargetPractices(prev => [...prev, p.name]);
-                                setPracticeSearch('');
-                                setShowDropdown(false);
-                              }}
-                              className="p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 flex justify-between items-center bg-white text-black"
-                            >
-                              <span>{p.name}</span>
-                              <span className="text-[7px] text-zinc-500">{p.specialty}</span>
-                            </div>
-                          ))}
-                        {allMockPractices.filter(p => p.name.toLowerCase().includes(practiceSearch.toLowerCase())).filter(p => !targetPractices.includes(p.name)).length === 0 && (
-                          <div className="p-2 text-zinc-400 font-bold bg-white text-center">No practices found</div>
-                        )}
-                      </div>
-                    </>
-                  )}
-
-                  {targetPractices.length > 0 && (
-                    <div className="p-2 bg-black text-white text-[10px] font-black uppercase tracking-tight flex justify-between items-center">
-                      <span>Selected: {targetPractices.join(', ')}</span>
-                      <button 
-                        onClick={() => {
-                          setTargetPractices([]);
-                          setPracticeSearch('');
-                        }} 
-                        className="text-white hover:text-red-400 font-bold"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                // Guest/Public Single-recipient Selection (State select + Search input)
-                <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">Select receiving practice</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="col-span-1 space-y-1">
-                      <label className="text-[8px] font-black uppercase">State</label>
-                      <select
-                        value={selectedState}
-                        onChange={(e) => handleStateChange(e.target.value)}
-                        className="wireframe-input bg-white text-[10px] h-9"
-                      >
-                        <option value="">State...</option>
-                        {statesList.map(s => (
-                          <option key={s.code} value={s.code}>{s.code}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-span-2 space-y-1 relative">
-                      <label className="text-[8px] font-black uppercase">Search Practice Name</label>
-                      <div className="relative">
-                        <input
-                          type="text"
-                          placeholder={selectedState ? "Type practice name..." : "Choose state first"}
-                          disabled={!selectedState}
-                          value={practiceSearch}
-                          onChange={(e) => {
-                            setPracticeSearch(e.target.value);
-                            setTargetPractice('');
-                            setShowDropdown(true);
-                          }}
-                          onFocus={() => setShowDropdown(true)}
-                          className="wireframe-input bg-white text-[10px] h-9 pl-7 pr-3"
-                        />
-                        <Search size={10} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      </div>
-
-                      {showDropdown && selectedState && filteredPractices.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 z-50 bg-white border-2 border-black mt-1 max-h-40 overflow-y-auto divide-y divide-black/10">
-                          {filteredPractices.map((p) => (
-                            <button
-                              key={p.name}
-                              type="button"
-                              onClick={() => handleSelectPractice(p.name)}
-                              className="w-full text-left p-2 hover:bg-gray-100 text-[10px] font-bold uppercase transition-colors"
-                            >
-                              <p className="font-black text-black">{p.name}</p>
-                              <p className="text-[8px] text-muted-foreground">{p.specialty} • {p.location}</p>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {targetPractice && (
-                    <div className="p-2 bg-black text-white text-[10px] font-black uppercase tracking-tight flex justify-between items-center">
-                      <span>Selected: {targetPractice}</span>
-                      <button 
-                        onClick={() => {
-                          setTargetPractice('');
-                          setPracticeSearch('');
-                        }} 
-                        className="text-white hover:text-red-400 font-bold"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+              <GuestReferralPracticeSelector
+                isInternal={isInternal}
+                practiceParam={practiceParam}
+                selectedState={selectedState}
+                practiceSearch={practiceSearch}
+                targetPractice={targetPractice}
+                targetPractices={targetPractices}
+                showDropdown={showDropdown}
+                states={statesList}
+                filteredPractices={filteredPractices}
+                allPractices={allMockPractices}
+                onStateChange={handleStateChange}
+                onPracticeSearchChange={setPracticeSearch}
+                onTargetPracticeChange={setTargetPractice}
+                onTargetPracticesChange={setTargetPractices}
+                onShowDropdownChange={setShowDropdown}
+              />
             </div>
 
             <div className="space-y-6">
@@ -528,94 +373,16 @@ function ReferralFormContent() {
 
       case 'DOCS':
         return (
-          <div className="space-y-8 w-full max-w-lg">
-            <div className="flex items-center gap-4">
-              <button onClick={() => nextStep('CASE')} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeft size={16} />
-              </button>
-              <h1 className="text-2xl font-bold uppercase tracking-tighter">Attachments</h1>
-            </div>
-
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b-2 border-black pb-2">
-                <h3 className="text-xs font-bold uppercase">3. X-Rays & Records</h3>
-              </div>
-              <div className="space-y-6">
-                <div className="border-4 border-black border-dashed p-12 text-center space-y-4 hover:bg-gray-50 transition-all cursor-pointer">
-                  <div className="flex justify-center">
-                    <Upload size={40} />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-tighter">Drag & Drop Files Here</p>
-                    <p className="text-[8px] text-muted-foreground uppercase font-black">Supported: JPG, PNG, PDF, DICOM</p>
-                  </div>
-                  <button className="wireframe-button text-[10px] uppercase px-4 py-2">
-                    Browse Files
-                  </button>
-                </div>
-
-                {/* Mock Upload List */}
-                <div className="space-y-2">
-                  <div className="wireframe-card p-3 border flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <FileText size={16} />
-                      <span className="text-[10px] font-bold uppercase tracking-tighter">X-Ray_Upper_Left.jpg</span>
-                    </div>
-                    <X size={14} className="cursor-pointer" />
-                  </div>
-                </div>
-
-                {/* Send copy to patient option */}
-                <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50 mt-6">
-                  <label className="flex items-center gap-2.5 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={sendCopyToPatient}
-                      onChange={(e) => setSendCopyToPatient(e.target.checked)}
-                      className="w-4 h-4 border-2 border-black rounded-none appearance-none checked:bg-black cursor-pointer"
-                    />
-                    <span className="text-xs font-black uppercase tracking-tight">Would you like to send a copy of this referral to your patient?</span>
-                  </label>
-                  
-                  {sendCopyToPatient && (
-                    <div className="space-y-3 pt-2 border-t border-black border-dashed animate-in fade-in duration-200">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-wider">Patient's Cell Phone</label>
-                        <input
-                          type="tel"
-                          placeholder="(555) 000-0000"
-                          value={patientCell}
-                          onChange={(e) => setPatientCell(e.target.value)}
-                          className="wireframe-input bg-white text-xs py-2 px-3"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-wider">Patient's Email Address (Optional)</label>
-                        <input
-                          type="email"
-                          placeholder="patient@example.com"
-                          value={patientEmail}
-                          onChange={(e) => setPatientEmail(e.target.value)}
-                          className="wireframe-input bg-white text-xs py-2 px-3"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="pt-8 space-y-4 border-t-2 border-black">
-                <button
-                  onClick={() => nextStep('SUCCESS')}
-                  disabled={sendCopyToPatient && !patientCell}
-                  className="wireframe-button w-full bg-black text-white py-4 uppercase text-sm font-black tracking-widest shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.3)] transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  SUBMIT SECURE REFERRAL
-                </button>
-              </div>
-            </div>
-          </div>
+          <GuestReferralAttachmentsStep
+            sendCopyToPatient={sendCopyToPatient}
+            patientCell={patientCell}
+            patientEmail={patientEmail}
+            onBack={() => nextStep('CASE')}
+            onSubmit={() => nextStep('SUCCESS')}
+            onSendCopyToPatientChange={setSendCopyToPatient}
+            onPatientCellChange={setPatientCell}
+            onPatientEmailChange={setPatientEmail}
+          />
         );
 
       case 'SUCCESS':
