@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react';
-import { Search } from 'lucide-react';
-import { getPrototypePageNumbers } from '@/prototype/pagination';
+import { ChevronDown, Search } from 'lucide-react';
 
 type PrototypeDocumentSectionProps = {
   title?: string;
@@ -72,60 +71,45 @@ export function PrototypeDocumentSection({
       )}
 
       {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-t-2 border-black pt-4 bg-white font-bold text-[10px] gap-4">
-          <div className="flex items-center gap-3 text-muted-foreground uppercase font-black tracking-wider flex-wrap">
-            <span>Page {currentPage} of {totalPages} ({totalItems} items)</span>
-            <div className="flex items-center gap-1.5 text-black">
-              <span className="font-normal lowercase">go to page:</span>
-              <select
-                value={currentPage}
-                onChange={(event) => onPageChange(Number(event.target.value))}
-                className="border-2 border-black bg-white px-1.5 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none"
-              >
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
-                  <option key={page} value={page} className="bg-white text-black">Page {page}</option>
-                ))}
-              </select>
+        <div className="flex items-center justify-between border-2 border-black bg-white p-4 mt-6">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+          >
+            Previous Page
+          </button>
+
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black uppercase tracking-widest text-black">
+              Page {currentPage} of {totalPages}
+            </span>
+            <div className="flex items-center gap-1.5 text-black border-l border-black/20 pl-4">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Jump to:</span>
+              <div className="relative">
+                <select
+                  value={currentPage}
+                  onChange={(event) => onPageChange(Number(event.target.value))}
+                  className="border-2 border-black bg-white pl-2 pr-6 py-0.5 font-black text-[9px] uppercase cursor-pointer hover:bg-black hover:text-white transition-all outline-none appearance-none"
+                >
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                    <option key={page} value={page} className="bg-white text-black">Page {page}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-1.5 text-black">
+                  <ChevronDown size={10} />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
-              className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-            >
-              PREV
-            </button>
 
-            <div className="flex items-center gap-1">
-              {getPrototypePageNumbers(currentPage, totalPages).map((page, index) => {
-                if (page === '...') {
-                  return <span key={`ellipsis-${index}`} className="w-6 h-6 flex items-center justify-center text-[9px] text-muted-foreground">...</span>;
-                }
-                return (
-                  <button
-                    key={`page-${page}`}
-                    onClick={() => onPageChange(Number(page))}
-                    className={`w-6 h-6 flex items-center justify-center border-2 border-black transition-all text-[9px] ${
-                      currentPage === page
-                        ? 'bg-black text-white font-black'
-                        : 'bg-white text-black hover:bg-black hover:text-white font-bold'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-            </div>
-
-            <button
-              disabled={currentPage === totalPages}
-              onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
-              className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
-            >
-              NEXT
-            </button>
-          </div>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
+          >
+            Next Page
+          </button>
         </div>
       )}
     </div>
