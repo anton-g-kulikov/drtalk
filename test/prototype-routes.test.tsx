@@ -4,12 +4,17 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import LandingPage from '@/app/page';
 import ReferralPage from '@/app/referral/page';
+import OnboardingPage from '@/app/onboarding/page';
 import DashboardPage from '@/app/dashboard/page';
 import DentistDashboardPage from '@/app/dentist/dashboard/page';
 import ChannelsPage from '@/app/channels/page';
 import ReferralsPage from '@/app/referrals/page';
 import SettingsPage from '@/app/settings/page';
 import NotificationsPage from '@/app/settings/notifications/page';
+import NetworkPage from '@/app/network/page';
+import DentistNetworkPage from '@/app/dentist/network/page';
+import DocumentDetailClient from '@/app/documents/[id]/DocumentDetailClient';
+import ReferralDetailClient from '@/app/referrals/[id]/ReferralDetailClient';
 import { renderPrototype } from './utils/renderPrototype';
 
 function renderRoute(ui: React.ReactElement) {
@@ -37,6 +42,33 @@ describe('prototype route use cases', () => {
     expect(screen.getByText(/enter your email/i)).toBeInTheDocument();
   });
 
+  it('onboarding flow advances through account, verification, practice, role, invite, and success states', async () => {
+    const user = userEvent.setup();
+    renderRoute(<OnboardingPage />);
+
+    expect(screen.getByRole('heading', { name: /create account/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /^create account$/i }));
+    expect(screen.getByRole('heading', { name: /verify email/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /verify & continue/i }));
+    expect(screen.getByRole('heading', { name: /welcome to drtalk/i })).toBeInTheDocument();
+
+    await user.click(screen.getByText(/create practice/i));
+    expect(screen.getByRole('heading', { name: /practice details/i })).toBeInTheDocument();
+
+    await user.click(screen.getByPlaceholderText(/valley dental care/i));
+    expect(await screen.findByDisplayValue(/valley endodontics/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /next step/i }));
+    expect(screen.getByRole('heading', { name: /choose your role/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /continue/i }));
+    expect(screen.getByRole('heading', { name: /invite your team/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /skip for now/i }));
+    expect(screen.getByRole('heading', { name: /success/i })).toBeInTheDocument();
+  });
+
   it('specialist dashboard renders the core prototype regions and actions', async () => {
     renderRoute(<DashboardPage />);
 
@@ -59,6 +91,57 @@ describe('prototype route use cases', () => {
     expect(await screen.findByPlaceholderText(/search conversations/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/message #/i)).toBeInTheDocument();
     expect(screen.getByTitle(/attach document/i)).toBeInTheDocument();
+  });
+
+  it('network routes render role-specific analytics, directory tabs, and primary actions', async () => {
+    const user = userEvent.setup();
+    renderRoute(<NetworkPage />);
+
+    expect(await screen.findByRole('heading', { name: /practice network/i })).toBeInTheDocument();
+    expect(screen.getByText(/total referrals received/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /my network/i }));
+    expect(screen.getAllByText(/chat now/i).length).toBeGreaterThan(0);
+
+    cleanup();
+    renderRoute(<DentistNetworkPage />);
+    expect(await screen.findByRole('heading', { name: /specialist network/i })).toBeInTheDocument();
+    expect(screen.getByText(/total referrals sent/i)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /my network/i }));
+    expect(screen.getAllByText(/send referral/i).length).toBeGreaterThan(0);
+  });
+
+  it('document detail renders preview metadata and archives active inbox documents', async () => {
+    const user = userEvent.setup();
+    localStorage.setItem('drtalk_specialist_docs', JSON.stringify([
+      {
+        id: 'doc-custom',
+        name: 'REFERRAL_FORM_JOHN_DOE.PDF',
+        sender: 'Dr. Jane Doe (Dentist)',
+        date: '09:15 AM 05/18/2026',
+        size: '1.2 MB',
+        fromChannel: false,
+      },
+    ]));
+
+    renderRoute(<DocumentDetailClient id="doc-custom" />);
+
+    expect(await screen.findByRole('heading', { name: /referral_form_john_doe.pdf/i })).toBeInTheDocument();
+    expect(screen.getByText(/clinical document review/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /archive/i }));
+    expect(screen.getByText(/archived from inbox/i)).toBeInTheDocument();
+  });
+
+  it('referral detail renders case activity and advances referral status actions', async () => {
+    const user = userEvent.setup();
+    renderRoute(<ReferralDetailClient id="2" />);
+
+    expect(await screen.findByRole('heading', { name: /bob marley/i })).toBeInTheDocument();
+    expect(screen.getByText(/case activity/i)).toBeInTheDocument();
+    expect(screen.getByText(/incomplete data extraction/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /accept referral/i }));
+    expect(await screen.findByText(/^accepted$/i)).toBeInTheDocument();
   });
 
   it('referrals and settings routes render their prototype sections', async () => {
