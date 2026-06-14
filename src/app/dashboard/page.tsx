@@ -10,16 +10,20 @@ import { useRouter } from 'next/navigation';
 
 import { useVerification } from '@/components/VerificationContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
-import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from '@/components/InviteModal';
 import { DashboardStats, type DashboardTimeRange } from '@/components/prototype/DashboardStats';
+import { DashboardDocumentActionModals } from '@/components/prototype/DashboardDocumentActionModals';
+import { DashboardDocumentRow } from '@/components/prototype/DashboardDocumentRow';
+import { DashboardSidebarList } from '@/components/prototype/DashboardSidebarList';
 import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
+import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
+import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
 
 import { 
   initialDocuments, 
   initialMessages, 
-  mockChannels, 
+  mockChannels,
 } from '@/prototype/channelFixtures';
 import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
@@ -534,79 +538,16 @@ export default function DashboardPage() {
     <MainLayout title="Practice Dashboard">
       <div className="max-w-6xl mx-auto space-y-8 pb-20">
 
-        {/* Status Banners */}
-        <div className="space-y-4">
-          
-          {/* Verification Alert */}
-          {!isVerified && (
-            <div className="wireframe-card border-black bg-gray-50 p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-white">
-                  <AlertCircle className="text-black" size={24} />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Verification Required</h3>
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
-                    Practice owner verification is required to process referrals and access PHI.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => router.push('/verify')}
-                className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 whitespace-nowrap"
-              >
-                Verify Identity Now
-              </button>
-            </div>
-          )}
-
-          {/* Practice Owner Nudge */}
-          {isVerified && !hasPracticeOwner && (
-            <div className="wireframe-card border-black bg-white p-6 flex flex-col sm:flex-row items-center justify-between gap-6 animate-in fade-in slide-in-from-top-4 duration-500 border-dashed">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 border-2 border-black flex items-center justify-center shrink-0 bg-gray-50">
-                  <Users className="text-black" size={24} />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-black uppercase text-sm tracking-tight leading-none text-black">Practice Owner Required</h3>
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed max-w-xl">
-                    This practice does not have a verified owner yet. Please invite a doctor to verify their identity and unlock full clinical capabilities.
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={() => {
-                  setInviteRole('Owner');
-                  setIsInviteModalOpen(true);
-                }}
-                className="text-[10px] font-black uppercase border-2 border-black px-4 py-2 hover:bg-black hover:text-white transition-all whitespace-nowrap"
-              >
-                Invite Practice Owner
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Welcome Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic">Dashboard</h2>
-              <CommentMarker id="dashboard-practice" title="Practice Dashboard" description="The main overview for the practice workspace." />
-            </div>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-              Receive referrals, process cases, coordinate with dentists, and manage patient communication.
-            </p>
-          </div>
-          <div className="flex gap-4 w-full sm:w-auto">
-            <button
-              onClick={() => router.push('/dashboard/send-document')}
-              className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black transition-all"
-            >
-              Send Document <FileText size={14} />
-            </button>
-          </div>
-        </div>
+        <SpecialistDashboardHeader
+          isVerified={isVerified}
+          hasPracticeOwner={hasPracticeOwner}
+          onVerifyIdentity={() => router.push('/verify')}
+          onInvitePracticeOwner={() => {
+            setInviteRole('Owner');
+            setIsInviteModalOpen(true);
+          }}
+          onSendDocument={() => router.push('/dashboard/send-document')}
+        />
 
 
         <DashboardStats
@@ -626,129 +567,16 @@ export default function DashboardPage() {
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
 
-            {/* Referrals Section */}
-            <div className="space-y-6">
-              <div className="flex items-center justify-between border-b-4 border-black pb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 bg-black"></div>
-                  <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals</h3>
-                </div>
-                <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
-                  {referrals.length} items
-                </span>
-              </div>
-
-              {/* Sub-section: New Referrals Requiring Processing */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 border-l-4 border-black pl-2">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-black">New referrals requiring processing</span>
-                </div>
-                
-                {newProcessingReferrals.length === 0 ? (
-                  <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                    No new referrals requiring processing
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {newProcessingReferrals.map((ref) => (
-                      <div 
-                        key={ref.id} 
-                        onClick={() => handleReferralClick(ref)}
-                        className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-bold uppercase text-xs">{ref.patient}</p>
-                            {ref.isExternal && (
-                              <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
-                                EXTERNAL &bull; {ref.transport || 'EMAIL'}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
-                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Received {ref.date}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {ref.urgency && (
-                            <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
-                              ref.urgency === 'Emergency' 
-                                ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
-                                : ref.urgency === 'Urgent' 
-                                ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
-                                : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
-                            }`}>
-                              {ref.urgency}
-                            </span>
-                          )}
-                          <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Sub-section: Referrals with Newly Received Documents */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 border-l-4 border-black pl-2">
-                  <span className="text-[9px] font-black uppercase tracking-wider text-black">Referrals with newly received documents</span>
-                </div>
-                
-                {newDocsReferrals.length === 0 ? (
-                  <div className="wireframe-card p-4 text-center text-muted-foreground uppercase text-[9px] font-bold bg-gray-50 border-dashed border-2 border-black">
-                    No referrals with newly received documents
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {newDocsReferrals.map((ref) => (
-                      <div 
-                        key={ref.id} 
-                        onClick={() => handleReferralClick(ref)}
-                        className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-bold uppercase text-xs">{ref.patient}</p>
-                            {ref.isExternal && (
-                              <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
-                                EXTERNAL &bull; {ref.transport || 'EMAIL'}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{ref.detail}</p>
-                          <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
-                            From: {ref.source}{ref.dentist ? ` • Ref. by ${ref.dentist}` : ''} • Updated {ref.date}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {ref.urgency && (
-                            <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
-                              ref.urgency === 'Emergency' 
-                                ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800' 
-                                : ref.urgency === 'Urgent' 
-                                ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800' 
-                                : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
-                            }`}>
-                              {ref.urgency}
-                            </span>
-                          )}
-                          <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <button
-              onClick={() => router.push('/referrals')}
-              className="text-[10px] font-black uppercase underline block"
-            >
-              View all Referrals
-            </button>
+            <SpecialistReferralQueues
+              totalCount={referrals.length}
+              processingReferrals={newProcessingReferrals}
+              documentReferrals={newDocsReferrals}
+              onReferralClick={(id) => {
+                const referral = referrals.find((item) => item.id === id);
+                if (referral) handleReferralClick(referral);
+              }}
+              onViewAll={() => router.push('/referrals')}
+            />
             
             <PrototypeDocumentSection
               className="pt-4"
@@ -761,290 +589,81 @@ export default function DashboardPage() {
               totalItems={filteredDocs.length}
               onPageChange={setDocCurrentPage}
             >
-                  {paginatedDocs.map((doc) => {
-                    const isCase = doc.channelType === 'case';
-                    return (
-                      <div key={doc.id} className="wireframe-card p-4 bg-white border-2 border-black space-y-3 hover:bg-zinc-50/50 transition-all">
-                        <div className="flex justify-between items-start">
-                          <div className="flex gap-3">
-                            <div className="w-10 h-10 border-2 border-black flex items-center justify-center bg-zinc-100 shrink-0">
-                              <FileText size={20} className="text-black" />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <p 
-                                  onClick={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
-                                  className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
-                                >
-                                  {doc.name}
-                                </p>
-                                {doc.isExternal && (
-                                  <span className="text-[7px] bg-gray-100 text-black px-1.5 py-0.5 border border-black font-black uppercase tracking-wider">
-                                    EXTERNAL • {doc.transport || 'EMAIL'}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
-                                <span>From: {doc.sender}</span>
-                                <span>•</span>
-                                <span>{doc.size}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <span className="text-[8px] font-bold uppercase text-muted-foreground">{doc.date}</span>
-                        </div>
-                        
-                        {/* Actions */}
-                        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-between">
-                          {!isCase && (
-                            <div className="flex gap-2">
-                              <button 
-                                onClick={() => handleConvertDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                              >
-                                Convert to Referral
-                              </button>
-                              <button 
-                                onClick={() => handleAttachDocument(doc)}
-                                className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
-                              >
-                                Attach to existing referral
-                              </button>
-                            </div>
-                          )}
-
-                          <button
-                            onClick={() => {
-                              if (doc.fromChannel) {
-                                const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
-                                  ? 'Sunshine Dental'
-                                  : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
-                                  ? 'Oakridge Dental'
-                                  : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
-                                  ? 'Westside Pediatric Dentistry'
-                                  : 'Sunshine Dental';
-                                const url = isCase
-                                  ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
-                                  : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
-                                router.push(url);
-                              } else {
-                                handleOpenInChannel(doc);
-                              }
-                            }}
-                            className="wireframe-button text-[9px] font-black uppercase px-4 py-1.5 bg-black text-white hover:bg-zinc-800 transition-colors flex items-center gap-1.5 ml-auto"
-                          >
-                            Open in Channel <ArrowUpRight size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {paginatedDocs.map((doc) => (
+                    <DashboardDocumentRow
+                      key={doc.id}
+                      document={doc}
+                      onOpenDocument={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
+                      onConvert={() => handleConvertDocument(doc)}
+                      onAttach={() => handleAttachDocument(doc)}
+                      onOpenChannel={() => {
+                        if (doc.fromChannel) {
+                          const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
+                            ? 'Sunshine Dental'
+                            : doc.sender.toLowerCase().includes('jane') || doc.sender.toLowerCase().includes('oakridge')
+                              ? 'Oakridge Dental'
+                              : doc.sender.toLowerCase().includes('miller') || doc.sender.toLowerCase().includes('robert')
+                                ? 'Westside Pediatric Dentistry'
+                                : 'Sunshine Dental';
+                          const url = doc.channelType === 'case'
+                            ? `/channels?practice=${encodeURIComponent(practiceName)}&caseId=${doc.caseId}&tab=documents`
+                            : `/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`;
+                          router.push(url);
+                        } else {
+                          handleOpenInChannel(doc);
+                        }
+                      }}
+                    />
+                  ))}
             </PrototypeDocumentSection>
           </div>
 
           {/* Recent Conversations / Side Column */}
           <div className="lg:col-span-4 space-y-8">
-            {/* Recent Conversations */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b-2 border-black pb-2">
-                <MessageSquare size={18} />
-                <h3 className="font-bold uppercase text-xs tracking-widest">Recent Conversations</h3>
-              </div>
-              <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
-                {[
-                  { id: 1, name: 'team-members', msg: 'Reviewing tooth #14...', initials: 'TM', type: 'Internal', path: '/channels' },
-                  { id: 2, name: 'Sunshine Dental', msg: 'Practice connection active.', initials: 'SD', type: 'Inter-Practice', path: '/channels?practice=Sunshine%20Dental' },
-                  { id: 3, name: 'Downtown Oral Surgery', msg: 'Referral sent for Bob Marley.', initials: 'DO', type: 'Inter-Practice', path: '/channels?practice=Downtown%20Oral%20Surgery' },
-                  { id: 4, name: 'Alice Cooper', msg: 'Got it, thank you!', initials: 'AC', type: 'Patient', path: '/channels?practice=Alice%20Cooper' },
-                  { id: 5, name: 'Emergency Case Board', msg: 'Case discussion initiated.', initials: 'EC', type: 'Group', path: '/channels' }
-                ].map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                    onClick={() => router.push(item.path)}
-                  >
-                    <div className="w-8 h-8 border-2 border-black flex flex-col items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
-                    <div className="flex-1 space-y-1 min-w-0">
-                      <div className="flex justify-between items-baseline">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                          <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-muted-foreground shrink-0 scale-90 origin-left">{item.type}</span>
-                        </div>
-                        <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right">10:05 AM{"\n"}05/11/2026</span>
-                      </div>
-                      <p className="text-[9px] uppercase truncate opacity-70 italic">
-                        {item.msg}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <DashboardSidebarList
+              title="Recent Conversations"
+              icon={<MessageSquare size={18} />}
+              items={[
+                { id: 1, name: 'team-members', message: 'Reviewing tooth #14...', initials: 'TM', meta: 'Internal', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
+                { id: 2, name: 'Sunshine Dental', message: 'Practice connection active.', initials: 'SD', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Sunshine%20Dental') },
+                { id: 3, name: 'Downtown Oral Surgery', message: 'Referral sent for Bob Marley.', initials: 'DO', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Downtown%20Oral%20Surgery') },
+                { id: 4, name: 'Alice Cooper', message: 'Got it, thank you!', initials: 'AC', meta: 'Patient', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Alice%20Cooper') },
+                { id: 5, name: 'Emergency Case Board', message: 'Case discussion initiated.', initials: 'EC', meta: 'Group', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
+              ]}
+            />
 
-            {/* Suggested Connections */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b-2 border-black pb-2">
-                <Users size={18} />
-                <h3 className="font-bold uppercase text-xs tracking-widest">Suggested Connections</h3>
-              </div>
-              <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
-                {[
-                  { id: '7', name: 'Desert Bloom Dental', specialty: 'General Dentistry', location: 'Scottsdale, AZ' },
-                  { id: '8', name: 'Mountain View Family Dental', specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ' }
-                ].map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="space-y-1 min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <p className="text-[10px] font-bold uppercase truncate">{item.name}</p>
-                        <span className="text-[7px] font-bold px-1.5 py-0.5 border border-black uppercase text-muted-foreground shrink-0">{item.specialty}</span>
-                      </div>
-                      <p className="text-[8px] uppercase text-muted-foreground">
-                        {item.location}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => showToast(`Connection request sent to ${item.name}`)}
-                      className="wireframe-button text-[8px] font-black uppercase px-2.5 py-1 bg-black text-white hover:bg-zinc-800 transition-all shrink-0"
-                    >
-                      Connect
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <DashboardSidebarList
+              title="Suggested Connections"
+              icon={<Users size={18} />}
+              items={[
+                { id: '7', name: 'Desert Bloom Dental', message: 'Scottsdale, AZ', meta: 'General Dentistry', actionLabel: 'Connect', onAction: () => showToast('Connection request sent to Desert Bloom Dental') },
+                { id: '8', name: 'Mountain View Family Dental', message: 'Tempe, AZ', meta: 'Cosmetic Dentistry', actionLabel: 'Connect', onAction: () => showToast('Connection request sent to Mountain View Family Dental') },
+              ]}
+            />
 
             <SubscriptionBanner />
           </div>
 
         </div>
 
-        {/* Convert to Referral Modal */}
-        {activeModal === 'convert' && selectedDocument && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-white border-4 border-black max-w-md w-full p-6 space-y-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-200 text-black">
-              <div className="flex justify-between items-center border-b-2 border-black pb-2">
-                <h4 className="font-black uppercase text-sm tracking-tight italic text-black">Convert Document to Referral</h4>
-                <button 
-                  onClick={() => setActiveModal(null)} 
-                  className="text-xs font-black uppercase hover:underline text-black"
-                >
-                  Close
-                </button>
-              </div>
-              
-              <div className="space-y-1">
-                <p className="text-[8px] font-bold text-muted-foreground uppercase text-black">Source Document</p>
-                <div className="p-3 border-2 border-black bg-zinc-50 font-mono text-[10px] break-all text-black">
-                  {selectedDocument.name}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black uppercase block text-black">Patient Name</label>
-                  <input 
-                    type="text" 
-                    value={convertPatientName}
-                    onChange={(e) => setConvertPatientName(e.target.value)}
-                    className="wireframe-input w-full p-2 text-xs uppercase text-black"
-                    placeholder="PATIENT NAME..."
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-3 pt-2">
-                <button 
-                  onClick={handleConfirmConvert}
-                  className="wireframe-button flex-1 bg-black text-white text-[10px] font-black uppercase py-3 hover:bg-zinc-800 transition-colors"
-                >
-                  Create Referral
-                </button>
-                <button 
-                  onClick={() => setActiveModal(null)}
-                  className="wireframe-button flex-1 bg-white text-black border-2 border-black text-[10px] font-black uppercase py-3 hover:bg-zinc-100 transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Attach to Referral Modal */}
-        {activeModal === 'attach' && selectedDocument && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-            <div className="bg-white border-4 border-black max-w-md w-full p-6 space-y-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-in zoom-in-95 duration-200 text-black">
-              <div className="flex justify-between items-center border-b-2 border-black pb-2">
-                <h4 className="font-black uppercase text-sm tracking-tight italic text-black">Attach to Existing Referral</h4>
-                <button 
-                  onClick={() => setActiveModal(null)} 
-                  className="text-xs font-black uppercase hover:underline text-black"
-                >
-                  Close
-                </button>
-              </div>
-              
-              <div className="space-y-1">
-                <p className="text-[8px] font-bold text-muted-foreground uppercase text-black">Document to Attach</p>
-                <div className="p-3 border-2 border-black bg-zinc-50 font-mono text-[10px] break-all text-black">
-                  {selectedDocument.name}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <label className="text-[9px] font-black uppercase block text-black">Select Target Referral</label>
-                
-                {/* Search Box */}
-                <div className="relative">
-                  <input 
-                    type="text" 
-                    placeholder="Search patient or source..." 
-                    value={attachSearchQuery}
-                    onChange={(e) => setAttachSearchQuery(e.target.value)}
-                    className="wireframe-input w-full p-2 pl-8 text-xs uppercase text-black"
-                  />
-                  <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  {attachSearchQuery && (
-                    <button 
-                      onClick={() => setAttachSearchQuery('')}
-                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-black uppercase hover:underline text-black"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <div className="max-h-60 overflow-y-auto space-y-2 pr-1 border border-black/10 p-2 text-black">
-                  {filteredAttachReferrals.length === 0 ? (
-                    <p className="text-center text-[10px] uppercase font-bold text-muted-foreground py-6">No matching referrals found</p>
-                  ) : (
-                    filteredAttachReferrals.map((ref) => (
-                      <div 
-                        key={ref.id}
-                        onClick={() => handleConfirmAttach(ref.id)}
-                        className="p-3 border-2 border-black bg-white hover:bg-black hover:text-white cursor-pointer transition-all space-y-1"
-                      >
-                        <div className="flex justify-between items-start">
-                          <p className="font-black uppercase text-xs">{ref.patient}</p>
-                        </div>
-                        <p className="text-[8px] uppercase opacity-70">From: {ref.source} • {ref.detail}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-
-              <button 
-                onClick={() => setActiveModal(null)}
-                className="wireframe-button w-full bg-white text-black border-2 border-black text-[10px] font-black uppercase py-3 hover:bg-zinc-100 transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
+        {activeModal && selectedDocument && (
+          <DashboardDocumentActionModals
+            mode={activeModal}
+            documentName={selectedDocument.name}
+            convertPatientName={convertPatientName}
+            attachSearchQuery={attachSearchQuery}
+            attachReferrals={filteredAttachReferrals.map((ref) => ({
+              id: ref.id,
+              patientName: ref.patient,
+              detail: `From: ${ref.source} - ${ref.detail}`,
+            }))}
+            attachSearchPlaceholder="Search patient or source..."
+            onPatientNameChange={setConvertPatientName}
+            onAttachSearchChange={setAttachSearchQuery}
+            onClose={() => setActiveModal(null)}
+            onConfirmConvert={handleConfirmConvert}
+            onConfirmAttach={handleConfirmAttach}
+          />
         )}
 
 
