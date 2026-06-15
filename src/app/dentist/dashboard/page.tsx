@@ -25,6 +25,10 @@ import {
   type DashboardDocumentItem,
 } from '@/prototype/dashboardDocuments';
 import {
+  loadDashboardDocumentStorage,
+  saveDashboardDocumentsToStorage,
+} from '@/prototype/dashboardDocumentStorage';
+import {
   initialDocuments,
   initialMessages,
   mockChannels,
@@ -66,51 +70,20 @@ export default function DentistDashboardPage() {
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
 
-  // Sync with localStorage
   useEffect(() => {
-    const savedDocs = localStorage.getItem('drtalk_dentist_docs');
-    const savedArchived = localStorage.getItem('drtalk_dentist_archived_docs');
-    if (savedDocs) {
-      try {
-        const docs = JSON.parse(savedDocs);
-        if (docs.length < 5) {
-          const initialDentistDocs = getInitialDentistDocs();
-          setDocuments(initialDentistDocs);
-          localStorage.setItem('drtalk_dentist_docs', JSON.stringify(initialDentistDocs));
-        } else {
-          setTimeout(() => setDocuments(docs), 0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const initialDentistDocs = getInitialDentistDocs();
-      setDocuments(initialDentistDocs);
-      localStorage.setItem('drtalk_dentist_docs', JSON.stringify(initialDentistDocs));
-    }
-    if (savedArchived) {
-      try {
-        const archived = JSON.parse(savedArchived);
-        if (archived.length < 5) {
-          const initialDentistArchivedDocs = getInitialDentistArchivedDocs();
-          setArchivedDocuments(initialDentistArchivedDocs);
-          localStorage.setItem('drtalk_dentist_archived_docs', JSON.stringify(initialDentistArchivedDocs));
-        } else {
-          setTimeout(() => setArchivedDocuments(archived), 0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const initialDentistArchivedDocs = getInitialDentistArchivedDocs();
-      setArchivedDocuments(initialDentistArchivedDocs);
-      localStorage.setItem('drtalk_dentist_archived_docs', JSON.stringify(initialDentistArchivedDocs));
-    }
+    const storage = loadDashboardDocumentStorage({
+      activeKey: 'drtalk_dentist_docs',
+      archivedKey: 'drtalk_dentist_archived_docs',
+      getActiveDefaults: getInitialDentistDocs,
+      getArchivedDefaults: getInitialDentistArchivedDocs,
+    });
+    setDocuments(storage.active);
+    setArchivedDocuments(storage.archived);
   }, []);
 
   const saveDocumentsToStorage = (newDocs: DocumentItem[]) => {
     setDocuments(newDocs);
-    localStorage.setItem('drtalk_dentist_docs', JSON.stringify(newDocs));
+    saveDashboardDocumentsToStorage('drtalk_dentist_docs', newDocs);
   };
 
   // Search & Pagination states for Dashboard Documents
