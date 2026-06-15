@@ -14,6 +14,7 @@ const router = {
 vi.mock('next/navigation', () => ({
   useRouter: () => router,
   usePathname: () => '/',
+  useParams: () => ({ id: '1' }),
   useSearchParams: () => new URLSearchParams(),
 }));
 

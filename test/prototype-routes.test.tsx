@@ -15,6 +15,7 @@ import NetworkPage from '@/app/network/page';
 import DentistNetworkPage from '@/app/dentist/network/page';
 import DocumentDetailClient from '@/app/documents/[id]/DocumentDetailClient';
 import ReferralDetailClient from '@/app/referrals/[id]/ReferralDetailClient';
+import ExternalViewerClient from '@/app/external/viewer/[id]/viewer-client';
 import { renderPrototype } from './utils/renderPrototype';
 
 function renderRoute(ui: React.ReactElement) {
@@ -142,6 +143,22 @@ describe('prototype route use cases', () => {
 
     await user.click(screen.getByRole('button', { name: /accept referral/i }));
     expect(await screen.findByText(/^accepted$/i)).toBeInTheDocument();
+  });
+
+  it('external secure viewer renders case documents, status actions, and reply composer', async () => {
+    const user = userEvent.setup();
+    renderRoute(<ExternalViewerClient />);
+
+    expect(await screen.findByRole('heading', { name: /drtalk secure portal/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /alice cooper/i })).toBeInTheDocument();
+    expect(screen.getByText(/documents provided/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /complete/i }));
+    expect(await screen.findByText(/pipeline updated in referring dentist/i)).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText(/compose secure reply/i), 'Please schedule follow-up imaging.');
+    await user.click(screen.getByRole('button', { name: /send reply/i }));
+    expect(await screen.findByText(/please schedule follow-up imaging/i)).toBeInTheDocument();
   });
 
   it('referrals and settings routes render their prototype sections', async () => {
