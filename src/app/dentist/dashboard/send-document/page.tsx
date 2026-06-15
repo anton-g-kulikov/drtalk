@@ -17,8 +17,13 @@ import {
   initialMessages,
   mockChannels,
 } from '@/prototype/channelFixtures';
-import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
-import { getReferrals, initialReferrals, getReferralCode, UnifiedReferral } from '@/lib/referrals';
+import {
+  buildSendDocumentShare,
+  buildSendDocumentToast,
+  type SendDocumentAttachedFile,
+  type SendDocumentFileType,
+} from '@/prototype/sendDocumentFlow';
+import { getReferrals, getReferralCode, UnifiedReferral } from '@/lib/referrals';
 
 export default function DentistSendDocumentPage() {
   const router = useRouter();
@@ -62,9 +67,9 @@ export default function DentistSendDocumentPage() {
   const [isReferralDropdownOpen, setIsReferralDropdownOpen] = useState(false);
 
   const [customDocName, setCustomDocName] = useState('');
-  const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
+  const [customDocType, setCustomDocType] = useState<SendDocumentFileType>('pdf');
   const [customDocSize, setCustomDocSize] = useState('1.5 MB');
-  const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<SendDocumentAttachedFile[]>([]);
   const [patientFirstName, setPatientFirstName] = useState('');
   const [patientLastName, setPatientLastName] = useState('');
   const [patientDob, setPatientDob] = useState('');
@@ -143,7 +148,7 @@ export default function DentistSendDocumentPage() {
     if (!file) return;
 
     const extension = file.name.split('.').pop()?.toLowerCase() || '';
-    let type: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+    let type: SendDocumentFileType = 'doc';
     if (extension === 'pdf') type = 'pdf';
     else if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(extension)) type = 'image';
     else if (['zip', 'rar', 'tar', 'gz'].includes(extension)) type = 'zip';
@@ -155,15 +160,11 @@ export default function DentistSendDocumentPage() {
     setCustomDocType(type);
     setCustomDocSize(formattedSize);
 
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const newFile = {
       id: 'temp_' + Math.random().toString(36).substring(2, 9),
-      channelId: '',
       name: file.name,
       size: formattedSize,
       type: type,
-      sentBy: 'Me',
-      sentAt: 'Today, ' + timeString
     };
 
     setAttachedFiles(prev => [...prev, newFile]);
@@ -229,15 +230,11 @@ export default function DentistSendDocumentPage() {
     setPatientDob(choice.patient.dob);
     setUploadMessage(choice.patient.msg);
 
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const newFile = {
       id: 'temp_' + Math.random().toString(36).substring(2, 9),
-      channelId: '',
       name: choice.name,
       size: choice.size,
       type: choice.type,
-      sentBy: 'Me',
-      sentAt: 'Today, ' + timeString
     };
     setAttachedFiles(prev => [...prev, newFile]);
     triggerToast(`Mock attached "${choice.name}" successfully!`);
@@ -253,80 +250,41 @@ export default function DentistSendDocumentPage() {
       return;
     }
 
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let filesToShare: any[] = [];
-
-    if (attachedFiles.length > 0) {
-      filesToShare = attachedFiles;
-    } else if (customDocName.trim()) {
-      const formattedName = customDocName.toLowerCase().endsWith(`.${customDocType}`)
-        ? customDocName.toLowerCase()
-        : `${customDocName.toLowerCase()}.${customDocType}`;
-      filesToShare = [{
-        name: formattedName.toUpperCase(),
+    const share = buildSendDocumentShare({
+      role: 'dentist',
+      selectedPractices,
+      channels: mockChannels,
+      existingMessages: initialMessages,
+      files: attachedFiles,
+      fallbackDocument: {
+        name: customDocName,
         size: customDocSize || '1.5 MB',
         type: customDocType,
-      }];
-    }
+      },
+      selectedReferral,
+      patient: {
+        firstName: patientFirstName,
+        lastName: patientLastName,
+        dob: patientDob,
+      },
+      note: uploadMessage,
+    });
 
-    if (filesToShare.length === 0) {
+    if (share.sharedDocuments.length === 0) {
       triggerToast("Please attach or select at least one document.");
       return;
     }
 
-    selectedPractices.forEach(practiceName => {
-      const matchedChannel = mockChannels.find(c => c.name === practiceName);
-      const channelId = matchedChannel ? matchedChannel.id : '3';
-
-      const finalDocs: SharedDocument[] = filesToShare.map(file => ({
-        id: 'd_' + Math.random().toString(36).substring(2, 9),
-        channelId: channelId,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        sentBy: 'Me',
-        sentAt: 'Today, ' + timeString
-      }));
-
-      initialDocuments.push(...finalDocs);
-
-      const newMessages: MessageItem[] = finalDocs.map((newDoc, index) => {
-        let messageText = `Directly shared document: ${newDoc.name}`;
-
-        if (selectedReferral) {
-          messageText += `\nAssociated Referral: ${selectedReferral}`;
-        }
-
-        if (index === 0) {
-          if (patientFirstName || patientLastName) {
-            const patientName = `${patientFirstName} ${patientLastName}`.trim();
-            messageText += `\nAssociated Patient: ${patientName}`;
-            if (patientDob) messageText += ` (DOB: ${patientDob})`;
-          }
-          if (uploadMessage.trim()) {
-            messageText += `\nMessage: ${uploadMessage.trim()}`;
-          }
-        }
-
-        return {
-          id: 'm_' + Math.random().toString(36).substring(2, 9),
-          user: 'Me',
-          text: messageText,
-          time: timeString,
-          type: 'self',
-          transport: 'App',
-          document: newDoc
-        };
-      });
-
-      if (!initialMessages[channelId]) {
-        initialMessages[channelId] = [];
-      }
-      initialMessages[channelId].push(...newMessages);
+    initialDocuments.push(...share.sharedDocuments);
+    Object.entries(share.messages).forEach(([channelId, messages]) => {
+      initialMessages[channelId] = messages;
     });
 
-    const displayPracticeName = selectedPractices.length === 1 ? selectedPractices[0] : `${selectedPractices.length} practices`;
-    const docsCount = filesToShare.length;
+    const toastOutcome = buildSendDocumentToast(
+      'dentist',
+      selectedPractices,
+      share.sharedDocuments.length / selectedPractices.length
+    );
 
     setAttachedFiles([]);
     setCustomDocName('');
@@ -338,15 +296,11 @@ export default function DentistSendDocumentPage() {
     setSelectedReferral('');
 
     triggerToast(
-      `Shared ${docsCount} document${docsCount > 1 ? 's' : ''} with ${displayPracticeName}!`,
+      toastOutcome.message,
       {
         label: "View Chat",
         onClick: () => {
-          if (selectedPractices.length === 1) {
-            router.push(`/dentist/channels?practice=${encodeURIComponent(selectedPractices[0])}`);
-          } else {
-            router.push('/dentist/channels');
-          }
+          router.push(toastOutcome.destinationHref);
         }
       }
     );
