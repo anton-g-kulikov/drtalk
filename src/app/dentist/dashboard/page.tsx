@@ -21,6 +21,10 @@ import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocume
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { getPrototypePageNumbers } from '@/prototype/pagination';
 import {
+  buildDashboardDocumentChannelTransfer,
+  type DashboardDocumentItem,
+} from '@/prototype/dashboardDocuments';
+import {
   initialDocuments,
   initialMessages,
   mockChannels,
@@ -51,17 +55,7 @@ export default function DentistDashboardPage() {
   const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   const specialtyCareCompleteCount = sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
-  interface DocumentItem {
-    id: string;
-    name: string;
-    sender: string;
-    date: string;
-    size: string;
-    channelName?: string;
-    fromChannel?: boolean;
-    channelType?: 'practice' | 'case';
-    caseId?: string;
-  }
+  type DocumentItem = DashboardDocumentItem;
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
@@ -144,95 +138,24 @@ export default function DentistDashboardPage() {
   }, [filteredDocs, docCurrentPage]);
 
   const handleOpenInChannel = (doc: DocumentItem) => {
-    let practiceName = doc.sender;
-    if (practiceName.includes('Valley') || practiceName.includes('Endo')) {
-      practiceName = 'Valley Endodontics';
-    } else if (practiceName.includes('Downtown')) {
-      practiceName = 'Downtown Oral Surgery';
-    } else if (practiceName.includes('Metro')) {
-      practiceName = 'Metro Orthodontics';
-    } else if (practiceName.includes('Arizona')) {
-      practiceName = 'Arizona Periodontics';
-    } else if (practiceName.includes('Beverly')) {
-      practiceName = 'Beverly Hills Dental';
-    } else {
-      practiceName = doc.sender.replace(' (Specialist)', '').replace(' (Dentist)', '');
-    }
-
-    // Add to Network if not exists
-    const currentNetwork = getNetwork();
-    const existsInNetwork = currentNetwork.some(p => p.name.toLowerCase() === practiceName.toLowerCase());
-    if (!existsInNetwork) {
-      const newPracticeId = 'ext_' + Math.random().toString(36).substring(2, 9);
-      const newPractice = {
-        id: newPracticeId,
-        name: practiceName,
-        type: 'Specialist',
-        specialty: 'Endodontics',
-        location: 'Phoenix, AZ',
-        status: 'Connected' as const,
-        verified: false,
-        isExternal: true
-      };
-      saveNetwork([...currentNetwork, newPractice]);
-    }
-
-    // Add to Channels if not exists
-    const isDentist = true;
-    const currentChannels = getChannels(isDentist);
-    const existsInChannels = currentChannels.some(c => c.name.toLowerCase() === practiceName.toLowerCase());
-    let practiceId = '';
-    if (!existsInChannels) {
-      practiceId = 'ext_ch_' + Math.random().toString(36).substring(2, 9);
-      const newChannel = {
-        id: practiceId,
-        name: practiceName,
-        type: 'inter-practice' as const,
-        lastMessage: `Practice channel created. Shared document: ${doc.name}`,
-        memberCount: 2,
-        isVerified: false,
-        isExternal: true
-      };
-      saveChannels(isDentist, [...currentChannels, newChannel]);
-    } else {
-      const match = currentChannels.find(c => c.name.toLowerCase() === practiceName.toLowerCase());
-      practiceId = match ? match.id : '3';
-    }
-
-    // Add Shared Document item to channel documents store
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const sharedDocObj: SharedDocument = {
-      id: doc.id,
-      channelId: practiceId,
-      name: doc.name,
-      size: doc.size,
-      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
-      sentBy: doc.sender,
-      sentAt: 'Today, ' + timeString
-    };
-    initialDocuments.push(sharedDocObj);
-
-    // Add initial message to the channel
-    const allMessages = getMessages();
-    if (!allMessages[practiceId]) {
-      allMessages[practiceId] = [];
-    }
-    allMessages[practiceId].push({
-      id: 'm_' + Math.random().toString(36).substring(2, 9),
-      user: doc.sender,
-      text: `Incoming document via secure email: ${doc.name}`,
-      time: timeString,
-      type: 'other',
-      transport: 'Email',
-      document: sharedDocObj
+    const transfer = buildDashboardDocumentChannelTransfer({
+      doc,
+      role: 'dentist',
+      network: getNetwork(),
+      channels: getChannels(true),
+      messages: getMessages(),
+      addSharedDocument: (sharedDocument) => initialDocuments.push(sharedDocument),
     });
-    saveMessages(allMessages);
+
+    saveNetwork(transfer.network);
+    saveChannels(true, transfer.channels);
+    saveMessages(transfer.messages);
 
     // Remove from dashboard inbox
     const updatedDocs = documents.filter(d => d.id !== doc.id);
     saveDocumentsToStorage(updatedDocs);
     setSelectedDocument(null);
-    router.push(`/dentist/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`);
+    router.push(transfer.destinationHref);
   };
 
   const handleConvertDocument = (doc: DocumentItem) => {
