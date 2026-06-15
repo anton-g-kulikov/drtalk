@@ -11,6 +11,12 @@ import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticip
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
 import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getChannels, saveChannels, getNetwork, getMessages, saveMessages } from '@/lib/referrals';
 import {
+  buildChannelGroupCreation,
+  buildChannelMessageSend,
+  resolveActiveChannelFromQuery,
+  type ActiveChannelResolution,
+} from '@/prototype/channelActions';
+import {
   buildCaseChannels,
   filterCaseChannels,
   filterChannelsByType,
@@ -28,11 +34,6 @@ import {
   specialistClinics,
   type GroupParticipant,
 } from '@/prototype/channelFixtures';
-
-// Helper function defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
-function getRandomId(prefix: string): string {
-  return prefix + Math.random().toString(36).substring(2, 9);
-}
 
 function ChannelsContent() {
   const pathname = usePathname();
@@ -182,37 +183,20 @@ function ChannelsContent() {
   };
 
   const handleCreateGroupChat = () => {
-    if (!groupChatName.trim()) {
-      setGroupChatError("Please enter a group chat name.");
+    const result = buildChannelGroupCreation({
+      groupName: groupChatName,
+      participants: groupParticipants,
+    });
+
+    if (!result.ok) {
+      setGroupChatError(result.error);
       return;
     }
-    const selectedPeople = groupParticipants.filter(p => p.selected);
-    if (selectedPeople.length === 0) {
-      setGroupChatError("Please select at least one participant.");
-      return;
-    }
 
-    const newChannelId = getRandomId('group_');
-    const newChannel: Channel = {
-      id: newChannelId,
-      name: groupChatName.trim(),
-      type: 'group',
-      lastMessage: 'Group chat created.',
-      memberCount: selectedPeople.length + 1
-    };
-
-    setChannels(prev => [...prev, newChannel]);
-
-    const welcomeMsg: MessageItem = {
-      id: getRandomId('m_welcome_'),
-      user: 'System',
-      text: `Group chat "${groupChatName.trim()}" created with ${selectedPeople.map(p => p.name).join(', ')}.`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      type: 'other'
-    };
+    setChannels(prev => [...prev, result.channel]);
     setMessages(prev => ({
       ...prev,
-      [newChannelId]: [welcomeMsg]
+      [result.channel.id]: [result.message]
     }));
 
     setGroupChatName('');
@@ -220,7 +204,7 @@ function ChannelsContent() {
     setGroupChatError(null);
     setShowCreateGroupModal(false);
     setGroupCollapsed(false);
-    setActiveChannel(newChannel);
+    setActiveChannel(result.channel);
     setActiveTab('messages');
     triggerToast("Group chat created successfully!");
   };
@@ -280,79 +264,40 @@ function ChannelsContent() {
 
   const [showChannelList, setShowChannelList] = useState(false);
 
+  const applyActiveChannelResolution = (resolution: ActiveChannelResolution) => {
+    if (resolution.expandSection === 'external') {
+      setExternalCollapsed(false);
+      setConnectedCollapsed(true);
+    } else {
+      setConnectedCollapsed(false);
+    }
+
+    setActiveChannel(resolution.activeChannel);
+    setActiveTab(resolution.targetTab);
+  };
+
   // Sync activeChannel if practiceParam and caseIdParam change
   useEffect(() => {
-    if (practiceParam || caseIdParam) {
-      let parentChannel = null;
+    const resolution = resolveActiveChannelFromQuery({
+      practiceParam,
+      caseIdParam,
+      tabParam: searchParams.get('tab'),
+      channels,
+      referrals: getReferrals(),
+      isDentist,
+    });
+    if (!resolution) return;
 
-      // 1. Try to find the parent channel directly from practiceParam
-      if (practiceParam) {
-        parentChannel = channels.find(c => c.name.toLowerCase() === practiceParam.toLowerCase() || c.id === practiceParam);
-      }
-
-      // 2. If parentChannel not found but caseIdParam is provided, resolve it from referral
-      if (!parentChannel && caseIdParam) {
-        const allRefs = getReferrals();
-        const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
-        if (ref) {
-          let practiceId = '3';
-          if (isDentist) {
-            const specialistName = (ref.specialist || '').toLowerCase();
-            if (specialistName.includes('downtown')) practiceId = '7';
-            else if (specialistName.includes('metro')) practiceId = '8';
-            else if (specialistName.includes('arizona')) practiceId = '9';
-            else if (specialistName.includes('beverly')) practiceId = '6';
-          } else {
-            const practice = (ref.practice || '').toLowerCase();
-            const dentist = (ref.dentist || '').toLowerCase();
-            if (practice.includes('sunshine') || dentist.includes('smith') || dentist.includes('reed') || ref.id === '1' || ref.id === '6' || ref.id === '9') {
-              practiceId = '6';
-            } else if (practice.includes('desert') || dentist.includes('jones') || ref.id === '2') {
-              practiceId = '7';
-            }
-          }
-          parentChannel = channels.find(c => c.id === practiceId);
-        }
-      }
-
-      if (parentChannel) {
-        if (parentChannel.isExternal) {
-          setExternalCollapsed(false);  // Expand External section
-          setConnectedCollapsed(true);  // Keep Connected collapsed
-        } else {
-          setConnectedCollapsed(false); // Expand Connected Practices
-        }
-        const tabParam = searchParams.get('tab');
-        const targetTab = (tabParam === 'documents' || tabParam === 'archived' || tabParam === 'messages') ? tabParam : 'messages';
-        if (caseIdParam) {
-          const allRefs = getReferrals();
-          const ref = allRefs.find(r => `case_${r.id}` === caseIdParam || r.id === caseIdParam || r.patientName.toLowerCase() === caseIdParam.replace('case_', '').toLowerCase());
-          if (ref) {
-            // Auto-reactivate if archived
-            const isArchived = ref.status === 'Archived';
-            setTimeout(() => {
-              if (isArchived) {
-                const updated = updateReferralStatus(ref.id, 'Scheduled');
-                setReferrals(updated);
-              }
-              const caseChannelObj: Channel = {
-                id: `case_${ref.id}`,
-                name: ref.patientName.toUpperCase(),
-                type: 'inter-practice',
-                lastMessage: `Referral status: ${ref.status}`,
-                memberCount: parentChannel.memberCount,
-                ...(ref.id.startsWith('ext-') ? { isExternal: true } : {})
-              };
-              setActiveChannel(caseChannelObj);
-              setActiveTab(targetTab);
-            }, 0);
-            return;
-          }
-        }
-        setActiveChannel(parentChannel);
-        setActiveTab(targetTab);
-      }
+    if (resolution.reactivateReferralId) {
+      setTimeout(() => {
+        const updated = updateReferralStatus(resolution.reactivateReferralId!, 'Scheduled');
+        setReferrals(updated);
+        applyActiveChannelResolution(resolution);
+      }, 0);
+      return;
     }
+
+    applyActiveChannelResolution(resolution);
   }, [practiceParam, caseIdParam, channels, isDentist, searchParams]);
 
   const handleSelectChannel = (c: Channel) => {
@@ -377,59 +322,25 @@ function ChannelsContent() {
     }
     if (!inputText.trim() && !attachedDoc) return;
 
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    let docObj: SharedDocument | undefined = undefined;
+    const result = buildChannelMessageSend({
+      activeChannel,
+      channels,
+      caseChannels,
+      referrals,
+      messages,
+      documents,
+      inputText,
+      attachedDoc,
+    });
+    if (!result.ok) return;
 
-    if (attachedDoc) {
-      const docId = 'd_' + Math.random().toString(36).substring(2, 9);
-      docObj = {
-        id: docId,
-        channelId: activeChannel.id,
-        name: attachedDoc.name,
-        size: attachedDoc.size,
-        type: attachedDoc.type,
-        sentBy: 'Me',
-        sentAt: 'Today, ' + timeString
-      };
-      setDocuments(prev => [...prev, docObj!]);
-    }
+    setDocuments(result.documents);
+    setMessages(result.messages);
+    setChannels(result.channels);
 
-    const newMessage: MessageItem = {
-      id: 'm_' + Math.random().toString(36).substring(2, 9),
-      user: 'Me',
-      text: inputText,
-      time: timeString,
-      type: 'self',
-      transport: (activeChannel.type === 'patient' || activeChannel.isExternal) ? 'Email' : 'App',
-      document: docObj
-    };
-
-    setMessages(prev => ({
-      ...prev,
-      [activeChannel.id]: [...(prev[activeChannel.id] || []), newMessage]
-    }));
-
-    // Update last message of the channel
-    setChannels(prev => prev.map(c => {
-      const isParent = !activeChannel.id.startsWith('case_') && c.id === activeChannel.id;
-      const isCaseParent = activeChannel.id.startsWith('case_') && c.id === caseChannels.find(cc => cc.id === activeChannel.id)?.practiceId;
-      if (isParent || isCaseParent) {
-        return {
-          ...c,
-          lastMessage: attachedDoc ? `Shared document: ${attachedDoc.name}` : inputText
-        };
-      }
-      return c;
-    }));
-
-    // Auto-reactivate case if archived
-    if (activeChannel.id.startsWith('case_')) {
-      const refId = activeChannel.id.replace('case_', '');
-      const ref = referrals.find(r => r.id === refId);
-      if (ref && ref.status === 'Archived') {
-        const updatedRefs = updateReferralStatus(refId, 'Scheduled');
-        setReferrals(updatedRefs);
-      }
+    if (result.reactivatedReferralId) {
+      const updatedRefs = updateReferralStatus(result.reactivatedReferralId, 'Scheduled');
+      setReferrals(updatedRefs);
     }
 
     setInputText('');
