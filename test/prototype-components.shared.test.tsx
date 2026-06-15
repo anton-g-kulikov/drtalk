@@ -32,6 +32,7 @@ import { SendDocumentUploadSection } from '@/components/prototype/SendDocumentUp
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
 import { ReferralPipelineControls } from '@/components/prototype/ReferralPipelineControls';
+import { VerificationFlow } from '@/components/VerificationFlow';
 import { FileText } from 'lucide-react';
 
 
@@ -55,5 +56,24 @@ describe('prototype components: shared.test', () => {
     expect(screen.getByText(/document shared/i)).toBeInTheDocument();
     expect(onAction).toHaveBeenCalledTimes(1);
     expect(onDismiss).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the identity verification prototype flow through Persona success', async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    const onCancel = vi.fn();
+
+    render(<VerificationFlow onComplete={onComplete} onCancel={onCancel} />);
+
+    expect(screen.getByRole('heading', { name: /identity verification/i })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /start verification/i }));
+    expect(screen.getByText(/identity verification provider/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /launch persona verification/i }));
+    expect(screen.getByRole('heading', { name: /verified/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /continue to practice/i }));
+    expect(onComplete).toHaveBeenCalledWith('owner');
+    expect(onCancel).not.toHaveBeenCalled();
   });
 });
