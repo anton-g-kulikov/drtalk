@@ -22,31 +22,24 @@ import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
 } from '@/prototype/dashboardDocuments';
+import {
+  loadDashboardDocumentStorage,
+  saveDashboardDocumentsToStorage,
+} from '@/prototype/dashboardDocumentStorage';
 
 import { 
   initialDocuments, 
-  initialMessages, 
-  mockChannels,
 } from '@/prototype/channelFixtures';
-import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
+import type { SharedDocument } from '@/prototype/channelTypes';
 import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
 import { 
   getInitialSpecialistDocs, 
   getInitialSpecialistArchivedDocs,
-  dentistPractices
 } from '@/lib/mockGenerator';
 
 // Helper functions defined outside the React component to satisfy the React Compiler's strict purity/immutability checks.
 function getNewId(prefix: string): string {
   return `${prefix}-${Date.now()}`;
-}
-
-function getFormattedDateTime(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('en-US');
-}
-
-function getFormattedTimeOnly(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
 function getFormattedDateOnly(): string {
@@ -55,13 +48,6 @@ function getFormattedDateOnly(): string {
 
 function addSharedDocumentToDb(newDoc: SharedDocument) {
   initialDocuments.push(newDoc);
-}
-
-function addMessageToDb(channelId: string, newMsg: MessageItem) {
-  if (!initialMessages[channelId]) {
-    initialMessages[channelId] = [];
-  }
-  initialMessages[channelId].push(newMsg);
 }
 
 export default function DashboardPage() {
@@ -112,51 +98,20 @@ export default function DashboardPage() {
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
   const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
 
-  // Sync with localStorage
   useEffect(() => {
-    const savedDocs = localStorage.getItem('drtalk_specialist_docs');
-    const savedArchived = localStorage.getItem('drtalk_specialist_archived_docs');
-    if (savedDocs) {
-      try {
-        const docs = JSON.parse(savedDocs);
-        if (docs.length < 5) {
-          const initialSpecialistDocs = getInitialSpecialistDocs();
-          setDocuments(initialSpecialistDocs);
-          localStorage.setItem('drtalk_specialist_docs', JSON.stringify(initialSpecialistDocs));
-        } else {
-          setTimeout(() => setDocuments(docs), 0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const initialSpecialistDocs = getInitialSpecialistDocs();
-      setDocuments(initialSpecialistDocs);
-      localStorage.setItem('drtalk_specialist_docs', JSON.stringify(initialSpecialistDocs));
-    }
-    if (savedArchived) {
-      try {
-        const archived = JSON.parse(savedArchived);
-        if (archived.length < 5) {
-          const initialSpecialistArchivedDocs = getInitialSpecialistArchivedDocs();
-          setArchivedDocuments(initialSpecialistArchivedDocs);
-          localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(initialSpecialistArchivedDocs));
-        } else {
-          setTimeout(() => setArchivedDocuments(archived), 0);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    } else {
-      const initialSpecialistArchivedDocs = getInitialSpecialistArchivedDocs();
-      setArchivedDocuments(initialSpecialistArchivedDocs);
-      localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(initialSpecialistArchivedDocs));
-    }
+    const storage = loadDashboardDocumentStorage({
+      activeKey: 'drtalk_specialist_docs',
+      archivedKey: 'drtalk_specialist_archived_docs',
+      getActiveDefaults: getInitialSpecialistDocs,
+      getArchivedDefaults: getInitialSpecialistArchivedDocs,
+    });
+    setDocuments(storage.active);
+    setArchivedDocuments(storage.archived);
   }, []);
 
   const saveDocumentsToStorage = (newDocs: DocumentItem[]) => {
     setDocuments(newDocs);
-    localStorage.setItem('drtalk_specialist_docs', JSON.stringify(newDocs));
+    saveDashboardDocumentsToStorage('drtalk_specialist_docs', newDocs);
   };
 
   // Search & Pagination states for Dashboard Documents
@@ -306,134 +261,8 @@ export default function DashboardPage() {
     (ref.detail && ref.detail.toLowerCase().includes(attachSearchQuery.toLowerCase()))
   );
 
-  // Send Document Modal & Form State
-  const [isSendDocOpen, setIsSendDocOpen] = useState(false);
-  const [selectedPractice, setSelectedPractice] = useState('');
-  const [attachedFiles, setAttachedFiles] = useState<{ id: string, name: string, size: string, type: string }[]>([]);
-  const [customDocName, setCustomDocName] = useState('');
-  const [customDocType, setCustomDocType] = useState('pdf');
-  const [customDocSize, setCustomDocSize] = useState('2.4 MB');
-  const [patientFirstName, setPatientFirstName] = useState('');
-  const [patientLastName, setPatientLastName] = useState('');
-  const [patientDob, setPatientDob] = useState('');
-  const [uploadMessage, setUploadMessage] = useState('');
-
   // Toast Action Link state
   const [toastAction, setToastAction] = useState<{ label: string; onClick: () => void } | null>(null);
-
-  const connectedPractices = dentistPractices;
-
-  const handleAttachMockScan = () => {
-    const mockFile = {
-      id: 'mock-' + Date.now(),
-      name: 'PANO_IMAGE_BOB_MARLEY.JPG',
-      size: '4.8 MB',
-      type: 'image'
-    };
-    setAttachedFiles([mockFile]);
-    setCustomDocName(mockFile.name);
-    setCustomDocType(mockFile.type);
-    setCustomDocSize(mockFile.size);
-
-    // Pre-fill Bob Marley patient details
-    setPatientFirstName('Bob');
-    setPatientLastName('Marley');
-    setPatientDob('02/06/1945');
-    setUploadMessage('Sharing updated panoramic X-ray for the planned extraction.');
-  };
-
-  const handleRealFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const mockFile = {
-        id: 'real-' + Date.now(),
-        name: file.name.toUpperCase(),
-        size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
-        type: file.type.includes('image') ? 'image' as const : 'pdf' as const
-      };
-      setAttachedFiles(prev => [...prev, mockFile]);
-      setCustomDocName(mockFile.name);
-      setCustomDocType(mockFile.type);
-      setCustomDocSize(mockFile.size);
-
-      // Extract details if file name has cues
-      const nameUpper = file.name.toUpperCase();
-      if (nameUpper.includes('BOB') || nameUpper.includes('MARLEY')) {
-        setPatientFirstName('Bob');
-        setPatientLastName('Marley');
-        setPatientDob('02/06/1945');
-      } else if (nameUpper.includes('CHARLIE') || nameUpper.includes('BROWN')) {
-        setPatientFirstName('Charlie');
-        setPatientLastName('Brown');
-        setPatientDob('10/30/1948');
-      }
-    }
-  };
-
-  const handleSendDocumentSubmit = () => {
-    if (!selectedPractice) return;
-    
-    const docName = customDocName || 'SHARED_DOCUMENT.PDF';
-    const targetChannel = mockChannels.find(c => {
-      // Valley Endodontics (us) communicates with Sunshine Dental on channel 3
-      if (selectedPractice === 'Sunshine Dental') {
-        return c.id === '3';
-      }
-      return c.name.toLowerCase().includes(selectedPractice.toLowerCase());
-    });
-
-    const channelId = targetChannel ? targetChannel.id : '3';
-    
-    // 1. Construct Shared Document item
-    const newDoc: SharedDocument = {
-      id: getNewId('shared'),
-      channelId,
-      name: docName,
-      size: customDocSize,
-      type: customDocType as 'pdf' | 'image' | 'zip' | 'doc',
-      sentBy: 'Valley Endodontics (Specialist)',
-      sentAt: getFormattedDateTime()
-    };
-
-    // 2. Add to active shared docs
-    addSharedDocumentToDb(newDoc);
-
-    // 3. Add Message item to communication logs
-    const patientSnippet = patientFirstName || patientLastName 
-      ? `\nPatient: ${patientFirstName} ${patientLastName}${patientDob ? ` (DOB: ${patientDob})` : ''}` 
-      : '';
-    const noteSnippet = uploadMessage ? `\nNote: ${uploadMessage}` : '';
-
-    const newMsg: MessageItem = {
-      id: getNewId('msg'),
-      user: 'Valley Endodontics',
-      text: `Shared a document: ${docName}${patientSnippet}${noteSnippet}`,
-      time: getFormattedTimeOnly(),
-      type: 'self',
-      transport: 'App',
-      document: newDoc
-    };
-
-    addMessageToDb(channelId, newMsg);
-    
-    setIsSendDocOpen(false);
-    
-    // Clear states
-    setCustomDocName('');
-    setAttachedFiles([]);
-    setPatientFirstName('');
-    setPatientLastName('');
-    setPatientDob('');
-    setUploadMessage('');
-
-    // Trigger beautiful toast
-    showToast(`Shared document with ${selectedPractice}!`, {
-      label: 'VIEW CHAT',
-      onClick: () => {
-        router.push(`/channels?practice=${encodeURIComponent(selectedPractice)}`);
-      }
-    });
-  };
 
   return (
     <MainLayout title="Practice Dashboard">
