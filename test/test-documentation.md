@@ -96,7 +96,7 @@ Steps:
 
 Expected visible outcome: The channel shell renders list search and communication tabs with usable mock data.
 
-Automated coverage: `test/prototype-routes.test.tsx`, `test/prototype-state.test.ts`, `test/prototype-components.test.tsx`
+Automated coverage: `test/prototype-routes.test.tsx`, `test/prototype-state.test.ts`, `test/prototype-channel-actions.test.ts`, `test/prototype-components.test.tsx`
 
 ### UC-06 Settings And Team Surfaces
 
@@ -227,7 +227,7 @@ Steps:
 
 Expected visible outcome: The shared components preserve the same visible controls used by role dashboards and channels while delegating page-specific actions to their parent page.
 
-Automated coverage: `test/prototype-components.test.tsx`, `test/prototype-components.shared.test.tsx`, `test/prototype-components.dashboards.test.tsx`, `test/prototype-components.referral-flows.test.tsx`, `test/prototype-components.send-document.test.tsx`, `test/prototype-components.channels.test.tsx`, `test/prototype-dashboard-documents.test.ts`, `test/prototype-send-document-flow.test.ts`
+Automated coverage: `test/prototype-components.test.tsx`, `test/prototype-components.shared.test.tsx`, `test/prototype-components.dashboards.test.tsx`, `test/prototype-components.referral-flows.test.tsx`, `test/prototype-components.send-document.test.tsx`, `test/prototype-components.channels.test.tsx`, `test/prototype-dashboard-documents.test.ts`, `test/prototype-dashboard-document-storage.test.ts`, `test/prototype-send-document-flow.test.ts`
 
 ## Manual Smoke Checklist
 
