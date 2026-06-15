@@ -5,20 +5,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { DocumentDetailPreview } from '@/components/prototype/DocumentDetailPreview';
 import { DocumentDetailActionModals } from '@/components/prototype/DocumentDetailActionModals';
+import {
+  archiveDocumentDetailItem,
+  loadDocumentDetailState,
+  removeSpecialistDocumentFromInbox,
+  type PrototypeDocumentItem,
+  type PrototypeDocumentRole,
+} from '@/prototype/documentDetailState';
 import { 
   FileText, ArrowLeft, ArrowUpRight, Archive, Download, 
   HelpCircle, HardDrive, User, Calendar
 } from 'lucide-react';
-
-interface DocumentItem {
-  id: string;
-  name: string;
-  sender: string;
-  date: string;
-  size: string;
-  fromChannel?: boolean;
-  channelName?: string;
-}
 
 interface DocumentDetailClientProps {
   id: string;
@@ -28,9 +25,9 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   
-  const role = searchParams.get('role') || 'specialist'; // 'specialist' or 'dentist'
+  const role = (searchParams.get('role') === 'dentist' ? 'dentist' : 'specialist') satisfies PrototypeDocumentRole;
 
-  const [documentItem, setDocumentItem] = useState<DocumentItem | null>(null);
+  const [documentItem, setDocumentItem] = useState<PrototypeDocumentItem | null>(null);
   const [isArchived, setIsArchived] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -53,69 +50,13 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   );
 
   useEffect(() => {
-    // Determine local storage keys based on role
-    const activeKey = role === 'dentist' ? 'drtalk_dentist_docs' : 'drtalk_specialist_docs';
-    const archivedKey = role === 'dentist' ? 'drtalk_dentist_archived_docs' : 'drtalk_specialist_archived_docs';
+    const detailState = loadDocumentDetailState(id, role);
 
-    const savedDocs = localStorage.getItem(activeKey);
-    const savedArchived = localStorage.getItem(archivedKey);
-
-    let doc: DocumentItem | undefined;
-
-    // 1. Look in active documents
-    if (savedDocs) {
-      try {
-        const parsed = JSON.parse(savedDocs) as DocumentItem[];
-        doc = parsed.find(d => d.id === id);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    // Default fallbacks if not in localStorage yet
-    if (!doc) {
-      const fallbackDocs: DocumentItem[] = role === 'dentist' ? [
-        { id: 'doc-dentist-1', name: 'PANO_REPLY_ALICE_COOPER.PNG', sender: 'Valley Endodontics', date: 'Today, 10:24 AM', size: '2.4 MB', channelName: 'Valley Endodontics', fromChannel: true },
-        { id: 'doc-dentist-2', name: 'TREATMENT_PLAN_REVISION.PDF', sender: 'Downtown Oral Surgery', date: 'Yesterday, 02:15 PM', size: '1.8 MB', channelName: 'Downtown Oral Surgery', fromChannel: false },
-        { id: 'doc-dentist-3', name: 'CBCT_MANDIBULAR_RECONSTRUCTION.ZIP', sender: 'Arizona Periodontics', date: '05/10/2026, 04:30 PM', size: '12.4 MB', channelName: 'Arizona Periodontics', fromChannel: true }
-      ] : [
-        { id: 'doc-1', name: 'PANO_IMAGE_ALICE_COOPER.JPG', sender: 'Dr. Smith (Dentist)', date: '10:05 AM 05/18/2026', size: '2.4 MB', fromChannel: true, channelName: 'Sunshine Dental' },
-        { id: 'doc-2', name: 'REFERRAL_FORM_JOHN_DOE.PDF', sender: 'Dr. Jane Doe (Dentist)', date: '09:15 AM 05/18/2026', size: '1.2 MB', fromChannel: false },
-        { id: 'doc-3', name: 'CBCT_SCAN_BOB_MARLEY.DCM', sender: 'Dr. Robert Miller', date: '04:30 PM 05/17/2026', size: '15.8 MB', fromChannel: true, channelName: 'Westside Pediatric Dentistry' }
-      ];
-      doc = fallbackDocs.find(d => d.id === id);
-    }
-
-    let shouldArchive = false;
-    // 2. Look in archived documents if not found in active
-    if (!doc && savedArchived) {
-      try {
-        const parsedArchived = JSON.parse(savedArchived) as DocumentItem[];
-        doc = parsedArchived.find(d => d.id === id);
-        if (doc) {
-          shouldArchive = true;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    if (doc) {
-      const finalDoc = doc;
-      const finalShouldArchive = shouldArchive;
-      
-      // Prefill guessed patient name
-      let guessedName = 'NEW PATIENT';
-      if (doc.name.includes('ALICE_COOPER')) guessedName = 'Alice Cooper';
-      else if (doc.name.includes('JOHN_DOE')) guessedName = 'John Doe';
-      else if (doc.name.includes('BOB_MARLEY')) guessedName = 'Bob Marley';
-      
+    if (detailState) {
       setTimeout(() => {
-        setDocumentItem(finalDoc);
-        setConvertPatientName(guessedName);
-        if (finalShouldArchive) {
-          setIsArchived(true);
-        }
+        setDocumentItem(detailState.documentItem);
+        setConvertPatientName(detailState.guessedPatientName);
+        setIsArchived(detailState.isArchived);
       }, 0);
     }
   }, [id, role]);
@@ -128,37 +69,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   const handleArchive = () => {
     if (!documentItem) return;
 
-    const activeKey = role === 'dentist' ? 'drtalk_dentist_docs' : 'drtalk_specialist_docs';
-    const archivedKey = role === 'dentist' ? 'drtalk_dentist_archived_docs' : 'drtalk_specialist_archived_docs';
-
-    // Remove from active list
-    const savedDocs = localStorage.getItem(activeKey);
-    let activeDocs: DocumentItem[] = [];
-    if (savedDocs) {
-      try {
-        activeDocs = JSON.parse(savedDocs) as DocumentItem[];
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const filteredDocs = activeDocs.filter(d => d.id !== id);
-    localStorage.setItem(activeKey, JSON.stringify(filteredDocs));
-
-    // Add to archived list
-    const savedArchived = localStorage.getItem(archivedKey);
-    let archivedDocs: DocumentItem[] = [];
-    if (savedArchived) {
-      try {
-        archivedDocs = JSON.parse(savedArchived) as DocumentItem[];
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    if (!archivedDocs.some(d => d.id === id)) {
-      archivedDocs = [documentItem, ...archivedDocs];
-      localStorage.setItem(archivedKey, JSON.stringify(archivedDocs));
-    }
-
+    archiveDocumentDetailItem({ id, role, documentItem });
     setIsArchived(true);
     showToastMsg(`Document ${documentItem.name} archived!`);
   };
@@ -167,19 +78,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   const handleConfirmConvert = () => {
     if (!documentItem) return;
 
-    const activeKey = 'drtalk_specialist_docs';
-    const savedDocs = localStorage.getItem(activeKey);
-    let activeDocs: DocumentItem[] = [];
-    if (savedDocs) {
-      try {
-        activeDocs = JSON.parse(savedDocs) as DocumentItem[];
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const filteredDocs = activeDocs.filter(d => d.id !== id);
-    localStorage.setItem(activeKey, JSON.stringify(filteredDocs));
-
+    removeSpecialistDocumentFromInbox(id);
     setActiveModal(null);
     showToastMsg(`Converted ${documentItem.name} to referral for ${convertPatientName || 'NEW PATIENT'}!`);
     
@@ -192,19 +91,7 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   const handleConfirmAttach = (referralId: string) => {
     if (!documentItem) return;
 
-    const activeKey = 'drtalk_specialist_docs';
-    const savedDocs = localStorage.getItem(activeKey);
-    let activeDocs: DocumentItem[] = [];
-    if (savedDocs) {
-      try {
-        activeDocs = JSON.parse(savedDocs) as DocumentItem[];
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    const filteredDocs = activeDocs.filter(d => d.id !== id);
-    localStorage.setItem(activeKey, JSON.stringify(filteredDocs));
-
+    removeSpecialistDocumentFromInbox(id);
     setActiveModal(null);
     const targetRef = referrals.find(r => r.id === referralId);
     showToastMsg(`Attached ${documentItem.name} to referral for ${targetRef?.patient || 'referral'}!`);

@@ -12,8 +12,14 @@ import { useSubscription } from '@/components/SubscriptionContext';
 import { initialDocuments } from '@/prototype/channelFixtures';
 import { ReferralDetailHeader } from '@/components/prototype/ReferralDetailHeader';
 import { ReferralActivitySidebar } from '@/components/prototype/ReferralActivitySidebar';
+import {
+  appendReferralComment,
+  loadReferralActivityLogs,
+  transitionReferralDetailStatus,
+  type ReferralActivityLog,
+} from '@/prototype/referralDetailState';
 
-import { getReferrals, updateReferralStatus, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, updateReferralAssignee, UnifiedReferral, ReferralStatus, initialReferrals } from '@/lib/referrals';
 
 const PRACTICE_TEAM = [
   { id: 'none', name: 'UNASSIGNED' },
@@ -39,7 +45,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [practiceName, setPracticeName] = useState(referral.practice);
   const [assignedTo, setAssignedTo] = useState<string>(referral?.assignedTo || 'none');
 
-  const [activityLogs, setActivityLogs] = useState<{user: string; text: string; time: string; isDark?: boolean}[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ReferralActivityLog[]>([]);
   const [commentText, setCommentText] = useState('');
 
   useEffect(() => {
@@ -53,32 +59,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
         setPracticeName(ref.practice);
         setAssignedTo(ref.assignedTo || 'none');
         
-        // Load or initialize activity logs
-        const key = `drtalk_activity_logs_${ref.id}`;
-        const stored = localStorage.getItem(key);
-        if (stored) {
-          try {
-            setActivityLogs(JSON.parse(stored));
-          } catch (e) {}
-        } else {
-          const receivedTime = ref.receivedAt || '08:20 AM\n06/30/2026';
-          const datePart = receivedTime.includes('\n') ? receivedTime.split('\n')[1] : '06/30/2026';
-          const initialLogs = [
-            {
-              user: 'System',
-              text: `Referral received from ${ref.practice || ref.dentist} and auto-extracted via Digital Intake Pipeline.`,
-              time: receivedTime
-            },
-            {
-              user: 'Administrator',
-              text: `Clinical records requested from ${ref.dentist}'s office. Pending response.`,
-              time: `09:20 AM\n${datePart}`,
-              isDark: true
-            }
-          ];
-          localStorage.setItem(key, JSON.stringify(initialLogs));
-          setActivityLogs(initialLogs);
-        }
+        setActivityLogs(loadReferralActivityLogs(ref));
       }
     }, 0);
   }, [id]);
@@ -87,91 +68,23 @@ export default function ReferralDetailClient({ id }: { id: string }) {
 
   const handleStatusChange = (newStatus: ReferralStatus) => {
     setCurrentStatus(newStatus);
-    const updated = updateReferralStatus(referral.id, newStatus);
-    setReferrals(updated);
-
-    // Add activity log
-    const now = new Date('2026-06-30T18:00:00+02:00');
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
-
-    const isExternalReferral = referral.id.startsWith('ext-');
-
-    // Build activity log message — external acceptances note the email dispatch
-    const statusMsg = newStatus === 'Accepted' && isExternalReferral
-      ? `Referral status transitioned to ACCEPTED. Automated secure email sent to referring office (${referral.practice || referral.dentist}).`
-      : `Referral status transitioned to ${newStatus.toUpperCase()}.`;
-    
-    const newLog = {
-      user: 'System',
-      text: statusMsg,
-      time: `${timeStr}\n${dateStr}`
-    };
-    
-    const key = `drtalk_activity_logs_${referral.id}`;
-    const stored = localStorage.getItem(key);
-    let logsList = [];
-    if (stored) {
-      try {
-        logsList = JSON.parse(stored);
-      } catch (e) {}
-    }
-    const updatedLogs = [...logsList, newLog];
-    localStorage.setItem(key, JSON.stringify(updatedLogs));
-    setActivityLogs(updatedLogs);
-
-    // Send automated message if transitioning to Accepted
-    if (newStatus === 'Accepted') {
-      const allMessages = getMessages();
-      const channelId = `case_${referral.id}`;
-      if (!allMessages[channelId]) {
-        allMessages[channelId] = [];
-      }
-      
-      const welcomeMessageText = "REFERRAL ACCEPTED. WE ARE REVIEWING THE CLINICAL RECORDS AND WILL COORDINATE APPOINTMENT SCHEDULING SHORTLY.";
-      const hasWelcome = allMessages[channelId].some((m: any) => m.text === welcomeMessageText);
-      if (!hasWelcome) {
-        const welcomeMsg: Record<string, any> = {
-          id: `m_auto_${Date.now()}`,
-          user: referral.specialist || 'Valley Endodontics',
-          text: welcomeMessageText,
-          time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          type: 'other'
-        };
-        // External referral → message is dispatched as a secure email
-        if (isExternalReferral) {
-          welcomeMsg.transport = 'Email';
-        }
-        allMessages[channelId].push(welcomeMsg);
-        saveMessages(allMessages);
-      }
-    }
+    const result = transitionReferralDetailStatus({
+      referral,
+      newStatus,
+      currentLogs: activityLogs,
+    });
+    setReferrals(result.referrals);
+    setActivityLogs(result.activityLogs);
   };
 
   const handlePostComment = () => {
     if (!commentText.trim()) return;
-    const now = new Date('2026-06-30T18:00:00+02:00');
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
-    
-    const newLog = {
-      user: 'Administrator',
-      text: commentText,
-      time: `${timeStr}\n${dateStr}`,
-      isDark: true
-    };
-    
-    const key = `drtalk_activity_logs_${referral.id}`;
-    const stored = localStorage.getItem(key);
-    let logsList = [];
-    if (stored) {
-      try {
-        logsList = JSON.parse(stored);
-      } catch (e) {}
-    }
-    const updated = [...logsList, newLog];
+    const updated = appendReferralComment({
+      referralId: referral.id,
+      commentText,
+      currentLogs: activityLogs,
+    });
     setActivityLogs(updated);
-    localStorage.setItem(key, JSON.stringify(updated));
     setCommentText('');
   };
 
