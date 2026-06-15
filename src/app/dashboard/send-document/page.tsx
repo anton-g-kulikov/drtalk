@@ -10,31 +10,20 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { useVerification } from '@/components/VerificationContext';
 import { 
   initialDocuments, 
   initialMessages, 
   mockChannels,
 } from '@/prototype/channelFixtures';
-import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
+import {
+  buildSendDocumentShare,
+  buildSendDocumentToast,
+  type SendDocumentFileType,
+} from '@/prototype/sendDocumentFlow';
 import { dentistPractices } from '@/lib/mockGenerator';
-
-// Helper functions
-function getNewId(prefix: string): string {
-  return `${prefix}-${Date.now()}`;
-}
-
-function getFormattedDateTime(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' ' + new Date().toLocaleDateString('en-US');
-}
-
-function getFormattedTimeOnly(): string {
-  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-}
 
 export default function SpecialistSendDocumentPage() {
   const router = useRouter();
-  const { isVerified } = useVerification();
 
   // Toast State
   const [toast, setToast] = useState<{ message: string; type: string } | null>(null);
@@ -54,9 +43,9 @@ export default function SpecialistSendDocumentPage() {
   const [practiceSearchQuery, setPracticeSearchQuery] = useState('');
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
 
-  const [attachedFiles, setAttachedFiles] = useState<{ id: string, name: string, size: string, type: string }[]>([]);
+  const [attachedFiles, setAttachedFiles] = useState<{ id: string, name: string, size: string, type: SendDocumentFileType }[]>([]);
   const [customDocName, setCustomDocName] = useState('');
-  const [customDocType, setCustomDocType] = useState('pdf');
+  const [customDocType, setCustomDocType] = useState<SendDocumentFileType>('pdf');
   const [customDocSize, setCustomDocSize] = useState('2.4 MB');
   const [patientFirstName, setPatientFirstName] = useState('');
   const [patientLastName, setPatientLastName] = useState('');
@@ -70,7 +59,7 @@ export default function SpecialistSendDocumentPage() {
       id: 'mock-' + Date.now(),
       name: 'PANO_IMAGE_BOB_MARLEY.JPG',
       size: '4.8 MB',
-      type: 'image'
+      type: 'image' as const
     };
     setAttachedFiles([mockFile]);
     setCustomDocName(mockFile.name);
@@ -114,56 +103,30 @@ export default function SpecialistSendDocumentPage() {
 
   const handleSendDocumentSubmit = () => {
     if (selectedPractices.length === 0) return;
-    
-    const docName = customDocName || 'SHARED_DOCUMENT.PDF';
 
-    selectedPractices.forEach(practiceName => {
-      const targetChannel = mockChannels.find(c => {
-        if (practiceName === 'Sunshine Dental') {
-          return c.id === '3';
-        }
-        return c.name.toLowerCase().includes(practiceName.toLowerCase());
-      });
-
-      const channelId = targetChannel ? targetChannel.id : '3';
-      
-      // 1. Construct Shared Document item
-      const newDoc: SharedDocument = {
-        id: getNewId('shared'),
-        channelId,
-        name: docName,
+    const share = buildSendDocumentShare({
+      role: 'specialist',
+      selectedPractices,
+      channels: mockChannels,
+      existingMessages: initialMessages,
+      files: attachedFiles,
+      fallbackDocument: {
+        name: customDocName || 'SHARED_DOCUMENT.PDF',
         size: customDocSize,
-        type: customDocType as 'pdf' | 'image' | 'zip' | 'doc',
-        sentBy: 'Valley Endodontics (Specialist)',
-        sentAt: getFormattedDateTime()
-      };
-
-      // 2. Add to active shared docs
-      initialDocuments.push(newDoc);
-
-      // 3. Add Message item to communication logs
-      const patientSnippet = patientFirstName || patientLastName 
-        ? `\nPatient: ${patientFirstName} ${patientLastName}${patientDob ? ` (DOB: ${patientDob})` : ''}` 
-        : '';
-      const noteSnippet = uploadMessage ? `\nNote: ${uploadMessage}` : '';
-
-      const newMsg: MessageItem = {
-        id: getNewId('msg'),
-        user: 'Valley Endodontics',
-        text: `Shared a document: ${docName}${patientSnippet}${noteSnippet}`,
-        time: getFormattedTimeOnly(),
-        type: 'self',
-        transport: 'App',
-        document: newDoc
-      };
-
-      if (!initialMessages[channelId]) {
-        initialMessages[channelId] = [];
-      }
-      initialMessages[channelId].push(newMsg);
+        type: customDocType,
+      },
+      patient: {
+        firstName: patientFirstName,
+        lastName: patientLastName,
+        dob: patientDob,
+      },
+      note: uploadMessage,
     });
-
-    const displayPracticeName = selectedPractices.length === 1 ? selectedPractices[0] : `${selectedPractices.length} practices`;
+    initialDocuments.push(...share.sharedDocuments);
+    Object.entries(share.messages).forEach(([channelId, messages]) => {
+      initialMessages[channelId] = messages;
+    });
+    const toastOutcome = buildSendDocumentToast('specialist', selectedPractices, share.sharedDocuments.length);
     
     // Clear states
     setCustomDocName('');
@@ -175,14 +138,10 @@ export default function SpecialistSendDocumentPage() {
     setSelectedPractices([]);
 
     // Trigger toast
-    showToast(`Shared document with ${displayPracticeName}!`, {
+    showToast(toastOutcome.message, {
       label: 'VIEW CHAT',
       onClick: () => {
-        if (selectedPractices.length === 1) {
-          router.push(`/channels?practice=${encodeURIComponent(selectedPractices[0])}`);
-        } else {
-          router.push('/channels');
-        }
+        router.push(toastOutcome.destinationHref);
       }
     });
   };
