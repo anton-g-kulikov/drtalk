@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import {
-  MessageSquare,
-  TrendingUp, Users, FileText, Send, Upload, X, UserPlus, Archive, Clock, Calendar
+  MessageSquare, Users, FileText, Calendar
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -19,6 +18,10 @@ import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocume
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
+import {
+  buildDashboardDocumentChannelTransfer,
+  type DashboardDocumentItem,
+} from '@/prototype/dashboardDocuments';
 
 import { 
   initialDocuments, 
@@ -63,7 +66,7 @@ function addMessageToDb(channelId: string, newMsg: MessageItem) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { isVerified, setShowVerification, hasPracticeOwner } = useVerification();
+  const { isVerified, hasPracticeOwner } = useVerification();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [inviteRole, setInviteRole] = useState('Team Member');
   const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
@@ -89,19 +92,7 @@ export default function DashboardPage() {
     router.push(`/referrals/${ref.id}`);
   };
 
-  interface DocumentItem {
-    id: string;
-    name: string;
-    sender: string;
-    date: string;
-    size: string;
-    fromChannel?: boolean;
-    channelName?: string;
-    channelType?: 'practice' | 'case';
-    caseId?: string;
-    isExternal?: boolean;
-    transport?: 'Email' | 'Fax' | 'App';
-  }
+  type DocumentItem = DashboardDocumentItem;
 
   interface ReferralItem {
     id: string;
@@ -168,11 +159,6 @@ export default function DashboardPage() {
     localStorage.setItem('drtalk_specialist_docs', JSON.stringify(newDocs));
   };
 
-  const saveArchivedToStorage = (newArchived: DocumentItem[]) => {
-    setArchivedDocuments(newArchived);
-    localStorage.setItem('drtalk_specialist_archived_docs', JSON.stringify(newArchived));
-  };
-
   // Search & Pagination states for Dashboard Documents
   const [docSearchQuery, setDocSearchQuery] = useState('');
   const [docCurrentPage, setDocCurrentPage] = useState(1);
@@ -198,109 +184,24 @@ export default function DashboardPage() {
   }, [filteredDocs, docCurrentPage]);
 
   const handleOpenInChannel = (doc: DocumentItem) => {
-    let practiceName = doc.sender;
-    if (practiceName.includes('Sunshine') || practiceName.includes('Smith') || practiceName.includes('Reed')) {
-      practiceName = 'Sunshine Dental';
-    } else if (practiceName.includes('Desert Bloom')) {
-      practiceName = 'Desert Bloom Dental';
-    } else if (practiceName.includes('Oakridge')) {
-      practiceName = 'Oakridge Dental';
-    } else if (practiceName.includes('Black')) {
-      practiceName = 'Black Family Dental';
-    } else if (practiceName.includes('Miller')) {
-      practiceName = 'Miller & Associates';
-    } else if (practiceName.includes('Westside')) {
-      practiceName = 'Westside Pediatric Dentistry';
-    } else {
-      practiceName = doc.sender.replace(' (Specialist)', '').replace(' (Dentist)', '');
-    }
-
-    // Add to Network if not exists
-    const currentNetwork = getNetwork();
-    const existsInNetwork = currentNetwork.some(p => p.name.toLowerCase() === practiceName.toLowerCase());
-    if (!existsInNetwork) {
-      const newPracticeId = 'ext_' + Math.random().toString(36).substring(2, 9);
-      const newPractice = {
-        id: newPracticeId,
-        name: practiceName,
-        type: 'Dentist',
-        specialty: 'General Dentistry',
-        location: 'Phoenix, AZ',
-        status: 'Connected' as const,
-        verified: false,
-        isExternal: true
-      };
-      saveNetwork([...currentNetwork, newPractice]);
-    } else if (doc.isExternal) {
-      // Ensure existing network entry is marked external
-      const updated = currentNetwork.map(p =>
-        p.name.toLowerCase() === practiceName.toLowerCase() ? { ...p, isExternal: true } : p
-      );
-      saveNetwork(updated);
-    }
-
-    // Add to Channels if not exists
-    const isDentist = false;
-    const currentChannels = getChannels(isDentist);
-    const existingChannel = currentChannels.find(c => c.name.toLowerCase() === practiceName.toLowerCase());
-    let practiceId = '';
-    if (!existingChannel) {
-      practiceId = 'ext_ch_' + Math.random().toString(36).substring(2, 9);
-      const newChannel = {
-        id: practiceId,
-        name: practiceName,
-        type: 'inter-practice' as const,
-        lastMessage: `Practice channel created. Shared document: ${doc.name}`,
-        memberCount: 2,
-        isVerified: false,
-        isExternal: true
-      };
-      saveChannels(isDentist, [...currentChannels, newChannel]);
-    } else {
-      practiceId = existingChannel.id;
-      // If this is an external source, ensure the channel is marked external
-      if (doc.isExternal && !existingChannel.isExternal) {
-        const updatedChannels = currentChannels.map(c =>
-          c.id === practiceId ? { ...c, isExternal: true, isVerified: false } : c
-        );
-        saveChannels(isDentist, updatedChannels);
-      }
-    }
-
-    // Add Shared Document item to channel documents store
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const sharedDocObj: SharedDocument = {
-      id: doc.id,
-      channelId: practiceId,
-      name: doc.name,
-      size: doc.size,
-      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
-      sentBy: doc.sender,
-      sentAt: 'Today, ' + timeString
-    };
-    initialDocuments.push(sharedDocObj);
-
-    // Add initial message to the channel
-    const allMessages = getMessages();
-    if (!allMessages[practiceId]) {
-      allMessages[practiceId] = [];
-    }
-    allMessages[practiceId].push({
-      id: 'm_' + Math.random().toString(36).substring(2, 9),
-      user: doc.sender,
-      text: `Incoming document via secure email: ${doc.name}`,
-      time: timeString,
-      type: 'other',
-      transport: 'Email',
-      document: sharedDocObj
+    const transfer = buildDashboardDocumentChannelTransfer({
+      doc,
+      role: 'specialist',
+      network: getNetwork(),
+      channels: getChannels(false),
+      messages: getMessages(),
+      addSharedDocument: addSharedDocumentToDb,
     });
-    saveMessages(allMessages);
+
+    saveNetwork(transfer.network);
+    saveChannels(false, transfer.channels);
+    saveMessages(transfer.messages);
 
     // Remove from dashboard inbox
     const updatedDocs = documents.filter(d => d.id !== doc.id);
     saveDocumentsToStorage(updatedDocs);
     setSelectedDocument(null);
-    router.push(`/channels?practice=${encodeURIComponent(practiceName)}&tab=documents`);
+    router.push(transfer.destinationHref);
   };
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
