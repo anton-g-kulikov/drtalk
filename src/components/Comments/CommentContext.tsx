@@ -40,33 +40,33 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [resolvedCommentIds, setResolvedCommentIds] = useState<string[]>([]);
 
-  // Load resolved comment IDs on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_resolved_comments');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          setTimeout(() => {
-            setResolvedCommentIds(parsed);
-          }, 0);
-        } catch (e) {
-          console.error("Failed to parse resolved comments", e);
-        }
-      }
-    }
-  }, []);
+  // Load resolved comment IDs on mount is no longer needed from localStorage,
+  // we will load it directly from Supabase comments.resolved column.
 
-  const toggleResolveComment = (commentId: string) => {
-    setResolvedCommentIds(prev => {
-      const updated = prev.includes(commentId)
-        ? prev.filter(id => id !== commentId)
-        : [...prev, commentId];
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('drtalk_resolved_comments', JSON.stringify(updated));
-      }
-      return updated;
-    });
+  const toggleResolveComment = async (commentId: string) => {
+    const isCurrentlyResolved = resolvedCommentIds.includes(commentId);
+    
+    // Optimistic local state update
+    setResolvedCommentIds(prev => 
+      isCurrentlyResolved 
+        ? prev.filter(id => id !== commentId) 
+        : [...prev, commentId]
+    );
+
+    const { error } = await supabase
+      .from('comments')
+      .update({ resolved: !isCurrentlyResolved })
+      .eq('id', commentId);
+
+    if (error) {
+      console.error("Error toggling resolve status on Supabase:", error);
+      // Revert local state on error
+      setResolvedCommentIds(prev => 
+        isCurrentlyResolved 
+          ? [...prev, commentId] 
+          : prev.filter(id => id !== commentId)
+      );
+    }
   };
 
   // Load from Supabase
@@ -82,8 +82,9 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
       if (error) {
         console.error("Error fetching comments:", error);
       } else if (data) {
-        // Group comments by marker_id
+        // Group comments by marker_id and collect resolved comment IDs
         const grouped: Record<string, Comment[]> = {};
+        const resolvedIds: string[] = [];
         
         data.forEach((curr: any) => {
           const mId = curr.marker_id || curr.markerId;
@@ -98,16 +99,21 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
             timestamp: new Date(curr.created_at || curr.timestamp || Date.now()).getTime(),
             marker_id: mId
           });
+
+          if (curr.resolved) {
+            resolvedIds.push(curr.id);
+          }
         });
         
         setComments(grouped);
+        setResolvedCommentIds(resolvedIds);
       }
       setIsLoading(false);
     };
 
     fetchComments();
 
-    // Set up real-time subscription
+    // Set up real-time subscription for INSERT and UPDATE
     const channel = supabase
       .channel('comments-realtime')
       .on(
@@ -137,6 +143,28 @@ export function CommentProvider({ children }: { children: React.ReactNode }) {
               ]
             };
           });
+
+          if (newComment.resolved) {
+            setResolvedCommentIds(prev => 
+              prev.includes(newComment.id) ? prev : [...prev, newComment.id]
+            );
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'comments' },
+        (payload) => {
+          const updatedComment = payload.new as any;
+          if (updatedComment.resolved) {
+            setResolvedCommentIds(prev => 
+              prev.includes(updatedComment.id) ? prev : [...prev, updatedComment.id]
+            );
+          } else {
+            setResolvedCommentIds(prev => 
+              prev.filter(id => id !== updatedComment.id)
+            );
+          }
         }
       )
       .subscribe();
