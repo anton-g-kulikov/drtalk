@@ -309,7 +309,13 @@ function ChannelsContent() {
           docSearchQuery={channelsState.docSearchQuery}
           currentDocPage={channelsState.docPage}
           totalDocPages={channelsState.totalDocPages}
-          onActiveTabChange={channelsState.setActiveTab}
+          isViewingArchivedDocs={channelsState.isViewingArchivedDocs}
+          onActiveTabChange={(tab) => {
+            channelsState.setActiveTab(tab);
+            if (tab !== 'documents') {
+              channelsState.setIsViewingArchivedDocs(false);
+            }
+          }}
           onShowChannelList={() => channelsState.setShowChannelList(true)}
           onBackToPractice={channelsState.onBackToPractice}
           onArchiveCase={channelsState.onArchiveCase}
@@ -346,6 +352,10 @@ function ChannelsContent() {
               return ref ? (isDentist ? (ref.dentistStatus || ref.status) : ref.status) : undefined;
             })()
           }
+          onArchiveDocument={channelsState.onArchiveDocument}
+          onUnarchiveDocument={channelsState.onUnarchiveDocument}
+          onViewArchivedDocuments={() => channelsState.setIsViewingArchivedDocs(!channelsState.isViewingArchivedDocs)}
+          isViewingArchivedDocs={channelsState.isViewingArchivedDocs}
         />
       </div>
 

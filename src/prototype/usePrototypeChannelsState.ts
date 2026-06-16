@@ -95,6 +95,7 @@ export function usePrototypeChannelsState({
   ]);
   const [showChannelList, setShowChannelList] = useState(false);
   const [docPage, setDocPage] = useState(1);
+  const [isViewingArchivedDocs, setIsViewingArchivedDocs] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -243,6 +244,7 @@ export function usePrototypeChannelsState({
     if (!isParentInterPractice && activeTab === 'archived') {
       setActiveTab('messages');
     }
+    setIsViewingArchivedDocs(false);
   };
 
   const handleCreateGroupChat = () => {
@@ -309,13 +311,14 @@ export function usePrototypeChannelsState({
     const seen = new Set<string>();
     return documents
       .filter((documentItem) => documentItem.channelId === activeChannel.id)
+      .filter((documentItem) => isViewingArchivedDocs ? !!documentItem.isArchived : !documentItem.isArchived)
       .filter((documentItem) => documentItem.name.toLowerCase().includes(docSearchQuery.toLowerCase()))
       .filter((documentItem) => {
         if (seen.has(documentItem.id)) return false;
         seen.add(documentItem.id);
         return true;
       });
-  }, [documents, activeChannel.id, docSearchQuery]);
+  }, [documents, activeChannel.id, docSearchQuery, isViewingArchivedDocs]);
 
   const paginatedDocuments = useMemo(() => {
     const startIndex = (docPage - 1) * DOCS_PER_PAGE;
@@ -442,6 +445,16 @@ export function usePrototypeChannelsState({
     handleSendMessage,
     formatDocumentSender,
     formatMessage,
+    isViewingArchivedDocs,
+    setIsViewingArchivedDocs,
+    onArchiveDocument: (documentItem: SharedDocument) => {
+      setDocuments(prev => prev.map(d => d.id === documentItem.id ? { ...d, isArchived: true } : d));
+      triggerToast(`Archived "${documentItem.name}"`);
+    },
+    onUnarchiveDocument: (documentItem: SharedDocument) => {
+      setDocuments(prev => prev.map(d => d.id === documentItem.id ? { ...d, isArchived: false } : d));
+      triggerToast(`Restored "${documentItem.name}"`);
+    },
     onCancelCreateGroup: () => {
       setShowCreateGroupModal(false);
       setGroupChatName('');

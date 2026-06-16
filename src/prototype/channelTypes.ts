@@ -19,6 +19,7 @@ export interface SharedDocument {
   type: 'pdf' | 'image' | 'zip' | 'doc';
   sentBy: string;
   sentAt: string;
+  isArchived?: boolean;
 }
 
 export interface MessageItem {

@@ -14,6 +14,10 @@ type ChannelDocumentsPaneProps = {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
+  onArchiveDocument?: (document: SharedDocument) => void;
+  onUnarchiveDocument?: (document: SharedDocument) => void;
+  onViewArchivedDocuments?: () => void;
+  isViewingArchivedDocs?: boolean;
 };
 
 export function ChannelDocumentsPane({
@@ -29,6 +33,10 @@ export function ChannelDocumentsPane({
   currentPage = 1,
   totalPages = 1,
   onPageChange,
+  onArchiveDocument,
+  onUnarchiveDocument,
+  onViewArchivedDocuments,
+  isViewingArchivedDocs = false,
 }: ChannelDocumentsPaneProps) {
   const hasPagination = totalPages > 1 && Boolean(onPageChange);
 
@@ -37,10 +45,20 @@ export function ChannelDocumentsPane({
       <div className="p-4 border-b-2 border-black bg-white shrink-0">
         <div className="max-w-4xl mx-auto w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-black uppercase tracking-tighter italic text-black">Shared Documents</span>
+            <span className="text-sm font-black uppercase tracking-tighter italic text-black">
+              {isViewingArchivedDocs ? 'Archived Documents' : 'Shared Documents'}
+            </span>
             <span className="text-[8px] font-bold uppercase px-2 py-0.5 bg-black text-white">
               {totalDocumentCount} Files
             </span>
+            {onViewArchivedDocuments && (
+              <button
+                onClick={onViewArchivedDocuments}
+                className="ml-2 text-[10px] font-bold uppercase underline text-muted-foreground hover:text-black transition-colors"
+              >
+                {isViewingArchivedDocs ? '← Back to Documents' : 'View Archived'}
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -112,7 +130,7 @@ export function ChannelDocumentsPane({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed">
+                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed flex-wrap">
                       <button
                         onClick={() => onViewDocument(document)}
                         className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
@@ -125,6 +143,24 @@ export function ChannelDocumentsPane({
                       >
                         <Download size={10} /> Download
                       </button>
+                      {onArchiveDocument && !isViewingArchivedDocs && (
+                        <button
+                          onClick={() => onArchiveDocument(document)}
+                          className="flex-none wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 px-3 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-600 font-bold transition-colors"
+                          title="Archive Document"
+                        >
+                          Archive
+                        </button>
+                      )}
+                      {onUnarchiveDocument && isViewingArchivedDocs && (
+                        <button
+                          onClick={() => onUnarchiveDocument(document)}
+                          className="flex-none wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 px-3 flex items-center justify-center hover:bg-green-50 hover:text-green-700 hover:border-green-700 font-bold transition-colors"
+                          title="Restore Document"
+                        >
+                          Unarchive
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

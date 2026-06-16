@@ -53,6 +53,10 @@ type ChannelContentPaneProps = {
   formatDocumentSender: (sentBy: string) => string;
   onCompleteCare?: () => void;
   referralStatus?: ReferralStatus;
+  onArchiveDocument?: (document: SharedDocument) => void;
+  onUnarchiveDocument?: (document: SharedDocument) => void;
+  onViewArchivedDocuments?: () => void;
+  isViewingArchivedDocs?: boolean;
 };
 
 export function ChannelContentPane({
@@ -93,6 +97,10 @@ export function ChannelContentPane({
   formatDocumentSender,
   onCompleteCare,
   referralStatus,
+  onArchiveDocument,
+  onUnarchiveDocument,
+  onViewArchivedDocuments,
+  isViewingArchivedDocs,
 }: ChannelContentPaneProps) {
   const shouldShowArchived = activeTab === 'archived' && activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_');
 
@@ -183,6 +191,10 @@ export function ChannelContentPane({
               currentPage={currentDocPage}
               totalPages={totalDocPages}
               onPageChange={onDocPageChange}
+              onArchiveDocument={activeChannel.type === 'inter-practice' ? onArchiveDocument : undefined}
+              onUnarchiveDocument={activeChannel.type === 'inter-practice' ? onUnarchiveDocument : undefined}
+              onViewArchivedDocuments={activeChannel.type === 'inter-practice' ? onViewArchivedDocuments : undefined}
+              isViewingArchivedDocs={isViewingArchivedDocs}
             />
           )}
         </>
