@@ -86,7 +86,18 @@ function ChannelsContent() {
       const parts = ref.patientName.split(' ');
       setPatientFirstName(parts[0] || '');
       setPatientLastName(parts.slice(1).join(' ') || '');
-      setPatientDob(ref.dob || '01/01/1990');
+      
+      let dob = '01/01/1990';
+      const patientLower = ref.patientName.toLowerCase();
+      if (ref.id === '1' || patientLower === 'alice cooper') dob = '12/04/1978';
+      else if (ref.id === 'D-1002' || patientLower === 'marco reyes') dob = '05/14/1988';
+      else if (ref.id === 'D-1003' || patientLower === 'nina patel') dob = '10/20/1990';
+      else if (ref.id === 'D-1005' || ref.id === 'D-1004' || patientLower === 'sarah jenkins') dob = '11/22/1992';
+      else if (patientLower === 'john doe') dob = '08/08/1985';
+      else if (patientLower === 'james dean') dob = '02/08/1931';
+      else if (patientLower === 'humphrey bogart') dob = '12/25/1899';
+      else if (patientLower === 'audrey hepburn') dob = '05/04/1929';
+      setPatientDob(dob);
     }
   };
 
@@ -190,8 +201,8 @@ function ChannelsContent() {
           name: file.name,
           size: file.size,
           type: file.type,
-          sender: 'Me',
-          date: 'Today'
+          sentBy: 'Me',
+          sentAt: 'Today'
         }, ...prev];
       });
 
@@ -206,10 +217,14 @@ function ChannelsContent() {
         text: msgText,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         type: 'self' as const,
-        attachment: {
+        document: {
+          id: file.id,
+          channelId: file.channelId,
           name: file.name,
           size: file.size,
-          type: file.type
+          type: file.type,
+          sentBy: 'Me',
+          sentAt: 'Today'
         }
       };
 
@@ -335,6 +350,7 @@ function ChannelsContent() {
             channelsState.triggerToast(`Downloading "${document.name}"...`);
           }}
         />
+      )}
             {/* Direct Document Upload / Send Modal */}
       {showDirectUploadModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
@@ -633,7 +649,7 @@ function ChannelsContent() {
                     const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const newFile = {
                       id: 'temp_' + Math.random().toString(36).substring(2, 9),
-                      channelId: activeChannel.id,
+                      channelId: channelsState.activeChannel.id,
                       name: choice.name,
                       size: choice.size,
                       type: choice.type,
@@ -641,7 +657,7 @@ function ChannelsContent() {
                       sentAt: 'Today, ' + timeString
                     };
                     setAttachedFiles(prev => [...prev, newFile]);
-                    triggerToast(`Mock attached "${choice.name}" successfully!`);
+                    channelsState.triggerToast(`Mock attached "${choice.name}" successfully!`);
                   }}
                   className="relative z-10 mt-1 px-4 py-1.5 bg-black text-white hover:bg-gray-800 text-[8px] uppercase font-black tracking-widest border border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,0.3)] active:translate-y-[1px]"
                 >

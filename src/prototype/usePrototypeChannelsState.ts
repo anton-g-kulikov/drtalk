@@ -415,6 +415,7 @@ export function usePrototypeChannelsState({
     totalDocPages,
     triggerToast,
     setActiveChannel,
+    setMessages,
     setActiveTab,
     setAttachedDoc,
     setDocPage,

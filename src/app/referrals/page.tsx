@@ -389,13 +389,14 @@ export default function ReferralsPage() {
                     })}
                   </div>
 
-                <button
-                  disabled={currentPage === totalReferralPages}
-                  onClick={() => setCurrentPage(prev => Math.min(totalReferralPages, prev + 1))}
-                  className="wireframe-button px-4 py-2 text-[10px] uppercase font-black tracking-widest border-2 disabled:border-gray-300 disabled:text-gray-300 disabled:pointer-events-none border-black text-black hover:bg-black hover:text-white transition-colors bg-white"
-                >
-                  Next Page
-                </button>
+                  <button
+                    disabled={currentPage === totalReferralPages}
+                    onClick={() => setCurrentPage(prev => Math.min(totalReferralPages, prev + 1))}
+                    className="wireframe-button border-2 border-black px-3 py-1 hover:bg-black hover:text-white transition-all disabled:opacity-30 disabled:hover:bg-white disabled:hover:text-black shrink-0"
+                  >
+                    NEXT
+                  </button>
+                </div>
               </div>
             )}
         </div>
