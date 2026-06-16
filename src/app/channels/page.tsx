@@ -355,7 +355,6 @@ function ChannelsContent() {
           onArchiveDocument={channelsState.onArchiveDocument}
           onUnarchiveDocument={channelsState.onUnarchiveDocument}
           onViewArchivedDocuments={() => channelsState.setIsViewingArchivedDocs(!channelsState.isViewingArchivedDocs)}
-          isViewingArchivedDocs={channelsState.isViewingArchivedDocs}
         />
       </div>
 
