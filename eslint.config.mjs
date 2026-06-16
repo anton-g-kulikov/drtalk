@@ -11,6 +11,7 @@ const eslintConfig = [
       "react-hooks/set-state-in-effect": "off",
       "react-hooks/purity": "off",
       "react-hooks/preserve-manual-memoization": "off",
+      "@next/next/no-img-element": "off",
     },
   },
 ];
