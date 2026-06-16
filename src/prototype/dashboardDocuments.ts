@@ -15,6 +15,7 @@ export interface DashboardDocumentItem {
   caseId?: string;
   isExternal?: boolean;
   transport?: 'Email' | 'Fax' | 'App';
+  isUnrecognized?: boolean;
 }
 
 export interface DashboardDocumentChannelTransfer {

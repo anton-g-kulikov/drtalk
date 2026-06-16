@@ -1,4 +1,4 @@
-import { ArrowUpRight } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight } from 'lucide-react';
 
 export type SpecialistReferralQueueItem = {
   id: string;
@@ -10,6 +10,7 @@ export type SpecialistReferralQueueItem = {
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
   isExternal?: boolean;
   transport?: 'Email' | 'Fax' | 'App';
+  isUnrecognized?: boolean;
 };
 
 type SpecialistReferralQueuesProps = {
@@ -45,42 +46,75 @@ function ReferralQueueSection({
         </div>
       ) : (
         <div className="space-y-2">
-          {referrals.map((referral) => (
-            <div
-              key={referral.id}
-              onClick={() => onReferralClick(referral.id)}
-              className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <p className="font-bold uppercase text-xs">{referral.patient}</p>
-                  {referral.isExternal && (
-                    <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
-                      EXTERNAL &bull; {referral.transport || 'EMAIL'}
+          {referrals.map((referral) =>
+            referral.isUnrecognized ? (
+              // Unrecognized-sender card — B&W dashed style, no urgency tag
+              <div
+                key={referral.id}
+                onClick={() => onReferralClick(referral.id)}
+                className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-dashed border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <AlertTriangle size={13} className="text-black shrink-0 group-hover:text-white" />
+                    <p className="font-bold uppercase text-xs">Unrecognized Sender</p>
+                    {referral.isExternal && (
+                      <span className="text-[7px] bg-black text-white px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-white group-hover:text-black">
+                        EXTERNAL &bull; {referral.transport || 'EMAIL'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">
+                    {referral.detail}
+                  </p>
+                  <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                    {dateLabel} {referral.date}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0 ml-4">
+                  <span className="text-[8px] font-black uppercase group-hover:text-white">
+                    Identify
+                  </span>
+                  <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                </div>
+              </div>
+            ) : (
+              <div
+                key={referral.id}
+                onClick={() => onReferralClick(referral.id)}
+                className="wireframe-card p-4 flex items-center justify-between bg-white border-2 border-black hover:bg-black hover:text-white cursor-pointer group transition-all"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-bold uppercase text-xs">{referral.patient}</p>
+                    {referral.isExternal && (
+                      <span className="text-[7px] bg-white text-black px-1.5 py-0.5 border border-black font-black uppercase shrink-0 group-hover:bg-gray-100">
+                        EXTERNAL &bull; {referral.transport || 'EMAIL'}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{referral.detail}</p>
+                  <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
+                    From: {referral.source}{referral.dentist ? ` • Ref. by ${referral.dentist}` : ''} • {dateLabel} {referral.date}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {referral.urgency && (
+                    <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
+                      referral.urgency === 'Emergency'
+                        ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800'
+                        : referral.urgency === 'Urgent'
+                          ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800'
+                          : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
+                    }`}>
+                      {referral.urgency}
                     </span>
                   )}
+                  <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </div>
-                <p className="text-[10px] uppercase font-bold opacity-70 group-hover:opacity-100">{referral.detail}</p>
-                <p className="text-[8px] uppercase font-bold text-muted-foreground group-hover:text-zinc-300">
-                  From: {referral.source}{referral.dentist ? ` • Ref. by ${referral.dentist}` : ''} • {dateLabel} {referral.date}
-                </p>
               </div>
-              <div className="flex items-center gap-2">
-                {referral.urgency && (
-                  <span className={`text-[8px] uppercase font-bold px-2 py-0.5 border ${
-                    referral.urgency === 'Emergency'
-                      ? 'bg-red-100 text-red-900 border-red-300 group-hover:bg-red-950 group-hover:text-red-200 group-hover:border-red-800'
-                      : referral.urgency === 'Urgent'
-                        ? 'bg-amber-100 text-amber-900 border-amber-300 group-hover:bg-amber-950 group-hover:text-amber-200 group-hover:border-amber-800'
-                        : 'bg-zinc-100 text-zinc-800 border-zinc-300 group-hover:bg-zinc-800 group-hover:text-zinc-300 group-hover:border-zinc-700'
-                  }`}>
-                    {referral.urgency}
-                  </span>
-                )}
-                <ArrowUpRight size={16} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-              </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       )}
     </div>

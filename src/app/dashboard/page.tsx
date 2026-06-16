@@ -19,6 +19,7 @@ import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocume
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
+import { UnrecognizedSenderModal, type UnrecognizedSenderFormValues } from '@/components/prototype/UnrecognizedSenderModal';
 import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
@@ -71,13 +72,7 @@ export default function DashboardPage() {
   const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
   const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
 
-  const handleReferralClick = (ref: ReferralItem) => {
-    if (!isVerified) {
-      router.push('/verify');
-      return;
-    }
-    router.push(`/referrals/${ref.id}`);
-  };
+  // Defined after state declarations below — see handleReferralClick near referrals state
 
   type DocumentItem = DashboardDocumentItem;
 
@@ -93,6 +88,7 @@ export default function DashboardPage() {
     urgency?: 'Routine' | 'Urgent' | 'Emergency';
     isExternal?: boolean;
     transport?: 'Email' | 'Fax' | 'App';
+    isUnrecognized?: boolean;
   }
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -161,11 +157,13 @@ export default function DashboardPage() {
   };
 
   const [referrals, setReferrals] = useState<ReferralItem[]>([
-    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', dentist: 'Dr. Taylor Reed', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral - Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
-    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Miller & Associates', dentist: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Missing Attachment', urgency: 'Emergency' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Black Family Dental', dentist: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Missing: Signed Form, Med History', urgency: 'Routine' },
+    { id: 'doc-unrecognized-1', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Fax', dentist: undefined, date: '06/30/2026', status: 'new_processing', detail: 'Missing: Referring Practice', isExternal: true, transport: 'Fax', isUnrecognized: true },
+    { id: 'doc-unrecognized-2', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Email', dentist: undefined, date: '06/30/2026', status: 'new_processing', detail: 'Missing: Referring Practice', isExternal: true, transport: 'Email', isUnrecognized: true },
+    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', dentist: 'Dr. Taylor Reed', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral — Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
+    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Miller & Associates', dentist: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Needs Review', urgency: 'Emergency' },
+    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Black Family Dental', dentist: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Needs Review', urgency: 'Routine' },
     { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', dentist: 'Dr. Taylor Reed', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Desert Bloom Dental', dentist: 'Dr. Jones', date: '05/18/2026', status: 'new_docs', detail: 'Missing: Panoramic Radiograph', urgency: 'Urgent' }
+    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Desert Bloom Dental', dentist: 'Dr. Jones', date: '05/18/2026', status: 'new_docs', detail: 'New Documents Received', urgency: 'Urgent' }
   ]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
@@ -173,6 +171,30 @@ export default function DashboardPage() {
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [unrecognizedDoc, setUnrecognizedDoc] = useState<DocumentItem | null>(null);
+
+  const handleReferralClick = (ref: ReferralItem) => {
+    // Unrecognized-sender items open the resolution modal — never navigate
+    if (ref.id.startsWith('doc-unrecognized')) {
+      const existingDoc = documents.find(d => d.id === ref.id);
+      setUnrecognizedDoc(existingDoc ?? {
+        id: ref.id,
+        name: 'INCOMING_DOCUMENT.PDF',
+        sender: ref.source,
+        date: ref.date,
+        size: '—',
+        isExternal: true,
+        transport: ref.transport,
+        isUnrecognized: true,
+      });
+      return;
+    }
+    if (!isVerified) {
+      router.push('/verify');
+      return;
+    }
+    router.push(`/referrals/${ref.id}`);
+  };
 
   const handleConvertDocument = (doc: DocumentItem) => {
     setSelectedDocument(doc);
@@ -254,6 +276,65 @@ export default function DashboardPage() {
     }, 5000);
   };
 
+  const handleIdentifyDocument = (doc: DocumentItem) => {
+    setUnrecognizedDoc(doc);
+  };
+
+  const handleConfirmUnrecognized = (values: UnrecognizedSenderFormValues) => {
+    if (!unrecognizedDoc) return;
+
+    // Remove from inbox
+    const updatedDocs = documents.filter(d => d.id !== unrecognizedDoc.id);
+    saveDocumentsToStorage(updatedDocs);
+
+    // Remove from referral queue too
+    setReferrals(prev => prev.filter(r => r.id !== unrecognizedDoc.id));
+
+    if (values.itemType === 'referral') {
+      // Create a new referral queue item
+      const newReferralItem = {
+        id: getNewId('ext-ref'),
+        patient: values.patientName || 'NEW PATIENT',
+        type: 'Referral',
+        source: values.senderPractice,
+        dentist: values.senderPractice,
+        date: getFormattedDateOnly(),
+        status: 'new_processing' as const,
+        detail: `Received via ${unrecognizedDoc.transport || 'External'} — Sender identified as ${values.senderPractice}`,
+        urgency: 'Routine' as const,
+        isExternal: true,
+        transport: unrecognizedDoc.transport,
+      };
+      setReferrals(prev => [newReferralItem, ...prev]);
+      showToast(`Referral created for ${newReferralItem.patient} from ${values.senderPractice}.`);
+    } else {
+      // Route as document to inter-practice channel
+      const resolvedDoc = {
+        ...unrecognizedDoc,
+        sender: values.senderPractice,
+        isUnrecognized: false,
+        isExternal: true,
+      };
+      const transfer = buildDashboardDocumentChannelTransfer({
+        doc: resolvedDoc,
+        role: 'specialist',
+        network: getNetwork(),
+        channels: getChannels(false),
+        messages: getMessages(),
+        addSharedDocument: addSharedDocumentToDb,
+      });
+      saveNetwork(transfer.network);
+      saveChannels(false, transfer.channels);
+      saveMessages(transfer.messages);
+      showToast(
+        `Document routed to ${values.senderPractice} channel.`,
+        { label: 'Open Channel', onClick: () => router.push(transfer.destinationHref) }
+      );
+    }
+
+    setUnrecognizedDoc(null);
+  };
+
   const newProcessingReferrals = referrals.filter(r => r.status === 'new_processing');
   const newDocsReferrals = referrals.filter(r => r.status === 'new_docs');
   const filteredAttachReferrals = referrals.filter(ref => 
@@ -303,6 +384,14 @@ export default function DashboardPage() {
               processingReferrals={newProcessingReferrals}
               documentReferrals={newDocsReferrals}
               onReferralClick={(id) => {
+                // Unrecognized-sender items open the resolution modal
+                if (id.startsWith('doc-unrecognized')) {
+                  const matchingDoc = documents.find(d => d.id === id);
+                  if (matchingDoc) {
+                    setUnrecognizedDoc(matchingDoc);
+                  }
+                  return;
+                }
                 const referral = referrals.find((item) => item.id === id);
                 if (referral) handleReferralClick(referral);
               }}
@@ -327,6 +416,7 @@ export default function DashboardPage() {
                       onOpenDocument={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
+                      onIdentify={() => handleIdentifyDocument(doc)}
                       onOpenChannel={() => {
                         if (doc.fromChannel) {
                           const practiceName = doc.sender.toLowerCase().includes('smith') || doc.sender.toLowerCase().includes('sunshine')
@@ -394,6 +484,16 @@ export default function DashboardPage() {
             onClose={() => setActiveModal(null)}
             onConfirmConvert={handleConfirmConvert}
             onConfirmAttach={handleConfirmAttach}
+          />
+        )}
+
+        {unrecognizedDoc && (
+          <UnrecognizedSenderModal
+            documentName={unrecognizedDoc.name}
+            documentSize={unrecognizedDoc.size}
+            transport={unrecognizedDoc.transport || 'Email'}
+            onClose={() => setUnrecognizedDoc(null)}
+            onConfirm={handleConfirmUnrecognized}
           />
         )}
 

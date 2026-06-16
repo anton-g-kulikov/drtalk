@@ -123,6 +123,7 @@ export interface DashboardDoc {
   caseId?: string;
   isExternal?: boolean;
   transport?: 'Email' | 'Fax' | 'App';
+  isUnrecognized?: boolean;
 }
 
 // Generate the master mock dataset
@@ -151,11 +152,56 @@ export function generateMockData() {
       fromChannel: false,
       isExternal: true,
       transport: 'Fax'
-    }
+    },
+    {
+      id: 'doc-unrecognized-1',
+      name: 'EFAX_REFERRAL_UNKNOWN_SENDER.PDF',
+      sender: 'Unknown (Fax)',
+      date: '07:30 AM 06/30/2026',
+      size: '2.1 MB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Fax',
+      isUnrecognized: true,
+    },
+    {
+      id: 'doc-unrecognized-2',
+      name: 'SECURE_EMAIL_ATTACHMENT_UNVERIFIED.PDF',
+      sender: 'Unknown (Email)',
+      date: '06:55 AM 06/30/2026',
+      size: '890 KB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Email',
+      isUnrecognized: true,
+    },
   ];
   const dashboardDocsSpecialistArchived: DashboardDoc[] = [];
   
-  const dashboardDocsDentist: DashboardDoc[] = [];
+  const dashboardDocsDentist: DashboardDoc[] = [
+    {
+      id: 'doc-unrecognized-3',
+      name: 'EFAX_PATIENT_RECORDS_UNIDENTIFIED.PDF',
+      sender: 'Unknown (Fax)',
+      date: '09:10 AM 06/30/2026',
+      size: '3.4 MB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Fax',
+      isUnrecognized: true,
+    },
+    {
+      id: 'doc-unrecognized-4',
+      name: 'INCOMING_EMAIL_NO_PRACTICE_ID.PDF',
+      sender: 'Unknown (Email)',
+      date: '08:22 AM 06/30/2026',
+      size: '1.2 MB',
+      fromChannel: false,
+      isExternal: true,
+      transport: 'Email',
+      isUnrecognized: true,
+    },
+  ];
   const dashboardDocsDentistArchived: DashboardDoc[] = [];
 
   // Add the base/original referrals to keep the existing prototype demos working
