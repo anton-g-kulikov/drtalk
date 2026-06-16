@@ -1,6 +1,6 @@
 export type NetworkRole = 'specialist' | 'dentist';
 export type NetworkTab = 'analytics' | 'connected' | 'directory';
-export type NetworkTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year';
+export type NetworkTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 export type AnalyticsRow = {
   id: string;
@@ -63,11 +63,6 @@ export const specialistAnalytics: Record<NetworkTimeRange, AnalyticsData> = {
     { id: '7', name: 'Desert Bloom Dental', primary: 410, scheduled: 340, released: 280, conversion: 83 },
     { id: '8', name: 'Mountain View Family Dental', primary: 170, scheduled: 135, released: 110, conversion: 79 },
   ] },
-  last_year: { totalPrimary: 1650, totalScheduled: 1420, totalReleased: 1210, conversionRate: 86, breakdown: [
-    { id: '6', name: 'Sunshine Dental', primary: 520, scheduled: 480, released: 410, conversion: 92 },
-    { id: '7', name: 'Desert Bloom Dental', primary: 780, scheduled: 650, released: 550, conversion: 83 },
-    { id: '8', name: 'Mountain View Family Dental', primary: 350, scheduled: 290, released: 250, conversion: 82 },
-  ] },
 };
 
 export const dentistAnalytics: Record<NetworkTimeRange, AnalyticsData> = {
@@ -95,11 +90,6 @@ export const dentistAnalytics: Record<NetworkTimeRange, AnalyticsData> = {
     { id: '1', name: 'Valley Endodontics', primary: 260, scheduled: 235, released: 190, conversion: 90 },
     { id: '2', name: 'Downtown Oral Surgery', primary: 410, scheduled: 340, released: 280, conversion: 83 },
     { id: '3', name: 'Arizona Periodontics', primary: 170, scheduled: 135, released: 110, conversion: 79 },
-  ] },
-  last_year: { totalPrimary: 1650, totalScheduled: 1420, totalReleased: 1210, conversionRate: 86, breakdown: [
-    { id: '1', name: 'Valley Endodontics', primary: 520, scheduled: 480, released: 410, conversion: 92 },
-    { id: '2', name: 'Downtown Oral Surgery', primary: 780, scheduled: 650, released: 550, conversion: 83 },
-    { id: '3', name: 'Arizona Periodontics', primary: 350, scheduled: 290, released: 250, conversion: 82 },
   ] },
 };
 

@@ -3,7 +3,7 @@
 import { ChevronDown, Filter, Search } from 'lucide-react';
 import type { ReferralStatus } from '@/lib/referrals';
 
-export type ReferralTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year' | 'last_year';
+export type ReferralTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
 type ReferralPipelineControlsProps = {
   isDentist: boolean;
@@ -105,11 +105,10 @@ export function ReferralPipelineControls({
               className="wireframe-input py-2 pl-4 pr-10 text-[11px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
             >
               <option value="day">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="quarter">This Quarter</option>
-              <option value="year">This Year</option>
-              <option value="last_year">Last Year</option>
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="quarter">Last 90 Days</option>
+              <option value="year">Last 12 Months</option>
             </select>
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <ChevronDown size={14} className="text-black" />
