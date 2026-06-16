@@ -68,11 +68,11 @@ export function ReferralDetailHeader({
 
       <div className="flex flex-wrap items-center gap-3 relative">
         <div className="relative flex items-stretch">
-          <button onClick={onMainNextAction} disabled={currentStatus === 'Accepted' && assignedTo === 'none'} className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed">
+          <button onClick={onMainNextAction} className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed">
             {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
               currentStatus === 'Accepted' ? 'Schedule Appointment' :
-              currentStatus === 'Scheduled' ? 'Complete Treatment' :
-              currentStatus === 'Completed' ? 'Archive Case' :
+              currentStatus === 'Scheduled' ? 'Release Patient' :
+              currentStatus === 'Released' ? 'Archive Case' :
               'Reopen Case'}
           </button>
 
@@ -89,14 +89,13 @@ export function ReferralDetailHeader({
                 { status: 'Received', label: 'Received (Review)' },
                 { status: 'Accepted', label: 'Accepted' },
                 { status: 'Scheduled', label: 'Scheduled' },
-                { status: 'Completed', label: 'Completed' },
+                { status: 'Released', label: 'Released' },
                 { status: 'Archived', label: 'Archived' },
               ].map((item) => (
                 <button
                   key={item.status}
-                  disabled={item.status === 'Scheduled' && assignedTo === 'none'}
                   onClick={() => {
-                    if (item.status === 'Completed') {
+                    if (item.status === 'Completed' || item.status === 'Released') {
                       onProcessReferral();
                     } else {
                       onStatusChange(item.status as ReferralStatus);
@@ -119,7 +118,7 @@ export function ReferralDetailHeader({
           </button>
         )}
 
-        {currentStatus !== 'Archived' && currentStatus !== 'Completed' && (
+        {currentStatus !== 'Archived' && currentStatus !== 'Released' && (
           <button onClick={() => onStatusChange('Archived')} className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black">
             Archive Case
           </button>

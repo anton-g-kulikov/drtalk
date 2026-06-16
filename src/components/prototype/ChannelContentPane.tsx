@@ -3,6 +3,7 @@
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import type { AttachmentOption } from '@/components/prototype/ChannelAttachmentControls';
 import type { ChannelCaseSummary } from '@/components/prototype/ChannelSidebar';
+import type { ReferralStatus } from '@/lib/referrals';
 import { ChannelArchivedConversations } from '@/components/prototype/ChannelArchivedConversations';
 import { ChannelConversationHeader } from '@/components/prototype/ChannelConversationHeader';
 import { ChannelDocumentsPane } from '@/components/prototype/ChannelDocumentsPane';
@@ -50,6 +51,8 @@ type ChannelContentPaneProps = {
   onDocPageChange: (page: number) => void;
   formatMessage: (message: MessageItem) => MessageDisplay;
   formatDocumentSender: (sentBy: string) => string;
+  onCompleteCare?: () => void;
+  referralStatus?: ReferralStatus;
 };
 
 export function ChannelContentPane({
@@ -88,6 +91,8 @@ export function ChannelContentPane({
   onDocPageChange,
   formatMessage,
   formatDocumentSender,
+  onCompleteCare,
+  referralStatus,
 }: ChannelContentPaneProps) {
   const shouldShowArchived = activeTab === 'archived' && activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_');
 
@@ -102,6 +107,8 @@ export function ChannelContentPane({
         onBackToPractice={onBackToPractice}
         onArchiveCase={onArchiveCase}
         onOpenParticipants={onOpenParticipants}
+        onCompleteCare={onCompleteCare}
+        referralStatus={referralStatus}
       />
 
       {shouldShowArchived ? (

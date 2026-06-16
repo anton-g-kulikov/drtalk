@@ -352,4 +352,66 @@ describe('prototype components: referral flows.test', () => {
     expect(screen.getByPlaceholderText(/e\.g\. #3/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/provide additional clinical notes/i)).toBeInTheDocument();
   });
+
+  it('renders ChannelConversationHeader with Complete Care button and handles archiving callbacks', async () => {
+    const user = userEvent.setup();
+    const onArchiveCase = vi.fn();
+    const onCompleteCare = vi.fn();
+    const onShowChannelList = vi.fn();
+    const onBackToPractice = vi.fn();
+    const onOpenParticipants = vi.fn();
+    const onActiveTabChange = vi.fn();
+
+    const caseChannel = {
+      id: 'case_123',
+      name: 'REF-123: JOHN DOE',
+      type: 'inter-practice' as const,
+      lastMessage: 'Referral status: Released',
+      memberCount: 2,
+    };
+
+    // Render for Dentist with status 'Released' -> Complete Care should be visible
+    const { rerender } = render(
+      <ChannelConversationHeader
+        activeChannel={caseChannel}
+        isDentist={true}
+        activeTab="messages"
+        onActiveTabChange={onActiveTabChange}
+        onShowChannelList={onShowChannelList}
+        onBackToPractice={onBackToPractice}
+        onArchiveCase={onArchiveCase}
+        onOpenParticipants={onOpenParticipants}
+        onCompleteCare={onCompleteCare}
+        referralStatus="Released"
+      />
+    );
+
+    const completeCareBtn = screen.getByRole('button', { name: /complete care/i });
+    expect(completeCareBtn).toBeInTheDocument();
+    await user.click(completeCareBtn);
+    expect(onCompleteCare).toHaveBeenCalledTimes(1);
+
+    const archiveBtn = screen.getByRole('button', { name: /archive channel/i });
+    expect(archiveBtn).toBeInTheDocument();
+    await user.click(archiveBtn);
+    expect(onArchiveCase).toHaveBeenCalledTimes(1);
+
+    // Rerender for Specialist -> Complete Care button should NOT be rendered
+    rerender(
+      <ChannelConversationHeader
+        activeChannel={caseChannel}
+        isDentist={false}
+        activeTab="messages"
+        onActiveTabChange={onActiveTabChange}
+        onShowChannelList={onShowChannelList}
+        onBackToPractice={onBackToPractice}
+        onArchiveCase={onArchiveCase}
+        onOpenParticipants={onOpenParticipants}
+        onCompleteCare={onCompleteCare}
+        referralStatus="Released"
+      />
+    );
+
+    expect(screen.queryByRole('button', { name: /complete care/i })).not.toBeInTheDocument();
+  });
 });

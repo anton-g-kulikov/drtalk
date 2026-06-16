@@ -54,12 +54,24 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       setReferrals(loadedRefs);
       const ref = loadedRefs.find(r => r.id === id) || loadedRefs[0];
       if (ref) {
-        setCurrentStatus(ref.status);
         setUrgency(ref.urgency || 'Routine');
         setPracticeName(ref.practice);
         setAssignedTo(ref.assignedTo || 'none');
         
-        setActivityLogs(loadReferralActivityLogs(ref));
+        const initialLogs = loadReferralActivityLogs(ref);
+        if (ref.status === 'Received' || ref.status === 'Sent') {
+          const result = transitionReferralDetailStatus({
+            referral: ref,
+            newStatus: 'Accepted',
+            currentLogs: initialLogs,
+          });
+          setReferrals(result.referrals);
+          setActivityLogs(result.activityLogs);
+          setCurrentStatus('Accepted');
+        } else {
+          setActivityLogs(initialLogs);
+          setCurrentStatus(ref.status);
+        }
       }
     }, 0);
   }, [id]);
@@ -92,7 +104,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     if (isTrialEnded) {
       setShowPaywall(true);
     } else {
-      handleStatusChange('Completed');
+      handleStatusChange('Released');
     }
   };
 
@@ -108,7 +120,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       case 'Scheduled':
         handleProcessReferral();
         break;
-      case 'Completed':
+      case 'Released':
         handleStatusChange('Archived');
         break;
       case 'Archived':

@@ -2,6 +2,7 @@
 
 import { ArrowLeft, FileText, Hash, Users } from 'lucide-react';
 import type { Channel } from '@/prototype/channelTypes';
+import type { ReferralStatus } from '@/lib/referrals';
 
 type ChannelTab = 'messages' | 'documents' | 'archived';
 
@@ -14,6 +15,8 @@ type ChannelConversationHeaderProps = {
   onBackToPractice: () => void;
   onArchiveCase: () => void;
   onOpenParticipants: () => void;
+  onCompleteCare?: () => void;
+  referralStatus?: ReferralStatus;
 };
 
 export function ChannelConversationHeader({
@@ -25,6 +28,8 @@ export function ChannelConversationHeader({
   onBackToPractice,
   onArchiveCase,
   onOpenParticipants,
+  onCompleteCare,
+  referralStatus,
 }: ChannelConversationHeaderProps) {
   const isCaseChannel = activeChannel.id.startsWith('case_');
   const displayName = isCaseChannel || activeChannel.id !== '3' || isDentist
@@ -77,6 +82,14 @@ export function ChannelConversationHeader({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 text-black">
+          {isCaseChannel && isDentist && referralStatus === 'Released' && onCompleteCare && (
+            <button
+              onClick={onCompleteCare}
+              className="wireframe-button border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-all text-[9px] uppercase font-black bg-white text-black animate-pulse"
+            >
+              Complete Care
+            </button>
+          )}
           {isCaseChannel && (
             <button
               onClick={onArchiveCase}

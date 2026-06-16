@@ -59,15 +59,20 @@ export function buildCaseChannels({
       practiceId = match ? match.id : '6';
     }
 
+    const archived = isDentist
+      ? (ref.archivedByDentist === true || ref.dentistStatus === 'Archived')
+      : (ref.archivedBySpecialist === true || ref.status === 'Archived');
+    const activeStatus = isDentist ? (ref.dentistStatus || ref.status) : ref.status;
+
     return {
       id: `case_${ref.id}`,
       name: includeCodeInName === false ? ref.patientName.toUpperCase() : `${code}: ${ref.patientName.toUpperCase()}`,
       patientName: ref.patientName,
       referralId: ref.id,
       practiceId,
-      isArchived: ref.status === 'Archived',
+      isArchived: archived,
       isExternal: ref.id.startsWith('ext-'),
-      lastMessage: ref.status === 'Archived' ? 'Case archived.' : `Referral status: ${ref.status}`,
+      lastMessage: archived ? 'Case archived.' : `Referral status: ${activeStatus}`,
     };
   });
 }

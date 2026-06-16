@@ -25,11 +25,6 @@ export default function ReferralsPage() {
     }, 2000);
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setMockReferrals(getReferrals());
-    }, 0);
-  }, []);
   const getCompletionColor = (score: number) => {
     if (score >= 90) return 'text-black';
     return 'text-black font-black italic opacity-60';
@@ -51,6 +46,17 @@ export default function ReferralsPage() {
   const [selectedSource, setSelectedSource] = useState<string>('All');
   const [selectedPracticeFilter, setSelectedPracticeFilter] = useState<string>('All');
   const [showIncompleteOnly, setShowIncompleteOnly] = useState(false);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      setMockReferrals(getReferrals());
+    };
+    window.addEventListener('focus', handleFocus);
+    setMockReferrals(getReferrals());
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [activeTab]);
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -102,9 +108,30 @@ export default function ReferralsPage() {
       if (r.id.startsWith('D-')) return false;
     }
 
-    const matchesTab = activeTab === 'Received'
-      ? (r.status === 'Received' || r.status === 'Sent')
-      : r.status === activeTab;
+    const matchesTab = (() => {
+      if (isDentist) {
+        if (activeTab === 'Archived') {
+          return r.archivedByDentist === true;
+        }
+        if (r.archivedByDentist === true) return false;
+        
+        const dStatus = r.dentistStatus || r.status;
+        if (activeTab === 'Received') {
+          return dStatus === 'Received' || dStatus === 'Sent';
+        }
+        return dStatus === activeTab;
+      } else {
+        if (activeTab === 'Archived') {
+          return r.archivedBySpecialist === true;
+        }
+        if (r.archivedBySpecialist === true) return false;
+
+        if (activeTab === 'Received') {
+          return r.status === 'Received' || r.status === 'Sent';
+        }
+        return r.status === activeTab;
+      }
+    })();
     const matchesQuery = r.patientName.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          r.type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesUrgency = selectedUrgency === 'All' || r.urgency === selectedUrgency;

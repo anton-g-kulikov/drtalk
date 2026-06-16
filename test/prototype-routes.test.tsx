@@ -133,15 +133,12 @@ describe('prototype route use cases', () => {
     expect(screen.getByText(/archived from inbox/i)).toBeInTheDocument();
   });
 
-  it('referral detail renders case activity and advances referral status actions', async () => {
+  it('referral detail renders case activity and auto-accepts referral', async () => {
     const user = userEvent.setup();
     renderRoute(<ReferralDetailClient id="2" />);
 
     expect(await screen.findByRole('heading', { name: /bob marley/i })).toBeInTheDocument();
     expect(screen.getByText(/case activity/i)).toBeInTheDocument();
-    expect(screen.getByText(/incomplete data extraction/i)).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: /accept referral/i }));
     expect(await screen.findByText(/^accepted$/i)).toBeInTheDocument();
   });
 

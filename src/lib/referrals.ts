@@ -1,6 +1,6 @@
 "use client";
 
-export type ReferralStatus = 'Received' | 'Sent' | 'Accepted' | 'Scheduled' | 'Completed' | 'Archived' | 'Draft';
+export type ReferralStatus = 'Received' | 'Sent' | 'Accepted' | 'Scheduled' | 'Released' | 'Completed' | 'Archived' | 'Draft';
 
 export interface UnifiedReferral {
   id: string;
@@ -19,6 +19,9 @@ export interface UnifiedReferral {
   urgency?: 'Routine' | 'Urgent' | 'Emergency';
   sender?: string;
   assignedTo?: string;
+  archivedByDentist?: boolean;
+  archivedBySpecialist?: boolean;
+  dentistStatus?: ReferralStatus;
 }
 
 import { generateMockData, dentistPractices, specialistClinics } from './mockGenerator';
@@ -39,16 +42,13 @@ export function getReferrals(): UnifiedReferral[] {
   }
   try {
     const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed)) {
-      if (parsed.length < 1100 || parsed.length > 1200 || (parsed.length > 0 && !parsed[0].receivedAt.includes('06/30/2026'))) {
-        localStorage.setItem('drtalk_referrals', JSON.stringify(initialReferrals));
-        return initialReferrals;
-      }
+    if (Array.isArray(parsed) && parsed.length >= 1000) {
       return parsed.map((r: any) => ({
         ...r,
         specialist: r.specialist || r.practice || 'Valley Endodontics'
       }));
     }
+    localStorage.setItem('drtalk_referrals', JSON.stringify(initialReferrals));
     return initialReferrals;
   } catch (e) {
     return initialReferrals;
@@ -62,7 +62,40 @@ export function saveReferrals(referrals: UnifiedReferral[]) {
 
 export function updateReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
   const referrals = getReferrals();
-  const updated = referrals.map(r => r.id === id ? { ...r, status } : r);
+  const updated = referrals.map(r => {
+    if (r.id === id) {
+      const updateObj: Partial<UnifiedReferral> = { status };
+      if (status === 'Archived') {
+        updateObj.archivedBySpecialist = true;
+      } else if (status === 'Accepted' || status === 'Scheduled' || status === 'Released') {
+        updateObj.dentistStatus = status;
+        updateObj.archivedBySpecialist = false;
+      } else if (status === 'Completed') {
+        updateObj.dentistStatus = 'Completed';
+        updateObj.archivedBySpecialist = false;
+      }
+      return { ...r, ...updateObj };
+    }
+    return r;
+  });
+  saveReferrals(updated);
+  return updated;
+}
+
+export function updateDentistReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
+  const referrals = getReferrals();
+  const updated = referrals.map(r => {
+    if (r.id === id) {
+      const updateObj: Partial<UnifiedReferral> = { dentistStatus: status };
+      if (status === 'Archived') {
+        updateObj.archivedByDentist = true;
+      } else {
+        updateObj.archivedByDentist = false;
+      }
+      return { ...r, ...updateObj };
+    }
+    return r;
+  });
   saveReferrals(updated);
   return updated;
 }

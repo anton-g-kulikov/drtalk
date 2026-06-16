@@ -8,6 +8,7 @@ import {
   saveChannels,
   saveMessages,
   updateReferralStatus,
+  updateDentistReferralStatus,
   type UnifiedReferral,
   initialReferrals,
 } from '@/lib/referrals';
@@ -454,7 +455,9 @@ export function usePrototypeChannelsState({
     onSendNewDocument: () => onNavigate(isDentist ? '/dentist/dashboard/send-document' : '/dashboard/send-document'),
     onArchiveCase: () => {
       const referralId = activeChannel.id.replace('case_', '');
-      const updated = updateReferralStatus(referralId, 'Archived');
+      const updated = isDentist
+        ? updateDentistReferralStatus(referralId, 'Archived')
+        : updateReferralStatus(referralId, 'Archived');
       setReferrals(updated);
       triggerToast(`Archived channel for ${activeChannel.name}!`);
       const parentId = caseChannels.find((caseChannel) => caseChannel.id === activeChannel.id)?.practiceId || '3';
@@ -471,7 +474,9 @@ export function usePrototypeChannelsState({
       if (!archivedCase) return;
 
       const referralId = conversationId.replace('case_', '');
-      const updated = updateReferralStatus(referralId, 'Scheduled');
+      const updated = isDentist
+        ? updateDentistReferralStatus(referralId, 'Scheduled')
+        : updateReferralStatus(referralId, 'Scheduled');
       setReferrals(updated);
       triggerToast(`Re-activated channel for ${archivedCase.patientName}!`);
       setActiveChannel({
@@ -482,6 +487,12 @@ export function usePrototypeChannelsState({
         memberCount: activeChannel.memberCount,
       });
       setActiveTab('messages');
+    },
+    onCompleteCare: () => {
+      const referralId = activeChannel.id.replace('case_', '');
+      const updated = updateDentistReferralStatus(referralId, 'Completed');
+      setReferrals(updated);
+      triggerToast(`Care completed for ${activeChannel.name}!`);
     },
     onToggleParticipant: (id: string) => {
       setParticipants((prev) => prev.map((participant) => participant.id === id ? { ...participant, selected: !participant.selected } : participant));

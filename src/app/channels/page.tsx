@@ -337,6 +337,15 @@ function ChannelsContent() {
           onDocPageChange={channelsState.setDocPage}
           formatMessage={channelsState.formatMessage}
           formatDocumentSender={channelsState.formatDocumentSender}
+          onCompleteCare={channelsState.onCompleteCare}
+          referralStatus={
+            (() => {
+              if (!channelsState.activeChannel?.id?.startsWith('case_')) return undefined;
+              const refId = channelsState.activeChannel.id.replace('case_', '');
+              const ref = channelsState.referrals.find((r) => r.id === refId);
+              return ref ? (isDentist ? (ref.dentistStatus || ref.status) : ref.status) : undefined;
+            })()
+          }
         />
       </div>
 
