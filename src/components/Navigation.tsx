@@ -157,7 +157,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
                 onClick={toggleReferralPad}
                 className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
               >
-                {hasReferralPad ? 'Have referral pad' : 'No referral pad'}
+                {hasReferralPad ? 'No referral pad' : 'Have referral pad'}
               </button>
               <button
                 onClick={setNoOwnerYet}
