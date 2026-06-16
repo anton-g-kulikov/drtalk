@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, TrendingUp, TrendingDown } from 'lucide-react';
 
 export type DashboardTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
@@ -8,6 +8,7 @@ export type DashboardStat = {
   value: string;
   icon: LucideIcon;
   path: string;
+  trend?: number;
 };
 
 type DashboardStatsProps = {
@@ -54,7 +55,15 @@ export function DashboardStats({
             <stat.icon size={32} className="text-black shrink-0" />
             <div className="space-y-1">
               <p className="text-[9px] font-black uppercase text-muted-foreground">{stat.label}</p>
-              <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stat.value}</span>
+                {stat.trend !== undefined && (
+                  <div className={`flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 ${stat.trend > 0 ? 'text-green-700 bg-green-50' : stat.trend < 0 ? 'text-red-700 bg-red-50' : 'text-gray-600 bg-gray-100'}`}>
+                    {stat.trend > 0 ? <TrendingUp size={12} /> : stat.trend < 0 ? <TrendingDown size={12} /> : null}
+                    {Math.abs(stat.trend)}%
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}

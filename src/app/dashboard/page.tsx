@@ -286,10 +286,10 @@ export default function DashboardPage() {
           onTimeRangeChange={setTimeRange}
           onStatClick={(path) => router.push(path)}
           stats={[
-            { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received' },
-            { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled' },
-            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed' },
-            { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected' },
+            { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received', trend: 15 },
+            { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled', trend: 8 },
+            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed', trend: -4 },
+            { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected', trend: 10 },
           ]}
         />
 

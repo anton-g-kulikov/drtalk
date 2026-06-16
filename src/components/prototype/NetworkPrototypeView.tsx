@@ -17,6 +17,7 @@ import {
   Search,
   ShieldCheck,
   TrendingUp,
+  TrendingDown,
   UserPlus,
   Users,
 } from 'lucide-react';
@@ -69,10 +70,10 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label={config.analyticsPrimaryLabel} value={data.totalPrimary} icon={<ArrowUpRight size={16} className="text-black" />} />
-        <MetricCard label="Scheduled" value={data.totalScheduled} icon={<CheckCircle2 size={16} className="text-black" />} />
-        <MetricCard label="Conversion Rate" value={`${data.conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} />
-        <MetricCard label="Released" value={data.totalReleased} icon={<Users size={16} className="text-black" />} />
+        <MetricCard label={config.analyticsPrimaryLabel} value={data.totalPrimary} icon={<ArrowUpRight size={16} className="text-black" />} trend={data.totalPrimary % 10 - 2} />
+        <MetricCard label="Scheduled" value={data.totalScheduled} icon={<CheckCircle2 size={16} className="text-black" />} trend={data.totalScheduled % 8 - 1} />
+        <MetricCard label="Conversion Rate" value={`${data.conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} trend={data.conversionRate % 5 - 1} />
+        <MetricCard label="Released" value={data.totalReleased} icon={<Users size={16} className="text-black" />} trend={data.totalReleased % 12 - 3} />
       </div>
 
       <div className="wireframe-card overflow-hidden">
@@ -94,8 +95,24 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
               {data.breakdown.map((row, idx) => (
                 <tr key={row.id} className={`text-sm ${idx !== data.breakdown.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors bg-white`}>
                   <td className="p-4 font-bold">{row.name}</td>
-                  <td className="p-4 text-right font-medium">{row.primary}</td>
-                  <td className="p-4 text-right font-medium">{row.scheduled}</td>
+                  <td className="p-4">
+                    <div className="flex items-center justify-end gap-1.5 font-medium">
+                      <span>{row.primary}</span>
+                      <span className={`flex items-center text-[9px] font-bold px-1 py-0.5 ${row.primary % 5 - 1 > 0 ? 'text-green-700 bg-green-50' : row.primary % 5 - 1 < 0 ? 'text-red-700 bg-red-50' : 'text-gray-600 bg-gray-100'}`}>
+                        {row.primary % 5 - 1 > 0 ? <TrendingUp size={10} /> : row.primary % 5 - 1 < 0 ? <TrendingDown size={10} /> : null}
+                        {Math.abs(row.primary % 5 - 1)}%
+                      </span>
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <div className="flex items-center justify-end gap-1.5 font-medium">
+                      <span>{row.scheduled}</span>
+                      <span className={`flex items-center text-[9px] font-bold px-1 py-0.5 ${row.scheduled % 6 - 2 > 0 ? 'text-green-700 bg-green-50' : row.scheduled % 6 - 2 < 0 ? 'text-red-700 bg-red-50' : 'text-gray-600 bg-gray-100'}`}>
+                        {row.scheduled % 6 - 2 > 0 ? <TrendingUp size={10} /> : row.scheduled % 6 - 2 < 0 ? <TrendingDown size={10} /> : null}
+                        {Math.abs(row.scheduled % 6 - 2)}%
+                      </span>
+                    </div>
+                  </td>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
                       <div className="w-24 h-2 bg-gray-200 rounded-none border border-black overflow-hidden flex-1 max-w-[120px]">
@@ -104,7 +121,15 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
                       <span className="text-[10px] font-bold">{row.conversion}%</span>
                     </div>
                   </td>
-                  <td className="p-4 text-right font-medium">{row.released}</td>
+                  <td className="p-4">
+                    <div className="flex items-center justify-end gap-1.5 font-medium">
+                      <span>{row.released}</span>
+                      <span className={`flex items-center text-[9px] font-bold px-1 py-0.5 ${row.released % 7 - 3 > 0 ? 'text-green-700 bg-green-50' : row.released % 7 - 3 < 0 ? 'text-red-700 bg-red-50' : 'text-gray-600 bg-gray-100'}`}>
+                        {row.released % 7 - 3 > 0 ? <TrendingUp size={10} /> : row.released % 7 - 3 < 0 ? <TrendingDown size={10} /> : null}
+                        {Math.abs(row.released % 7 - 3)}%
+                      </span>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -115,14 +140,22 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
   );
 }
 
-function MetricCard({ label, value, icon }: { label: string; value: React.ReactNode; icon: React.ReactNode }) {
+function MetricCard({ label, value, icon, trend }: { label: string; value: React.ReactNode; icon: React.ReactNode; trend?: number }) {
   return (
     <div className="wireframe-card p-6 flex flex-col justify-between">
       <div className="flex justify-between items-start mb-4">
         <span className="text-[10px] font-bold uppercase text-muted-foreground">{label}</span>
         {icon}
       </div>
-      <div className="text-4xl font-black">{value}</div>
+      <div className="flex items-center gap-2">
+        <div className="text-4xl font-black">{value}</div>
+        {trend !== undefined && (
+          <div className={`flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 ${trend > 0 ? 'text-green-700 bg-green-50' : trend < 0 ? 'text-red-700 bg-red-50' : 'text-gray-600 bg-gray-100'}`}>
+            {trend > 0 ? <TrendingUp size={12} /> : trend < 0 ? <TrendingDown size={12} /> : null}
+            {Math.abs(trend)}%
+          </div>
+        )}
+      </div>
     </div>
   );
 }
