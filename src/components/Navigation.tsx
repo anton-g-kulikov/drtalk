@@ -12,6 +12,21 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
   const { userRole, reset: resetVerification, setNoOwnerYet, verify } = useVerification();
   const { endTrial, resetSubscription } = useSubscription();
   const isDentist = pathname.startsWith('/dentist');
+  const [hasReferralPad, setHasReferralPad] = React.useState(true);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('drtalk_debug_has_referral_pad');
+      setHasReferralPad(saved !== 'false');
+    }
+  }, []);
+
+  const toggleReferralPad = () => {
+    const newVal = !hasReferralPad;
+    setHasReferralPad(newVal);
+    localStorage.setItem('drtalk_debug_has_referral_pad', String(newVal));
+    window.dispatchEvent(new Event('drtalk-debug-referral-pad-changed'));
+  };
   const navItems = isDentist
     ? [
       { icon: LayoutDashboard, label: 'Dashboard', href: '/dentist/dashboard' },
@@ -138,6 +153,12 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
             <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground">Debug Menu</p>
           </div>
           <div className="space-y-1">
+              <button
+                onClick={toggleReferralPad}
+                className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"
+              >
+                {hasReferralPad ? 'Have referral pad' : 'No referral pad'}
+              </button>
               <button
                 onClick={setNoOwnerYet}
                 className="w-full text-left px-3 py-1.5 text-[9px] font-bold uppercase hover:bg-black hover:text-white transition-all border border-transparent hover:border-black"

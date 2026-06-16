@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { DashboardStats } from '@/components/prototype/DashboardStats';
@@ -25,6 +25,7 @@ import { DentistSentReferralsSection } from '@/components/prototype/DentistSentR
 import { DentistDashboardHeader } from '@/components/prototype/DentistDashboardHeader';
 import { GuestReferralAttachmentsStep } from '@/components/prototype/GuestReferralAttachmentsStep';
 import { GuestReferralPracticeSelector } from '@/components/prototype/GuestReferralPracticeSelector';
+import { GuestReferralCaseStep } from '@/components/prototype/guest-referral/GuestReferralStepViews';
 import { SendDocumentPatientFields } from '@/components/prototype/SendDocumentPatientFields';
 import { SendDocumentPracticeSelector } from '@/components/prototype/SendDocumentPracticeSelector';
 import { SendDocumentReferralSelector } from '@/components/prototype/SendDocumentReferralSelector';
@@ -319,5 +320,36 @@ describe('prototype components: referral flows.test', () => {
     );
 
     expect(screen.getByRole('button', { name: /submit secure referral/i })).toBeEnabled();
+  });
+
+  it('renders GuestReferralCaseStep with or without referral pad based on debug menu state', () => {
+    const onBack = vi.fn();
+    const onContinue = vi.fn();
+
+    // Default state: with referral pad
+    localStorage.removeItem('drtalk_debug_has_referral_pad');
+    const { rerender } = render(
+      <GuestReferralCaseStep onBack={onBack} onContinue={onContinue} />
+    );
+
+    expect(screen.getByText(/referral pad \/ clinical notes/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/referral pad/i)).toBeInTheDocument();
+    expect(screen.queryByText(/procedure \/ reason for referral/i)).not.toBeInTheDocument();
+
+    // Debug state false: without referral pad
+    localStorage.setItem('drtalk_debug_has_referral_pad', 'false');
+    act(() => {
+      window.dispatchEvent(new Event('drtalk-debug-referral-pad-changed'));
+    });
+
+    rerender(
+      <GuestReferralCaseStep onBack={onBack} onContinue={onContinue} />
+    );
+
+    expect(screen.queryByText(/referral pad \/ clinical notes/i)).not.toBeInTheDocument();
+    expect(screen.queryByAltText(/referral pad/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/procedure \/ reason for referral/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/e\.g\. #3/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/provide additional clinical notes/i)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, CheckCircle2, ChevronRight, Lock } from 'lucide-react';
 
 type GuestReferralLoginStepProps = {
@@ -99,6 +100,23 @@ type GuestReferralCaseStepProps = {
 };
 
 export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseStepProps) {
+  const [hasReferralPad, setHasReferralPad] = useState(true);
+
+  useEffect(() => {
+    const updatePadState = () => {
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('drtalk_debug_has_referral_pad');
+        setHasReferralPad(saved !== 'false');
+      }
+    };
+
+    updatePadState();
+    window.addEventListener('drtalk-debug-referral-pad-changed', updatePadState);
+    return () => {
+      window.removeEventListener('drtalk-debug-referral-pad-changed', updatePadState);
+    };
+  }, []);
+
   return (
     <div className="space-y-8 w-full max-w-lg">
       <div className="flex items-center gap-4">
@@ -111,16 +129,43 @@ export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseS
       <div className="space-y-6">
         <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">2. Clinical Information</h3>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase">Referral Pad / Clinical Notes</label>
-            <div className="border-2 border-black p-1 bg-white">
-              <img
-                src="/referral-pad.png"
-                alt="Referral Pad"
-                className="w-full object-contain filter grayscale"
-              />
+          {hasReferralPad ? (
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase">Referral Pad / Clinical Notes</label>
+              <div className="border-2 border-black p-1 bg-white">
+                <img
+                  src="/referral-pad.png"
+                  alt="Referral Pad"
+                  className="w-full object-contain filter grayscale"
+                />
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase">Procedure / Reason for Referral</label>
+                <select className="wireframe-input bg-white appearance-none cursor-pointer">
+                  <option value="Consultation">General Consultation</option>
+                  <option value="Root Canal">Root Canal Treatment</option>
+                  <option value="Extraction">Extraction / Oral Surgery</option>
+                  <option value="Implant">Dental Implant</option>
+                  <option value="Other">Other (See Notes Below)</option>
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase">Tooth Number(s)</label>
+                <input type="text" placeholder="e.g. #3, #18 (or All)" className="wireframe-input" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase">Clinical Notes / Comments</label>
+                <textarea 
+                  rows={4} 
+                  placeholder="Provide additional clinical notes, patient symptoms, or history..." 
+                  className="wireframe-input resize-none py-2"
+                />
+              </div>
+            </div>
+          )}
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase">Urgency</label>
             <div className="flex gap-4">
