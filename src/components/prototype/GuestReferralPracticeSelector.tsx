@@ -64,7 +64,7 @@ export function GuestReferralPracticeSelector({
     return (
       <div className="space-y-4 border-2 border-black p-4 bg-gray-50/50 relative">
         <span className="text-[10px] font-black uppercase block mb-1 text-black">
-          Connected Practices (Select Multiple) <span className="text-red-500">*</span>
+          Connected Practices <span className="text-red-500">*</span>
         </span>
         <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
           <div className="flex flex-wrap gap-1.5 mb-1.5">
@@ -85,7 +85,7 @@ export function GuestReferralPracticeSelector({
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Type to search and add practices..."
+              placeholder="Type to search and add practice..."
               value={practiceSearch}
               onChange={(event) => {
                 onPracticeSearchChange(event.target.value);
@@ -113,7 +113,7 @@ export function GuestReferralPracticeSelector({
                 <div
                   key={practice.name}
                   onClick={() => {
-                    onTargetPracticesChange([...targetPractices, practice.name]);
+                    onTargetPracticesChange([practice.name]);
                     onPracticeSearchChange('');
                     onShowDropdownChange(false);
                   }}

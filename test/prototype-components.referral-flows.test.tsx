@@ -183,12 +183,12 @@ describe('prototype components: referral flows.test', () => {
       />
     );
 
-    expect(screen.getByText(/connected practices \(select multiple\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/connected practices/i)).toBeInTheDocument();
     expect(screen.getByText(/^sunshine dental$/i)).toBeInTheDocument();
     expect(screen.getByText(/selected: sunshine dental/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /remove sunshine dental/i }));
-    await user.type(screen.getByPlaceholderText(/type to search and add practices/i), 'ley');
+    await user.type(screen.getByPlaceholderText(/type to search and add practice/i), 'ley');
     await user.click(screen.getByRole('button', { name: /toggle practice dropdown/i }));
     await user.click(screen.getByText(/^valley endodontics$/i));
     await user.click(screen.getByRole('button', { name: /clear selected practices/i }));
@@ -196,7 +196,7 @@ describe('prototype components: referral flows.test', () => {
     expect(onTargetPracticesChange).toHaveBeenCalledWith([]);
     expect(onSearchChange).toHaveBeenCalled();
     expect(onDropdownChange).toHaveBeenCalledWith(false);
-    expect(onTargetPracticesChange).toHaveBeenCalledWith(['Sunshine Dental', 'Valley Endodontics']);
+    expect(onTargetPracticesChange).toHaveBeenCalledWith(['Valley Endodontics']);
 
     rerender(
       <GuestReferralPracticeSelector
