@@ -1,4 +1,4 @@
-import ReferralDetailClient from "./ReferralDetailClient";
+import ReferralDetailClient from '@/app/referrals/[id]/ReferralDetailClient';
 
 export function generateStaticParams() {
   return [
@@ -7,9 +7,18 @@ export function generateStaticParams() {
     { id: '3' },
     { id: '4' },
     { id: '5' },
+    { id: 'doc-unrecognized-1' },
+    { id: 'doc-unrecognized-2' },
+    { id: 'doc-unrecognized-3' },
+    { id: 'doc-unrecognized-4' },
   ];
 }
 
-export default function Page() {
-  return <ReferralDetailClient />;
+interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function Page({ params }: PageProps) {
+  const resolvedParams = await params;
+  return <ReferralDetailClient id={resolvedParams.id} />;
 }

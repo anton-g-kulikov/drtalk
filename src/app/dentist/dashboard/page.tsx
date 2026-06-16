@@ -20,7 +20,6 @@ import { DentistSentReferralsSection } from '@/components/prototype/DentistSentR
 import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { getPrototypePageNumbers } from '@/prototype/pagination';
-import { UnrecognizedSenderModal, type UnrecognizedSenderFormValues } from '@/components/prototype/UnrecognizedSenderModal';
 import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
@@ -70,7 +69,6 @@ export default function DentistDashboardPage() {
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
-  const [unrecognizedDoc, setUnrecognizedDoc] = useState<DocumentItem | null>(null);
 
   useEffect(() => {
     const storage = loadDashboardDocumentStorage({
@@ -224,65 +222,7 @@ export default function DentistDashboardPage() {
   }, [sentReferrals, attachSearchQuery]);
 
   const handleIdentifyDocument = (doc: DocumentItem) => {
-    setUnrecognizedDoc(doc);
-  };
-
-  const handleConfirmUnrecognized = (values: UnrecognizedSenderFormValues) => {
-    if (!unrecognizedDoc) return;
-
-    // Remove from inbox
-    const updatedDocs = documents.filter(d => d.id !== unrecognizedDoc.id);
-    saveDocumentsToStorage(updatedDocs);
-
-    if (values.itemType === 'referral') {
-      // Create a new referral entry
-      const newId = `D-${1000 + referralsList.length + 1}`;
-      const newReferral: UnifiedReferral = {
-        id: newId,
-        patientName: values.patientName || 'NEW PATIENT',
-        type: 'Referral Case',
-        source: unrecognizedDoc.transport || 'External',
-        completion: 0,
-        status: 'Sent',
-        receivedAt: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        lastUpdate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        nextStep: 'Waiting for specialist review',
-        dentist: 'Dr. Taylor Reed',
-        specialist: values.senderPractice,
-        practice: values.senderPractice,
-        urgency: 'Routine',
-        sender: 'Dr. Taylor Reed',
-      };
-      const updatedReferrals = [newReferral, ...referralsList];
-      setReferralsList(updatedReferrals);
-      saveReferrals(updatedReferrals);
-      triggerToast(`Referral case created for ${newReferral.patientName} from ${values.senderPractice}.`);
-    } else {
-      // Route as document to inter-practice channel
-      const resolvedDoc = {
-        ...unrecognizedDoc,
-        sender: values.senderPractice,
-        isUnrecognized: false,
-        isExternal: true,
-      };
-      const transfer = buildDashboardDocumentChannelTransfer({
-        doc: resolvedDoc,
-        role: 'dentist',
-        network: getNetwork(),
-        channels: getChannels(true),
-        messages: getMessages(),
-        addSharedDocument: (sharedDocument) => initialDocuments.push(sharedDocument),
-      });
-      saveNetwork(transfer.network);
-      saveChannels(true, transfer.channels);
-      saveMessages(transfer.messages);
-      triggerToast(
-        `Document routed to ${values.senderPractice} channel.`,
-        { label: 'Open Channel', onClick: () => router.push(transfer.destinationHref) }
-      );
-    }
-
-    setUnrecognizedDoc(null);
+    router.push(`/referrals/${doc.id}`);
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -478,16 +418,6 @@ export default function DentistDashboardPage() {
           onClose={() => setActiveModal(null)}
           onConfirmConvert={handleConfirmConvert}
           onConfirmAttach={handleConfirmAttach}
-        />
-      )}
-
-      {unrecognizedDoc && (
-        <UnrecognizedSenderModal
-          documentName={unrecognizedDoc.name}
-          documentSize={unrecognizedDoc.size}
-          transport={unrecognizedDoc.transport || 'Email'}
-          onClose={() => setUnrecognizedDoc(null)}
-          onConfirm={handleConfirmUnrecognized}
         />
       )}
 

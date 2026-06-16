@@ -19,7 +19,6 @@ import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocume
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
-import { UnrecognizedSenderModal, type UnrecognizedSenderFormValues } from '@/components/prototype/UnrecognizedSenderModal';
 import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
@@ -171,22 +170,11 @@ export default function DashboardPage() {
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
-  const [unrecognizedDoc, setUnrecognizedDoc] = useState<DocumentItem | null>(null);
 
   const handleReferralClick = (ref: ReferralItem) => {
-    // Unrecognized-sender items open the resolution modal — never navigate
+    // Unrecognized-sender items now resolve in a dedicated page
     if (ref.id.startsWith('doc-unrecognized')) {
-      const existingDoc = documents.find(d => d.id === ref.id);
-      setUnrecognizedDoc(existingDoc ?? {
-        id: ref.id,
-        name: 'INCOMING_DOCUMENT.PDF',
-        sender: ref.source,
-        date: ref.date,
-        size: '—',
-        isExternal: true,
-        transport: ref.transport,
-        isUnrecognized: true,
-      });
+      router.push(`/referrals/${ref.id}`);
       return;
     }
     if (!isVerified) {
@@ -277,62 +265,7 @@ export default function DashboardPage() {
   };
 
   const handleIdentifyDocument = (doc: DocumentItem) => {
-    setUnrecognizedDoc(doc);
-  };
-
-  const handleConfirmUnrecognized = (values: UnrecognizedSenderFormValues) => {
-    if (!unrecognizedDoc) return;
-
-    // Remove from inbox
-    const updatedDocs = documents.filter(d => d.id !== unrecognizedDoc.id);
-    saveDocumentsToStorage(updatedDocs);
-
-    // Remove from referral queue too
-    setReferrals(prev => prev.filter(r => r.id !== unrecognizedDoc.id));
-
-    if (values.itemType === 'referral') {
-      // Create a new referral queue item
-      const newReferralItem = {
-        id: getNewId('ext-ref'),
-        patient: values.patientName || 'NEW PATIENT',
-        type: 'Referral',
-        source: values.senderPractice,
-        dentist: values.senderPractice,
-        date: getFormattedDateOnly(),
-        status: 'new_processing' as const,
-        detail: `Received via ${unrecognizedDoc.transport || 'External'} — Sender identified as ${values.senderPractice}`,
-        urgency: 'Routine' as const,
-        isExternal: true,
-        transport: unrecognizedDoc.transport,
-      };
-      setReferrals(prev => [newReferralItem, ...prev]);
-      showToast(`Referral created for ${newReferralItem.patient} from ${values.senderPractice}.`);
-    } else {
-      // Route as document to inter-practice channel
-      const resolvedDoc = {
-        ...unrecognizedDoc,
-        sender: values.senderPractice,
-        isUnrecognized: false,
-        isExternal: true,
-      };
-      const transfer = buildDashboardDocumentChannelTransfer({
-        doc: resolvedDoc,
-        role: 'specialist',
-        network: getNetwork(),
-        channels: getChannels(false),
-        messages: getMessages(),
-        addSharedDocument: addSharedDocumentToDb,
-      });
-      saveNetwork(transfer.network);
-      saveChannels(false, transfer.channels);
-      saveMessages(transfer.messages);
-      showToast(
-        `Document routed to ${values.senderPractice} channel.`,
-        { label: 'Open Channel', onClick: () => router.push(transfer.destinationHref) }
-      );
-    }
-
-    setUnrecognizedDoc(null);
+    router.push(`/referrals/${doc.id}`);
   };
 
   const newProcessingReferrals = referrals.filter(r => r.status === 'new_processing');
@@ -384,14 +317,6 @@ export default function DashboardPage() {
               processingReferrals={newProcessingReferrals}
               documentReferrals={newDocsReferrals}
               onReferralClick={(id) => {
-                // Unrecognized-sender items open the resolution modal
-                if (id.startsWith('doc-unrecognized')) {
-                  const matchingDoc = documents.find(d => d.id === id);
-                  if (matchingDoc) {
-                    setUnrecognizedDoc(matchingDoc);
-                  }
-                  return;
-                }
                 const referral = referrals.find((item) => item.id === id);
                 if (referral) handleReferralClick(referral);
               }}
@@ -484,16 +409,6 @@ export default function DashboardPage() {
             onClose={() => setActiveModal(null)}
             onConfirmConvert={handleConfirmConvert}
             onConfirmAttach={handleConfirmAttach}
-          />
-        )}
-
-        {unrecognizedDoc && (
-          <UnrecognizedSenderModal
-            documentName={unrecognizedDoc.name}
-            documentSize={unrecognizedDoc.size}
-            transport={unrecognizedDoc.transport || 'Email'}
-            onClose={() => setUnrecognizedDoc(null)}
-            onConfirm={handleConfirmUnrecognized}
           />
         )}
 
