@@ -142,6 +142,17 @@ describe('prototype route use cases', () => {
     expect(await screen.findByText(/^accepted$/i)).toBeInTheDocument();
   });
 
+  it('unrecognized sender renders as page with document and categorize tabs', async () => {
+    const user = userEvent.setup();
+    renderRoute(<ReferralDetailClient id="doc-unrecognized-1" />);
+
+    expect(await screen.findByRole('heading', { name: /unrecognized sender/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /categorize & route/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /categorize & route/i }));
+    expect(screen.getByPlaceholderText(/type to search and add practice/i)).toBeInTheDocument();
+  });
+
   it('external secure viewer renders case documents, status actions, and reply composer', async () => {
     const user = userEvent.setup();
     renderRoute(<ExternalViewerClient />);
