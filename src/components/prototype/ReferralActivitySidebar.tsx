@@ -63,7 +63,7 @@ export function ReferralActivitySidebar({
       </div>
 
       <div className="p-6 border-b-2 border-black bg-white space-y-2">
-        <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Assign Case To</label>
+        <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground block">Working on This Referral</label>
         <div className="relative">
           <select value={assignedTo} onChange={(e) => onAssign(e.target.value)} className="wireframe-input w-full py-2.5 px-3 text-[10px] uppercase font-bold appearance-none bg-white pr-8 cursor-pointer focus:ring-1 focus:ring-black border-2 border-black">
             {team.map((member) => (
