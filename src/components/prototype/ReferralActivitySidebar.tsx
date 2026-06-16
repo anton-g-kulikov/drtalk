@@ -80,34 +80,34 @@ export function ReferralActivitySidebar({
 
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
         {assignedTo !== 'none' && (
-          <div className="space-y-2 animate-in fade-in duration-200">
-            <div className="flex justify-between items-baseline">
-              <p className="text-[9px] font-black uppercase text-black">System</p>
-              <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">Active Assignment</p>
+          <div className="space-y-1 animate-in fade-in duration-200">
+            <div className="flex justify-between items-baseline mb-1">
+              <p className="text-[9px] font-bold uppercase text-muted-foreground">System</p>
+              <p className="text-[8px] text-muted-foreground/60 uppercase whitespace-pre-line text-right">Active Assignment</p>
             </div>
-            <div className="wireframe-card p-3 text-[10px] uppercase leading-tight bg-zinc-100 border-black border-2 shadow-sm">
-              Case is currently assigned to <span className="font-black underline">{team.find((member) => member.id === assignedTo)?.name}</span>.
+            <div className="text-[11px] text-muted-foreground leading-relaxed">
+              Case is currently assigned to <span className="font-bold text-black">{team.find((member) => member.id === assignedTo)?.name}</span>.
             </div>
           </div>
         )}
 
         {activityLogs.map((log, index) => (
-          <div key={index} className="space-y-2">
-            <div className="flex justify-between items-baseline">
-              <p className="text-[9px] font-black uppercase">{log.user}</p>
-              <p className="text-[8px] text-muted-foreground uppercase whitespace-pre-line text-right">{log.time}</p>
+          <div key={index} className="space-y-1">
+            <div className="flex justify-between items-baseline mb-1">
+              <p className="text-[9px] font-bold uppercase text-muted-foreground">{log.user}</p>
+              <p className="text-[8px] text-muted-foreground/60 uppercase whitespace-pre-line text-right">{log.time}</p>
             </div>
-            <div className={`wireframe-card p-3 text-[10px] uppercase leading-tight ${log.isDark ? 'bg-black text-white' : 'bg-white shadow-sm'}`}>
+            <div className={`text-[11px] leading-relaxed ${log.isDark ? 'text-black font-medium' : 'text-muted-foreground'}`}>
               {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
                 <>
-                  Referral received from <span className="font-black underline">{practiceName || dentistName}</span> and auto-extracted via Digital Intake Pipeline.
+                  Referral received from <span className="font-bold text-black">{practiceName || dentistName}</span> and auto-extracted via Digital Intake Pipeline.
                 </>
               ) : log.text.includes(dentistName) && log.text.includes('clinical records') ? (
                 <>
-                  Clinical records requested from <span className="font-black underline">{dentistName}</span>&apos;s office. Pending response.
+                  Clinical records requested from <span className="font-bold text-black">{dentistName}</span>&apos;s office. Pending response.
                 </>
               ) : (
-                log.text
+                <span className="capitalize-first">{log.text.toLowerCase()}</span>
               )}
             </div>
           </div>
