@@ -155,15 +155,30 @@ export default function DashboardPage() {
     router.push(transfer.destinationHref);
   };
 
-  const [referrals, setReferrals] = useState<ReferralItem[]>([
-    { id: 'doc-unrecognized-1', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Fax', dentist: undefined, date: '06/30/2026', status: 'new_processing', detail: 'Missing: Referring Practice', isExternal: true, transport: 'Fax', isUnrecognized: true },
-    { id: 'doc-unrecognized-2', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Email', dentist: undefined, date: '06/30/2026', status: 'new_processing', detail: 'Missing: Referring Practice', isExternal: true, transport: 'Email', isUnrecognized: true },
-    { id: 'ext-ref-1', patient: 'Jane Doe', type: 'Endodontic', source: 'Pinecrest Dental (External)', dentist: 'Dr. Taylor Reed', date: '06/30/2026', status: 'new_processing', detail: 'Secure Email Referral — Needs Review', urgency: 'Urgent', isExternal: true, transport: 'Email' },
-    { id: '1', patient: 'Charlie Brown', type: 'Endodontic', source: 'Miller & Associates', dentist: 'Dr. Smith', date: '05/18/2026', status: 'new_processing', detail: 'Needs Review', urgency: 'Emergency' },
-    { id: '5', patient: 'Eve Online', type: 'Periodontal', source: 'Black Family Dental', dentist: 'Dr. Miller', date: '05/17/2026', status: 'new_processing', detail: 'Needs Review', urgency: 'Routine' },
-    { id: 'ext-ref-2', patient: 'Kunal Patel', type: 'Dental Implant', source: 'Oakwood Family (External)', dentist: 'Dr. Taylor Reed', date: '06/29/2026', status: 'new_docs', detail: 'CBCT Scan Received via E-Fax', urgency: 'Emergency', isExternal: true, transport: 'Fax' },
-    { id: '2', patient: 'Bob Marley', type: 'Extraction', source: 'Desert Bloom Dental', dentist: 'Dr. Jones', date: '05/18/2026', status: 'new_docs', detail: 'New Documents Received', urgency: 'Urgent' }
-  ]);
+  const [referrals, setReferrals] = useState<ReferralItem[]>([]);
+
+  useEffect(() => {
+    const loaded = referralsList
+      .filter(r => !r.id.startsWith('D-') && (r.status === 'Received' || r.status === 'Sent' || r.status === 'Scheduled' || r.status === 'Accepted'))
+      .map(r => ({
+        id: r.id,
+        patient: r.patientName,
+        type: r.type,
+        source: r.practice || r.dentist,
+        dentist: r.dentist,
+        date: r.receivedAt.includes('\n') ? r.receivedAt.split('\n')[1] : r.receivedAt,
+        status: (r.status === 'Received' || r.status === 'Sent') ? 'new_processing' as const : 'new_docs' as const,
+        detail: r.status === 'Received' ? 'Needs Review' : `Status: ${r.status}`,
+        urgency: r.urgency,
+        isExternal: r.id.startsWith('ext-'),
+        transport: r.source as any,
+      }));
+    const unrecognized = [
+      { id: 'doc-unrecognized-1', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Fax', dentist: undefined, date: '06/30/2026', status: 'new_processing' as const, detail: 'Missing: Referring Practice', isExternal: true, transport: 'Fax' as const, isUnrecognized: true },
+      { id: 'doc-unrecognized-2', patient: 'Unknown', type: 'Unknown', source: 'Unknown — Via Email', dentist: undefined, date: '06/30/2026', status: 'new_processing' as const, detail: 'Missing: Referring Practice', isExternal: true, transport: 'Email' as const, isUnrecognized: true },
+    ];
+    setReferrals([...unrecognized, ...loaded]);
+  }, [referralsList]);
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);

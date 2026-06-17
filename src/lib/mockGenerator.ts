@@ -433,9 +433,18 @@ export function generateMockData() {
         refId = `${i}`;
         specialist = 'Valley Endodontics';
         
-        const dentistPractice = dentistPractices[Math.floor(r2 * dentistPractices.length)];
-        practice = dentistPractice.name;
-        dentist = `Dr. ${LAST_NAMES[Math.floor(r3 * LAST_NAMES.length)]}`;
+        // 50% chance that the referring dentist is Sunshine Dental
+        const isFromSunshine = getDeterministicRandom(i + 700) < 0.50;
+        if (isFromSunshine) {
+          practice = 'Sunshine Dental';
+          dentist = 'Dr. Taylor Reed';
+        } else {
+          // Exclude Sunshine Dental from the other 50% to make it exactly 50%
+          const nonSunshinePractices = dentistPractices.filter(p => p.name !== 'Sunshine Dental');
+          const dentistPractice = nonSunshinePractices[Math.floor(r2 * nonSunshinePractices.length)];
+          practice = dentistPractice.name;
+          dentist = `Dr. ${LAST_NAMES[Math.floor(r3 * LAST_NAMES.length)]}`;
+        }
         sender = dentist;
         type = ENDO_PROCEDURES[Math.floor(r3 * ENDO_PROCEDURES.length)];
 

@@ -68,12 +68,10 @@ export function updateReferralStatus(id: string, status: ReferralStatus): Unifie
       const updateObj: Partial<UnifiedReferral> = { status };
       if (status === 'Archived') {
         updateObj.archivedBySpecialist = true;
-      } else if (status === 'Accepted' || status === 'Scheduled' || status === 'Released') {
-        updateObj.dentistStatus = status;
+        updateObj.archivedByDentist = true;
+      } else {
         updateObj.archivedBySpecialist = false;
-      } else if (status === 'Completed') {
-        updateObj.dentistStatus = 'Completed';
-        updateObj.archivedBySpecialist = false;
+        updateObj.archivedByDentist = false;
       }
       return { ...r, ...updateObj };
     }
@@ -84,21 +82,7 @@ export function updateReferralStatus(id: string, status: ReferralStatus): Unifie
 }
 
 export function updateDentistReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
-  const referrals = getReferrals();
-  const updated = referrals.map(r => {
-    if (r.id === id) {
-      const updateObj: Partial<UnifiedReferral> = { dentistStatus: status };
-      if (status === 'Archived') {
-        updateObj.archivedByDentist = true;
-      } else {
-        updateObj.archivedByDentist = false;
-      }
-      return { ...r, ...updateObj };
-    }
-    return r;
-  });
-  saveReferrals(updated);
-  return updated;
+  return updateReferralStatus(id, status);
 }
 
 export function updateReferralAssignee(id: string, assignedTo?: string): UnifiedReferral[] {

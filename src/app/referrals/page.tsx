@@ -103,7 +103,8 @@ export default function ReferralsPage() {
 
   const filteredReferrals = mockReferrals.filter(r => {
     if (isDentist) {
-      if (!r.id.startsWith('D-') && r.id !== '1') return false;
+      const isFromSunshine = r.id.startsWith('D-') || r.id === '1' || (r.practice && r.practice.toLowerCase() === 'sunshine dental') || (r.dentist && (r.dentist.includes('Reed') || r.dentist.includes('Taylor')));
+      if (!isFromSunshine) return false;
     } else {
       if (r.id.startsWith('D-')) return false;
     }

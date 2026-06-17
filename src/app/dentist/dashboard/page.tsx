@@ -53,7 +53,7 @@ export default function DentistDashboardPage() {
     }, 0);
   }, []);
 
-  const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || r.dentist.includes('Reed') || r.dentist.includes('Taylor'));
+  const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || (r.practice && r.practice.toLowerCase() === 'sunshine dental') || (r.dentist && (r.dentist.includes('Reed') || r.dentist.includes('Taylor'))));
   
   const referralsSentCount = sentReferrals.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
   const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
