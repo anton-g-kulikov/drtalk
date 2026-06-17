@@ -23,6 +23,7 @@ import {
   appendReferralComment,
   loadReferralActivityLogs,
   transitionReferralDetailStatus,
+  logAssignmentChange,
   type ReferralActivityLog,
 } from '@/prototype/referralDetailState';
 
@@ -529,6 +530,15 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 setAssignedTo(newAssignee);
                 const updated = updateReferralAssignee(referral.id, newAssignee === 'none' ? undefined : newAssignee);
                 setReferrals(updated);
+                
+                const member = PRACTICE_TEAM.find(m => m.id === newAssignee);
+                const memberName = member ? member.name : 'UNASSIGNED';
+                const updatedLogs = logAssignmentChange({
+                  referralId: referral.id,
+                  assigneeName: memberName,
+                  currentLogs: activityLogs,
+                });
+                setActivityLogs(updatedLogs);
               }}
               onCommentTextChange={setCommentText}
               onPostComment={handlePostComment}

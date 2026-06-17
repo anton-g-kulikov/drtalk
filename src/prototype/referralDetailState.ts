@@ -151,3 +151,24 @@ export function appendReferralComment({
   saveReferralActivityLogs(referralId, updatedLogs);
   return updatedLogs;
 }
+
+export function logAssignmentChange({
+  referralId,
+  assigneeName,
+  currentLogs,
+}: {
+  referralId: string;
+  assigneeName: string;
+  currentLogs: ReferralActivityLog[];
+}): ReferralActivityLog[] {
+  const updatedLogs = [
+    ...currentLogs,
+    {
+      user: 'System',
+      text: assigneeName === 'UNASSIGNED' ? 'Case unassigned.' : `Case assigned to ${assigneeName.toUpperCase()}.`,
+      time: buildReferralActivityTimestamp(),
+    },
+  ];
+  saveReferralActivityLogs(referralId, updatedLogs);
+  return updatedLogs;
+}

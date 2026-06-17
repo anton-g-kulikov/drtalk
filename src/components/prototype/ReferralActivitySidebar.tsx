@@ -79,17 +79,6 @@ export function ReferralActivitySidebar({
       </div>
 
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-        {assignedTo !== 'none' && (
-          <div className="space-y-1 animate-in fade-in duration-200">
-            <div className="flex justify-between items-baseline mb-1">
-              <p className="text-[9px] font-bold uppercase text-muted-foreground">System</p>
-              <p className="text-[8px] text-muted-foreground/60 uppercase whitespace-pre-line text-right">Active Assignment</p>
-            </div>
-            <div className="text-[11px] text-muted-foreground leading-relaxed">
-              Case is currently assigned to <span className="font-bold text-black">{team.find((member) => member.id === assignedTo)?.name}</span>.
-            </div>
-          </div>
-        )}
 
         {activityLogs.map((log, index) => {
           const prevLog = index > 0 ? activityLogs[index - 1] : null;
@@ -121,7 +110,7 @@ export function ReferralActivitySidebar({
                       Clinical records requested from <span className="font-bold text-black">{dentistName}</span>&apos;s office. Pending response.
                     </>
                   ) : (
-                    <span className="capitalize-first">{log.text.toLowerCase()}</span>
+                    <span>{log.text}</span>
                   )}
                 </div>
               </div>
