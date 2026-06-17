@@ -225,7 +225,19 @@ export function generateMockData() {
     { id: 'D-1006', patientName: 'James Dean', type: 'Dental Implant', source: 'Web', completion: 100, status: 'Completed', receivedAt: '01:30 PM\n05/15/2026', lastUpdate: '01:30 PM\n05/15/2026', nextStep: 'Treatment complete', dentist: 'Dr. Taylor Reed', specialist: 'Downtown Oral Surgery', specialistDoctor: 'Dr. Bob Wilson', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-1004', patientName: 'Sarah Jenkins', type: 'Consultation', source: 'App', completion: 20, status: 'Draft', receivedAt: '03:14 PM\n02/11/2026', lastUpdate: '03:14 PM\n02/11/2026', nextStep: 'Draft saved', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-1007', patientName: 'Humphrey Bogart', type: 'Root Canal', source: 'Email', completion: 100, status: 'Completed', receivedAt: '09:00 AM\n02/20/2026', lastUpdate: '09:00 AM\n02/20/2026', nextStep: 'Follow-up done', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
-    { id: 'D-1008', patientName: 'Audrey Hepburn', type: 'Consultation', source: 'App', completion: 100, status: 'Completed', receivedAt: '11:00 AM\n10/10/2025', lastUpdate: '11:00 AM\n10/10/2025', nextStep: 'Case closed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' }
+    { id: 'D-1008', patientName: 'Audrey Hepburn', type: 'Consultation', source: 'App', completion: 100, status: 'Completed', receivedAt: '11:00 AM\n10/10/2025', lastUpdate: '11:00 AM\n10/10/2025', nextStep: 'Case closed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-1', patientName: 'Elton John', type: 'Root Canal Therapy', source: 'Email', completion: 90, status: 'Released', receivedAt: '09:00 AM\n06/10/2026', lastUpdate: '06/10/2026, 09:00 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-2', patientName: 'Paul McCartney', type: 'Endodontic Consultation', source: 'Web', completion: 90, status: 'Released', receivedAt: '10:15 AM\n06/11/2026', lastUpdate: '06/11/2026, 10:15 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-3', patientName: 'Mick Jagger', type: 'Apicoectomy', source: 'App', completion: 90, status: 'Released', receivedAt: '11:30 AM\n06/12/2026', lastUpdate: '06/12/2026, 11:30 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Urgent', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-4', patientName: 'Stevie Wonder', type: 'Endodontic Retreat', source: 'Fax', completion: 90, status: 'Released', receivedAt: '01:45 PM\n06/13/2026', lastUpdate: '06/13/2026, 01:45 PM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-5', patientName: 'Diana Ross', type: 'Root Canal Therapy', source: 'Email', completion: 90, status: 'Released', receivedAt: '03:00 PM\n06/14/2026', lastUpdate: '06/14/2026, 03:00 PM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-6', patientName: 'Dolly Parton', type: 'Endodontic Consultation', source: 'Web', completion: 90, status: 'Released', receivedAt: '04:15 PM\n06/15/2026', lastUpdate: '06/15/2026, 04:15 PM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-7', patientName: 'Tina Turner', type: 'Apicoectomy', source: 'App', completion: 90, status: 'Released', receivedAt: '08:30 AM\n06/16/2026', lastUpdate: '06/16/2026, 08:30 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Emergency', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-8', patientName: 'Freddie Mercury', type: 'Root Canal Therapy', source: 'Fax', completion: 90, status: 'Released', receivedAt: '09:45 AM\n06/17/2026', lastUpdate: '06/17/2026, 09:45 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-9', patientName: 'David Gilmour', type: 'Endodontic Retreat', source: 'Email', completion: 90, status: 'Released', receivedAt: '10:00 AM\n06/18/2026', lastUpdate: '06/18/2026, 10:00 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-10', patientName: 'Robert Plant', type: 'Root Canal Therapy', source: 'Web', completion: 90, status: 'Released', receivedAt: '11:15 AM\n06/19/2026', lastUpdate: '06/19/2026, 11:15 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-11', patientName: 'Janis Joplin', type: 'Endodontic Consultation', source: 'App', completion: 90, status: 'Released', receivedAt: '01:30 PM\n06/20/2026', lastUpdate: '06/20/2026, 01:30 PM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Urgent', sender: 'Dr. Taylor Reed' },
+    { id: 'D-released-12', patientName: 'Jimi Hendrix', type: 'Apicoectomy', source: 'Fax', completion: 90, status: 'Released', receivedAt: '02:45 PM\n06/21/2026', lastUpdate: '06/21/2026, 02:45 PM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' }
   ];
 
   referrals.push(...baseReferrals);
@@ -240,8 +252,83 @@ export function generateMockData() {
     { id: 'd9_1', channelId: 'case_D-1005', name: 'REFERRAL_SARAH_JENKINS.PDF', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '05/11/2026, 10:05 AM' },
     { id: 'd3', channelId: '6', name: 'PRACTICE_CREDENTIALS.PDF', size: '3.2 MB', type: 'pdf', sentBy: 'Beverly Hills Dental', sentAt: 'Yesterday, 04:15 PM' },
     { id: 'd_gen3', channelId: '3', name: 'VALLEY_ENDO_FEE_SCHEDULE_2026.PDF', size: '1.5 MB', type: 'pdf', sentBy: 'Valley Endodontics', sentAt: 'Yesterday, 02:30 PM' },
-    { id: 'd_gen7', channelId: '7', name: 'DOWNTOWN_CONSENT_FORMS.ZIP', size: '4.8 MB', type: 'zip', sentBy: 'Downtown Oral Surgery', sentAt: 'Yesterday, 04:00 PM' }
+    { id: 'd_gen7', channelId: '7', name: 'DOWNTOWN_CONSENT_FORMS.ZIP', size: '4.8 MB', type: 'zip', sentBy: 'Downtown Oral Surgery', sentAt: 'Yesterday, 04:00 PM' },
+    { id: 'd_released_1_1', channelId: 'case_D-released-1', name: 'REFERRAL_ELTON_JOHN.PDF', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/10/2026, 09:00 AM' },
+    { id: 'd_released_2_1', channelId: 'case_D-released-2', name: 'REFERRAL_PAUL_MCCARTNEY.PDF', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/11/2026, 10:15 AM' },
+    { id: 'd_released_3_1', channelId: 'case_D-released-3', name: 'REFERRAL_MICK_JAGGER.PDF', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/12/2026, 11:30 AM' },
+    { id: 'd_released_4_1', channelId: 'case_D-released-4', name: 'REFERRAL_STEVIE_WONDER.PDF', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/13/2026, 01:45 PM' },
+    { id: 'd_released_5_1', channelId: 'case_D-released-5', name: 'REFERRAL_DIANA_ROSS.PDF', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/14/2026, 03:00 PM' },
+    { id: 'd_released_6_1', channelId: 'case_D-released-6', name: 'REFERRAL_DOLLY_PARTON.PDF', size: '1.5 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/15/2026, 04:15 PM' },
+    { id: 'd_released_7_1', channelId: 'case_D-released-7', name: 'REFERRAL_TINA_TURNER.PDF', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/16/2026, 08:30 AM' },
+    { id: 'd_released_8_1', channelId: 'case_D-released-8', name: 'REFERRAL_FREDDIE_MERCURY.PDF', size: '1.2 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/17/2026, 09:45 AM' },
+    { id: 'd_released_9_1', channelId: 'case_D-released-9', name: 'REFERRAL_DAVID_GILMOUR.PDF', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/18/2026, 10:00 AM' },
+    { id: 'd_released_10_1', channelId: 'case_D-released-10', name: 'REFERRAL_ROBERT_PLANT.PDF', size: '1.1 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/19/2026, 11:15 AM' },
+    { id: 'd_released_11_1', channelId: 'case_D-released-11', name: 'REFERRAL_JANIS_JOPLIN.PDF', size: '1.3 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/20/2026, 01:30 PM' },
+    { id: 'd_released_12_1', channelId: 'case_D-released-12', name: 'REFERRAL_JIMI_HENDRIX.PDF', size: '1.4 MB', type: 'pdf', sentBy: 'Me', sentAt: '06/21/2026, 02:45 PM' }
   ];
+
+  // Programmatically add messages for the 12 released base cases
+  for (let idx = 1; idx <= 12; idx++) {
+    const caseId = `case_D-released-${idx}`;
+    const ref = baseReferrals.find(r => r.id === `D-released-${idx}`);
+    if (ref) {
+      messages[caseId] = [
+        {
+          id: `m_released_${idx}_sys1`,
+          user: 'System',
+          text: `Referral created by Dr. Taylor Reed. Status set to Sent.`,
+          time: '09:00 AM',
+          type: 'other'
+        },
+        {
+          id: `m_released_${idx}_1`,
+          user: 'Me',
+          text: `Hi Valley Endodontics, referring patient ${ref.patientName} for ${ref.type}. Attached are the referral form and initial radiograph. Please coordinate care and update scheduling status.`,
+          time: '09:01 AM',
+          type: 'self',
+          transport: 'App',
+          document: baseDocuments.find(d => d.channelId === caseId)
+        },
+        {
+          id: `m_released_${idx}_sys2`,
+          user: 'System',
+          text: `Valley Endodontics accepted the referral. Status set to Accepted.`,
+          time: '09:15 AM',
+          type: 'other'
+        },
+        {
+          id: `m_released_${idx}_2`,
+          user: 'Valley Endodontics',
+          text: `Hi Dr. Reed, clinical files received. We are processing the records and reaching out to the patient now.`,
+          time: '09:30 AM',
+          type: 'other',
+          transport: 'App'
+        },
+        {
+          id: `m_released_${idx}_sys3`,
+          user: 'System',
+          text: `Appointment scheduled for ${ref.patientName}. Status set to Scheduled.`,
+          time: '11:00 AM',
+          type: 'other'
+        },
+        {
+          id: `m_released_${idx}_3`,
+          user: 'Valley Endodontics',
+          text: `Patient has been scheduled and treatment is now completed. We have released the patient back to your care.`,
+          time: '04:30 PM',
+          type: 'other',
+          transport: 'App'
+        },
+        {
+          id: `m_released_${idx}_sys4`,
+          user: 'System',
+          text: `Valley Endodontics released the patient. Status set to Released.`,
+          time: '04:31 PM',
+          type: 'other'
+        }
+      ];
+    }
+  }
   documents.push(...baseDocuments);
 
   // Generate specialist referrals (Valley Endodontics) and dentist referrals (sent by Dr. Taylor Reed)

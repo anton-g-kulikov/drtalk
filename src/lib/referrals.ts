@@ -42,7 +42,8 @@ export function getReferrals(): UnifiedReferral[] {
   }
   try {
     const parsed = JSON.parse(stored);
-    if (Array.isArray(parsed) && parsed.length >= 1000) {
+    const hasReleasedMocks = Array.isArray(parsed) && parsed.some(r => r.id === 'D-released-1');
+    if (Array.isArray(parsed) && parsed.length >= 1000 && hasReleasedMocks) {
       return parsed.map((r: any) => ({
         ...r,
         specialist: r.specialist || r.practice || 'Valley Endodontics'
@@ -340,15 +341,18 @@ export function saveChannels(isDentist: boolean, channels: Channel[]) {
 export function getMessages(): Record<string, any[]> {
   if (typeof window === 'undefined') return mockData.messages;
   const stored = localStorage.getItem('drtalk_messages');
-  if (!stored) {
-    localStorage.setItem('drtalk_messages', JSON.stringify(mockData.messages));
-    return mockData.messages;
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed && parsed['case_D-released-1']) {
+        return parsed;
+      }
+    } catch (e) {
+      // ignore
+    }
   }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return mockData.messages;
-  }
+  localStorage.setItem('drtalk_messages', JSON.stringify(mockData.messages));
+  return mockData.messages;
 }
 
 export function saveMessages(messages: Record<string, any[]>) {

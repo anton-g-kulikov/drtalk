@@ -85,7 +85,7 @@ export function ChannelConversationHeader({
           {isCaseChannel && isDentist && referralStatus === 'Released' && onCompleteCare && (
             <button
               onClick={onCompleteCare}
-              className="wireframe-button border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-all text-[9px] uppercase font-black bg-white text-black animate-pulse"
+              className="wireframe-button border-2 border-black px-3 py-1.5 bg-black text-white hover:bg-zinc-800 transition-all text-[9px] uppercase font-black"
             >
               Complete Care
             </button>
