@@ -91,27 +91,43 @@ export function ReferralActivitySidebar({
           </div>
         )}
 
-        {activityLogs.map((log, index) => (
-          <div key={index} className="space-y-1">
-            <div className="flex justify-between items-baseline mb-1">
-              <p className="text-[9px] font-bold uppercase text-muted-foreground">{log.user}</p>
-              <p className="text-[8px] text-muted-foreground/60 uppercase whitespace-pre-line text-right">{log.time}</p>
+        {activityLogs.map((log, index) => {
+          const prevLog = index > 0 ? activityLogs[index - 1] : null;
+          const isGrouped = prevLog && log.user === prevLog.user;
+          const timeParts = log.time.split('\n');
+          const timeStr = timeParts[0] || '';
+          const dateStr = timeParts[1] || '';
+
+          return (
+            <div key={index} className={`grid grid-cols-[75px_1fr] gap-x-3 items-start ${isGrouped ? '!mt-2' : ''}`}>
+              {/* Column 1: Date & Time */}
+              <div className="text-[9px] font-bold text-muted-foreground uppercase space-y-0.5">
+                <div>{dateStr || '—'}</div>
+                <div className="text-[8px] opacity-60">{timeStr}</div>
+              </div>
+
+              {/* Column 2: Author & Text */}
+              <div className="space-y-0.5 min-w-0">
+                {!isGrouped && (
+                  <div className="text-[9px] font-black uppercase text-black">{log.user}</div>
+                )}
+                <div className={`text-[11px] leading-relaxed ${log.isDark ? 'text-black font-medium' : 'text-muted-foreground'}`}>
+                  {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
+                    <>
+                      Referral received from <span className="font-bold text-black">{practiceName || dentistName}</span> and auto-extracted via Digital Intake Pipeline.
+                    </>
+                  ) : log.text.includes(dentistName) && log.text.includes('clinical records') ? (
+                    <>
+                      Clinical records requested from <span className="font-bold text-black">{dentistName}</span>&apos;s office. Pending response.
+                    </>
+                  ) : (
+                    <span className="capitalize-first">{log.text.toLowerCase()}</span>
+                  )}
+                </div>
+              </div>
             </div>
-            <div className={`text-[11px] leading-relaxed ${log.isDark ? 'text-black font-medium' : 'text-muted-foreground'}`}>
-              {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
-                <>
-                  Referral received from <span className="font-bold text-black">{practiceName || dentistName}</span> and auto-extracted via Digital Intake Pipeline.
-                </>
-              ) : log.text.includes(dentistName) && log.text.includes('clinical records') ? (
-                <>
-                  Clinical records requested from <span className="font-bold text-black">{dentistName}</span>&apos;s office. Pending response.
-                </>
-              ) : (
-                <span className="capitalize-first">{log.text.toLowerCase()}</span>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="p-6 border-t-2 border-black bg-white space-y-4">

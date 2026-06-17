@@ -93,6 +93,7 @@ type MessageProps = {
   type: 'self' | 'other';
   transport?: 'App' | 'SMS' | 'Email';
   document?: SharedDocument;
+  hideHeader?: boolean;
 };
 
 export function Message({
@@ -101,17 +102,20 @@ export function Message({
   time,
   type,
   transport,
-  document
+  document,
+  hideHeader
 }: MessageProps) {
   const isSelf = type === 'self';
 
   return (
-    <div className={`flex flex-col ${isSelf ? 'items-end' : 'items-start'} space-y-1`}>
-      <div className="flex items-center gap-2">
-        {!isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">{user}</span>}
-        <span className="text-[8px] text-muted-foreground uppercase font-bold">{time}</span>
-        {isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">You</span>}
-      </div>
+    <div className={`flex flex-col ${isSelf ? 'items-end' : 'items-start'} ${hideHeader ? '!mt-1' : ''} space-y-1`}>
+      {!hideHeader && (
+        <div className="flex items-center gap-2">
+          {!isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">{user}</span>}
+          <span className="text-[8px] text-muted-foreground uppercase font-bold">{time}</span>
+          {isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">You</span>}
+        </div>
+      )}
       <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'}`}>
         {text && <div className="whitespace-pre-wrap">{text}</div>}
 

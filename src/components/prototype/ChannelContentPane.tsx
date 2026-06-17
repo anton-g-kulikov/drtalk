@@ -130,8 +130,14 @@ export function ChannelContentPane({
             <>
               <div className="flex-1 overflow-y-auto p-4 sm:p-8">
                 <div className="max-w-4xl mx-auto w-full space-y-6">
-                  {messages.map((message) => {
+                   {messages.map((message, index) => {
                     const mapped = formatMessage(message);
+                    const prevMessage = index > 0 ? messages[index - 1] : null;
+                    const prevMapped = prevMessage ? formatMessage(prevMessage) : null;
+                    const isGrouped = prevMapped && (
+                      (mapped.type === 'self' && prevMapped.type === 'self') ||
+                      (mapped.type !== 'self' && prevMapped.type !== 'self' && mapped.user === prevMapped.user)
+                    );
                     return (
                       <Message
                         key={message.id}
@@ -140,6 +146,7 @@ export function ChannelContentPane({
                         time={message.time}
                         type={mapped.type}
                         transport={message.transport}
+                        hideHeader={!!isGrouped}
                         document={message.document ? {
                           ...message.document,
                           sentBy: formatDocumentSender(message.document.sentBy),
