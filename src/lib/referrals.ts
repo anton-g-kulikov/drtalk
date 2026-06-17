@@ -42,7 +42,7 @@ export function getReferrals(): UnifiedReferral[] {
   }
   try {
     const parsed = JSON.parse(stored);
-    const hasReleasedMocks = Array.isArray(parsed) && parsed.some(r => r.id === 'D-released-1');
+    const hasReleasedMocks = Array.isArray(parsed) && parsed.some(r => r.id === 'D-9001');
     if (Array.isArray(parsed) && parsed.length >= 1000 && hasReleasedMocks) {
       return parsed.map((r: any) => ({
         ...r,
@@ -344,7 +344,7 @@ export function getMessages(): Record<string, any[]> {
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
-      if (parsed && parsed['case_D-released-1']) {
+      if (parsed && parsed['case_D-9001']) {
         return parsed;
       }
     } catch (e) {

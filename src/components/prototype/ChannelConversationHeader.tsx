@@ -2,7 +2,7 @@
 
 import { ArrowLeft, FileText, Hash, Users } from 'lucide-react';
 import type { Channel } from '@/prototype/channelTypes';
-import type { ReferralStatus } from '@/lib/referrals';
+import { getReferralCode, type ReferralStatus } from '@/lib/referrals';
 
 type ChannelTab = 'messages' | 'documents' | 'archived';
 
@@ -71,7 +71,7 @@ export function ChannelConversationHeader({
             <div className="flex items-center gap-2 flex-wrap">
               <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
               <span className="text-[8px] text-muted-foreground uppercase font-black">
-                {isCaseChannel ? 'Case Sub-Channel' : `${activeChannel.memberCount} Members`}
+                {isCaseChannel ? `Case ${getReferralCode(activeChannel.id.replace('case_', ''))}` : `${activeChannel.memberCount} Members`}
               </span>
               {activeChannel.isExternal && (
                 <span className="text-[7px] font-black uppercase px-1.5 py-0.5 border border-black bg-gray-100 whitespace-nowrap">
