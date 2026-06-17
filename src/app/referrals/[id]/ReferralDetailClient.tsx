@@ -225,7 +225,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     setTimeout(() => setDownloadToast(null), 3000);
   };
 
-  const handleUnrecognizedConfirm = (values: { senderPractice: string; patientName: string; itemType: 'referral' | 'document' }) => {
+  const handleUnrecognizedConfirm = (values: { senderPractice: string; patientName: string; itemType: 'referral' | 'document' | 'spam' }) => {
     if (!unrecognizedDoc) return;
 
     const storageKey = getDashboardStorageKey(unrecognizedRole);
@@ -242,6 +242,38 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       }
     })();
     saveDashboardDocumentsToStorage(storageKey, remainingDocs);
+
+    if (values.itemType === 'spam') {
+      const archivedKey = unrecognizedRole === 'specialist' ? 'drtalk_specialist_archived_docs' : 'drtalk_dentist_archived_docs';
+      let archivedDocs: DashboardDocumentItem[] = [];
+      try {
+        const stored = localStorage.getItem(archivedKey);
+        archivedDocs = stored ? JSON.parse(stored) : [];
+        if (!Array.isArray(archivedDocs)) archivedDocs = [];
+      } catch {
+        archivedDocs = [];
+      }
+
+      const spamDoc: DashboardDocumentItem = {
+        id: unrecognizedDoc.id,
+        name: unrecognizedDoc.name,
+        sender: unrecognizedDoc.sender || 'Unknown Sender',
+        date: unrecognizedDoc.date || new Date().toLocaleDateString('en-US'),
+        size: unrecognizedDoc.size,
+        isExternal: true,
+        isUnrecognized: true,
+        transport: unrecognizedDoc.transport,
+      };
+
+      // Add to spam if not already present
+      if (!archivedDocs.some(d => d.id === spamDoc.id)) {
+        archivedDocs.unshift(spamDoc);
+      }
+      localStorage.setItem(archivedKey, JSON.stringify(archivedDocs));
+
+      router.push(unrecognizedRole === 'dentist' ? '/dentist/dashboard' : '/dashboard');
+      return;
+    }
 
     if (values.itemType === 'referral') {
       const currentReferrals = getReferrals();

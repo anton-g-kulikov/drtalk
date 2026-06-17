@@ -5,7 +5,7 @@ import { AlertTriangle, ArrowLeft, CheckCircle2, ChevronDown, FileText } from 'l
 import { DocumentViewerTab } from '@/components/prototype/DocumentViewerTab';
 import { getNetwork, type NetworkPractice } from '@/lib/referrals';
 
-export type UnrecognizedItemType = 'referral' | 'document';
+export type UnrecognizedItemType = 'referral' | 'document' | 'spam';
 
 export interface UnrecognizedDocData {
   id: string;
@@ -69,7 +69,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
     setConnectedPractices(connected);
   }, []);
 
-  const canSubmit = senderPractice.trim().length > 0;
+  const canSubmit = itemType === 'spam' || senderPractice.trim().length > 0;
   const normalizedSearch = practiceSearch.trim().toLowerCase();
   const visiblePractices = connectedPractices.filter((practice) =>
     practice.name.toLowerCase().includes(normalizedSearch)
@@ -189,7 +189,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
           <div className="max-w-xl mx-auto p-8 space-y-6">
 
             {/* Sender practice */}
-            <div className="space-y-1.5">
+            <div className={`space-y-1.5 transition-opacity duration-200 ${itemType === 'spam' ? 'opacity-40 pointer-events-none' : ''}`}>
               <label className="text-[9px] font-black uppercase tracking-wider block text-black">
                 Sender Practice <span className="text-black">*</span>
               </label>
@@ -198,6 +198,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
                   <div className="flex gap-2">
                     <input
                       type="text"
+                      disabled={itemType === 'spam'}
                       value={practiceSearch}
                       onChange={(event) => {
                         const next = event.target.value;
@@ -215,9 +216,10 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
                     />
                     <button
                       type="button"
+                      disabled={itemType === 'spam'}
                       aria-label="Toggle practice dropdown"
                       onClick={() => setShowPracticeDropdown(!showPracticeDropdown)}
-                      className="text-black"
+                      className="text-black text-left"
                     >
                       <ChevronDown size={14} className={`transition-transform duration-200 ${showPracticeDropdown ? 'rotate-180' : ''}`} />
                     </button>
@@ -277,12 +279,13 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
             </div>
 
             {/* Patient name */}
-            <div className="space-y-1.5">
+            <div className={`space-y-1.5 transition-opacity duration-200 ${itemType === 'spam' ? 'opacity-40 pointer-events-none' : ''}`}>
               <label className="text-[9px] font-black uppercase tracking-wider block text-black">
                 Patient Name
               </label>
               <input
                 type="text"
+                disabled={itemType === 'spam'}
                 value={patientName}
                 onChange={e => setPatientName(e.target.value)}
                 placeholder="PATIENT NAME (IF APPLICABLE)..."
@@ -295,7 +298,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
               <label className="text-[9px] font-black uppercase tracking-wider block text-black">
                 Categorize As
               </label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setItemType('referral')}
                   className={`p-4 border-2 text-left transition-all ${
@@ -320,6 +323,19 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
                   <p className="font-black uppercase text-[10px]">Document</p>
                   <p className={`text-[8px] uppercase mt-1 ${itemType === 'document' ? 'opacity-70' : 'text-muted-foreground'}`}>
                     Routes to practice channel
+                  </p>
+                </button>
+                <button
+                  onClick={() => setItemType('spam')}
+                  className={`p-4 border-2 text-left transition-all ${
+                    itemType === 'spam'
+                      ? 'border-black bg-black text-white'
+                      : 'border-black bg-white text-black hover:bg-zinc-50'
+                  }`}
+                >
+                  <p className="font-black uppercase text-[10px]">Spam / Dismiss</p>
+                  <p className={`text-[8px] uppercase mt-1 ${itemType === 'spam' ? 'opacity-70' : 'text-muted-foreground'}`}>
+                    Permanently dismisses this item
                   </p>
                 </button>
               </div>

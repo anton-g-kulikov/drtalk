@@ -128,39 +128,68 @@ export function SpecialistReferralQueues({
   onReferralClick,
   onViewAll,
 }: SpecialistReferralQueuesProps) {
+  const unrecognizedItems = [...processingReferrals, ...documentReferrals].filter(r => r.isUnrecognized);
+  const normalProcessing = processingReferrals.filter(r => !r.isUnrecognized);
+  const normalDocs = documentReferrals.filter(r => !r.isUnrecognized);
+  const normalCount = normalProcessing.length + normalDocs.length;
+
   return (
     <>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between border-b-4 border-black pb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-3.5 h-3.5 bg-black"></div>
-            <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals</h3>
+      <div className="space-y-8">
+        {unrecognizedItems.length > 0 && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b-4 border-black pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-3.5 h-3.5 bg-black"></div>
+                <h3 className="font-black uppercase text-sm tracking-widest italic">Unrecognized Cases</h3>
+              </div>
+              <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
+                {unrecognizedItems.length} items
+              </span>
+            </div>
+
+            <ReferralQueueSection
+              title="Incoming transmissions requiring identification"
+              emptyLabel="No unrecognized cases requiring processing"
+              dateLabel="Received"
+              referrals={unrecognizedItems}
+              onReferralClick={onReferralClick}
+            />
           </div>
-          <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
-            {totalCount} items
-          </span>
+        )}
+
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b-4 border-black pb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-3.5 h-3.5 bg-black"></div>
+              <h3 className="font-black uppercase text-sm tracking-widest italic">Referrals</h3>
+            </div>
+            <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
+              {normalCount} items
+            </span>
+          </div>
+
+          <ReferralQueueSection
+            title="New referrals requiring processing"
+            emptyLabel="No new referrals requiring processing"
+            dateLabel="Received"
+            referrals={normalProcessing}
+            onReferralClick={onReferralClick}
+          />
+
+          <ReferralQueueSection
+            title="Referrals with newly received documents"
+            emptyLabel="No referrals with newly received documents"
+            dateLabel="Updated"
+            referrals={normalDocs}
+            onReferralClick={onReferralClick}
+          />
         </div>
-
-        <ReferralQueueSection
-          title="New referrals requiring processing"
-          emptyLabel="No new referrals requiring processing"
-          dateLabel="Received"
-          referrals={processingReferrals}
-          onReferralClick={onReferralClick}
-        />
-
-        <ReferralQueueSection
-          title="Referrals with newly received documents"
-          emptyLabel="No referrals with newly received documents"
-          dateLabel="Updated"
-          referrals={documentReferrals}
-          onReferralClick={onReferralClick}
-        />
       </div>
 
       <button
         onClick={onViewAll}
-        className="text-[10px] font-black uppercase underline block"
+        className="text-[10px] font-black uppercase underline block mt-4"
       >
         View all Referrals
       </button>

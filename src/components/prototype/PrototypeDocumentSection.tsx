@@ -4,6 +4,9 @@ import { ChevronDown, Search } from 'lucide-react';
 type PrototypeDocumentSectionProps = {
   title?: string;
   inboxCount: number;
+  spamCount: number;
+  activeTab: 'inbox' | 'spam';
+  onTabChange: (tab: 'inbox' | 'spam') => void;
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
   isEmpty: boolean;
@@ -18,6 +21,9 @@ type PrototypeDocumentSectionProps = {
 export function PrototypeDocumentSection({
   title = 'Documents',
   inboxCount,
+  spamCount,
+  activeTab,
+  onTabChange,
   searchQuery,
   onSearchQueryChange,
   isEmpty,
@@ -35,11 +41,27 @@ export function PrototypeDocumentSection({
           <div className="w-3.5 h-3.5 bg-black"></div>
           <h3 className="font-black uppercase text-sm tracking-widest italic">{title}</h3>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 bg-black"></div>
-            <span className="text-[9px] font-black uppercase tracking-wider text-black">Inbox ({inboxCount})</span>
-          </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onTabChange('inbox')}
+            className={`px-3 py-1.5 text-[9px] font-black uppercase tracking-wider border-2 transition-all ${
+              activeTab === 'inbox'
+                ? 'border-black bg-black text-white'
+                : 'border-black/30 bg-white text-black hover:border-black hover:bg-zinc-50'
+            }`}
+          >
+            Inbox ({inboxCount})
+          </button>
+          <button
+            onClick={() => onTabChange('spam')}
+            className={`px-3 py-1.5 text-[9px] font-black uppercase tracking-wider border-2 transition-all ${
+              activeTab === 'spam'
+                ? 'border-black bg-black text-white'
+                : 'border-black/30 bg-white text-black hover:border-black hover:bg-zinc-50'
+            }`}
+          >
+            Spam ({spamCount})
+          </button>
         </div>
       </div>
 

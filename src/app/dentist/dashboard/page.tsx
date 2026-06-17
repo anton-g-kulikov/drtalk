@@ -63,7 +63,7 @@ export default function DentistDashboardPage() {
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
-  const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
+  const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'spam'>('inbox');
 
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
@@ -301,6 +301,9 @@ export default function DentistDashboardPage() {
           <div className="lg:col-span-8 space-y-8">
             <PrototypeDocumentSection
               inboxCount={documents.length}
+              spamCount={archivedDocuments.length}
+              activeTab={activeInboxTab}
+              onTabChange={setActiveInboxTab}
               searchQuery={docSearchQuery}
               onSearchQueryChange={setDocSearchQuery}
               isEmpty={filteredDocs.length === 0}
@@ -313,7 +316,7 @@ export default function DentistDashboardPage() {
                     <DashboardDocumentRow
                       key={doc.id}
                       document={doc}
-                      isArchived={activeInboxTab === 'archived'}
+                      isArchived={activeInboxTab === 'spam'}
                       onOpenDocument={() => router.push(`/documents/${doc.id}?role=dentist`)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}

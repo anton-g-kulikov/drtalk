@@ -38,7 +38,7 @@ export function DashboardDocumentRow({
     <div
       className={`wireframe-card p-4 border-2 transition-all space-y-3 ${
         isArchived
-          ? 'opacity-80 bg-white border-black'
+          ? 'opacity-65 bg-zinc-50 border-dashed border-zinc-300'
           : isUnrecognized
           ? 'bg-white border-dashed border-black hover:bg-zinc-50'
           : 'bg-white border-black hover:bg-zinc-50/50'
@@ -47,9 +47,15 @@ export function DashboardDocumentRow({
       <div className="flex justify-between items-start">
         <div className="flex gap-3">
           <div
-            className={`w-10 h-10 border-2 flex items-center justify-center shrink-0 border-black bg-zinc-100`}
+            className={`w-10 h-10 border-2 flex items-center justify-center shrink-0 ${
+              isArchived 
+                ? 'border-zinc-300 bg-zinc-100' 
+                : 'border-black bg-zinc-100'
+            }`}
           >
-            {isUnrecognized ? (
+            {isArchived ? (
+              <AlertTriangle size={20} className="text-zinc-400" />
+            ) : isUnrecognized ? (
               <AlertTriangle size={20} className="text-black" />
             ) : (
               <FileText size={20} className="text-black" />
@@ -58,12 +64,16 @@ export function DashboardDocumentRow({
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <p
-                onClick={() => onOpenDocument(document.id)}
-                className="font-black uppercase text-xs tracking-tight hover:underline cursor-pointer text-black"
+                onClick={() => !isArchived && onOpenDocument(document.id)}
+                className={`font-black uppercase text-xs tracking-tight ${
+                  isArchived 
+                    ? 'line-through text-zinc-400 cursor-not-allowed' 
+                    : 'hover:underline cursor-pointer text-black'
+                }`}
               >
                 {document.name}
               </p>
-              {isUnrecognized ? (
+              {isArchived ? null : isUnrecognized ? (
                 <span className="text-[7px] bg-black text-white px-1.5 py-0.5 border border-black font-black uppercase tracking-wider flex items-center gap-1">
                   ⚠ UNRECOGNIZED SENDER
                 </span>
@@ -73,7 +83,7 @@ export function DashboardDocumentRow({
                 </span>
               ) : null}
             </div>
-            <div className="flex gap-2 items-center text-[9px] font-bold uppercase text-muted-foreground">
+            <div className={`flex gap-2 items-center text-[9px] font-bold uppercase ${isArchived ? 'text-zinc-400 line-through' : 'text-muted-foreground'}`}>
               <span>
                 {isUnrecognized
                   ? `Via ${document.transport || 'External'} — Sender Unknown`
@@ -86,9 +96,9 @@ export function DashboardDocumentRow({
         </div>
         {isArchived ? (
           <div className="flex items-center gap-4 shrink-0 justify-between sm:justify-end">
-            <span className="text-[8px] font-bold uppercase text-muted-foreground">{document.date}</span>
-            <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-200 border border-zinc-400 text-zinc-600">
-              Archived
+            <span className="text-[8px] font-bold uppercase text-zinc-400">{document.date}</span>
+            <span className="text-[9px] font-black uppercase px-3 py-1 bg-red-50 border border-red-200 text-red-600">
+              Spam
             </span>
           </div>
         ) : (

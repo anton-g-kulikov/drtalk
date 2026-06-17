@@ -92,7 +92,7 @@ export default function DashboardPage() {
 
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
-  const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'archived'>('inbox');
+  const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'spam'>('inbox');
 
   useEffect(() => {
     const storage = loadDashboardDocumentStorage({
@@ -326,6 +326,9 @@ export default function DashboardPage() {
             <PrototypeDocumentSection
               className="pt-4"
               inboxCount={documents.length}
+              spamCount={archivedDocuments.length}
+              activeTab={activeInboxTab}
+              onTabChange={setActiveInboxTab}
               searchQuery={docSearchQuery}
               onSearchQueryChange={setDocSearchQuery}
               isEmpty={filteredDocs.length === 0}
@@ -338,6 +341,7 @@ export default function DashboardPage() {
                     <DashboardDocumentRow
                       key={doc.id}
                       document={doc}
+                      isArchived={activeInboxTab === 'spam'}
                       onOpenDocument={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
