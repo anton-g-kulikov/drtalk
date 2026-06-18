@@ -57,7 +57,7 @@ export default function DentistDashboardPage() {
   
   const referralsSentCount = sentReferrals.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
   const referralsScheduledCount = sentReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
-  const specialtyCareCompleteCount = sentReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
+  const referralsReleasedCount = sentReferrals.filter(r => (r.dentistStatus || r.status) === 'Released' && isInRange(r.receivedAt, timeRange)).length;
 
   type DocumentItem = DashboardDocumentItem;
 
@@ -217,7 +217,7 @@ export default function DentistDashboardPage() {
     return sentReferrals.filter(ref => {
       const matchesSearch = ref.patientName.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
                             ref.specialist.toLowerCase().includes(attachSearchQuery.toLowerCase());
-      return matchesSearch && ref.status !== 'Completed' && ref.status !== 'Archived';
+      return matchesSearch && ref.status !== 'Archived';
     });
   }, [sentReferrals, attachSearchQuery]);
 
@@ -290,7 +290,7 @@ export default function DentistDashboardPage() {
           stats={[
             { label: 'Patients Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received', trend: 12 },
             { label: 'Patients Scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled', trend: 5 },
-            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Completed', trend: -2 },
+            { label: 'Patients Released', value: referralsReleasedCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Released', trend: -2 },
             { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected', trend: 20 },
           ]}
         />

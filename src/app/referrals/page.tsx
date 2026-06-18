@@ -69,7 +69,7 @@ export default function ReferralsPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam && ['Received', 'Accepted', 'Scheduled', 'Completed', 'Archived'].includes(tabParam)) {
+      if (tabParam && ['Received', 'Accepted', 'Scheduled', 'Released', 'Archived'].includes(tabParam)) {
         const timer = setTimeout(() => {
           setActiveTab(tabParam as ReferralStatus);
         }, 0);

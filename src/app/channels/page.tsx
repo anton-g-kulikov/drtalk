@@ -343,7 +343,6 @@ function ChannelsContent() {
           onDocPageChange={channelsState.setDocPage}
           formatMessage={channelsState.formatMessage}
           formatDocumentSender={channelsState.formatDocumentSender}
-          onCompleteCare={channelsState.onCompleteCare}
           referralStatus={
             (() => {
               if (!channelsState.activeChannel?.id?.startsWith('case_')) return undefined;

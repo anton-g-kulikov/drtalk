@@ -69,7 +69,7 @@ export default function DashboardPage() {
   
   const referralsReceivedCount = specialistReferrals.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
   const referralsScheduledCount = specialistReferrals.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
-  const specialtyCareCompleteCount = specialistReferrals.filter(r => r.status === 'Completed' && isInRange(r.receivedAt, timeRange)).length;
+  const referralsReleasedCount = specialistReferrals.filter(r => r.status === 'Released' && isInRange(r.receivedAt, timeRange)).length;
 
   // Defined after state declarations below — see handleReferralClick near referrals state
 
@@ -317,7 +317,7 @@ export default function DashboardPage() {
           stats={[
             { label: 'Referrals received', value: referralsReceivedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Received', trend: 15 },
             { label: 'Referrals scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/referrals?tab=Scheduled', trend: 8 },
-            { label: 'Specialty Care Complete', value: specialtyCareCompleteCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Completed', trend: -4 },
+            { label: 'Referrals Released', value: referralsReleasedCount.toString().padStart(2, '0'), icon: FileText, path: '/referrals?tab=Released', trend: -4 },
             { label: '# drtalk connections', value: '15', icon: Users, path: '/network?tab=connected', trend: 10 },
           ]}
         />
