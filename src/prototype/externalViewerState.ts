@@ -19,7 +19,7 @@ export type ExternalViewerState = {
   activeDocument: ExternalViewerDocument;
 };
 
-export type ExternalViewerStatus = Extract<ReferralStatus, 'Received' | 'Scheduled' | 'Completed' | 'Archived'>;
+export type ExternalViewerStatus = Extract<ReferralStatus, 'Received' | 'Scheduled' | 'Released' | 'Archived'>;
 
 export function buildExternalViewerDocuments(referral: UnifiedReferral): ExternalViewerDocument[] {
   const patientToken = referral.patientName.replace(/\s+/g, '_').toUpperCase();

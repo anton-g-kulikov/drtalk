@@ -9,6 +9,7 @@ import {
   saveMessages,
   updateReferralStatus,
   updateDentistReferralStatus,
+  unarchiveReferral,
   type UnifiedReferral,
   initialReferrals,
 } from '@/lib/referrals';
@@ -294,7 +295,7 @@ export function usePrototypeChannelsState({
     setChannels(result.channels);
 
     if (result.reactivatedReferralId) {
-      const updatedRefs = updateReferralStatus(result.reactivatedReferralId, 'Scheduled');
+      const updatedRefs = unarchiveReferral(result.reactivatedReferralId);
       setReferrals(updatedRefs);
     }
 
@@ -501,12 +502,7 @@ export function usePrototypeChannelsState({
       });
       setActiveTab('messages');
     },
-    onCompleteCare: () => {
-      const referralId = activeChannel.id.replace('case_', '');
-      const updated = updateDentistReferralStatus(referralId, 'Completed');
-      setReferrals(updated);
-      triggerToast(`Care completed for ${activeChannel.name}!`);
-    },
+
     onToggleParticipant: (id: string) => {
       setParticipants((prev) => prev.map((participant) => participant.id === id ? { ...participant, selected: !participant.selected } : participant));
     },

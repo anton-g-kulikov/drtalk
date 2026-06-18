@@ -129,7 +129,7 @@ export function buildChannelMessageSend({
   });
 
   const reactivatedReferral = activeChannel.id.startsWith('case_')
-    ? referrals.find((referral) => referral.id === activeChannel.id.replace('case_', '') && referral.status === 'Archived')
+    ? referrals.find((referral) => referral.id === activeChannel.id.replace('case_', '') && (referral.status === 'Archived' || referral.archivedBySpecialist || referral.archivedByDentist))
     : undefined;
 
   return {
