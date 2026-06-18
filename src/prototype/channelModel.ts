@@ -35,10 +35,18 @@ export function buildCaseChannels({
 }): CaseChannel[] {
   const filteredRefs = referrals.filter((ref) => {
     if (ref.status === 'Draft') return false;
-    if (hidePending && (ref.status === 'Received' || ref.status === 'Sent')) return false;
+
+    const archived = isDentist
+      ? (ref.archivedByDentist === true || ref.dentistStatus === 'Archived')
+      : (ref.archivedBySpecialist === true || ref.status === 'Archived');
+
+    if (hidePending && !archived && (ref.status === 'Received' || ref.status === 'Sent')) return false;
 
     if (isDentist) {
-      return ref.id.startsWith('D-') || ref.id === '1';
+      return ref.id.startsWith('D-') || 
+             ref.id === '1' || 
+             (ref.practice && ref.practice.toLowerCase() === 'sunshine dental') || 
+             (ref.dentist && (ref.dentist.includes('Reed') || ref.dentist.includes('Taylor')));
     }
 
     return !ref.id.startsWith('D-');

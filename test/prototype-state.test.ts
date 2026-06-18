@@ -71,7 +71,7 @@ describe('shared prototype state use cases', () => {
         receivedAt: '06/30/2026',
         dentist: 'Dr. Smith',
         specialist: 'Valley Endodontics',
-        practice: 'Sunshine Dental',
+        practice: 'Desert Bloom Dental',
       },
       {
         id: 'D-3',
@@ -95,7 +95,7 @@ describe('shared prototype state use cases', () => {
     const specialistCases = buildCaseChannels({
       referrals,
       isDentist: false,
-      dentistPractices: [{ id: 'dn-1', name: 'Sunshine Dental' }],
+      dentistPractices: [{ id: 'dn-1', name: 'Desert Bloom Dental' }],
       specialistClinics: [{ id: 'sp-1', name: 'Valley Endodontics' }],
     });
 
