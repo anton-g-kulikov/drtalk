@@ -284,7 +284,7 @@ export default function DashboardPage() {
   };
 
   const newProcessingReferrals = referrals.filter(r => r.status === 'new_processing');
-  const newDocsReferrals = referrals.filter(r => r.status === 'new_docs');
+  const newDocsReferrals = referrals.filter(r => r.status === 'new_docs').slice(0, 2);
   const filteredAttachReferrals = referrals.filter(ref => 
     ref.patient.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
     ref.source.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
