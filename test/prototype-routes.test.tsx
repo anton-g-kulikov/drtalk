@@ -161,7 +161,7 @@ describe('prototype route use cases', () => {
     expect(screen.getByRole('heading', { name: /alice cooper/i })).toBeInTheDocument();
     expect(screen.getByText(/documents provided/i)).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /complete/i }));
+    await user.click(screen.getByRole('button', { name: /release/i }));
     expect(await screen.findByText(/pipeline updated in referring dentist/i)).toBeInTheDocument();
 
     await user.type(screen.getByPlaceholderText(/compose secure reply/i), 'Please schedule follow-up imaging.');

@@ -428,7 +428,7 @@ describe('prototype components: channels.test', () => {
     );
 
     expect(screen.getByRole('heading', { name: /alice cooper/i })).toBeInTheDocument();
-    expect(screen.getByText(/case sub-channel/i)).toBeInTheDocument();
+    expect(screen.getByText(/case ref-/i)).toBeInTheDocument();
     expect(screen.getByText(/external/i)).toBeInTheDocument();
     expect(screen.getByText(/secure email/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /archived conversations/i })).not.toBeInTheDocument();

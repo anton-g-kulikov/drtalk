@@ -372,7 +372,7 @@ describe('prototype components: dashboards.test', () => {
       />
     );
 
-    expect(screen.getByText(/^archived$/i)).toBeInTheDocument();
+    expect(screen.getByText(/spam/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /convert to referral/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /open in channel/i })).not.toBeInTheDocument();
   });

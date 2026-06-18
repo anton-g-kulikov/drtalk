@@ -353,10 +353,9 @@ describe('prototype components: referral flows.test', () => {
     expect(screen.getByPlaceholderText(/provide additional clinical notes/i)).toBeInTheDocument();
   });
 
-  it('renders ChannelConversationHeader with Complete Care button and handles archiving callbacks', async () => {
+  it('renders ChannelConversationHeader and handles archiving callbacks', async () => {
     const user = userEvent.setup();
     const onArchiveCase = vi.fn();
-    const onCompleteCare = vi.fn();
     const onShowChannelList = vi.fn();
     const onBackToPractice = vi.fn();
     const onOpenParticipants = vi.fn();
@@ -370,7 +369,7 @@ describe('prototype components: referral flows.test', () => {
       memberCount: 2,
     };
 
-    // Render for Dentist with status 'Released' -> Complete Care should be visible
+    // Render for Dentist with status 'Released'
     const { rerender } = render(
       <ChannelConversationHeader
         activeChannel={caseChannel}
@@ -381,22 +380,16 @@ describe('prototype components: referral flows.test', () => {
         onBackToPractice={onBackToPractice}
         onArchiveCase={onArchiveCase}
         onOpenParticipants={onOpenParticipants}
-        onCompleteCare={onCompleteCare}
         referralStatus="Released"
       />
     );
-
-    const completeCareBtn = screen.getByRole('button', { name: /complete care/i });
-    expect(completeCareBtn).toBeInTheDocument();
-    await user.click(completeCareBtn);
-    expect(onCompleteCare).toHaveBeenCalledTimes(1);
 
     const archiveBtn = screen.getByRole('button', { name: /archive channel/i });
     expect(archiveBtn).toBeInTheDocument();
     await user.click(archiveBtn);
     expect(onArchiveCase).toHaveBeenCalledTimes(1);
 
-    // Rerender for Specialist -> Complete Care button should NOT be rendered
+    // Rerender for Specialist
     rerender(
       <ChannelConversationHeader
         activeChannel={caseChannel}
@@ -407,7 +400,6 @@ describe('prototype components: referral flows.test', () => {
         onBackToPractice={onBackToPractice}
         onArchiveCase={onArchiveCase}
         onOpenParticipants={onOpenParticipants}
-        onCompleteCare={onCompleteCare}
         referralStatus="Released"
       />
     );
