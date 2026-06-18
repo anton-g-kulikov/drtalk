@@ -799,6 +799,8 @@ function ChannelsContent() {
           participants={channelsState.participants}
           onParticipantToggle={channelsState.onToggleParticipant}
           onClose={() => channelsState.setShowParticipantsModal(false)}
+          channelId={channelsState.activeChannel.id}
+          isDentist={isDentist}
         />
       )}
     </div>
