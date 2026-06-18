@@ -68,10 +68,8 @@ export function updateReferralStatus(id: string, status: ReferralStatus): Unifie
       const updateObj: Partial<UnifiedReferral> = { status };
       if (status === 'Archived') {
         updateObj.archivedBySpecialist = true;
-        updateObj.archivedByDentist = true;
       } else {
         updateObj.archivedBySpecialist = false;
-        updateObj.archivedByDentist = false;
       }
       return { ...r, ...updateObj };
     }
@@ -82,7 +80,45 @@ export function updateReferralStatus(id: string, status: ReferralStatus): Unifie
 }
 
 export function updateDentistReferralStatus(id: string, status: ReferralStatus): UnifiedReferral[] {
-  return updateReferralStatus(id, status);
+  const referrals = getReferrals();
+  const updated = referrals.map(r => {
+    if (r.id === id) {
+      const updateObj: Partial<UnifiedReferral> = {};
+      if (status === 'Archived') {
+        updateObj.archivedByDentist = true;
+        updateObj.dentistStatus = 'Archived';
+      } else {
+        updateObj.archivedByDentist = false;
+        updateObj.dentistStatus = status;
+      }
+      return { ...r, ...updateObj };
+    }
+    return r;
+  });
+  saveReferrals(updated);
+  return updated;
+}
+
+export function unarchiveReferral(id: string): UnifiedReferral[] {
+  const referrals = getReferrals();
+  const updated = referrals.map(r => {
+    if (r.id === id) {
+      const updateObj: Partial<UnifiedReferral> = {
+        archivedBySpecialist: false,
+        archivedByDentist: false,
+      };
+      if (r.status === 'Archived') {
+        updateObj.status = 'Released';
+      }
+      if (r.dentistStatus === 'Archived') {
+        updateObj.dentistStatus = 'Released';
+      }
+      return { ...r, ...updateObj };
+    }
+    return r;
+  });
+  saveReferrals(updated);
+  return updated;
 }
 
 export function updateReferralAssignee(id: string, assignedTo?: string): UnifiedReferral[] {

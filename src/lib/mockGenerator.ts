@@ -210,10 +210,10 @@ export function generateMockData() {
     { id: '2', patientName: 'Bob Marley', type: 'Dental Implant', source: 'Fax', completion: 45, status: 'Received', receivedAt: '06:20 AM\n06/08/2026', dentist: 'Dr. Jones', specialist: 'Downtown Oral Surgery', specialistDoctor: 'Dr. Bob Wilson', practice: 'Desert Bloom Dental', urgency: 'Urgent' },
     { id: '3', patientName: 'Charlie Brown', type: 'Emergency Extraction', source: 'App', completion: 100, status: 'Scheduled', receivedAt: '10:20 AM\n06/07/2026', dentist: 'Dr. Miller', specialist: 'Metro Orthodontics', specialistDoctor: 'Dr. Carol Danvers', practice: 'Miller & Associates', urgency: 'Emergency' },
     { id: '5', patientName: 'Eve Online', type: 'Periodontal Surgery', source: 'Email', completion: 30, status: 'Scheduled', receivedAt: '09:20 AM\n05/11/2026', dentist: 'Dr. Black', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Black Family Dental', urgency: 'Routine' },
-    { id: '6', patientName: 'Frank Sinatra', type: 'Endodontic Root Canal', source: 'Web', completion: 95, status: 'Completed', receivedAt: '02:15 PM\n05/20/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
-    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Completed', receivedAt: '10:20 AM\n02/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', specialistDoctor: 'Dr. Carol Danvers', practice: 'White Dental Group', urgency: 'Routine' },
-    { id: '7', patientName: 'Grace Kelly', type: 'Apexification', source: 'App', completion: 100, status: 'Completed', receivedAt: '11:30 AM\n02/14/2026', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
-    { id: '8', patientName: 'Elvis Presley', type: 'Endodontic Retreat', source: 'Fax', completion: 100, status: 'Completed', receivedAt: '09:10 AM\n10/12/2025', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
+    { id: '6', patientName: 'Frank Sinatra', type: 'Endodontic Root Canal', source: 'Web', completion: 95, status: 'Released', receivedAt: '02:15 PM\n05/20/2026', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
+    { id: '4', patientName: 'David Bowie', type: 'Invisalign Eval', source: 'Web', completion: 88, status: 'Released', receivedAt: '10:20 AM\n02/09/2026', dentist: 'Dr. White', specialist: 'Arizona Periodontics', specialistDoctor: 'Dr. Carol Danvers', practice: 'White Dental Group', urgency: 'Routine' },
+    { id: '7', patientName: 'Grace Kelly', type: 'Apexification', source: 'App', completion: 100, status: 'Released', receivedAt: '11:30 AM\n02/14/2026', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
+    { id: '8', patientName: 'Elvis Presley', type: 'Endodontic Retreat', source: 'Fax', completion: 100, status: 'Released', receivedAt: '09:10 AM\n10/12/2025', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine' },
     { id: '9', patientName: 'Marilyn Monroe', type: 'Consultation', source: 'Email', completion: 45, status: 'Received', receivedAt: '03:40 PM\n11/05/2025', dentist: 'Dr. Smith', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Urgent' },
     { id: 'ext-ref-1', patientName: 'Jane Doe', type: 'Endodontic Evaluation', source: 'Email', completion: 35, status: 'Received', receivedAt: '10:15 AM\n06/30/2026', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Pinecrest Dental Group', urgency: 'Urgent' },
     { id: 'ext-ref-2', patientName: 'Kunal Patel', type: 'Dental Implant', source: 'Fax', completion: 65, status: 'Received', receivedAt: '08:45 AM\n06/29/2026', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Bob Wilson', practice: 'Oakwood Family Dental', urgency: 'Emergency' },
@@ -222,10 +222,10 @@ export function generateMockData() {
     { id: 'D-1002', patientName: 'Marco Reyes', type: 'Extraction Evaluation', source: 'Fax', completion: 45, status: 'Sent' as any, receivedAt: '08:20 AM\n06/08/2026', lastUpdate: '08:20 AM\n06/08/2026', nextStep: 'Waiting for specialist review', dentist: 'Dr. Taylor Reed', specialist: 'Downtown Oral Surgery', specialistDoctor: 'Dr. Bob Wilson', practice: 'Sunshine Dental', urgency: 'Urgent', sender: 'Dr. Taylor Reed' },
     { id: 'D-1003', patientName: 'Nina Patel', type: 'Periodontal Surgery', source: 'Web', completion: 80, status: 'Scheduled', receivedAt: '10:20 AM\n06/07/2026', lastUpdate: '10:20 AM\n06/07/2026', nextStep: 'Appointment confirmed for Tuesday', dentist: 'Dr. Taylor Reed', specialist: 'Arizona Periodontics', specialistDoctor: 'Dr. Carol Danvers', practice: 'Sunshine Dental', urgency: 'Emergency', sender: 'Dr. Taylor Reed' },
     { id: 'D-1005', patientName: 'Sarah Jenkins', type: 'Endodontic Consultation', source: 'Email', completion: 60, status: 'Sent' as any, receivedAt: '10:05 AM\n05/11/2026', lastUpdate: '10:05 AM\n05/11/2026', nextStep: 'Waiting for specialist review', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
-    { id: 'D-1006', patientName: 'James Dean', type: 'Dental Implant', source: 'Web', completion: 100, status: 'Completed', receivedAt: '01:30 PM\n05/15/2026', lastUpdate: '01:30 PM\n05/15/2026', nextStep: 'Treatment complete', dentist: 'Dr. Taylor Reed', specialist: 'Downtown Oral Surgery', specialistDoctor: 'Dr. Bob Wilson', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-1006', patientName: 'James Dean', type: 'Dental Implant', source: 'Web', completion: 100, status: 'Released', receivedAt: '01:30 PM\n05/15/2026', lastUpdate: '01:30 PM\n05/15/2026', nextStep: 'Treatment complete', dentist: 'Dr. Taylor Reed', specialist: 'Downtown Oral Surgery', specialistDoctor: 'Dr. Bob Wilson', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-1004', patientName: 'Sarah Jenkins', type: 'Consultation', source: 'App', completion: 20, status: 'Draft', receivedAt: '03:14 PM\n02/11/2026', lastUpdate: '03:14 PM\n02/11/2026', nextStep: 'Draft saved', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
-    { id: 'D-1007', patientName: 'Humphrey Bogart', type: 'Root Canal', source: 'Email', completion: 100, status: 'Completed', receivedAt: '09:00 AM\n02/20/2026', lastUpdate: '09:00 AM\n02/20/2026', nextStep: 'Follow-up done', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
-    { id: 'D-1008', patientName: 'Audrey Hepburn', type: 'Consultation', source: 'App', completion: 100, status: 'Completed', receivedAt: '11:00 AM\n10/10/2025', lastUpdate: '11:00 AM\n10/10/2025', nextStep: 'Case closed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-1007', patientName: 'Humphrey Bogart', type: 'Root Canal', source: 'Email', completion: 100, status: 'Released', receivedAt: '09:00 AM\n02/20/2026', lastUpdate: '09:00 AM\n02/20/2026', nextStep: 'Follow-up done', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
+    { id: 'D-1008', patientName: 'Audrey Hepburn', type: 'Consultation', source: 'App', completion: 100, status: 'Released', receivedAt: '11:00 AM\n10/10/2025', lastUpdate: '11:00 AM\n10/10/2025', nextStep: 'Case closed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-9001', patientName: 'Elton John', type: 'Root Canal Therapy', source: 'Email', completion: 90, status: 'Released', receivedAt: '09:00 AM\n06/10/2026', lastUpdate: '06/10/2026, 09:00 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-9002', patientName: 'Paul McCartney', type: 'Endodontic Consultation', source: 'Web', completion: 90, status: 'Released', receivedAt: '10:15 AM\n06/11/2026', lastUpdate: '06/11/2026, 10:15 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Routine', sender: 'Dr. Taylor Reed' },
     { id: 'D-9003', patientName: 'Mick Jagger', type: 'Apicoectomy', source: 'App', completion: 90, status: 'Released', receivedAt: '11:30 AM\n06/12/2026', lastUpdate: '06/12/2026, 11:30 AM', nextStep: 'Care ready to be completed', dentist: 'Dr. Taylor Reed', specialist: 'Valley Endodontics', specialistDoctor: 'Dr. Emma Smith', practice: 'Sunshine Dental', urgency: 'Urgent', sender: 'Dr. Taylor Reed' },
@@ -366,7 +366,7 @@ export function generateMockData() {
       const r4 = getDeterministicRandom(i + 300);
 
       // Status assignment based on how old the referral is (dayDiff)
-      let status: ReferralStatus = 'Completed';
+      let status: ReferralStatus = 'Released';
       if (dayDiff === 0) {
         // Today's incoming referrals: 90% Received (Review), 10% Scheduled
         status = r4 < 0.90 ? 'Received' : 'Scheduled';
@@ -374,14 +374,14 @@ export function generateMockData() {
         // Yesterday's referrals: 60% Received (Review), 40% Scheduled
         status = r4 < 0.60 ? 'Received' : 'Scheduled';
       } else if (dayDiff < 5) {
-        // Less than 5 days ago: 30% Received, 50% Scheduled, 20% Completed
-        status = r4 < 0.30 ? 'Received' : r4 < 0.80 ? 'Scheduled' : 'Completed';
+        // Less than 5 days ago: 30% Received, 50% Scheduled, 20% Released
+        status = r4 < 0.30 ? 'Received' : r4 < 0.80 ? 'Scheduled' : 'Released';
       } else if (dayDiff < 30) {
-        // 5 to 30 days ago: 20% Scheduled, 70% Completed, 10% Archived
-        status = r4 < 0.20 ? 'Scheduled' : r4 < 0.90 ? 'Completed' : 'Archived';
+        // 5 to 30 days ago: 20% Scheduled, 70% Released, 10% Archived
+        status = r4 < 0.20 ? 'Scheduled' : r4 < 0.90 ? 'Released' : 'Archived';
       } else {
-        // More than 30 days ago: 70% Completed, 30% Archived
-        status = r4 < 0.70 ? 'Completed' : 'Archived';
+        // More than 30 days ago: 70% Released, 30% Archived
+        status = r4 < 0.70 ? 'Released' : 'Archived';
       }
 
       // Dentist side drafts: some dentist referrals can be drafts (e.g. if dayDiff <= 2 and random is high)
@@ -457,7 +457,7 @@ export function generateMockData() {
 
       // Determine completion
       let completion = 100;
-      if (status === 'Completed') completion = 100;
+      if (status === 'Released') completion = 100;
       else if (status === 'Scheduled') completion = Math.floor(45 + r1 * 45); // 45-90%
       else if (status === 'Received') completion = Math.floor(15 + r1 * 40); // 15-55%
       else if (status === 'Archived') completion = 100;
@@ -482,7 +482,7 @@ export function generateMockData() {
       let nextStep = 'Waiting for specialist review';
       if (status === 'Scheduled') {
         nextStep = 'Appointment confirmed';
-      } else if (status === 'Completed') {
+      } else if (status === 'Released') {
         nextStep = 'Treatment complete';
       } else if (status === 'Archived') {
         nextStep = 'Case closed';
@@ -590,7 +590,7 @@ export function generateMockData() {
             type: msgRecipient === 'Me' ? 'self' : 'other',
             transport: 'App'
           });
-        } else if (status === 'Completed' || status === 'Archived') {
+        } else if (status === 'Released' || status === 'Archived') {
           messagesList.push({
             id: `m_case_${refId}_3`,
             user: msgRecipient === 'Me' ? 'Me' : msgRecipient,
