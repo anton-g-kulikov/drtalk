@@ -35,7 +35,7 @@ function getStatusColor(status: ReferralStatus) {
     case 'Received': return 'bg-gray-100 text-black border-black/30';
     case 'Accepted': return 'bg-amber-50 text-amber-800 border-amber-200';
     case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
-    case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
+    case 'Released': return 'bg-green-50 text-green-800 border-green-200';
     case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
     default: return 'bg-white';
   }

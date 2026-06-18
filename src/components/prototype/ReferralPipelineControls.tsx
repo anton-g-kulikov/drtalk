@@ -30,7 +30,6 @@ type ReferralPipelineControlsProps = {
 function getTabLabel(tab: ReferralStatus, isDentist: boolean) {
   if (isDentist) {
     if (tab === 'Received') return 'SENT';
-    if (tab === 'Completed') return 'CARE COMPLETE';
     return tab.toUpperCase();
   }
 
@@ -60,9 +59,7 @@ export function ReferralPipelineControls({
   onClearFilters,
 }: ReferralPipelineControlsProps) {
   const hasActiveFilters = selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All';
-  const tabs: ReferralStatus[] = isDentist
-    ? ['Received', 'Accepted', 'Scheduled', 'Released', 'Completed', 'Archived']
-    : ['Received', 'Accepted', 'Scheduled', 'Released', 'Archived'];
+  const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Released', 'Archived'];
 
   return (
     <>

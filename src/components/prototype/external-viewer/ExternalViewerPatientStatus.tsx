@@ -71,12 +71,12 @@ export function ExternalViewerPatientStatus({
           </button>
           <div className="w-2 h-0.5 bg-black" />
           <button
-            onClick={() => onUpdateStatus('Completed')}
+            onClick={() => onUpdateStatus('Released')}
             className={`flex-1 py-1 text-center border-2 border-black transition-all ${
-              referral.status === 'Completed' ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]' : 'bg-white text-black hover:bg-zinc-100'
+              referral.status === 'Released' ? 'bg-black text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.2)]' : 'bg-white text-black hover:bg-zinc-100'
             }`}
           >
-            Complete
+            Release
           </button>
         </div>
 
@@ -95,7 +95,7 @@ export function ExternalViewerPatientStatus({
           </div>
         )}
 
-        {referral.status === 'Completed' && (
+        {referral.status === 'Released' && (
           <div className="animate-fade-in flex flex-col gap-1 bg-zinc-50 border border-black p-1.5">
             <span className="text-[7px] font-black uppercase">Attach Post-Op Report:</span>
             <div className="flex gap-2">

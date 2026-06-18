@@ -95,7 +95,7 @@ export function ReferralDetailHeader({
                 <button
                   key={item.status}
                   onClick={() => {
-                    if (item.status === 'Completed' || item.status === 'Released') {
+                    if (item.status === 'Released') {
                       onProcessReferral();
                     } else {
                       onStatusChange(item.status as ReferralStatus);

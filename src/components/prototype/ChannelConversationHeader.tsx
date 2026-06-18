@@ -82,14 +82,7 @@ export function ChannelConversationHeader({
           </div>
         </div>
         <div className="flex items-center gap-2 sm:gap-4 text-black">
-          {isCaseChannel && isDentist && referralStatus === 'Released' && onCompleteCare && (
-            <button
-              onClick={onCompleteCare}
-              className="wireframe-button border-2 border-black px-3 py-1.5 bg-black text-white hover:bg-zinc-800 transition-all text-[9px] uppercase font-black"
-            >
-              Complete Care
-            </button>
-          )}
+
           {isCaseChannel && (
             <button
               onClick={onArchiveCase}
