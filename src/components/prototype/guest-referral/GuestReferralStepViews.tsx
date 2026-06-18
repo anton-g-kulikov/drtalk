@@ -64,9 +64,15 @@ export function GuestReferralPatientStep({ targetPractice, onBack, onContinue }:
       <div className="space-y-6">
         <h3 className="text-xs font-bold uppercase border-b-2 border-black pb-2">1. Patient Information</h3>
         <div className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold uppercase">Patient Full Name</label>
-            <input type="text" placeholder="John Doe" className="wireframe-input" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase">Patient First Name</label>
+              <input type="text" placeholder="Enter patient first name" className="wireframe-input" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold uppercase">Patient Last Name</label>
+              <input type="text" placeholder="Enter patient last name" className="wireframe-input" />
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
