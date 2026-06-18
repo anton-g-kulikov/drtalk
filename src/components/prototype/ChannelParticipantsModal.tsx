@@ -39,6 +39,7 @@ export function ChannelParticipantsModal({
 }: ChannelParticipantsModalProps) {
   const isCaseChannel = channelId?.startsWith('case_');
   const [addedExternalIds, setAddedExternalIds] = useState<string[]>([]);
+  const [externalSearchQuery, setExternalSearchQuery] = useState('');
 
   // Choose the external users based on current role (dentists see specialists, specialists see dentists)
   const availableExternalList = isDentist ? EXTERNAL_SPECIALISTS : EXTERNAL_DENTISTS;
@@ -50,6 +51,7 @@ export function ChannelParticipantsModal({
 
     if (confirmAdd) {
       setAddedExternalIds((prev) => [...prev, user.id]);
+      setExternalSearchQuery('');
     }
   };
 
@@ -70,6 +72,13 @@ export function ChannelParticipantsModal({
 
   const inviteableExternalUsers = availableExternalList.filter(
     (user) => !addedExternalIds.includes(user.id)
+  );
+
+  const filteredInviteableUsers = inviteableExternalUsers.filter(
+    (user) =>
+      user.name.toLowerCase().includes(externalSearchQuery.toLowerCase()) ||
+      user.role.toLowerCase().includes(externalSearchQuery.toLowerCase()) ||
+      user.practice.toLowerCase().includes(externalSearchQuery.toLowerCase())
   );
 
   return (
@@ -154,18 +163,29 @@ export function ChannelParticipantsModal({
                 <span className="text-[8px] font-black uppercase tracking-wider text-gray-500 flex items-center gap-1">
                   <UserPlus size={10} /> Invite External Users from Connected Practices
                 </span>
-                <p className="text-[7.5px] text-gray-400 uppercase font-bold mt-0.5 leading-relaxed">
+                <p className="text-[7.5px] text-gray-400 uppercase font-bold mt-0.5 leading-relaxed mb-2">
                   Allows adding practitioners from other practices specifically to this patient case.
                 </p>
+                <input
+                  type="text"
+                  placeholder="Search by name, practice, or role..."
+                  value={externalSearchQuery}
+                  onChange={(e) => setExternalSearchQuery(e.target.value)}
+                  className="w-full text-[10px] border border-black p-2 bg-white text-black font-bold outline-none placeholder:text-zinc-400"
+                />
               </div>
 
               {inviteableExternalUsers.length === 0 ? (
                 <p className="text-[9px] font-black uppercase text-center text-zinc-400 py-2">
                   All available external users invited.
                 </p>
+              ) : filteredInviteableUsers.length === 0 ? (
+                <p className="text-[9px] font-black uppercase text-center text-zinc-400 py-2">
+                  No matching users found.
+                </p>
               ) : (
-                <div className="space-y-1.5">
-                  {inviteableExternalUsers.map((user) => (
+                <div className="space-y-1.5 max-h-[150px] overflow-y-auto">
+                  {filteredInviteableUsers.map((user) => (
                     <div
                       key={user.id}
                       onClick={() => handleAddExternal(user)}
@@ -186,6 +206,7 @@ export function ChannelParticipantsModal({
               )}
             </div>
           )}
+
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t-2 border-black shrink-0 mt-4">
