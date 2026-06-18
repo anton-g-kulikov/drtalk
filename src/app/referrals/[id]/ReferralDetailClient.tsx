@@ -481,11 +481,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <section className="space-y-6">
                     <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                     <div className="space-y-5">
-                      <DataField 
-                        label="Referring Dentist" 
-                        value={referral.id === '1' ? '[MISSING - ACTION REQUIRED]' : referral.dentist} 
-                        edit={isEditorMode} 
-                      />
+                      <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                       <DataField 
                         label="Referring Practice" 
                         value={referral.id === '1' || referral.practice === 'unknown' ? '[MISSING - ACTION REQUIRED]' : (practiceName || '')} 
@@ -493,7 +489,11 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                         onChange={setPracticeName}
                         canEditInline={true}
                       />
-                      <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
+                      <DataField 
+                        label="Referring Dentist" 
+                        value={referral.id === '1' ? '[MISSING - ACTION REQUIRED]' : referral.dentist} 
+                        edit={isEditorMode} 
+                      />
                     </div>
                   </section>
 
@@ -503,7 +503,6 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <section className="space-y-6">
                     <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referred To</h4>
                     <div className="space-y-5">
-                      <DataField label="Practice" value={referral.specialist} edit={isEditorMode} />
                       <DataField
                         label="Doctor"
                         value={referral.specialistDoctor || '—'}

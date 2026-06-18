@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 
-export type ReferralStatus = 'Received' | 'Scheduled' | 'Completed' | 'Archived';
+export type ReferralStatus = 'Received' | 'Scheduled' | 'Released' | 'Archived';
 
 export default function ReferralDetailClient() {
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function ReferralDetailClient() {
     switch (status) {
       case 'Received': return 'bg-gray-100 text-black border-black/30';
       case 'Scheduled': return 'bg-indigo-50 text-indigo-800 border-indigo-200';
-      case 'Completed': return 'bg-green-50 text-green-800 border-green-200';
+      case 'Released': return 'bg-green-50 text-green-800 border-green-200';
       case 'Archived': return 'bg-gray-50 text-gray-800 border-gray-200';
       default: return 'bg-white';
     }
@@ -86,10 +86,10 @@ export default function ReferralDetailClient() {
             )}
             {currentStatus === 'Scheduled' && (
               <button 
-                onClick={() => setCurrentStatus('Completed')}
+                onClick={() => setCurrentStatus('Released')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
               >
-                Complete Treatment
+                Release Patient
               </button>
             )}
           </div>
@@ -149,7 +149,7 @@ export default function ReferralDetailClient() {
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                   <div className="space-y-5">
-                     <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} />
+                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
                      <DataField 
                        label="Referring Practice" 
                        value={practiceName} 
@@ -157,7 +157,7 @@ export default function ReferralDetailClient() {
                        onChange={setPracticeName}
                        canEditInline={true}
                      />
-                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
+                     <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} />
                   </div>
                 </section>
               </div>
