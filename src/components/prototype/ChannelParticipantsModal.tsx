@@ -45,14 +45,8 @@ export function ChannelParticipantsModal({
   const availableExternalList = isDentist ? EXTERNAL_SPECIALISTS : EXTERNAL_DENTISTS;
 
   const handleAddExternal = (user: typeof EXTERNAL_DENTISTS[0]) => {
-    const confirmAdd = window.confirm(
-      `Warning: Adding ${user.name} (${user.practice}) will give them immediate access to this channel's full conversation history and all shared documents.\n\nDo you want to proceed?`
-    );
-
-    if (confirmAdd) {
-      setAddedExternalIds((prev) => [...prev, user.id]);
-      setExternalSearchQuery('');
-    }
+    setAddedExternalIds((prev) => [...prev, user.id]);
+    setExternalSearchQuery('');
   };
 
   const handleRemoveExternal = (userId: string) => {
@@ -206,8 +200,19 @@ export function ChannelParticipantsModal({
               )}
             </div>
           )}
-
         </div>
+
+        {addedExternalIds.length > 0 && (
+          <div className="bg-amber-50 border-2 border-amber-500 p-2.5 text-[8.5px] uppercase font-bold text-amber-900 flex items-start gap-2 shrink-0 mt-4">
+            <Info size={14} className="text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-black text-[9px]">External Access Warning</p>
+              <p className="mt-0.5 text-amber-800 leading-normal font-bold">
+                Added external participants will have access to all channel history & shared documents.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="flex justify-end gap-3 pt-4 border-t-2 border-black shrink-0 mt-4">
           <button
