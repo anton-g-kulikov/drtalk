@@ -19,6 +19,7 @@ import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocume
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
+import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
 import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
@@ -185,6 +186,20 @@ export default function DashboardPage() {
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
+  const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
+
+  const handleViewDocument = (doc: DocumentItem) => {
+    const sharedDoc: SharedDocument = {
+      id: doc.id,
+      channelId: doc.caseId || 'dashboard',
+      name: doc.name,
+      size: doc.size,
+      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
+      sentBy: doc.sender,
+      sentAt: doc.date
+    };
+    setPreviewDocument(sharedDoc);
+  };
 
   const handleReferralClick = (ref: ReferralItem) => {
     // Unrecognized-sender items now resolve in a dedicated page
@@ -357,7 +372,7 @@ export default function DashboardPage() {
                       key={doc.id}
                       document={doc}
                       isArchived={activeInboxTab === 'spam'}
-                      onOpenDocument={() => doc.isExternal ? handleOpenInChannel(doc) : router.push(`/documents/${doc.id}?role=specialist`)}
+                      onOpenDocument={() => handleViewDocument(doc)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
@@ -428,6 +443,18 @@ export default function DashboardPage() {
             onClose={() => setActiveModal(null)}
             onConfirmConvert={handleConfirmConvert}
             onConfirmAttach={handleConfirmAttach}
+          />
+        )}
+
+        {previewDocument && (
+          <ChannelDocumentPreviewOverlay
+            document={previewDocument}
+            activePracticeName="Valley Endodontics"
+            onClose={() => setPreviewDocument(null)}
+            onDownload={(document) => {
+              setPreviewDocument(null);
+              showToast(`Downloading "${document.name}"...`);
+            }}
           />
         )}
 

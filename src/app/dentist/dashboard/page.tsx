@@ -19,6 +19,7 @@ import { DentistDashboardHeader } from '@/components/prototype/DentistDashboardH
 import { DentistSentReferralsSection } from '@/components/prototype/DentistSentReferralsSection';
 import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
+import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
 import { getPrototypePageNumbers } from '@/prototype/pagination';
 import {
   buildDashboardDocumentChannelTransfer,
@@ -69,6 +70,20 @@ export default function DentistDashboardPage() {
   const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
+  const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
+
+  const handleViewDocument = (doc: DocumentItem) => {
+    const sharedDoc: SharedDocument = {
+      id: doc.id,
+      channelId: doc.caseId || 'dashboard',
+      name: doc.name,
+      size: doc.size,
+      type: doc.name.toLowerCase().endsWith('.png') || doc.name.toLowerCase().endsWith('.jpg') || doc.name.toLowerCase().endsWith('.jpeg') ? 'image' : 'pdf',
+      sentBy: doc.sender,
+      sentAt: doc.date
+    };
+    setPreviewDocument(sharedDoc);
+  };
 
   useEffect(() => {
     const storage = loadDashboardDocumentStorage({
@@ -317,7 +332,7 @@ export default function DentistDashboardPage() {
                       key={doc.id}
                       document={doc}
                       isArchived={activeInboxTab === 'spam'}
-                      onOpenDocument={() => router.push(`/documents/${doc.id}?role=dentist`)}
+                      onOpenDocument={() => handleViewDocument(doc)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
@@ -421,6 +436,18 @@ export default function DentistDashboardPage() {
           onClose={() => setActiveModal(null)}
           onConfirmConvert={handleConfirmConvert}
           onConfirmAttach={handleConfirmAttach}
+        />
+      )}
+
+      {previewDocument && (
+        <ChannelDocumentPreviewOverlay
+          document={previewDocument}
+          activePracticeName="Sunshine Dental"
+          onClose={() => setPreviewDocument(null)}
+          onDownload={(document) => {
+            setPreviewDocument(null);
+            triggerToast(`Downloading "${document.name}"...`);
+          }}
         />
       )}
 
