@@ -177,19 +177,22 @@ export default function ReferralsPage() {
           </div>
           {!isDentist ? (
             <div className="flex flex-col items-end gap-2 text-right">
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Direct Intake Email:</span>
-                <button
-                  onClick={() => setExplanationModal({
-                    title: 'Direct Intake Email',
-                    text: 'Give this email address to practices that do not use drTalk yet. Any referrals or documents they email here will automatically sync directly into your drTalk inbox as incoming patient files.'
-                  })}
-                  className="p-1 hover:text-black text-muted-foreground transition-all flex items-center justify-center"
-                  title="View Direct Intake Email explanation"
-                >
-                  <Info size={12} />
-                </button>
-                <span className="text-[10px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</span>
+              <div className="flex items-center gap-1">
+                <div className="flex items-center text-[9px] text-muted-foreground uppercase font-black tracking-widest gap-0.5">
+                  <span>Direct Intake Email</span>
+                  <button
+                    onClick={() => setExplanationModal({
+                      title: 'Direct Intake Email',
+                      text: 'Give this email address to practices that do not use drTalk yet. Any referrals or documents they email here will automatically sync directly into your drTalk inbox as incoming patient files.'
+                    })}
+                    className="hover:text-black text-muted-foreground transition-all flex items-center justify-center"
+                    title="View Direct Intake Email explanation"
+                  >
+                    <Info size={10} />
+                  </button>
+                  <span>:</span>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-tight ml-1">valleyendodontics@drtalk.com</span>
                 <button 
                   onClick={() => handleCopy('valleyendodontics@drtalk.com', 'email')}
                   className="p-1.5 border border-black hover:bg-black hover:text-white transition-all ml-1 flex items-center justify-center min-w-[28px] min-h-[28px]"
@@ -198,21 +201,24 @@ export default function ReferralsPage() {
                   {copiedField === 'email' ? <Check size={12} className="text-green-600" /> : <Copy size={12} />}
                 </button>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Public Referral URL:</span>
-                <button
-                  onClick={() => setExplanationModal({
-                    title: 'Public Referral URL',
-                    text: 'Share this link with referring clinics. They can use it to securely submit patient referral forms and attach clinical files directly to your practice over the web without needing a drTalk account.'
-                  })}
-                  className="p-1 hover:text-black text-muted-foreground transition-all flex items-center justify-center"
-                  title="View Public Referral URL explanation"
-                >
-                  <Info size={12} />
-                </button>
+              <div className="flex items-center gap-1">
+                <div className="flex items-center text-[9px] text-muted-foreground uppercase font-black tracking-widest gap-0.5">
+                  <span>Public Referral URL</span>
+                  <button
+                    onClick={() => setExplanationModal({
+                      title: 'Public Referral URL',
+                      text: 'Share this link with referring clinics. They can use it to securely submit patient referral forms and attach clinical files directly to your practice over the web without needing a drTalk account.'
+                    })}
+                    className="hover:text-black text-muted-foreground transition-all flex items-center justify-center"
+                    title="View Public Referral URL explanation"
+                  >
+                    <Info size={10} />
+                  </button>
+                  <span>:</span>
+                </div>
                 <span 
                   onClick={() => router.push('/referral?practice=Valley Endodontics')}
-                  className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight"
+                  className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight ml-1"
                 >
                   drtalk.com/valleyendodontics
                 </span>
