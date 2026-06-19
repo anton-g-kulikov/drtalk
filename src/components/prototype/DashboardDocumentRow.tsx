@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowUpRight, FileText, UserPlus, Paperclip } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, FileText, UserPlus, Paperclip, Ban } from 'lucide-react';
 
 export type DashboardDocumentRowItem = {
   id: string;
@@ -20,6 +20,8 @@ type DashboardDocumentRowProps = {
   onAttach: (id: string) => void;
   onOpenChannel: (id: string) => void;
   onIdentify?: (id: string) => void;
+  onArchive?: (id: string) => void;
+  onUnarchive?: (id: string) => void;
 };
 
 export function DashboardDocumentRow({
@@ -30,6 +32,8 @@ export function DashboardDocumentRow({
   onAttach,
   onOpenChannel,
   onIdentify,
+  onArchive,
+  onUnarchive,
 }: DashboardDocumentRowProps) {
   const isCase = document.channelType === 'case';
   const isUnrecognized = document.isUnrecognized;
@@ -121,26 +125,36 @@ export function DashboardDocumentRow({
             </button>
           ) : (
             <>
-               {!isCase && (
                 <div className="flex gap-2">
+                  {!isCase && (
+                    <>
+                      <button
+                        onClick={() => onConvert(document.id)}
+                        className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                        title="Convert to Referral"
+                        aria-label="Convert to Referral"
+                      >
+                        <UserPlus size={14} />
+                      </button>
+                      <button
+                        onClick={() => onAttach(document.id)}
+                        className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                        title="Attach to existing referral"
+                        aria-label="Attach to existing referral"
+                      >
+                        <Paperclip size={14} />
+                      </button>
+                    </>
+                  )}
                   <button
-                    onClick={() => onConvert(document.id)}
-                    className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
-                    title="Convert to Referral"
-                    aria-label="Convert to Referral"
+                    onClick={() => onArchive?.(document.id)}
+                    className="wireframe-button p-2 border-2 border-black bg-white hover:bg-red-50 hover:text-red-600 hover:border-red-600 transition-all flex items-center justify-center"
+                    title="Mark as Spam"
+                    aria-label="Mark as Spam"
                   >
-                    <UserPlus size={14} />
-                  </button>
-                  <button
-                    onClick={() => onAttach(document.id)}
-                    className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
-                    title="Attach to existing referral"
-                    aria-label="Attach to existing referral"
-                  >
-                    <Paperclip size={14} />
+                    <Ban size={14} />
                   </button>
                 </div>
-              )}
 
               <button
                 onClick={() => onOpenChannel(document.id)}
@@ -150,6 +164,16 @@ export function DashboardDocumentRow({
               </button>
             </>
           )}
+        </div>
+      )}
+      {isArchived && (
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-black/10 items-center justify-end">
+          <button
+            onClick={() => onUnarchive?.(document.id)}
+            className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+          >
+            Mark as Not Spam
+          </button>
         </div>
       )}
     </div>

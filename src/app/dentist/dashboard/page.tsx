@@ -101,6 +101,30 @@ export default function DentistDashboardPage() {
     saveDashboardDocumentsToStorage('drtalk_dentist_docs', newDocs);
   };
 
+  const handleArchiveDocument = (id: string) => {
+    const docToArchive = documents.find(d => d.id === id);
+    if (!docToArchive) return;
+    const updatedActive = documents.filter(d => d.id !== id);
+    const updatedArchived = [docToArchive, ...archivedDocuments];
+    setDocuments(updatedActive);
+    setArchivedDocuments(updatedArchived);
+    saveDashboardDocumentsToStorage('drtalk_dentist_docs', updatedActive);
+    saveDashboardDocumentsToStorage('drtalk_dentist_archived_docs', updatedArchived);
+    triggerToast(`Marked ${docToArchive.name} as Spam`);
+  };
+
+  const handleUnarchiveDocument = (id: string) => {
+    const docToRestore = archivedDocuments.find(d => d.id === id);
+    if (!docToRestore) return;
+    const updatedArchived = archivedDocuments.filter(d => d.id !== id);
+    const updatedActive = [docToRestore, ...documents];
+    setDocuments(updatedActive);
+    setArchivedDocuments(updatedArchived);
+    saveDashboardDocumentsToStorage('drtalk_dentist_docs', updatedActive);
+    saveDashboardDocumentsToStorage('drtalk_dentist_archived_docs', updatedArchived);
+    triggerToast(`Restored ${docToRestore.name} to Inbox`);
+  };
+
   // Search & Pagination states for Dashboard Documents
   const [docSearchQuery, setDocSearchQuery] = useState('');
   const [docCurrentPage, setDocCurrentPage] = useState(1);
@@ -336,6 +360,8 @@ export default function DentistDashboardPage() {
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
+                      onArchive={handleArchiveDocument}
+                      onUnarchive={handleUnarchiveDocument}
                       onOpenChannel={() => {
                         if (doc.fromChannel) {
                           const practiceName = doc.channelName || doc.sender;
