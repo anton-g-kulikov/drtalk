@@ -29,7 +29,7 @@ type ReferralPipelineControlsProps = {
 
 function getTabLabel(tab: ReferralStatus, isDentist: boolean) {
   if (isDentist) {
-    if (tab === 'Received') return 'SENT';
+    if (tab === 'Received') return 'REFERRED';
     return tab.toUpperCase();
   }
 

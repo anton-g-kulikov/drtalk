@@ -327,7 +327,7 @@ export default function DentistDashboardPage() {
           onTimeRangeChange={setTimeRange}
           onStatClick={(path) => router.push(path)}
           stats={[
-            { label: 'Patients Sent', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received', trend: 12 },
+            { label: 'Patients Referred', value: referralsSentCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Received', trend: 12 },
             { label: 'Patients Scheduled', value: referralsScheduledCount.toString().padStart(2, '0'), icon: Calendar, path: '/dentist/referrals?tab=Scheduled', trend: 5 },
             { label: 'Patients Released', value: referralsReleasedCount.toString().padStart(2, '0'), icon: FileText, path: '/dentist/referrals?tab=Released', trend: -2 },
             { label: '# drtalk connections', value: specialistClinics.length.toString(), icon: Users, path: '/dentist/network?tab=connected', trend: 20 },

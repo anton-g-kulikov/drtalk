@@ -40,7 +40,7 @@ export function DentistSentReferralsSection({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
         <div className="flex items-center gap-2">
           <div className="w-3.5 h-3.5 bg-black"></div>
-          <h3 className="font-black uppercase text-sm tracking-widest italic">Patients Sent</h3>
+          <h3 className="font-black uppercase text-sm tracking-widest italic">Patients Referred</h3>
         </div>
         <div className="relative">
           <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
