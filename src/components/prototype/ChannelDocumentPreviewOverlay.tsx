@@ -17,14 +17,23 @@ export function ChannelDocumentPreviewOverlay({
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
       <div className="bg-white border-4 border-black p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col animate-slide-in">
-        <div className="flex justify-between items-center pb-3 border-b-2 border-black mb-4">
-          <div>
-            <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-black text-white font-bold">Document Viewer</span>
-            <h3 className="text-sm font-black uppercase tracking-tight mt-1 text-black">{document.name}</h3>
+        <div className="flex justify-between items-start pb-3 border-b-2 border-black mb-4 gap-4">
+          <div className="space-y-1.5 min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[8px] font-black uppercase px-2 py-0.5 bg-black text-white font-bold">Document Viewer</span>
+            </div>
+            <h3 className="text-sm font-black uppercase tracking-tight text-black truncate" title={document.name}>{document.name}</h3>
+            <div className="flex flex-wrap gap-x-3 gap-y-1 items-center text-[9px] font-bold uppercase text-muted-foreground">
+              <span>From: {document.sentBy || 'Unknown'}</span>
+              <span>•</span>
+              <span>Received: {document.sentAt || 'N/A'}</span>
+              <span>•</span>
+              <span>Size: {document.size}</span>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="wireframe-button px-2.5 py-1 text-[9px] font-bold uppercase bg-white text-black border-black hover:bg-black hover:text-white"
+            className="wireframe-button px-2.5 py-1 text-[9px] font-bold uppercase bg-white text-black border-black hover:bg-black hover:text-white shrink-0"
           >
             Close View
           </button>
@@ -82,7 +91,7 @@ export function ChannelDocumentPreviewOverlay({
                 Valley Endodontics • Digital Radiograph System v4.1
               </div>
             </div>
-          ) : (
+          ) : document.type === 'pdf' ? (
             <div className="w-full max-w-md bg-white p-6 border-2 border-black text-black">
               <div className="text-center pb-4 border-b-2 border-black mb-4">
                 <h4 className="text-xs font-black uppercase tracking-widest">DRTALK SECURE PATIENT REFERRAL</h4>
@@ -131,6 +140,13 @@ export function ChannelDocumentPreviewOverlay({
                 <span>DIGITALLY SIGNED VIA DRTALK SECURE AUTH</span>
                 <span>STATUS: VALIDATED PHI</span>
               </div>
+            </div>
+          ) : (
+            <div className="text-center p-8 bg-white border-2 border-dashed border-black max-w-sm">
+              <span className="text-[10px] font-black uppercase text-zinc-500 block mb-1">Preview Not Supported</span>
+              <p className="text-[8px] font-bold text-zinc-400 uppercase">
+                Secure preview is not available for {document.type.toUpperCase()} files. Please download the file to view its contents.
+              </p>
             </div>
           )}
         </div>
