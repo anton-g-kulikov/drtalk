@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowUpRight, FileText } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, FileText, UserPlus, Paperclip } from 'lucide-react';
 
 export type DashboardDocumentRowItem = {
   id: string;
@@ -47,10 +47,11 @@ export function DashboardDocumentRow({
       <div className="flex justify-between items-start">
         <div className="flex gap-3">
           <div
+            onClick={() => !isArchived && onOpenDocument(document.id)}
             className={`w-10 h-10 border-2 flex items-center justify-center shrink-0 ${
               isArchived 
-                ? 'border-zinc-300 bg-zinc-100' 
-                : 'border-black bg-zinc-100'
+                ? 'border-zinc-300 bg-zinc-100 cursor-not-allowed' 
+                : 'border-black bg-zinc-100 cursor-pointer hover:bg-zinc-200 transition-colors'
             }`}
           >
             {isArchived ? (
@@ -120,19 +121,23 @@ export function DashboardDocumentRow({
             </button>
           ) : (
             <>
-              {!isCase && (
+               {!isCase && (
                 <div className="flex gap-2">
                   <button
                     onClick={() => onConvert(document.id)}
-                    className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                    className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                    title="Convert to Referral"
+                    aria-label="Convert to Referral"
                   >
-                    Convert to Referral
+                    <UserPlus size={14} />
                   </button>
                   <button
                     onClick={() => onAttach(document.id)}
-                    className="wireframe-button text-[9px] font-black uppercase px-3 py-1.5 border-2 border-black bg-white hover:bg-black hover:text-white transition-all"
+                    className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                    title="Attach to existing referral"
+                    aria-label="Attach to existing referral"
                   >
-                    Attach to existing referral
+                    <Paperclip size={14} />
                   </button>
                 </div>
               )}
