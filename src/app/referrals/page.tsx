@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Clock, MoreVertical, Copy, ChevronDown, Check } from 'lucide-react';
+import { Clock, MoreVertical, Copy, ChevronDown, Check, Info } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
@@ -16,6 +16,7 @@ import { useVerification } from '@/components/VerificationContext';
 export default function ReferralsPage() {
   const [mockReferrals, setMockReferrals] = useState<UnifiedReferral[]>(initialReferrals);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [explanationModal, setExplanationModal] = useState<{ title: string; text: string } | null>(null);
 
   const handleCopy = (value: string, fieldName: string) => {
     navigator.clipboard.writeText(value);
@@ -178,6 +179,16 @@ export default function ReferralsPage() {
             <div className="flex flex-col items-end gap-2 text-right">
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Direct Intake Email:</span>
+                <button
+                  onClick={() => setExplanationModal({
+                    title: 'Direct Intake Email',
+                    text: 'Give this email address to practices that do not use drTalk yet. Any referrals or documents they email here will automatically sync directly into your drTalk inbox as incoming patient files.'
+                  })}
+                  className="p-1 hover:text-black text-muted-foreground transition-all flex items-center justify-center"
+                  title="View Direct Intake Email explanation"
+                >
+                  <Info size={12} />
+                </button>
                 <span className="text-[10px] font-black uppercase tracking-tight">valleyendodontics@drtalk.com</span>
                 <button 
                   onClick={() => handleCopy('valleyendodontics@drtalk.com', 'email')}
@@ -189,6 +200,16 @@ export default function ReferralsPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-[9px] text-muted-foreground uppercase font-black tracking-widest">Public Referral URL:</span>
+                <button
+                  onClick={() => setExplanationModal({
+                    title: 'Public Referral URL',
+                    text: 'Share this link with referring clinics. They can use it to securely submit patient referral forms and attach clinical files directly to your practice over the web without needing a drTalk account.'
+                  })}
+                  className="p-1 hover:text-black text-muted-foreground transition-all flex items-center justify-center"
+                  title="View Public Referral URL explanation"
+                >
+                  <Info size={12} />
+                </button>
                 <span 
                   onClick={() => router.push('/referral?practice=Valley Endodontics')}
                   className="text-[10px] font-bold uppercase underline cursor-pointer hover:text-black transition-colors tracking-tight"
@@ -429,6 +450,32 @@ export default function ReferralsPage() {
             )}
         </div>
       </div>
+      {explanationModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
+          <div className="bg-white border-4 border-black p-6 max-w-sm w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] flex flex-col animate-slide-in">
+            <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
+              <h3 className="text-xs font-black uppercase tracking-widest text-black flex items-center gap-1.5">
+                <Info size={14} /> {explanationModal.title}
+              </h3>
+              <button 
+                onClick={() => setExplanationModal(null)}
+                className="text-[10px] font-black uppercase hover:underline"
+              >
+                Close
+              </button>
+            </div>
+            <p className="text-[10px] uppercase font-bold leading-relaxed text-zinc-700">
+              {explanationModal.text}
+            </p>
+            <button
+              onClick={() => setExplanationModal(null)}
+              className="mt-6 wireframe-button w-full bg-black text-white text-[10px] uppercase py-2.5 font-bold hover:bg-white hover:text-black transition-all"
+            >
+              Got It
+            </button>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }
