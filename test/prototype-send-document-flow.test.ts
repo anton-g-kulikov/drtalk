@@ -89,4 +89,42 @@ describe('prototype send-document flow helpers', () => {
       destinationHref: '/dentist/channels',
     });
   });
+
+  it('correctly maps custom secure email and eFax inputs to resolved practices and channels', () => {
+    const mockChannelsList: Channel[] = [
+      { id: '1', name: 'Sunshine Dental', type: 'inter-practice', lastMessage: 'Active.', memberCount: 2 }
+    ];
+
+    const sourcePractices = ['dr.jones@example.com (Secure Email)', '555-0199 (Secure Fax)'];
+    const resolvedPractices = sourcePractices.map((practiceName) => {
+      const isCustomEmail = practiceName.toLowerCase().endsWith('(secure email)');
+      const isCustomFax = practiceName.toLowerCase().endsWith('(secure fax)');
+      
+      if (isCustomEmail || isCustomFax) {
+        const rawName = practiceName.replace(/\s*\(secure email\)\s*/i, '').replace(/\s*\(secure fax\)\s*/i, '');
+        let existing = mockChannelsList.find(c => c.name.toLowerCase() === rawName.toLowerCase());
+        if (!existing) {
+          existing = {
+            id: `ext_custom_${Date.now()}`,
+            name: rawName,
+            type: 'inter-practice',
+            isExternal: true,
+            isVerified: false,
+            lastMessage: 'Connection active via Secure Document Delivery.',
+            memberCount: 2,
+          };
+          mockChannelsList.push(existing);
+        }
+        return existing.name;
+      }
+      return practiceName;
+    });
+
+    expect(resolvedPractices).toEqual(['dr.jones@example.com', '555-0199']);
+    expect(mockChannelsList).toHaveLength(3);
+    expect(mockChannelsList[1].isExternal).toBe(true);
+    expect(mockChannelsList[1].name).toBe('dr.jones@example.com');
+    expect(mockChannelsList[2].isExternal).toBe(true);
+    expect(mockChannelsList[2].name).toBe('555-0199');
+  });
 });

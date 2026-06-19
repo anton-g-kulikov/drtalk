@@ -20,7 +20,14 @@ import {
   buildSendDocumentToast,
   type SendDocumentFileType,
 } from '@/prototype/sendDocumentFlow';
-import { dentistPractices } from '@/lib/mockGenerator';
+import { getInitialDentistDocs, dentistPractices } from '@/lib/mockGenerator';
+import {
+  getChannels,
+  saveChannels,
+  getMessages,
+  saveMessages,
+  type Channel
+} from '@/lib/referrals';
 
 export default function SpecialistSendDocumentPage() {
   const router = useRouter();
@@ -39,9 +46,21 @@ export default function SpecialistSendDocumentPage() {
   };
 
   // Form State
+  const [sendMode, setSendMode] = useState<'connected' | 'custom'>('connected');
   const [selectedPractices, setSelectedPractices] = useState<string[]>([]);
   const [practiceSearchQuery, setPracticeSearchQuery] = useState('');
   const [isPracticeDropdownOpen, setIsPracticeDropdownOpen] = useState(false);
+  const [customRecipient, setCustomRecipient] = useState('');
+  const [customDeliveryType, setCustomDeliveryType] = useState<'email' | 'fax'>('email');
+
+  const isCustomEmailValid = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+  const isCustomFaxValid = (val: string) => {
+    const clean = val.replace(/[^0-9]/g, '');
+    return clean.length >= 7 && /^[0-9+\-\(\)\s]+$/.test(val.trim());
+  };
+  const isCustomRecipientValid = customDeliveryType === 'email'
+    ? isCustomEmailValid(customRecipient)
+    : isCustomFaxValid(customRecipient);
 
   const [attachedFiles, setAttachedFiles] = useState<{ id: string, name: string, size: string, type: SendDocumentFileType }[]>([]);
   const [customDocName, setCustomDocName] = useState('');
@@ -102,13 +121,46 @@ export default function SpecialistSendDocumentPage() {
   };
 
   const handleSendDocumentSubmit = () => {
-    if (selectedPractices.length === 0) return;
+    if (sendMode === 'connected' && selectedPractices.length === 0) return;
+    if (sendMode === 'custom' && !customRecipient.trim()) return;
+
+    const currentChannels = getChannels(false);
+    const currentMessages = getMessages();
+    const nextChannels = [...currentChannels];
+
+    const sourcePractices = sendMode === 'custom'
+      ? [`${customRecipient.trim()} (${customDeliveryType === 'email' ? 'Secure Email' : 'Secure Fax'})`]
+      : selectedPractices;
+
+    const resolvedPractices = sourcePractices.map((practiceName) => {
+      const isCustomEmail = practiceName.toLowerCase().endsWith('(secure email)');
+      const isCustomFax = practiceName.toLowerCase().endsWith('(secure fax)');
+      
+      if (isCustomEmail || isCustomFax) {
+        const rawName = practiceName.replace(/\s*\(secure email\)\s*/i, '').replace(/\s*\(secure fax\)\s*/i, '');
+        let existing = nextChannels.find(c => c.name.toLowerCase() === rawName.toLowerCase());
+        if (!existing) {
+          existing = {
+            id: `ext_custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+            name: rawName,
+            type: 'inter-practice',
+            isExternal: true,
+            isVerified: false,
+            lastMessage: 'Connection active via Secure Document Delivery.',
+            memberCount: 2,
+          };
+          nextChannels.push(existing);
+        }
+        return existing.name;
+      }
+      return practiceName;
+    });
 
     const share = buildSendDocumentShare({
       role: 'specialist',
-      selectedPractices,
-      channels: mockChannels,
-      existingMessages: initialMessages,
+      selectedPractices: resolvedPractices,
+      channels: nextChannels,
+      existingMessages: currentMessages,
       files: attachedFiles,
       fallbackDocument: {
         name: customDocName || 'SHARED_DOCUMENT.PDF',
@@ -122,11 +174,15 @@ export default function SpecialistSendDocumentPage() {
       },
       note: uploadMessage,
     });
+
+    saveChannels(false, nextChannels);
+    saveMessages(share.messages);
+
     initialDocuments.push(...share.sharedDocuments);
     Object.entries(share.messages).forEach(([channelId, messages]) => {
       initialMessages[channelId] = messages;
     });
-    const toastOutcome = buildSendDocumentToast('specialist', selectedPractices, share.sharedDocuments.length);
+    const toastOutcome = buildSendDocumentToast('specialist', resolvedPractices, share.sharedDocuments.length);
     
     // Clear states
     setCustomDocName('');
@@ -136,6 +192,7 @@ export default function SpecialistSendDocumentPage() {
     setPatientDob('');
     setUploadMessage('');
     setSelectedPractices([]);
+    setCustomRecipient('');
 
     // Trigger toast
     showToast(toastOutcome.message, {
@@ -168,22 +225,93 @@ export default function SpecialistSendDocumentPage() {
           </div>
 
           <div className="space-y-4">
-            <SendDocumentPracticeSelector
-              selectedPractices={selectedPractices}
-              searchQuery={practiceSearchQuery}
-              isOpen={isPracticeDropdownOpen}
-              practices={connectedPractices
-                .filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase()))
-                .filter(p => !selectedPractices.includes(p.name))}
-              onSearchQueryChange={setPracticeSearchQuery}
-              onOpenChange={setIsPracticeDropdownOpen}
-              onRemovePractice={(practiceName) => setSelectedPractices(prev => prev.filter(p => p !== practiceName))}
-              onSelectPractice={(practiceName) => {
-                setSelectedPractices(prev => [...prev, practiceName]);
-                setPracticeSearchQuery('');
-                setIsPracticeDropdownOpen(false);
-              }}
-            />
+            {/* Delivery Mode Toggle */}
+            <div className="flex border-2 border-black">
+              <button
+                type="button"
+                onClick={() => {
+                  setSendMode('connected');
+                  setCustomRecipient('');
+                }}
+                className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider transition-all ${
+                  sendMode === 'connected' ? 'bg-black text-white' : 'bg-white text-black hover:bg-zinc-50'
+                }`}
+              >
+                Connected Practices
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSendMode('custom');
+                  setSelectedPractices([]);
+                }}
+                className={`flex-1 py-2 text-[10px] font-black uppercase tracking-wider transition-all border-l-2 border-black ${
+                  sendMode === 'custom' ? 'bg-black text-white' : 'bg-white text-black hover:bg-zinc-50'
+                }`}
+              >
+                New Secure Email / eFax
+              </button>
+            </div>
+
+            {sendMode === 'connected' ? (
+              <SendDocumentPracticeSelector
+                selectedPractices={selectedPractices}
+                searchQuery={practiceSearchQuery}
+                isOpen={isPracticeDropdownOpen}
+                practices={connectedPractices
+                  .filter(p => p.name.toLowerCase().includes(practiceSearchQuery.toLowerCase()))
+                  .filter(p => !selectedPractices.includes(p.name))}
+                onSearchQueryChange={setPracticeSearchQuery}
+                onOpenChange={setIsPracticeDropdownOpen}
+                onRemovePractice={(practiceName) => setSelectedPractices(prev => prev.filter(p => p !== practiceName))}
+                onSelectPractice={(practiceName) => {
+                  setSelectedPractices(prev => [...prev, practiceName]);
+                  setPracticeSearchQuery('');
+                  setIsPracticeDropdownOpen(false);
+                }}
+              />
+            ) : (
+              <div className="space-y-3 p-3 border-2 border-black bg-zinc-50 animate-in fade-in duration-200">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-2 space-y-1">
+                    <label htmlFor="custom-recipient" className="text-[10px] font-black uppercase block text-black">
+                      Recipient Email / Fax Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      id="custom-recipient"
+                      type="text"
+                      placeholder="ENTER EMAIL OR FAX NUMBER..."
+                      value={customRecipient}
+                      onChange={(e) => setCustomRecipient(e.target.value)}
+                      className={`wireframe-input py-2 px-3 text-[10px] font-bold text-black border-black bg-white w-full focus:outline-none h-[38px] border-2 ${
+                        customRecipient.trim() && !isCustomRecipientValid ? 'border-red-500 bg-red-50/30' : ''
+                      }`}
+                    />
+                    {customRecipient.trim() && !isCustomRecipientValid && (
+                      <p className="text-[9px] text-red-600 font-bold uppercase mt-1">
+                        {customDeliveryType === 'email'
+                          ? 'Please enter a valid email address (e.g. doctor@domain.com)'
+                          : 'Please enter a valid fax number (at least 7 digits, e.g. (555) 000-0000)'}
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <label htmlFor="custom-delivery-type" className="text-[10px] font-black uppercase block text-black">
+                      Delivery Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      id="custom-delivery-type"
+                      value={customDeliveryType}
+                      onChange={(e) => setCustomDeliveryType(e.target.value as 'email' | 'fax')}
+                      className="wireframe-input py-2 px-3 text-[10px] font-bold text-black border-black bg-white w-full focus:outline-none h-[38px] border-2"
+                    >
+                      <option value="email">SECURE EMAIL ✉</option>
+                      <option value="fax">SECURE FAX 📠</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <SendDocumentUploadSection
               inputId="dashboard-file-input"
@@ -227,7 +355,7 @@ export default function SpecialistSendDocumentPage() {
             </button>
             <button
               onClick={handleSendDocumentSubmit}
-              disabled={selectedPractices.length === 0 || (attachedFiles.length === 0 && !customDocName.trim())}
+              disabled={(sendMode === 'connected' ? selectedPractices.length === 0 : !isCustomRecipientValid) || (attachedFiles.length === 0 && !customDocName.trim())}
               className="flex-1 wireframe-button bg-black text-white border-black text-[10px] uppercase py-2.5 font-bold disabled:opacity-50 hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
             >
               <Send size={10} /> Send Document
