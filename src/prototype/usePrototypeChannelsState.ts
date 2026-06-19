@@ -201,8 +201,33 @@ export function usePrototypeChannelsState({
     if (resolution.expandSection === 'external') {
       setExternalCollapsed(false);
       setConnectedCollapsed(true);
+      setPatientCollapsed(true);
+      setGroupCollapsed(true);
+      setInternalCollapsed(true);
+    } else if (resolution.expandSection === 'patient') {
+      setPatientCollapsed(false);
+      setConnectedCollapsed(true);
+      setExternalCollapsed(true);
+      setGroupCollapsed(true);
+      setInternalCollapsed(true);
+    } else if (resolution.expandSection === 'group') {
+      setGroupCollapsed(false);
+      setConnectedCollapsed(true);
+      setExternalCollapsed(true);
+      setPatientCollapsed(true);
+      setInternalCollapsed(true);
+    } else if (resolution.expandSection === 'internal') {
+      setInternalCollapsed(false);
+      setConnectedCollapsed(true);
+      setExternalCollapsed(true);
+      setPatientCollapsed(true);
+      setGroupCollapsed(true);
     } else {
       setConnectedCollapsed(false);
+      setExternalCollapsed(true);
+      setPatientCollapsed(true);
+      setGroupCollapsed(true);
+      setInternalCollapsed(true);
     }
 
     setActiveChannel(resolution.activeChannel);

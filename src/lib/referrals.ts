@@ -289,12 +289,13 @@ export function getChannels(isDentist: boolean): Channel[] {
       const parsed: Channel[] = JSON.parse(stored);
       // Cache-bust: if any known-external practice is still marked as on-platform,
       // or if Oakwood Family Dental (id '25') is missing (newly added), re-seed
+      const missingAlice = !parsed.some(c => c.name.toLowerCase() === 'alice cooper');
       if (!isDentist) {
         const knownExternal = ['pinecrest dental group', 'oakwood family dental', 'riverfront dental care',
           'heritage dental partners', 'sunrise smiles dental', 'desert rose dentistry',
           'copper state dental', 'cactus park dental', 'red rock dental studio', 'grand canyon dental group'];
         const missingOakwood = !parsed.some(c => c.id === '25');
-        const needsReset = missingOakwood || parsed.some(c =>
+        const needsReset = missingOakwood || missingAlice || parsed.some(c =>
           c.type === 'inter-practice' &&
           !c.isExternal &&
           knownExternal.includes(c.name.toLowerCase())
@@ -303,7 +304,11 @@ export function getChannels(isDentist: boolean): Channel[] {
         // Fall through to re-seed
         localStorage.removeItem(key);
       } else {
-        return parsed;
+        if (missingAlice) {
+          localStorage.removeItem(key);
+        } else {
+          return parsed;
+        }
       }
     } catch (e) {
       // ignore parsing errors and fallback

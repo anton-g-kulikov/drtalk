@@ -378,6 +378,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
           onStatusChange={handleStatusChange}
           onProcessReferral={handleProcessReferral}
           onOpenCaseChat={() => router.push(`/channels?practice=${encodeURIComponent(targetPractice)}&caseId=case_${referral.id}`)}
+          onMessagePatient={() => router.push(`/channels?practice=${encodeURIComponent(referral.patientName)}`)}
         />
 
         {/* Tab bar */}

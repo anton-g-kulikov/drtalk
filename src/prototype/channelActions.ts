@@ -150,7 +150,7 @@ export type ActiveChannelResolution = {
   parentChannel: Channel;
   activeChannel: Channel;
   targetTab: 'messages' | 'documents' | 'archived';
-  expandSection: 'connected' | 'external';
+  expandSection: 'connected' | 'external' | 'patient' | 'group' | 'internal';
   reactivateReferralId?: string;
 };
 
@@ -212,6 +212,18 @@ export function resolveActiveChannelFromQuery({
     parentChannel = channels.find((channel) =>
       channel.name.toLowerCase() === practiceParam.toLowerCase() || channel.id === practiceParam
     );
+    if (!parentChannel) {
+      const patientExists = referrals.some(r => r.patientName.toLowerCase() === practiceParam.toLowerCase());
+      if (patientExists) {
+        parentChannel = {
+          id: '4',
+          name: practiceParam,
+          type: 'patient',
+          lastMessage: 'Got it, thank you!',
+          memberCount: 2
+        };
+      }
+    }
   }
 
   let referral: UnifiedReferral | undefined;
@@ -248,10 +260,17 @@ export function resolveActiveChannelFromQuery({
     };
   }
 
+  const resolveSection = (): ActiveChannelResolution['expandSection'] => {
+    if (parentChannel.type === 'patient') return 'patient';
+    if (parentChannel.type === 'group') return 'group';
+    if (parentChannel.type === 'internal') return 'internal';
+    return parentChannel.isExternal ? 'external' : 'connected';
+  };
+
   return {
     parentChannel,
     activeChannel: parentChannel,
     targetTab,
-    expandSection: parentChannel.isExternal ? 'external' : 'connected',
+    expandSection: resolveSection(),
   };
 }

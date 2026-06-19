@@ -18,6 +18,7 @@ type ReferralDetailHeaderProps = {
   onStatusChange: (status: ReferralStatus) => void;
   onProcessReferral: () => void;
   onOpenCaseChat: () => void;
+  onMessagePatient?: () => void;
 };
 
 export function ReferralDetailHeader({
@@ -33,6 +34,7 @@ export function ReferralDetailHeader({
   onStatusChange,
   onProcessReferral,
   onOpenCaseChat,
+  onMessagePatient,
 }: ReferralDetailHeaderProps) {
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-black pb-6">
@@ -118,9 +120,9 @@ export function ReferralDetailHeader({
           </button>
         )}
 
-        {currentStatus !== 'Archived' && currentStatus !== 'Released' && (
-          <button onClick={() => onStatusChange('Archived')} className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 bg-white text-black font-black">
-            Archive Case
+        {currentStatus !== 'Draft' && onMessagePatient && (
+          <button onClick={onMessagePatient} className="wireframe-button border-2 border-black hover:bg-black hover:text-white transition-all text-[10px] uppercase px-5 py-3 flex items-center gap-2 bg-white text-black font-black">
+            Message Patient <MessageSquare size={12} />
           </button>
         )}
       </div>
