@@ -12,7 +12,7 @@ import { useVerification } from '@/components/VerificationContext';
 import { useSubscription } from '@/components/SubscriptionContext';
 import { SubscriptionBanner } from '@/components/SubscriptionBanner';
 import { DashboardStats, type DashboardTimeRange } from '@/components/prototype/DashboardStats';
-import { DashboardDocumentActionModals } from '@/components/prototype/DashboardDocumentActionModals';
+
 import { DashboardDocumentRow } from '@/components/prototype/DashboardDocumentRow';
 import { DashboardSidebarList } from '@/components/prototype/DashboardSidebarList';
 import { DentistDashboardHeader } from '@/components/prototype/DentistDashboardHeader';
@@ -66,10 +66,6 @@ export default function DentistDashboardPage() {
   const [archivedDocuments, setArchivedDocuments] = useState<DocumentItem[]>([]);
   const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'spam'>('inbox');
 
-  const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
-  const [selectedDocument, setSelectedDocument] = useState<DocumentItem | null>(null);
-  const [convertPatientName, setConvertPatientName] = useState('');
-  const [attachSearchQuery, setAttachSearchQuery] = useState('');
   const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
 
   const handleViewDocument = (doc: DocumentItem) => {
@@ -166,99 +162,8 @@ export default function DentistDashboardPage() {
     // Remove from dashboard inbox
     const updatedDocs = documents.filter(d => d.id !== doc.id);
     saveDocumentsToStorage(updatedDocs);
-    setSelectedDocument(null);
     router.push(transfer.destinationHref);
   };
-
-  const handleConvertDocument = (doc: DocumentItem) => {
-    setSelectedDocument(doc);
-    let guessedName = 'NEW PATIENT';
-    if (doc.name.includes('ALICE_COOPER')) {
-      guessedName = 'Alice Cooper';
-    } else if (doc.name.includes('JOHN_DOE')) {
-      guessedName = 'John Doe';
-    } else if (doc.name.includes('BOB_MARLEY')) {
-      guessedName = 'Bob Marley';
-    }
-    setConvertPatientName(guessedName);
-    setActiveModal('convert');
-  };
-
-  const handleConfirmConvert = () => {
-    if (!selectedDocument) return;
-    
-    const newId = `D-${1000 + referralsList.length + 1}`;
-    const newReferral: UnifiedReferral = {
-      id: newId,
-      patientName: convertPatientName || 'NEW PATIENT',
-      type: 'Referral Case',
-      source: 'App',
-      completion: 0,
-      status: 'Sent',
-      receivedAt: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      lastUpdate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      nextStep: 'Waiting for specialist review',
-      dentist: 'Dr. Taylor Reed',
-      specialist: selectedDocument.sender,
-      practice: selectedDocument.sender,
-      urgency: 'Routine',
-      sender: 'Dr. Taylor Reed'
-    };
-
-    const updatedReferrals = [newReferral, ...referralsList];
-    setReferralsList(updatedReferrals);
-    saveReferrals(updatedReferrals);
-    
-    // Archive or remove from active docs
-    const updatedDocs = documents.filter(d => d.id !== selectedDocument.id);
-    saveDocumentsToStorage(updatedDocs);
-    
-    setActiveModal(null);
-    setSelectedDocument(null);
-    
-    triggerToast(`Converted ${selectedDocument.name} to referral for ${newReferral.patientName}!`);
-  };
-
-  const handleAttachDocument = (doc: DocumentItem) => {
-    setSelectedDocument(doc);
-    setAttachSearchQuery('');
-    setActiveModal('attach');
-  };
-
-  const handleConfirmAttach = (referralId: string) => {
-    if (!selectedDocument) return;
-
-    const updatedReferrals = referralsList.map(ref => {
-      if (ref.id === referralId) {
-        return {
-          ...ref,
-          completion: Math.min(ref.completion + 10, 100),
-          lastUpdate: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          nextStep: `Attached: ${selectedDocument.name}`
-        };
-      }
-      return ref;
-    });
-
-    setReferralsList(updatedReferrals);
-    saveReferrals(updatedReferrals);
-
-    const updatedDocs = documents.filter(d => d.id !== selectedDocument.id);
-    saveDocumentsToStorage(updatedDocs);
-    setActiveModal(null);
-    
-    const targetRef = referralsList.find(r => r.id === referralId);
-    triggerToast(`Attached ${selectedDocument.name} to referral for ${targetRef?.patientName || 'patient'}.`);
-    setSelectedDocument(null);
-  };
-
-  const filteredAttachReferrals = React.useMemo(() => {
-    return sentReferrals.filter(ref => {
-      const matchesSearch = ref.patientName.toLowerCase().includes(attachSearchQuery.toLowerCase()) ||
-                            ref.specialist.toLowerCase().includes(attachSearchQuery.toLowerCase());
-      return matchesSearch && ref.status !== 'Archived';
-    });
-  }, [sentReferrals, attachSearchQuery]);
 
   const handleIdentifyDocument = (doc: DocumentItem) => {
     router.push(`/referrals/${doc.id}`);
@@ -357,8 +262,6 @@ export default function DentistDashboardPage() {
                       document={doc}
                       isArchived={activeInboxTab === 'spam'}
                       onOpenDocument={() => handleViewDocument(doc)}
-                      onConvert={() => handleConvertDocument(doc)}
-                      onAttach={() => handleAttachDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
                       onArchive={handleArchiveDocument}
                       onUnarchive={handleUnarchiveDocument}
@@ -445,25 +348,7 @@ export default function DentistDashboardPage() {
         />
       )}
 
-      {activeModal && selectedDocument && (
-        <DashboardDocumentActionModals
-          mode={activeModal}
-          documentName={selectedDocument.name}
-          convertPatientName={convertPatientName}
-          attachSearchQuery={attachSearchQuery}
-          attachReferrals={filteredAttachReferrals.map((ref) => ({
-            id: ref.id,
-            patientName: ref.patientName,
-            detail: `To: ${ref.specialist} - ${ref.nextStep || 'Sent'}`,
-          }))}
-          attachSearchPlaceholder="Search patient or practice..."
-          onPatientNameChange={setConvertPatientName}
-          onAttachSearchChange={setAttachSearchQuery}
-          onClose={() => setActiveModal(null)}
-          onConfirmConvert={handleConfirmConvert}
-          onConfirmAttach={handleConfirmAttach}
-        />
-      )}
+
 
       {previewDocument && (
         <ChannelDocumentPreviewOverlay

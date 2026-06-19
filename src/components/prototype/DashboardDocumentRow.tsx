@@ -16,8 +16,8 @@ type DashboardDocumentRowProps = {
   document: DashboardDocumentRowItem;
   isArchived?: boolean;
   onOpenDocument: (id: string) => void;
-  onConvert: (id: string) => void;
-  onAttach: (id: string) => void;
+  onConvert?: (id: string) => void;
+  onAttach?: (id: string) => void;
   onOpenChannel: (id: string) => void;
   onIdentify?: (id: string) => void;
   onArchive?: (id: string) => void;
@@ -128,22 +128,26 @@ export function DashboardDocumentRow({
                 <div className="flex gap-2">
                   {!isCase && (
                     <>
-                      <button
-                        onClick={() => onConvert(document.id)}
-                        className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
-                        title="Convert to Referral"
-                        aria-label="Convert to Referral"
-                      >
-                        <UserPlus size={14} />
-                      </button>
-                      <button
-                        onClick={() => onAttach(document.id)}
-                        className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
-                        title="Attach to existing referral"
-                        aria-label="Attach to existing referral"
-                      >
-                        <Paperclip size={14} />
-                      </button>
+                      {onConvert && (
+                        <button
+                          onClick={() => onConvert(document.id)}
+                          className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                          title="Convert to Referral"
+                          aria-label="Convert to Referral"
+                        >
+                          <UserPlus size={14} />
+                        </button>
+                      )}
+                      {onAttach && (
+                        <button
+                          onClick={() => onAttach(document.id)}
+                          className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                          title="Attach to existing referral"
+                          aria-label="Attach to existing referral"
+                        >
+                          <Paperclip size={14} />
+                        </button>
+                      )}
                     </>
                   )}
                   <button
