@@ -72,7 +72,7 @@ export function ReferralDetailHeader({
         <div className="relative flex items-stretch">
           <button onClick={onMainNextAction} className="wireframe-button bg-black text-white text-[10px] uppercase px-5 py-3 flex items-center justify-center font-black tracking-widest border-2 border-black border-r-0 hover:bg-zinc-800 transition-colors rounded-r-none h-11 disabled:opacity-50 disabled:bg-gray-300 disabled:border-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed">
             {currentStatus === 'Received' || currentStatus === 'Sent' ? 'Accept Referral' :
-              currentStatus === 'Accepted' ? 'Schedule Appointment' :
+              currentStatus === 'Accepted' ? 'Schedule' :
               currentStatus === 'Scheduled' ? 'Release Patient' :
               currentStatus === 'Released' ? 'Archive Case' :
               'Reopen Case'}

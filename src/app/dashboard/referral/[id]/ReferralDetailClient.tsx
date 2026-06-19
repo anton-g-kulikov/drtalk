@@ -81,7 +81,7 @@ export default function ReferralDetailClient() {
                 onClick={() => setCurrentStatus('Scheduled')}
                 className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2"
               >
-                Schedule Appointment
+                Schedule
               </button>
             )}
             {currentStatus === 'Scheduled' && (
