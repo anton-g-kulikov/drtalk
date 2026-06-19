@@ -70,7 +70,10 @@ export function SendDocumentReferralSelector({
                 className="p-2 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 bg-white text-black"
               >
                 <div className="flex justify-between items-center">
-                  <span>{referral.code} - {referral.patientName}</span>
+                  <span className="flex items-baseline gap-1.5">
+                    <span className="font-black">{referral.patientName}</span>
+                    <span className="text-[8px] opacity-60 font-medium">({referral.code})</span>
+                  </span>
                   <span className="text-[7px] px-1 font-black bg-black text-white">{referral.specialist}</span>
                 </div>
               </div>

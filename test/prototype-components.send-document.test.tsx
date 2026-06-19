@@ -188,13 +188,14 @@ describe('prototype components: send document.test', () => {
 
     expect(screen.getByText(/associated referral/i)).toBeInTheDocument();
     expect(screen.getByText(/none \/ new referral/i)).toBeInTheDocument();
-    expect(screen.getByText(/ref-d1001 - alice cooper/i)).toBeInTheDocument();
+    expect(screen.getByText(/alice cooper/i)).toBeInTheDocument();
+    expect(screen.getByText(/\(ref-d1001\)/i)).toBeInTheDocument();
     expect(screen.getByText(/valley endodontics/i)).toBeInTheDocument();
 
     await user.type(screen.getByPlaceholderText(/search or select referral/i), ' 1001');
     await user.click(screen.getByRole('button', { name: /toggle referral selector/i }));
     await user.click(screen.getByText(/none \/ new referral/i));
-    await user.click(screen.getByText(/ref-d1001 - alice cooper/i));
+    await user.click(screen.getByText(/alice cooper/i));
 
     expect(onSearchChange).toHaveBeenCalled();
     expect(onOpenChange).toHaveBeenCalledWith(false);

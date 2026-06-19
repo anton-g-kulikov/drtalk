@@ -526,7 +526,6 @@ function ChannelsContent() {
                       ) : (
                         filteredReferralsList.map((referral) => {
                           const code = getReferralCode(referral.id);
-                          const label = `${code} - ${referral.patientName}`;
                           return (
                             <div
                               key={referral.id}
@@ -534,11 +533,14 @@ function ChannelsContent() {
                                 handleSelectReferral(referral.id);
                                 setIsReferralDropdownOpen(false);
                               }}
-                              className={`p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10 ${
+                              className={`p-2 text-xs font-bold hover:bg-black hover:text-white cursor-pointer border-b border-black/10 flex justify-between items-center ${
                                 selectedReferral === referral.id ? 'bg-zinc-100' : ''
                               }`}
                             >
-                              {label}
+                              <span className="flex items-baseline gap-1.5">
+                                <span className="font-black">{referral.patientName}</span>
+                                <span className="text-[8px] opacity-60 font-medium">({code})</span>
+                              </span>
                             </div>
                           );
                         })
