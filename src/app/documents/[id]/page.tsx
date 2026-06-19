@@ -11,6 +11,8 @@ export async function generateStaticParams() {
   ];
 }
 
+export const dynamicParams = false;
+
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   return <DocumentDetailClient id={params.id} />;

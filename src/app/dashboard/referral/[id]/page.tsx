@@ -18,6 +18,8 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+export const dynamicParams = false;
+
 export default async function Page({ params }: PageProps) {
   const resolvedParams = await params;
   return <ReferralDetailClient id={resolvedParams.id} />;
