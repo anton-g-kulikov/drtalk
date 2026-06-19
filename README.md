@@ -18,6 +18,7 @@ This repository currently represents a static-exported frontend prototype. Most 
 - team and PHI access management screens
 - subscription trial/paywall prototype for specialist practices
 - contextual feedback markers with a Supabase-backed side panel
+- comprehensive test coverage for routing, UI states, channel actions, and document management
 
 ## Architecture Summary
 
@@ -28,9 +29,10 @@ This repository currently represents a static-exported frontend prototype. Most 
 - data model: hard-coded mock data for most product surfaces
 - persisted prototype state: browser `localStorage`
 - comments backend: `@supabase/supabase-js`
+- test runner: `Vitest` with `@testing-library/react` and `jsdom`
 - deployment target: static export via `next build` to `out/`
 
-More durable system notes live in [_meta/system-documentation.md](/Users/antonkulikov/Projects/drtalk/_meta/system-documentation.md).
+More durable system notes live in [_meta/system-documentation.md](_meta/system-documentation.md).
 
 ## Key Runtime Behaviors
 
@@ -46,7 +48,7 @@ More durable system notes live in [_meta/system-documentation.md](/Users/antonku
 - `src/components` shared UI, comments, verification, subscription, and team-management components
 - `src/lib` small client utilities such as Supabase initialization
 - `_meta` product, system, and project-status documentation
-- `test` test-status and verification notes
+- `test` Vitest test files and verification notes
 - `out` generated static export output
 
 ## Local Setup
@@ -71,7 +73,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 ```
 
-You can start from [`.env.example`](/Users/antonkulikov/Projects/drtalk/.env.example).
+You can start from [`.env.example`](.env.example).
 
 ### Run
 
@@ -83,27 +85,41 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Checks
 
+To run linter:
 ```bash
 npm run lint
-npm run build
 ```
 
-The static export is written to `out/`.
+To run the automated test suite:
+```bash
+npm run test
+```
+
+To build and compile static export output to `out/`:
+```bash
+npm run build
+```
 
 ## Route Map
 
 Public entry points:
 
 - `/`
-- `/referral`
+- `/referral` (guest referral submission)
 - `/onboarding`
 - `/verify`
 - `/specialist`
 - `/dentist`
+- `/documents/[id]` (document detail view)
+- `/external/viewer/[id]` (external viewer detail view)
 
 Specialist routes:
 
-- `/dashboard`
+- `/dashboard` (specialist dashboard)
+- `/dashboard/referral/[id]` (referral details)
+- `/dashboard/send-document` (document transmission flow)
+- `/dashboard/settings/team` (team settings list)
+- `/dashboard/settings/team/[id]` (team member edit & PHI access settings)
 - `/referrals`
 - `/referrals/[id]`
 - `/channels`
@@ -111,25 +127,30 @@ Specialist routes:
 - `/academy`
 - `/settings`
 - `/settings/notifications`
-- `/dashboard/settings/team`
-- `/dashboard/settings/team/[id]`
+- `/settings/profile`
+- `/settings/profile/user`
+- `/settings/intake`
 
 Dentist routes:
 
 - `/dentist/dashboard`
+- `/dentist/dashboard/send-document`
 - `/dentist/referral`
 - `/dentist/referrals`
 - `/dentist/channels`
 - `/dentist/network`
 - `/dentist/academy`
+- `/dentist/messages`
 - `/dentist/settings`
 - `/dentist/settings/notifications`
+- `/dentist/settings/profile`
+- `/dentist/settings/profile/user`
+- `/dentist/settings/intake`
 - `/dentist/settings/team`
 - `/dentist/settings/team/[id]`
 
 ## Known Limitations
 
-- no automated test suite is checked into the repo yet
 - most business entities are mocked inline in page/component files
 - several actions are intentionally non-persistent or placeholder-only
 - some routes model product intent rather than complete backend behavior
@@ -137,10 +158,6 @@ Dentist routes:
 
 ## Documentation
 
-- [_meta/system-documentation.md](/Users/antonkulikov/Projects/drtalk/_meta/system-documentation.md): current technical behavior and ownership boundaries
-- [_meta/project-task-list.md](/Users/antonkulikov/Projects/drtalk/_meta/project-task-list.md): delivered scope and remaining work
-- [_meta/implementation_plan.md](/Users/antonkulikov/Projects/drtalk/_meta/implementation_plan.md): implementation snapshot and near-term focus
-- [test/test-documentation.md](/Users/antonkulikov/Projects/drtalk/test/test-documentation.md): current verification approach and gaps
-- [_meta/drtalk_ Objects and Roles model.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Objects and Roles model.md>): domain model notes
-- [_meta/drtalk_ Progressive Onboarding v2.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Progressive Onboarding v2.md>): onboarding concept notes
-- [_meta/drtalk_ Referrals&Activity Center.md](</Users/antonkulikov/Projects/drtalk/_meta/drtalk_ Referrals&Activity Center.md>): referral workflow concept notes
+- [_meta/system-documentation.md](_meta/system-documentation.md): current technical behavior and ownership boundaries
+- [_meta/project-task-list.md](_meta/project-task-list.md): delivered scope and remaining work
+- [test/test-documentation.md](test/test-documentation.md): current verification approach and test suite details
