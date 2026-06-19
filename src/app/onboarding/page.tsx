@@ -79,7 +79,7 @@ function OnboardingContent() {
     'Prosthodontist',
     'Dental Anesthesiologist',
     'Oral Pathologist',
-    'Dental Partner',
+    'Dental Business Partner',
     'Dental Laboratory'
   ];
 
