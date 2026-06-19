@@ -33,6 +33,12 @@ export function DashboardDocumentActionModals({
   onConfirmConvert,
   onConfirmAttach,
 }: DashboardDocumentActionModalsProps) {
+  const [firstName, lastName] = (() => {
+    if (!convertPatientName) return ['', ''];
+    const parts = convertPatientName.trim().split(/\s+/);
+    return [parts[0] || '', parts.slice(1).join(' ')];
+  })();
+
   if (mode === 'convert') {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -55,15 +61,27 @@ export function DashboardDocumentActionModals({
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-[9px] font-black uppercase block text-black">Patient Name</label>
-              <input
-                type="text"
-                value={convertPatientName}
-                onChange={(event) => onPatientNameChange(event.target.value)}
-                className="wireframe-input w-full p-2 text-xs uppercase text-black"
-                placeholder="PATIENT NAME..."
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase block text-black">Patient First Name</label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(event) => onPatientNameChange(`${event.target.value} ${lastName}`.trim())}
+                  className="wireframe-input w-full p-2 text-xs uppercase text-black"
+                  placeholder="FIRST NAME..."
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase block text-black">Patient Last Name</label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(event) => onPatientNameChange(`${firstName} ${event.target.value}`.trim())}
+                  className="wireframe-input w-full p-2 text-xs uppercase text-black"
+                  placeholder="LAST NAME..."
+                />
+              </div>
             </div>
           </div>
 
