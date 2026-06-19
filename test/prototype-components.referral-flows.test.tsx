@@ -123,7 +123,7 @@ describe('prototype components: referral flows.test', () => {
       />
     );
 
-    expect(screen.getByRole('button', { name: /^sent$/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^referred$/i })).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/search patients/i)).toBeInTheDocument();
     expect(screen.getByText(/specialist practice/i)).toBeInTheDocument();
     expect(screen.queryByRole('checkbox', { name: /show incomplete only/i })).not.toBeInTheDocument();

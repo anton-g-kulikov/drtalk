@@ -160,7 +160,7 @@ describe('prototype components: dashboards.test', () => {
       />
     );
 
-    expect(screen.getByText(/patients sent/i)).toBeInTheDocument();
+    expect(screen.getByText(/patients referred/i)).toBeInTheDocument();
     expect(screen.getByText(/patient: alice cooper/i)).toBeInTheDocument();
     expect(screen.getByText(/ref-d1001/i)).toBeInTheDocument();
     expect(screen.getByText(/urgent/i)).toBeInTheDocument();
