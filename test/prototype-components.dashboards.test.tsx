@@ -204,7 +204,7 @@ describe('prototype components: dashboards.test', () => {
     expect(screen.getByText(/refer patients, track/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /verify identity now/i }));
-    await user.click(screen.getByRole('button', { name: /send a referral/i }));
+    await user.click(screen.getByRole('button', { name: /refer a patient/i }));
     await user.click(screen.getByRole('button', { name: /send document/i }));
 
     expect(onVerify).toHaveBeenCalledTimes(1);
@@ -372,7 +372,7 @@ describe('prototype components: dashboards.test', () => {
       />
     );
 
-    expect(screen.getByText(/spam/i)).toBeInTheDocument();
+    expect(screen.getByText(/^spam$/i)).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /convert to referral/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /open in channel/i })).not.toBeInTheDocument();
   });
@@ -404,7 +404,8 @@ describe('prototype components: dashboards.test', () => {
     expect(screen.getByText(/convert document to referral/i)).toBeInTheDocument();
     expect(screen.getByText(/referral-scan.pdf/i)).toBeInTheDocument();
 
-    await user.type(screen.getByPlaceholderText(/patient name/i), 'Alice Cooper');
+    await user.type(screen.getByPlaceholderText(/first name/i), 'Alice');
+    await user.type(screen.getByPlaceholderText(/last name/i), 'Cooper');
     await user.click(screen.getByRole('button', { name: /create referral/i }));
     await user.click(screen.getByRole('button', { name: /cancel/i }));
 

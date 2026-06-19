@@ -82,7 +82,7 @@ describe('prototype route use cases', () => {
     renderRoute(<DentistDashboardPage />);
 
     expect(await screen.findByRole('heading', { name: /dashboard/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send a referral/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /refer a patient/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /send document/i })).toBeInTheDocument();
   });
 

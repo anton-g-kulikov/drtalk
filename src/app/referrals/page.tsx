@@ -236,7 +236,7 @@ export default function ReferralsPage() {
               onClick={() => router.push('/dentist/referral')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-8 py-3 w-full sm:w-auto"
             >
-              Send a Referral
+              Refer a Patient
             </button>
           )}
         </div>

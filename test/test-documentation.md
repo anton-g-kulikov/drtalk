@@ -74,7 +74,7 @@ Setup: Open `/dentist/dashboard` with seeded mock data.
 Steps:
 
 1. View sent referral metrics.
-2. Locate "Send a Referral".
+2. Locate "Refer a Patient".
 3. Locate "Send Document".
 
 Expected visible outcome: Dentist dashboard actions and document/referral regions render without cross-role regressions.

@@ -26,7 +26,7 @@
 
 - [x] **Goal**: Add a "Send Document" button to the dentist dashboard that opens a structured form to select a connected practice and an optional referral, and allows file attachment/upload.
 - [x] **Success Criteria**:
-  1. A second button "Send Document" next to "Send a Referral" on the Dentist Dashboard.
+  1. A second button "Send Document" next to "Refer a Patient" on the Dentist Dashboard.
   2. The button opens a modal similar to the "Attach Document" modal in the inter-practice chat.
   3. The modal contains a "Connected Practice" dropdown listing all inter-practice connections.
   4. The modal contains an optional "Associated Sent Referral" dropdown listing sent referrals.

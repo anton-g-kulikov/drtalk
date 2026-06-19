@@ -87,7 +87,7 @@ export function DentistDashboardHeader({
             onClick={onSendReferral}
             className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-3 flex items-center justify-center gap-2 flex-1 sm:flex-none hover:bg-zinc-800 transition-colors"
           >
-            Send a Referral <Plus size={14} />
+            Refer a Patient <Plus size={14} />
           </button>
           <button
             onClick={onSendDocument}
