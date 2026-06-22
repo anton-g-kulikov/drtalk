@@ -93,6 +93,7 @@ export function filterChannelsByType(
   const normalizedQuery = query.toLowerCase();
   return channels
     .filter((channel) => channel.type === type)
+    .filter((channel) => !channel.isArchived)
     .filter((channel) => channel.name.toLowerCase().includes(normalizedQuery));
 }
 
