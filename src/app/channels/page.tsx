@@ -299,7 +299,21 @@ function ChannelsContent() {
           isDentist={isDentist}
           activeTab={channelsState.activeTab}
           messages={channelsState.messages[channelsState.activeChannel.id] || []}
-          archivedConversations={channelsState.caseChannels.filter((caseChannel) => caseChannel.practiceId === channelsState.activeChannel.id && caseChannel.isArchived)}
+          archivedConversations={
+            channelsState.activeChannel.type === 'internal'
+              ? channelsState.channels
+                  .filter((c) => c.type === 'internal' && c.isArchived)
+                  .map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                    patientName: '',
+                    practiceId: '',
+                    referralId: '',
+                    isArchived: true,
+                    lastMessage: c.lastMessage || '',
+                  }))
+              : channelsState.caseChannels.filter((caseChannel) => caseChannel.practiceId === channelsState.activeChannel.id && caseChannel.isArchived)
+          }
           inputText={channelsState.inputText}
           attachedDocument={channelsState.attachedDoc}
           showAttachmentDrawer={channelsState.showAttachmentDrawer}
