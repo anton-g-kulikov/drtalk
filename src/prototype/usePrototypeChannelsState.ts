@@ -493,6 +493,19 @@ export function usePrototypeChannelsState({
     },
     onSendNewDocument: () => onNavigate(isDentist ? '/dentist/dashboard/send-document' : '/dashboard/send-document'),
     onArchiveCase: () => {
+      if (activeChannel.type === 'internal') {
+        const updatedChannels = channels.map((c) =>
+          c.id === activeChannel.id ? { ...c, isArchived: true } : c
+        );
+        setChannels(updatedChannels);
+        triggerToast(`Archived internal channel #${activeChannel.name}!`);
+        const nextChannel = updatedChannels.find((c) => c.type === 'internal' && !c.isArchived) ||
+                            updatedChannels.find((c) => !c.isArchived);
+        if (nextChannel) {
+          setActiveChannel(nextChannel);
+        }
+        return;
+      }
       const referralId = activeChannel.id.replace('case_', '');
       const updated = isDentist
         ? updateDentistReferralStatus(referralId, 'Archived')
@@ -510,7 +523,19 @@ export function usePrototypeChannelsState({
     },
     onReactivateArchived: (conversationId: string) => {
       const archivedCase = caseChannels.find((caseChannel) => caseChannel.id === conversationId);
-      if (!archivedCase) return;
+      if (!archivedCase) {
+        const archivedInternal = channels.find((c) => c.id === conversationId && c.type === 'internal');
+        if (archivedInternal) {
+          const updatedChannels = channels.map((c) =>
+            c.id === conversationId ? { ...c, isArchived: false } : c
+          );
+          setChannels(updatedChannels);
+          triggerToast(`Re-activated internal channel #${archivedInternal.name}!`);
+          setActiveChannel({ ...archivedInternal, isArchived: false });
+          setActiveTab('messages');
+        }
+        return;
+      }
 
       const referralId = conversationId.replace('case_', '');
       const updated = isDentist
