@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowLeft, FileText, Hash, Users } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, FileText, Hash, Users, MoreVertical } from 'lucide-react';
 import type { Channel } from '@/prototype/channelTypes';
 import { getReferralCode, type ReferralStatus } from '@/lib/referrals';
 
@@ -31,6 +32,7 @@ export function ChannelConversationHeader({
   onCompleteCare,
   referralStatus,
 }: ChannelConversationHeaderProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isCaseChannel = activeChannel.id.startsWith('case_');
   const displayName = isCaseChannel || activeChannel.id !== '3' || isDentist
     ? activeChannel.name
@@ -81,23 +83,46 @@ export function ChannelConversationHeader({
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4 text-black">
-
-          {isCaseChannel && (
-            <button
-              onClick={onArchiveCase}
-              className="wireframe-button border-2 border-black px-3 py-1.5 hover:bg-black hover:text-white transition-all text-[9px] uppercase font-black bg-white text-black"
-            >
-              Archive Channel
-            </button>
-          )}
-          <button onClick={onOpenParticipants} className="hidden sm:block text-[10px] font-bold uppercase underline">
-            Participants
+        <div className="relative text-black">
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-1.5 hover:bg-gray-100 border-2 border-black text-black flex items-center justify-center transition-all bg-white"
+            aria-label="More options"
+          >
+            <MoreVertical size={16} />
           </button>
+
+          {isMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-30" onClick={() => setIsMenuOpen(false)} />
+              <div className="absolute right-0 mt-2 z-40 bg-white border-2 border-black w-44 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px] font-black divide-y-2 divide-black">
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onOpenParticipants();
+                  }}
+                  className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all"
+                >
+                  Participants
+                </button>
+                {(isCaseChannel || activeChannel.type === 'internal') && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onArchiveCase();
+                    }}
+                    className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all text-red-600 hover:text-white"
+                  >
+                    Archive Channel
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {activeChannel.type === 'inter-practice' && (
+      {(activeChannel.type === 'inter-practice' || activeChannel.type === 'internal') && (
         <div className="h-10 bg-white border-b-2 border-black flex px-6 shrink-0 gap-4">
           <button
             onClick={() => onActiveTabChange('messages')}
@@ -108,16 +133,29 @@ export function ChannelConversationHeader({
           >
             Messages
           </button>
-          <button
-            onClick={() => onActiveTabChange('documents')}
-            className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'documents'
-              ? 'border-black text-black font-black'
-              : 'border-transparent text-muted-foreground hover:text-black'
-              }`}
-          >
-            Documents
-          </button>
-          {!isCaseChannel && (
+          {activeChannel.type === 'inter-practice' && (
+            <button
+              onClick={() => onActiveTabChange('documents')}
+              className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'documents'
+                ? 'border-black text-black font-black'
+                : 'border-transparent text-muted-foreground hover:text-black'
+                }`}
+            >
+              Documents
+            </button>
+          )}
+          {activeChannel.type === 'internal' && (
+            <button
+              onClick={() => onActiveTabChange('archived')}
+              className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'archived'
+                ? 'border-black text-black font-black'
+                : 'border-transparent text-muted-foreground hover:text-black'
+                }`}
+            >
+              Archived Channels
+            </button>
+          )}
+          {activeChannel.type === 'inter-practice' && !isCaseChannel && (
             <button
               onClick={() => onActiveTabChange('archived')}
               className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'archived'

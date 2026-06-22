@@ -100,7 +100,10 @@ export function ChannelContentPane({
   onViewArchivedDocuments,
   isViewingArchivedDocs,
 }: ChannelContentPaneProps) {
-  const shouldShowArchived = activeTab === 'archived' && activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_');
+  const shouldShowArchived = activeTab === 'archived' && (
+    (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
+    activeChannel.type === 'internal'
+  );
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 relative">
@@ -120,6 +123,7 @@ export function ChannelContentPane({
         <ChannelArchivedConversations
           conversations={archivedConversations}
           onReactivate={onReactivateArchived}
+          isInternal={activeChannel.type === 'internal'}
         />
       ) : (
         <>
