@@ -5,23 +5,18 @@ import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { User, Bell, Shield, CreditCard, HelpCircle, Inbox } from 'lucide-react';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
-import { BillingModal } from '@/components/BillingModal';
 
 export default function SettingsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const isDentist = pathname.includes('/dentist');
-  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && window.location.hash === '#subscription') {
-      const timer = setTimeout(() => {
-        setIsBillingModalOpen(true);
-      }, 0);
-      return () => clearTimeout(timer);
+      router.push(isDentist ? '/dentist/settings/subscription' : '/settings/subscription');
     }
-  }, []);
+  }, [isDentist, router]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -35,7 +30,7 @@ export default function SettingsPage() {
     ...(!isDentist ? [{ icon: Inbox, label: 'Referral Intake', desc: 'Configure and copy credentials for inbound email, eFax, and public referral link.', href: '/settings/intake' }] : []),
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
-    { icon: CreditCard, label: 'Subscription', desc: isDentist ? 'View subscription status for sending referrals.' : 'View subscription status for referral processing.', href: '#' },
+    { icon: CreditCard, label: 'Subscription', desc: isDentist ? 'View subscription status for sending referrals.' : 'View subscription status for referral processing.', href: isDentist ? '/dentist/settings/subscription' : '/settings/subscription' },
   ];
 
   return (
@@ -58,9 +53,7 @@ export default function SettingsPage() {
             <div 
               key={section.label} 
               onClick={() => {
-                if (section.label === 'Subscription') {
-                  setIsBillingModalOpen(true);
-                } else if (section.href !== '#') {
+                if (section.href !== '#') {
                   router.push(section.href);
                 }
               }}
@@ -89,14 +82,6 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <BillingModal 
-        isOpen={isBillingModalOpen} 
-        onClose={() => setIsBillingModalOpen(false)} 
-        onManage={() => {
-          setIsBillingModalOpen(false);
-          showToast("Opening Stripe Customer Portal...");
-        }} 
-      />
     </MainLayout>
   );
 }

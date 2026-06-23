@@ -66,27 +66,27 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
     <MainLayout title={`Edit Member: ${member.name}`}>
       <div className="max-w-3xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => router.push(backPath)} 
-              className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all"
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+          <div className="space-y-4">
+            <button
+              onClick={() => router.push(backPath)}
+              className="flex items-center gap-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-colors w-fit px-2 py-1 border-2 border-transparent hover:border-black"
             >
-              <ArrowLeftIcon size={16} />
+              <ArrowLeftIcon size={14} />
+              Back to Team Management
             </button>
-            <div>
-              <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">{member.name}</h1>
-                <CommentMarker 
-                  id="team-member-page" 
-                  title="Team Member Settings" 
-                  description="Practice owners can independently manage roles and PHI access for each team member. Team members have PHI access enabled by default." 
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-2">{member.email}</p>
+            
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic leading-none">{member.name}</h1>
+              <CommentMarker 
+                id="team-member-page" 
+                title="Team Member Settings" 
+                description="Practice owners can independently manage roles and PHI access for each team member. Team members have PHI access enabled by default." 
+              />
             </div>
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{member.email}</p>
           </div>
-          <div className="text-right">
+          <div className="text-right pb-1">
             <p className="text-[10px] font-black uppercase text-muted-foreground italic">Member since {member.joinedAt}</p>
           </div>
         </div>

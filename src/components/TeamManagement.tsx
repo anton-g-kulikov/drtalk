@@ -135,17 +135,21 @@ export function TeamManagement({ backPath }: { backPath: string }) {
         
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-4">
-              <button onClick={() => router.push(backPath)} className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all">
-                <ArrowLeftIcon size={16} />
-              </button>
-              <div className="flex items-center gap-3">
-                <h1 className="text-4xl font-black uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
-                <CommentMarker id="team-management" title="Team Management" description="Manage practice ownership and team permissions." />
-              </div>
+          <div className="space-y-4">
+            <button
+              onClick={() => router.push(backPath)}
+              className="flex items-center gap-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-colors w-fit px-2 py-1 border-2 border-transparent hover:border-black"
+            >
+              <ArrowLeftIcon size={14} />
+              Back to Settings
+            </button>
+            
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic leading-none">TEAM, ROLES & ACCESS CONTROL</h1>
+              <CommentMarker id="team-management" title="Team Management" description="Manage practice ownership and team permissions." />
             </div>
-            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest ml-12">
+            
+            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
               Manage practice ownership, team member permissions, and PHI access safeguards.
             </p>
           </div>
