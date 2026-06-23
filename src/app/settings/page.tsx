@@ -81,10 +81,6 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
-
-        <div className="pt-8 border-t-2 border-black border-dashed">
-          <p className="text-[8px] font-bold uppercase text-muted-foreground italic">Platform Version: Prototype 1.5</p>
-        </div>
       </div>
 
       {toastMessage && (

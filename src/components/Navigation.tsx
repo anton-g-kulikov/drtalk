@@ -195,11 +195,9 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
               } ${userRole === 'individual' ? 'hidden' : ''}`}
           >
             <Settings size={18} />
-            Practice
+            Practice Settings
           </Link>
-          <p className="text-[10px] font-bold uppercase text-muted-foreground text-left px-3">
-            {userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Dentist Track' : 'Specialist Track')} / Prototype 1.5
-          </p>
+
         </div>
       </div>
     </div>
