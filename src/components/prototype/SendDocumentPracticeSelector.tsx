@@ -32,7 +32,7 @@ export function SendDocumentPracticeSelector({
   return (
     <div className="relative">
       <span className="text-[10px] font-black uppercase block mb-1 text-black">
-        Connected Practices (Select Multiple) <span className="text-red-500">*</span>
+        Network (Select Multiple) <span className="text-red-500">*</span>
       </span>
       <div className="border-2 border-black bg-white p-2 min-h-[40px] text-xs">
         <div className="flex flex-wrap gap-1.5 mb-1.5">

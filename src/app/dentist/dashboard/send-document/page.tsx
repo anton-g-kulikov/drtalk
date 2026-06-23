@@ -392,7 +392,7 @@ export default function DentistSendDocumentPage() {
                   sendMode === 'connected' ? 'bg-black text-white' : 'bg-white text-black hover:bg-zinc-50'
                 }`}
               >
-                Connected Practices
+                Network
               </button>
               <button
                 type="button"
