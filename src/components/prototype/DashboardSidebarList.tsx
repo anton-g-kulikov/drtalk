@@ -10,6 +10,7 @@ export type DashboardSidebarItem = {
   actionLabel?: string;
   onClick?: () => void;
   onAction?: () => void;
+  onDismiss?: () => void;
 };
 
 type DashboardSidebarListProps = {
@@ -47,13 +48,24 @@ export function DashboardSidebarList({
                     {item.message}
                   </p>
                 </div>
-                <button
-                  onClick={item.onAction}
-                  className="wireframe-button text-[8px] font-black uppercase px-2.5 py-1 bg-black text-white hover:bg-zinc-800 transition-all shrink-0"
-                  aria-label={`${item.actionLabel} ${item.name}`}
-                >
-                  {item.actionLabel}
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    onClick={item.onAction}
+                    className="wireframe-button text-[8px] font-black uppercase px-2.5 py-1 bg-black text-white hover:bg-zinc-800 transition-all"
+                    aria-label={`${item.actionLabel} ${item.name}`}
+                  >
+                    {item.actionLabel}
+                  </button>
+                  {item.onDismiss && (
+                    <button
+                      onClick={item.onDismiss}
+                      className="wireframe-button text-[8px] font-black uppercase px-2.5 py-1 bg-white text-black hover:bg-gray-100 border border-black transition-all"
+                      aria-label={`Dismiss ${item.name}`}
+                    >
+                      Dismiss
+                    </button>
+                  )}
+                </div>
               </div>
             );
           }
