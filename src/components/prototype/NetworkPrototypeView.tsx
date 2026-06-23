@@ -225,7 +225,7 @@ function PracticeCard({
               </button>
               <Link href={`/dentist/channels?practice=${encodeURIComponent(practice.name)}`} className="flex-1 wireframe-button bg-white text-black text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-50 border-2 border-black transition-all font-black">
                 <MessageCircle size={14} />
-                Chat Now
+                {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
               </Link>
             </>
           ) : (

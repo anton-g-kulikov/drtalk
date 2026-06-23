@@ -305,11 +305,17 @@ export function getChannels(isDentist: boolean): Channel[] {
         // Fall through to re-seed
         localStorage.removeItem(key);
       } else {
-        if (missingAlice) {
-          localStorage.removeItem(key);
-        } else {
-          return parsed;
-        }
+        const knownExternal = ['apex endodontics', 'metro oral surgery', 'summit periodontics',
+          'desert ridge implants', 'valley orthodontic center',
+          'pinecrest oral surgery', 'riverfront periodontics', 'summit ridge orthodontics',
+          'westside endodontics'];
+        const needsReset = missingAlice || parsed.some(c =>
+          c.type === 'inter-practice' &&
+          !c.isExternal &&
+          knownExternal.includes(c.name.toLowerCase())
+        );
+        if (!needsReset) return parsed;
+        localStorage.removeItem(key);
       }
     } catch (e) {
       // ignore parsing errors and fallback
@@ -318,6 +324,12 @@ export function getChannels(isDentist: boolean): Channel[] {
 
   let defaults: Channel[] = [];
   if (isDentist) {
+    const externalSpecialistNames = new Set([
+      'apex endodontics', 'metro oral surgery', 'summit periodontics',
+      'desert ridge implants', 'valley orthodontic center',
+      'pinecrest oral surgery', 'riverfront periodontics', 'summit ridge orthodontics',
+      'westside endodontics'
+    ]);
     defaults = [
       { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
       { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
@@ -326,7 +338,8 @@ export function getChannels(isDentist: boolean): Channel[] {
         name: clinic.name,
         type: 'inter-practice' as const,
         lastMessage: clinic.name === 'Valley Endodontics' ? 'Pano image uploaded for Alice Cooper.' : 'Practice connection active.',
-        memberCount: 2
+        memberCount: 2,
+        ...(externalSpecialistNames.has(clinic.name.toLowerCase()) ? { isExternal: true, isVerified: false } : {}),
       })),
       { id: '4', name: 'Alice Cooper', type: 'patient', lastMessage: 'Got it, thank you!', memberCount: 2 },
       { id: '5', name: 'general-updates', type: 'public', lastMessage: 'Welcome to the network!', memberCount: 124 },
