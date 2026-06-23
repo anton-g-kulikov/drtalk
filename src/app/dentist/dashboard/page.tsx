@@ -35,7 +35,7 @@ import {
   mockChannels,
 } from '@/prototype/channelFixtures';
 import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
-import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice } from '@/lib/referrals';
 import { getInitialDentistDocs, getInitialDentistArchivedDocs, specialistClinics } from '@/lib/mockGenerator';
 
 // Referral type compatibility
@@ -46,13 +46,35 @@ import { InviteModal } from '@/components/InviteModal';
 export default function DentistDashboardPage() {
   const { isTrialEnded, setShowPaywall } = useSubscription();
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>(initialReferrals);
+  const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
   const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
 
   useEffect(() => {
     setTimeout(() => {
       setReferralsList(getReferrals());
+      setNetworkList(getNetwork());
     }, 0);
   }, []);
+
+  const suggestedConnections = networkList.filter(p => 
+    p.type === 'Specialist' && 
+    (p.status === 'Nearby' || p.status === 'Suggested') && 
+    !p.dismissed
+  );
+
+  const handleDismissSuggestion = (id: string) => {
+    const updated = networkList.map(p => p.id === id ? { ...p, dismissed: true } : p);
+    setNetworkList(updated);
+    saveNetwork(updated);
+    triggerToast('Suggestion dismissed');
+  };
+
+  const handleConnectSuggestion = (practice: NetworkPractice) => {
+    const updated = networkList.map(p => p.id === practice.id ? { ...p, status: 'Connected' as const } : p);
+    setNetworkList(updated);
+    saveNetwork(updated);
+    triggerToast(`Connection request sent to ${practice.name}`);
+  };
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || (r.practice && r.practice.toLowerCase() === 'sunshine dental') || (r.dentist && (r.dentist.includes('Reed') || r.dentist.includes('Taylor'))));
   
@@ -322,14 +344,18 @@ export default function DentistDashboardPage() {
               ]}
             />
 
-            <DashboardSidebarList
+             <DashboardSidebarList
               title="Suggested Connections"
               icon={<Users size={18} />}
-              items={[
-                { id: '3', name: 'Arizona Periodontics', message: 'Scottsdale, AZ', meta: 'Periodontics', actionLabel: 'Connect', onAction: () => triggerToast('Connection request sent to Arizona Periodontics') },
-                { id: '5', name: 'Skyline Orthodontics', message: 'Phoenix, AZ', meta: 'Orthodontics', actionLabel: 'Connect', onAction: () => triggerToast('Connection request sent to Skyline Orthodontics') },
-                { id: '4', name: 'Desert Dental Implants', message: 'Tempe, AZ', meta: 'Implantology', actionLabel: 'Connect', onAction: () => triggerToast('Connection request sent to Desert Dental Implants') },
-              ]}
+              items={suggestedConnections.map(p => ({
+                id: p.id,
+                name: p.name,
+                message: p.location,
+                meta: p.specialty,
+                actionLabel: 'Connect',
+                onAction: () => handleConnectSuggestion(p),
+                onDismiss: () => handleDismissSuggestion(p.id)
+              }))}
             />
 
             {/* Commented out Trial widget for Dentist profile */}

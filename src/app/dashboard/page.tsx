@@ -33,7 +33,7 @@ import {
   initialDocuments, 
 } from '@/prototype/channelFixtures';
 import type { SharedDocument } from '@/prototype/channelTypes';
-import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
+import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice } from '@/lib/referrals';
 import { 
   getInitialSpecialistDocs, 
   getInitialSpecialistArchivedDocs,
@@ -59,12 +59,35 @@ export default function DashboardPage() {
   const [inviteRole, setInviteRole] = useState('Team Member');
   const [timeRange, setTimeRange] = useState<DashboardTimeRange>('month');
   const [referralsList, setReferralsList] = useState<UnifiedReferral[]>([]);
+  const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
 
   useEffect(() => {
     setTimeout(() => {
       setReferralsList(getReferrals());
+      setNetworkList(getNetwork());
     }, 0);
   }, []);
+
+  const suggestedConnections = networkList.filter(p => 
+    p.type === 'Dentist' && 
+    (p.status === 'Nearby' || p.status === 'Suggested') && 
+    !p.isExternal &&
+    !p.dismissed
+  );
+
+  const handleDismissSuggestion = (id: string) => {
+    const updated = networkList.map(p => p.id === id ? { ...p, dismissed: true } : p);
+    setNetworkList(updated);
+    saveNetwork(updated);
+    showToast('Suggestion dismissed');
+  };
+
+  const handleConnectSuggestion = (practice: NetworkPractice) => {
+    const updated = networkList.map(p => p.id === practice.id ? { ...p, status: 'Connected' as const } : p);
+    setNetworkList(updated);
+    saveNetwork(updated);
+    showToast(`Connection request sent to ${practice.name}`);
+  };
 
   const specialistReferrals = referralsList.filter(r => !r.id.startsWith('D-'));
   
@@ -441,10 +464,15 @@ export default function DashboardPage() {
             <DashboardSidebarList
               title="Suggested Connections"
               icon={<Users size={18} />}
-              items={[
-                { id: '7', name: 'Desert Bloom Dental', message: 'Scottsdale, AZ', meta: 'General Dentistry', actionLabel: 'Connect', onAction: () => showToast('Connection request sent to Desert Bloom Dental') },
-                { id: '8', name: 'Mountain View Family Dental', message: 'Tempe, AZ', meta: 'Cosmetic Dentistry', actionLabel: 'Connect', onAction: () => showToast('Connection request sent to Mountain View Family Dental') },
-              ]}
+              items={suggestedConnections.map(p => ({
+                id: p.id,
+                name: p.name,
+                message: p.location,
+                meta: p.specialty,
+                actionLabel: 'Connect',
+                onAction: () => handleConnectSuggestion(p),
+                onDismiss: () => handleDismissSuggestion(p.id)
+              }))}
             />
 
             <SubscriptionBanner />
