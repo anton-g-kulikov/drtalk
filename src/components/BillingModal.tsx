@@ -1,5 +1,5 @@
 import React from 'react';
-import { CreditCard, ExternalLink, ShieldCheck } from 'lucide-react';
+import { CreditCard, ExternalLink, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { useSubscription } from '@/components/SubscriptionContext';
 
 export function BillingModal({
@@ -44,7 +44,7 @@ export function BillingModal({
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 pt-4">
+          <div className="grid grid-cols-1 gap-3 pt-4 text-center">
             <button 
               onClick={onManage}
               className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest flex items-center justify-center gap-2"
@@ -53,9 +53,10 @@ export function BillingModal({
             </button>
             <button 
               onClick={onClose}
-              className="text-[10px] font-black uppercase underline py-2"
+              className="flex items-center justify-center gap-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-colors w-fit mx-auto px-2 py-1 border-2 border-transparent hover:border-black mt-2"
             >
-              Close
+              <ArrowLeft size={14} />
+              Back to Settings
             </button>
           </div>
         </div>
