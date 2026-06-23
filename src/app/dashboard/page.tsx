@@ -20,6 +20,8 @@ import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { SpecialistDashboardHeader } from '@/components/prototype/SpecialistDashboardHeader';
 import { SpecialistReferralQueues } from '@/components/prototype/SpecialistReferralQueues';
 import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
+import { ForwardDocumentModal } from '@/components/prototype/ForwardDocumentModal';
+import { forwardDocument } from '@/prototype/sendDocumentFlow';
 import {
   buildDashboardDocumentChannelTransfer,
   type DashboardDocumentItem,
@@ -235,6 +237,42 @@ export default function DashboardPage() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'info' } | null>(null);
   const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
 
+  // Forward Document state
+  const [isForwardModalOpen, setIsForwardModalOpen] = useState(false);
+  const [documentToForward, setDocumentToForward] = useState<DocumentItem | null>(null);
+
+  const handleForwardDocument = (doc: DocumentItem) => {
+    setDocumentToForward(doc);
+    setIsForwardModalOpen(true);
+  };
+
+  const handleConfirmForward = (
+    targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[],
+    note: string
+  ) => {
+    if (!documentToForward) return;
+
+    const toastOutcome = forwardDocument({
+      role: 'specialist',
+      document: {
+        name: documentToForward.name,
+        size: documentToForward.size,
+      },
+      targets,
+      note,
+    });
+
+    showToast(toastOutcome.message, {
+      label: 'VIEW CHAT',
+      onClick: () => {
+        router.push(toastOutcome.destinationHref);
+      },
+    });
+
+    setIsForwardModalOpen(false);
+    setDocumentToForward(null);
+  };
+
   const handleViewDocument = (doc: DocumentItem) => {
     const sharedDoc: SharedDocument = {
       id: doc.id,
@@ -422,6 +460,7 @@ export default function DashboardPage() {
                       onOpenDocument={() => handleViewDocument(doc)}
                       onConvert={() => handleConvertDocument(doc)}
                       onAttach={() => handleAttachDocument(doc)}
+                      onForward={() => handleForwardDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
                       onArchive={handleArchiveDocument}
                       onUnarchive={handleUnarchiveDocument}
@@ -511,6 +550,18 @@ export default function DashboardPage() {
             }}
           />
         )}
+
+        <ForwardDocumentModal
+          isOpen={isForwardModalOpen}
+          onClose={() => {
+            setIsForwardModalOpen(false);
+            setDocumentToForward(null);
+          }}
+          documentName={documentToForward?.name || ''}
+          documentSize={documentToForward?.size || ''}
+          isDentist={false}
+          onConfirmForward={handleConfirmForward}
+        />
 
 
 

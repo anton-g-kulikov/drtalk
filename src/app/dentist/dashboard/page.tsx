@@ -20,6 +20,8 @@ import { DentistSentReferralsSection } from '@/components/prototype/DentistSentR
 import { PrototypeDocumentSection } from '@/components/prototype/PrototypeDocumentSection';
 import { PrototypeToast } from '@/components/prototype/PrototypeToast';
 import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
+import { ForwardDocumentModal } from '@/components/prototype/ForwardDocumentModal';
+import { forwardDocument } from '@/prototype/sendDocumentFlow';
 import { getPrototypePageNumbers } from '@/prototype/pagination';
 import {
   buildDashboardDocumentChannelTransfer,
@@ -89,6 +91,42 @@ export default function DentistDashboardPage() {
   const [activeInboxTab, setActiveInboxTab] = useState<'inbox' | 'spam'>('inbox');
 
   const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
+
+  // Forward Document state
+  const [isForwardModalOpen, setIsForwardModalOpen] = useState(false);
+  const [documentToForward, setDocumentToForward] = useState<DocumentItem | null>(null);
+
+  const handleForwardDocument = (doc: DocumentItem) => {
+    setDocumentToForward(doc);
+    setIsForwardModalOpen(true);
+  };
+
+  const handleConfirmForward = (
+    targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[],
+    note: string
+  ) => {
+    if (!documentToForward) return;
+
+    const toastOutcome = forwardDocument({
+      role: 'dentist',
+      document: {
+        name: documentToForward.name,
+        size: documentToForward.size,
+      },
+      targets,
+      note,
+    });
+
+    triggerToast(toastOutcome.message, {
+      label: 'VIEW CHAT',
+      onClick: () => {
+        router.push(toastOutcome.destinationHref);
+      },
+    });
+
+    setIsForwardModalOpen(false);
+    setDocumentToForward(null);
+  };
 
   const handleViewDocument = (doc: DocumentItem) => {
     const sharedDoc: SharedDocument = {
@@ -284,6 +322,7 @@ export default function DentistDashboardPage() {
                       document={doc}
                       isArchived={activeInboxTab === 'spam'}
                       onOpenDocument={() => handleViewDocument(doc)}
+                      onForward={() => handleForwardDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
                       onArchive={handleArchiveDocument}
                       onUnarchive={handleUnarchiveDocument}
@@ -395,6 +434,18 @@ export default function DentistDashboardPage() {
         onSuccess={(email) => {
           triggerToast(`Invitation sent to ${email}`);
         }}
+      />
+
+      <ForwardDocumentModal
+        isOpen={isForwardModalOpen}
+        onClose={() => {
+          setIsForwardModalOpen(false);
+          setDocumentToForward(null);
+        }}
+        documentName={documentToForward?.name || ''}
+        documentSize={documentToForward?.size || ''}
+        isDentist={true}
+        onConfirmForward={handleConfirmForward}
       />
     </MainLayout>
   );
