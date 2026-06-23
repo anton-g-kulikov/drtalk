@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
 import { DocumentDetailPreview } from '@/components/prototype/DocumentDetailPreview';
 import { DocumentDetailActionModals } from '@/components/prototype/DocumentDetailActionModals';
+import { ForwardDocumentModal } from '@/components/prototype/ForwardDocumentModal';
+import { forwardDocument } from '@/prototype/sendDocumentFlow';
 import {
   archiveDocumentDetailItem,
   loadDocumentDetailState,
@@ -14,7 +16,7 @@ import {
 } from '@/prototype/documentDetailState';
 import { 
   FileText, ArrowLeft, ArrowUpRight, Archive, Download, 
-  HelpCircle, HardDrive, User, Calendar
+  HelpCircle, HardDrive, User, Calendar, Forward
 } from 'lucide-react';
 
 interface DocumentDetailClientProps {
@@ -35,6 +37,29 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
   const [activeModal, setActiveModal] = useState<'convert' | 'attach' | null>(null);
   const [convertPatientName, setConvertPatientName] = useState('');
   const [attachSearchQuery, setAttachSearchQuery] = useState('');
+
+  // Forward Document state
+  const [isForwardModalOpen, setIsForwardModalOpen] = useState(false);
+
+  const handleConfirmForward = (
+    targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[],
+    note: string
+  ) => {
+    if (!documentItem) return;
+
+    const toastOutcome = forwardDocument({
+      role: role === 'dentist' ? 'dentist' : 'specialist',
+      document: {
+        name: documentItem.name,
+        size: documentItem.size,
+      },
+      targets,
+      note,
+    });
+
+    showToastMsg(toastOutcome.message);
+    setIsForwardModalOpen(false);
+  };
 
   // Hardcoded referals to attach to (copied from dashboard mock data)
   const [referrals, setReferrals] = useState([
@@ -206,6 +231,13 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
                   </button>
                 </>
               )}
+              <button 
+                disabled={isArchived}
+                onClick={() => setIsForwardModalOpen(true)}
+                className="wireframe-button text-[10px] font-black uppercase px-4 py-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+              >
+                Forward Document <Forward size={12} />
+              </button>
             </div>
 
             <div className="flex gap-2">
@@ -255,6 +287,15 @@ function DocumentDetailClientContent({ id }: DocumentDetailClientProps) {
         onClose={() => setActiveModal(null)}
         onConfirmConvert={handleConfirmConvert}
         onConfirmAttach={handleConfirmAttach}
+      />
+
+      <ForwardDocumentModal
+        isOpen={isForwardModalOpen}
+        onClose={() => setIsForwardModalOpen(false)}
+        documentName={documentItem.name}
+        documentSize={documentItem.size}
+        isDentist={role === 'dentist'}
+        onConfirmForward={handleConfirmForward}
       />
 
     </MainLayout>

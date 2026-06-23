@@ -9,10 +9,12 @@ import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDoc
 import { ChannelGroupModal } from '@/components/prototype/ChannelGroupModal';
 import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticipantsModal';
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
-import type { Channel, MessageItem } from '@/prototype/channelTypes';
+import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import { usePrototypeChannelsState } from '@/prototype/usePrototypeChannelsState';
-import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getNetwork, getReferralCode } from '@/lib/referrals';
+import { getReferrals, updateReferralStatus, UnifiedReferral, initialReferrals, getNetwork, getReferralCode, getMessages } from '@/lib/referrals';
 import { X, FileText, Upload, ChevronDown, Send } from 'lucide-react';
+import { ForwardDocumentModal } from '@/components/prototype/ForwardDocumentModal';
+import { forwardDocument } from '@/prototype/sendDocumentFlow';
 
 function ChannelsContent() {
   const pathname = usePathname();
@@ -40,6 +42,64 @@ function ChannelsContent() {
       memberCount: parentChannel.memberCount,
       ...(caseChannel.isExternal ? { isExternal: true } : {}),
     });
+  };
+
+  // Forward Document state
+  const [isForwardModalOpen, setIsForwardModalOpen] = useState(false);
+  const [documentToForward, setDocumentToForward] = useState<SharedDocument | null>(null);
+
+  const handleForwardDocument = (doc: SharedDocument) => {
+    setDocumentToForward(doc);
+    setIsForwardModalOpen(true);
+  };
+
+  const handleConfirmForward = (
+    targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[],
+    note: string
+  ) => {
+    if (!documentToForward) return;
+
+    const toastOutcome = forwardDocument({
+      role: isDentist ? 'dentist' : 'specialist',
+      document: {
+        name: documentToForward.name,
+        size: documentToForward.size,
+      },
+      targets,
+      note,
+    });
+
+    channelsState.triggerToast(toastOutcome.message);
+
+    // Refresh active channel state if document forwarded to current channel
+    const currentActiveName = channelsState.activeChannel.name;
+    const isForwardedToActiveChannel = targets.some(t => {
+      const matchName = t.isCustom 
+        ? t.name.replace(/\s*\(secure email\)\s*/i, '').replace(/\s*\(secure fax\)\s*/i, '')
+        : t.name;
+      return matchName.toLowerCase() === currentActiveName.toLowerCase();
+    });
+
+    if (isForwardedToActiveChannel) {
+      // Re-trigger loading of messages and documents in channelsState
+      if (channelsState.activeChannel.id) {
+        // Quick trigger update in channelsState by setting state or calling local reload
+        const savedMsgs = getMessages();
+        channelsState.setMessages(savedMsgs);
+        
+        const isDentistRole = pathname.startsWith('/dentist');
+        const activeKey = isDentistRole ? 'drtalk_dentist_docs' : 'drtalk_specialist_docs';
+        const savedDocs = localStorage.getItem(activeKey);
+        if (savedDocs) {
+          try {
+            channelsState.setDocuments(JSON.parse(savedDocs));
+          } catch(e){}
+        }
+      }
+    }
+
+    setIsForwardModalOpen(false);
+    setDocumentToForward(null);
   };
 
   const [showDirectUploadModal, setShowDirectUploadModal] = useState(false);
@@ -368,6 +428,7 @@ function ChannelsContent() {
           onArchiveDocument={channelsState.onArchiveDocument}
           onUnarchiveDocument={channelsState.onUnarchiveDocument}
           onViewArchivedDocuments={() => channelsState.setIsViewingArchivedDocs(!channelsState.isViewingArchivedDocs)}
+          onForwardDocument={handleForwardDocument}
         />
       </div>
 
@@ -819,6 +880,18 @@ function ChannelsContent() {
           isDentist={isDentist}
         />
       )}
+
+      <ForwardDocumentModal
+        isOpen={isForwardModalOpen}
+        onClose={() => {
+          setIsForwardModalOpen(false);
+          setDocumentToForward(null);
+        }}
+        documentName={documentToForward?.name || ''}
+        documentSize={documentToForward?.size || ''}
+        isDentist={isDentist}
+        onConfirmForward={handleConfirmForward}
+      />
     </div>
   );
 }
