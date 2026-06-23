@@ -1,4 +1,4 @@
-import { ChevronDown, Download, Eye, FileText, ImageIcon, Paperclip, Plus, Search, X } from 'lucide-react';
+import { ChevronDown, Download, Eye, FileText, ImageIcon, Paperclip, Plus, Search, X, Forward } from 'lucide-react';
 import type { SharedDocument } from '@/prototype/channelTypes';
 
 type ChannelDocumentsPaneProps = {
@@ -18,6 +18,7 @@ type ChannelDocumentsPaneProps = {
   onUnarchiveDocument?: (document: SharedDocument) => void;
   onViewArchivedDocuments?: () => void;
   isViewingArchivedDocs?: boolean;
+  onForwardDocument?: (document: SharedDocument) => void;
 };
 
 export function ChannelDocumentsPane({
@@ -37,6 +38,7 @@ export function ChannelDocumentsPane({
   onUnarchiveDocument,
   onViewArchivedDocuments,
   isViewingArchivedDocs = false,
+  onForwardDocument,
 }: ChannelDocumentsPaneProps) {
   const hasPagination = totalPages > 1 && Boolean(onPageChange);
 
@@ -143,6 +145,14 @@ export function ChannelDocumentsPane({
                       >
                         <Download size={10} /> Download
                       </button>
+                      {onForwardDocument && (
+                        <button
+                          onClick={() => onForwardDocument(document)}
+                          className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
+                        >
+                          <Forward size={10} /> Forward
+                        </button>
+                      )}
                       {onArchiveDocument && !isViewingArchivedDocs && (
                         <button
                           onClick={() => onArchiveDocument(document)}

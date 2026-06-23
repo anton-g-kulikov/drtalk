@@ -56,6 +56,7 @@ type ChannelContentPaneProps = {
   onUnarchiveDocument?: (document: SharedDocument) => void;
   onViewArchivedDocuments?: () => void;
   isViewingArchivedDocs?: boolean;
+  onForwardDocument?: (document: SharedDocument) => void;
 };
 
 export function ChannelContentPane({
@@ -99,6 +100,7 @@ export function ChannelContentPane({
   onUnarchiveDocument,
   onViewArchivedDocuments,
   isViewingArchivedDocs,
+  onForwardDocument,
 }: ChannelContentPaneProps) {
   const shouldShowArchived = activeTab === 'archived' && (
     (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
@@ -203,6 +205,7 @@ export function ChannelContentPane({
               onUnarchiveDocument={activeChannel.type === 'inter-practice' ? onUnarchiveDocument : undefined}
               onViewArchivedDocuments={activeChannel.type === 'inter-practice' ? onViewArchivedDocuments : undefined}
               isViewingArchivedDocs={isViewingArchivedDocs}
+              onForwardDocument={onForwardDocument}
             />
           )}
         </>

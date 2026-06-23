@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowUpRight, FileText, UserPlus, Paperclip, Ban } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, FileText, UserPlus, Paperclip, Ban, Forward } from 'lucide-react';
 
 export type DashboardDocumentRowItem = {
   id: string;
@@ -18,6 +18,7 @@ type DashboardDocumentRowProps = {
   onOpenDocument: (id: string) => void;
   onConvert?: (id: string) => void;
   onAttach?: (id: string) => void;
+  onForward?: (id: string) => void;
   onOpenChannel: (id: string) => void;
   onIdentify?: (id: string) => void;
   onArchive?: (id: string) => void;
@@ -30,6 +31,7 @@ export function DashboardDocumentRow({
   onOpenDocument,
   onConvert,
   onAttach,
+  onForward,
   onOpenChannel,
   onIdentify,
   onArchive,
@@ -149,6 +151,16 @@ export function DashboardDocumentRow({
                         </button>
                       )}
                     </>
+                  )}
+                  {onForward && (
+                    <button
+                      onClick={() => onForward(document.id)}
+                      className="wireframe-button p-2 border-2 border-black bg-white hover:bg-black hover:text-white transition-all flex items-center justify-center"
+                      title="Forward Document"
+                      aria-label="Forward Document"
+                    >
+                      <Forward size={14} />
+                    </button>
                   )}
                   <button
                     onClick={() => onArchive?.(document.id)}
