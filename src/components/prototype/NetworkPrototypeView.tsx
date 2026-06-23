@@ -24,7 +24,7 @@ import {
 import { MainLayout } from '@/components/MainLayout';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { InviteModal } from '@/components/InviteModal';
-import { getNetwork, type NetworkPractice } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice } from '@/lib/referrals';
 import {
   dentistAnalytics,
   networkRoleConfigs,
@@ -165,11 +165,13 @@ function PracticeCard({
   config,
   practice,
   showToast,
+  onDismiss,
 }: {
   activeTab: NetworkTab;
   config: NetworkRoleConfig;
   practice: NetworkPractice;
   showToast: (message: string) => void;
+  onDismiss?: () => void;
 }) {
   const router = useRouter();
 
@@ -227,15 +229,29 @@ function PracticeCard({
               </Link>
             </>
           ) : (
-            <button onClick={handleDentistPrimaryAction} className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black">
-              {activeTab === 'directory' ? 'Connect' : 'Refer & Connect'}
-            </button>
+            <>
+              <button onClick={handleDentistPrimaryAction} className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black">
+                {activeTab === 'directory' ? 'Connect' : 'Refer & Connect'}
+              </button>
+              {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') && onDismiss && (
+                <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
+                  Dismiss
+                </button>
+              )}
+            </>
           )
         ) : (
-          <Link href={`/channels?practice=${encodeURIComponent(practice.name)}`} className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${practice.isExternal ? 'bg-white text-black hover:bg-gray-100 border-2 border-black' : 'bg-black text-white hover:bg-zinc-800'}`}>
-            <MessageCircle size={14} />
-            {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
-          </Link>
+          <>
+            <Link href={`/channels?practice=${encodeURIComponent(practice.name)}`} className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${practice.isExternal ? 'bg-white text-black hover:bg-gray-100 border-2 border-black' : 'bg-black text-white hover:bg-zinc-800'}`}>
+              <MessageCircle size={14} />
+              {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
+            </Link>
+            {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') && onDismiss && (
+              <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
+                Dismiss
+              </button>
+            )}
+          </>
         )}
         <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
           <ExternalLink size={14} />
@@ -289,6 +305,18 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     setTimeout(() => setToastMessage(null), 5000);
   };
 
+  const handleDismiss = (practiceId: string) => {
+    const updated = networkList.map((p) => {
+      if (p.id === practiceId) {
+        return { ...p, dismissed: true };
+      }
+      return p;
+    });
+    setNetworkList(updated);
+    saveNetwork(updated);
+    showToast("Suggestion dismissed");
+  };
+
   const filteredNetwork = networkList.filter((practice) => {
     const searchStr = searchQuery.toLowerCase();
     const matchesSearch = practice.name.toLowerCase().includes(searchStr) || practice.specialty.toLowerCase().includes(searchStr);
@@ -299,7 +327,10 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     if (activeTab === 'directory') {
       if (practice.status === 'Connected') return false;
       if (config.role === 'specialist' && practice.isExternal) return false;
-      if (directoryFilter === 'nearby' && practice.status !== 'Nearby') return false;
+      if (directoryFilter === 'nearby') {
+        if (practice.dismissed) return false;
+        if (practice.status !== 'Nearby' && practice.status !== 'Suggested') return false;
+      }
     }
     return true;
   });
@@ -358,18 +389,45 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
               {config.role === 'specialist' && activeTab === 'connected' ? (
                 <div className="space-y-10">
                   <NetworkSection label={`On-Platform (${onPlatform.length})`}>
-                    {onPlatform.map((practice) => <PracticeCard key={practice.id} activeTab={activeTab} config={config} practice={practice} showToast={showToast} />)}
+                    {onPlatform.map((practice) => (
+                      <PracticeCard
+                        key={practice.id}
+                        activeTab={activeTab}
+                        config={config}
+                        practice={practice}
+                        showToast={showToast}
+                        onDismiss={() => handleDismiss(practice.id)}
+                      />
+                    ))}
                     <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />
                   </NetworkSection>
                   {external.length > 0 && (
                     <NetworkSection label={`External — Fax / Email (${external.length})`} trailing="Off-platform · Secure Email transport">
-                      {external.map((practice) => <PracticeCard key={practice.id} activeTab={activeTab} config={config} practice={practice} showToast={showToast} />)}
+                      {external.map((practice) => (
+                        <PracticeCard
+                          key={practice.id}
+                          activeTab={activeTab}
+                          config={config}
+                          practice={practice}
+                          showToast={showToast}
+                          onDismiss={() => handleDismiss(practice.id)}
+                        />
+                      ))}
                     </NetworkSection>
                   )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredNetwork.map((practice) => <PracticeCard key={practice.id} activeTab={activeTab} config={config} practice={practice} showToast={showToast} />)}
+                  {filteredNetwork.map((practice) => (
+                    <PracticeCard
+                      key={practice.id}
+                      activeTab={activeTab}
+                      config={config}
+                      practice={practice}
+                      showToast={showToast}
+                      onDismiss={() => handleDismiss(practice.id)}
+                    />
+                  ))}
                   {activeTab === 'connected' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}
                 </div>
               )}
