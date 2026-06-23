@@ -72,7 +72,7 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard label={config.analyticsPrimaryLabel} value={data.totalPrimary} icon={<ArrowUpRight size={16} className="text-black" />} trend={data.totalPrimary % 10 - 2} />
         <MetricCard label="Scheduled" value={data.totalScheduled} icon={<CheckCircle2 size={16} className="text-black" />} trend={data.totalScheduled % 8 - 1} />
-        <MetricCard label="Conversion Rate" value={`${data.conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} trend={data.conversionRate % 5 - 1} />
+        <MetricCard label={config.analyticsConversionLabel} value={`${data.conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} trend={data.conversionRate % 5 - 1} />
         <MetricCard label="Released" value={data.totalReleased} icon={<Users size={16} className="text-black" />} trend={data.totalReleased % 12 - 3} />
       </div>
 
@@ -87,7 +87,7 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
                 <th className="p-4 font-black">Practice Name</th>
                 <th className="p-4 font-black text-right">{config.analyticsBreakdownPrimaryLabel}</th>
                 <th className="p-4 font-black text-right">Scheduled</th>
-                <th className="p-4 font-black">Conversion</th>
+                <th className="p-4 font-black">{config.analyticsBreakdownConversionLabel}</th>
                 <th className="p-4 font-black text-right">Released</th>
               </tr>
             </thead>

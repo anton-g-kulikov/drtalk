@@ -31,6 +31,8 @@ export type NetworkRoleConfig = {
   analyticsPrimaryLabel: string;
   analyticsBreakdownTitle: string;
   analyticsBreakdownPrimaryLabel: string;
+  analyticsConversionLabel: string;
+  analyticsBreakdownConversionLabel: string;
   directoryAllLabel: string;
   inviteTitle: string;
   inviteCopy: string;
@@ -106,6 +108,8 @@ export const networkRoleConfigs: Record<NetworkRole, NetworkRoleConfig> = {
     analyticsPrimaryLabel: 'Total Referrals Received',
     analyticsBreakdownTitle: 'Referring Dentist Breakdown',
     analyticsBreakdownPrimaryLabel: 'Received',
+    analyticsConversionLabel: 'Received to Scheduled CR',
+    analyticsBreakdownConversionLabel: 'Received to Scheduled',
     directoryAllLabel: 'All Practices',
     inviteTitle: 'Invite a Colleague',
     inviteCopy: 'Is your favorite specialist not on drTalk yet? Invite them to join your network.',
@@ -123,6 +127,8 @@ export const networkRoleConfigs: Record<NetworkRole, NetworkRoleConfig> = {
     analyticsPrimaryLabel: 'Total Referrals Sent',
     analyticsBreakdownTitle: 'Specialist Breakdown',
     analyticsBreakdownPrimaryLabel: 'Sent',
+    analyticsConversionLabel: 'Sent to Scheduled CR',
+    analyticsBreakdownConversionLabel: 'Sent to Scheduled',
     directoryAllLabel: 'All Specialists',
     inviteTitle: 'Invite a Specialist',
     inviteCopy: 'Is your favorite specialist not on drTalk yet? Invite them to join your network.',
