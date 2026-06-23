@@ -1,4 +1,6 @@
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
+import { getChannels, saveChannels, getMessages, saveMessages } from '@/lib/referrals';
+import { initialDocuments, initialMessages } from '@/prototype/channelFixtures';
 
 export type SendDocumentRole = 'specialist' | 'dentist';
 
@@ -229,4 +231,73 @@ export function buildSendDocumentToast(
     message: `Shared document with ${displayPracticeName}!`,
     destinationHref,
   };
+}
+
+export function forwardDocument({
+  role,
+  document,
+  targets,
+  note,
+}: {
+  role: SendDocumentRole;
+  document: { name: string; size: string };
+  targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[];
+  note: string;
+}) {
+  const isDentist = role === 'dentist';
+  const nextChannels = [...getChannels(isDentist)];
+  const currentMessages = getMessages();
+  
+  const resolvedPractices = targets.map((target) => {
+    if (target.isCustom) {
+      const rawName = target.name.replace(/\s*\(secure email\)\s*/i, '').replace(/\s*\(secure fax\)\s*/i, '');
+      let existing = nextChannels.find(c => c.name.toLowerCase() === rawName.toLowerCase());
+      if (!existing) {
+        existing = {
+          id: `ext_custom_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          name: rawName,
+          type: 'inter-practice',
+          isExternal: true,
+          isVerified: false,
+          lastMessage: 'Connection active via Secure Document Delivery.',
+          memberCount: 2,
+        };
+        nextChannels.push(existing);
+      }
+      return existing.name;
+    }
+    return target.name;
+  });
+  
+  const docType = document.name.toLowerCase().endsWith('.png') ||
+                  document.name.toLowerCase().endsWith('.jpg') ||
+                  document.name.toLowerCase().endsWith('.jpeg') ? 'image' as const : 'pdf' as const;
+                  
+  const share = buildSendDocumentShare({
+    role,
+    selectedPractices: resolvedPractices,
+    channels: nextChannels,
+    existingMessages: currentMessages,
+    files: [],
+    fallbackDocument: {
+      name: document.name,
+      size: document.size,
+      type: docType,
+    },
+    patient: {
+      firstName: '',
+      lastName: '',
+      dob: '',
+    },
+    note: note.trim(),
+  });
+  
+  saveChannels(isDentist, nextChannels);
+  saveMessages(share.messages);
+  initialDocuments.push(...share.sharedDocuments);
+  Object.entries(share.messages).forEach(([channelId, messages]) => {
+    initialMessages[channelId] = messages;
+  });
+  
+  return buildSendDocumentToast(role, resolvedPractices, share.sharedDocuments.length);
 }
