@@ -196,6 +196,7 @@ export interface NetworkPractice {
   status: 'Connected' | 'Nearby' | 'Suggested';
   verified: boolean;
   isExternal?: boolean;
+  dismissed?: boolean;
 }
 
 export interface Channel {
