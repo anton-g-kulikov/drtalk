@@ -451,6 +451,7 @@ describe('prototype components: channels.test', () => {
   it('renders message bubbles with attached documents and transport labels', () => {
     render(
       <Message
+        id="msg-doc"
         user="Dr. Smith"
         text="Please review the updated scan."
         time="10:05 AM"

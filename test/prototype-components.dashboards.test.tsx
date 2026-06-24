@@ -294,6 +294,9 @@ describe('prototype components: dashboards.test', () => {
     render(
       <PrototypeDocumentSection
         inboxCount={12}
+        spamCount={2}
+        activeTab="inbox"
+        onTabChange={vi.fn()}
         searchQuery="scan"
         onSearchQueryChange={onSearchQueryChange}
         isEmpty={false}

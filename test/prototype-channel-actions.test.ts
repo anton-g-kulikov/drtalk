@@ -50,8 +50,8 @@ describe('prototype channel actions', () => {
     const result = buildChannelGroupCreation({
       groupName: 'Case Review',
       participants: [
-        { id: 'p1', name: 'Dr. Reed', role: 'Dentist', selected: true },
-        { id: 'p2', name: 'Dr. Kim', role: 'Specialist', selected: false },
+        { id: 'p1', name: 'Dr. Reed', practice: 'Dentist', selected: true },
+        { id: 'p2', name: 'Dr. Kim', practice: 'Specialist', selected: false },
       ],
     });
 
@@ -73,7 +73,7 @@ describe('prototype channel actions', () => {
     });
     expect(buildChannelGroupCreation({
       groupName: 'Case Review',
-      participants: [{ id: 'p1', name: 'Dr. Reed', role: 'Dentist', selected: false }],
+      participants: [{ id: 'p1', name: 'Dr. Reed', practice: 'Dentist', selected: false }],
     })).toEqual({
       ok: false,
       error: 'Please select at least one participant.',
