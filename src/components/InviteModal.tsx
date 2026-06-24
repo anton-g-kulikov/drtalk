@@ -61,10 +61,8 @@ export function InviteModal({
               onChange={(e) => setRole(e.target.value)}
               className="wireframe-input w-full py-4 px-4 text-sm appearance-none bg-transparent border-2 border-black"
             >
-              <option value="Owner">Practice Owner</option>
               <option value="Practice Admin">Practice Admin</option>
               <option value="Team Member">Team Member</option>
-              <option value="Specialist">Specialist / Colleague</option>
             </select>
           </div>
 
