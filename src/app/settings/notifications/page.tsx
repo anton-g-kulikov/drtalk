@@ -36,7 +36,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <MainLayout title="Referral Notifications">
+    <MainLayout title={isDentist ? "Patient (Referral) Notifications" : "Referral Notifications"}>
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-4">
           <button 
@@ -49,7 +49,7 @@ export default function NotificationsPage() {
           
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
-              Referral Notifications
+              {isDentist ? "Patient (Referral) Notifications" : "Referral Notifications"}
             </h2>
             <CommentMarker 
               id={isDentist ? "notifications-dentist" : "notifications-main"} 
