@@ -1,4 +1,4 @@
-import { Users, X } from 'lucide-react';
+import { Users, X, Check } from 'lucide-react';
 import type { GroupParticipant } from '@/prototype/channelFixtures';
 
 type ChannelGroupModalProps = {
@@ -70,8 +70,8 @@ export function ChannelGroupModal({
                     onClick={() => onPracticeToggle(members.map(member => member.id), !allGroupSelected)}
                     className="flex items-center gap-1.5 text-[8px] font-black uppercase text-muted-foreground hover:text-black transition-colors"
                   >
-                    <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center shrink-0 ${allGroupSelected ? 'bg-black' : 'bg-white'}`}>
-                      {allGroupSelected && <div className="w-1.5 h-1.5 bg-white" />}
+                    <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center shrink-0 transition-colors ${allGroupSelected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
+                      <Check size={8} strokeWidth={4} />
                     </div>
                     <span>Select All</span>
                   </button>
@@ -80,8 +80,8 @@ export function ChannelGroupModal({
                   {members.map(participant => (
                     <label key={participant.id} className="flex items-center justify-between p-2 border border-black hover:bg-gray-50 cursor-pointer transition-colors group">
                       <div className="flex items-center gap-3">
-                        <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center ${participant.selected ? 'bg-black' : 'bg-white'}`}>
-                          {participant.selected && <div className="w-1.5 h-1.5 bg-white" />}
+                        <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center transition-colors ${participant.selected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
+                          <Check size={8} strokeWidth={4} />
                         </div>
                         <span className="text-[9px] font-bold uppercase text-black">{participant.name}</span>
                       </div>

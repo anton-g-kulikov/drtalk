@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, X, UserPlus, Info } from 'lucide-react';
+import { Users, X, UserPlus, Info, Check } from 'lucide-react';
 
 export type ChannelParticipant = {
   id: string;
@@ -103,8 +103,8 @@ export function ChannelParticipantsModal({
                 className="flex items-center justify-between p-2 border-2 border-black hover:bg-gray-50 cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-4 h-4 border-2 border-black flex items-center justify-center ${participant.selected ? 'bg-black' : 'bg-white'}`}>
-                    {participant.selected && <div className="w-2 h-2 bg-white" />}
+                  <div className={`w-4 h-4 border-2 border-black flex items-center justify-center transition-colors ${participant.selected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
+                    <Check size={10} strokeWidth={4} />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase">{participant.name}</p>
@@ -127,8 +127,8 @@ export function ChannelParticipantsModal({
                 className="flex items-center justify-between p-2 border-2 border-dashed border-red-500 bg-red-50/30 hover:bg-red-50/50 cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 border-2 border-red-500 flex items-center justify-center bg-red-500">
-                    <div className="w-2 h-2 bg-white" />
+                  <div className="w-4 h-4 border-2 border-red-500 flex items-center justify-center bg-red-500 text-white">
+                    <Check size={10} strokeWidth={4} />
                   </div>
                   <div>
                     <p className="text-[10px] font-black uppercase text-red-700 flex items-center gap-1.5">
