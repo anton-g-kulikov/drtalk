@@ -329,6 +329,39 @@ export function usePrototypeChannelsState({
     triggerToast(attachedDoc ? 'Message sent with document!' : 'Message sent!');
   };
 
+  const handleToggleReaction = (messageId: string, emoji: string) => {
+    setMessages((prev) => {
+      const channelMsgs = prev[activeChannel.id] || [];
+      const updatedMsgs = channelMsgs.map((msg) => {
+        if (msg.id !== messageId) return msg;
+
+        const currentReactions = { ...(msg.reactions || {}) };
+        const users = currentReactions[emoji] ? [...currentReactions[emoji]] : [];
+
+        if (users.includes('You')) {
+          currentReactions[emoji] = users.filter((u) => u !== 'You');
+        } else {
+          currentReactions[emoji] = [...users, 'You'];
+        }
+
+        // Clean up empty reaction arrays
+        if (currentReactions[emoji].length === 0) {
+          delete currentReactions[emoji];
+        }
+
+        return {
+          ...msg,
+          reactions: currentReactions,
+        };
+      });
+
+      return {
+        ...prev,
+        [activeChannel.id]: updatedMsgs,
+      };
+    });
+  };
+
   useEffect(() => {
     setDocPage(1);
   }, [docSearchQuery, activeChannel.id]);
@@ -469,6 +502,7 @@ export function usePrototypeChannelsState({
     handleCreateGroupChat,
     handleSelectChannel,
     handleSendMessage,
+    handleToggleReaction,
     formatDocumentSender,
     formatMessage,
     isViewingArchivedDocs,

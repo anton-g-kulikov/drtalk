@@ -31,4 +31,6 @@ export interface MessageItem {
   type: 'self' | 'other';
   transport?: 'App' | 'SMS' | 'Email';
   document?: SharedDocument;
+  reactions?: Record<string, string[]>; // e.g. { "👍": ["You"] }
 }
+

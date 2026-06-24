@@ -253,9 +253,14 @@ function PracticeCard({
             )}
           </>
         )}
-        <button className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black">
+        <a 
+          href="https://www.valleyendony.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black"
+        >
           <ExternalLink size={14} />
-        </button>
+        </a>
       </div>
     </div>
   );

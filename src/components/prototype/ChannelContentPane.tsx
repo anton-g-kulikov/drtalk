@@ -57,6 +57,7 @@ type ChannelContentPaneProps = {
   onViewArchivedDocuments?: () => void;
   isViewingArchivedDocs?: boolean;
   onForwardDocument?: (document: SharedDocument) => void;
+  onToggleReaction?: (messageId: string, emoji: string) => void;
 };
 
 export function ChannelContentPane({
@@ -101,6 +102,7 @@ export function ChannelContentPane({
   onViewArchivedDocuments,
   isViewingArchivedDocs,
   onForwardDocument,
+  onToggleReaction,
 }: ChannelContentPaneProps) {
   const shouldShowArchived = activeTab === 'archived' && (
     (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
@@ -144,12 +146,15 @@ export function ChannelContentPane({
                     return (
                       <Message
                         key={message.id}
+                        id={message.id}
                         user={mapped.user}
                         text={message.text}
                         time={message.time}
                         type={mapped.type}
                         transport={message.transport}
                         hideHeader={!!isGrouped}
+                        reactions={message.reactions}
+                        onToggleReaction={onToggleReaction}
                         document={message.document ? {
                           ...message.document,
                           sentBy: formatDocumentSender(message.document.sentBy),

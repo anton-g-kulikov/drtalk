@@ -429,6 +429,7 @@ function ChannelsContent() {
           onUnarchiveDocument={channelsState.onUnarchiveDocument}
           onViewArchivedDocuments={() => channelsState.setIsViewingArchivedDocs(!channelsState.isViewingArchivedDocs)}
           onForwardDocument={handleForwardDocument}
+          onToggleReaction={channelsState.handleToggleReaction}
         />
       </div>
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MainLayout } from "@/components/MainLayout";
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, User, Inbox } from 'lucide-react';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { useSubscription } from '@/components/SubscriptionContext';
 
@@ -21,6 +21,7 @@ export default function ProfilePage() {
   const [zipCode, setZipCode] = useState("90210");
   const [fullAddress, setFullAddress] = useState("123 Dental Way, Ste 100");
   const [phone, setPhone] = useState("(310) 555-0199");
+  const [website, setWebsite] = useState("https://www.valleyendony.com");
   const [wantsFax, setWantsFax] = useState(true);
   const [faxNumber, setFaxNumber] = useState("(310) 555-0198");
 
@@ -138,35 +139,15 @@ export default function ProfilePage() {
                   />
                 </div>
 
-                {/* Fax Option */}
-                <div className="space-y-4 pt-1">
-                  {plan === 'Trial' ? (
-                    <div className="flex flex-col gap-2">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-black/60">Fax Integration</span>
-                      <button 
-                        type="button"
-                        onClick={() => setShowPaywall(true)}
-                        className="wireframe-button w-fit text-[10px] font-black uppercase tracking-widest px-5 py-3 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all"
-                      >
-                        Receive Fax Messages
-                      </button>
-                      <p className="text-[9px] uppercase font-bold text-gray-400">
-                        Upgrade your plan to unlock receiving fax messages on the drtalk platform.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-black uppercase tracking-widest">Assigned eFax Number</label>
-                        <div className="text-sm font-mono font-bold select-all text-black break-all pb-1.5 border-b border-black w-full">
-                          +1 (310) 555-0155
-                        </div>
-                      </div>
-                      <p className="text-[9px] uppercase font-bold text-gray-400 leading-normal">
-                        All messages faxed to this number will be received and processed on drtalk platform
-                      </p>
-                    </div>
-                  )}
+                {/* Website */}
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest">Website</label>
+                  <input
+                    type="url"
+                    value={website}
+                    onChange={(e) => setWebsite(e.target.value)}
+                    className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black hover:border-black focus:bg-black focus:text-white transition-colors"
+                  />
                 </div>
               </div>
 
@@ -237,6 +218,27 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+
+          {/* Referral Intake Routing Card */}
+          <div className="wireframe-card p-6 space-y-4 bg-gray-50 border-2 border-black">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <h3 className="font-bold uppercase tracking-tight text-sm flex items-center gap-2">
+                  <Inbox size={18} /> Referral Intake Settings
+                </h3>
+                <p className="text-[10px] text-muted-foreground uppercase leading-normal">
+                  Configure and manage your secure inbound channels, including your assigned eFax number, public submission URL, and custom referral pads.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => router.push(isDentist ? '/dentist/settings/intake' : '/settings/intake')}
+                className="wireframe-button text-[10px] font-black uppercase tracking-widest px-6 py-3 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-all shrink-0 w-full sm:w-auto"
+              >
+                Go to Settings
+              </button>
+            </div>
+          </div>
 
         </div>
 

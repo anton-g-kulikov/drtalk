@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from 'react';
 import { Mail, Paperclip, Send, Smile } from 'lucide-react';
 import type { Channel } from '@/prototype/channelTypes';
 import {
@@ -23,6 +24,8 @@ type ChannelMessageComposerProps = {
   onSendMessage: () => void;
 };
 
+const EMOJIS = ['👍', '❤️', '😆', '😮', '😢', '🙏', '🎉', '🔥', '👏', '🙂', '😀', '😂', '😉', '💯', '🚀', '✅'];
+
 export function ChannelMessageComposer({
   activeChannel,
   inputText,
@@ -38,6 +41,46 @@ export function ChannelMessageComposer({
   onSendMessage,
 }: ChannelMessageComposerProps) {
   const canSend = inputText.trim().length > 0 || attachedDocument !== null;
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    }
+    if (showEmojiPicker && typeof document !== 'undefined') {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('mousedown', handleClickOutside);
+      }
+    };
+  }, [showEmojiPicker]);
+
+  const handleEmojiSelect = (emoji: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      onInputChange(inputText + emoji);
+      return;
+    }
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const before = text.substring(0, start);
+    const after = text.substring(end, text.length);
+    const newText = before + emoji + after;
+    onInputChange(newText);
+
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + emoji.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
 
   return (
     <div className="p-4 sm:p-6 bg-white border-t-2 border-black relative shrink-0">
@@ -67,6 +110,7 @@ export function ChannelMessageComposer({
           )}
 
           <textarea
+            ref={textareaRef}
             placeholder={`MESSAGE #${activeChannel.name}...`}
             value={inputText}
             onChange={(event) => onInputChange(event.target.value)}
@@ -79,7 +123,7 @@ export function ChannelMessageComposer({
             className="w-full bg-transparent border-none focus:ring-0 text-xs resize-none h-12 outline-none text-black"
           />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-black border-dashed">
-            <div className="flex flex-wrap items-center gap-3 text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-3 text-muted-foreground relative">
               <button
                 onClick={onToggleAttachmentDrawer}
                 className={`hover:text-black transition-colors p-1 ${showAttachmentDrawer ? 'bg-black text-white' : ''}`}
@@ -87,9 +131,34 @@ export function ChannelMessageComposer({
               >
                 <Paperclip size={18} />
               </button>
-              <button className="hover:text-black transition-colors">
-                <Smile size={18} />
-              </button>
+              
+              <div className="relative" ref={pickerRef}>
+                <button 
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  className={`hover:text-black transition-colors p-1 ${showEmojiPicker ? 'bg-black text-white' : ''}`}
+                  title="Insert Emoji"
+                >
+                  <Smile size={18} />
+                </button>
+
+                {showEmojiPicker && (
+                  <div className="absolute bottom-full left-0 mb-2 z-50 bg-white border-2 border-black p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] min-w-[200px]">
+                    <div className="grid grid-cols-6 gap-1">
+                      {EMOJIS.map((emoji) => (
+                        <button
+                          key={emoji}
+                          onClick={() => {
+                            handleEmojiSelect(emoji);
+                          }}
+                          className="w-7 h-7 flex items-center justify-center text-base hover:bg-gray-100 transition-colors border border-transparent hover:border-black"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {activeChannel.type === 'patient' ? (
                 <>
