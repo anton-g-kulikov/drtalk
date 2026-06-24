@@ -208,7 +208,7 @@ function ReferralFormContent() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Select Specialist or Receiving doctor</label>
+                  <label className="text-[10px] font-bold uppercase">Select Receiving doctor</label>
                   <select 
                     value={receivingDoctor}
                     onChange={(e) => setReceivingDoctor(e.target.value)}
