@@ -141,7 +141,7 @@ export function SpecialistReferralQueues({
             <div className="flex items-center justify-between border-b-4 border-black pb-2">
               <div className="flex items-center gap-2">
                 <div className="w-3.5 h-3.5 bg-black"></div>
-                <h3 className="font-black uppercase text-sm tracking-widest italic">Unrecognized Cases</h3>
+                <h3 className="font-black uppercase text-sm tracking-widest italic">Unrecognized Items</h3>
               </div>
               <span className="text-[10px] font-black px-2 py-0.5 bg-black text-white uppercase">
                 {unrecognizedItems.length} items
@@ -150,7 +150,7 @@ export function SpecialistReferralQueues({
 
             <ReferralQueueSection
               title="Incoming transmissions requiring identification"
-              emptyLabel="No unrecognized cases requiring processing"
+              emptyLabel="No unrecognized items requiring processing"
               dateLabel="Received"
               referrals={unrecognizedItems}
               onReferralClick={onReferralClick}
