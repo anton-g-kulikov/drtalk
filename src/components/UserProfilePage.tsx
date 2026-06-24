@@ -10,7 +10,6 @@ interface UserProfile {
   firstName: string;
   lastName: string;
   displayName: string;
-  jobTitle: string;
   mobile: string;
   smsNotifications: boolean;
   email: string;
@@ -28,7 +27,6 @@ export function UserProfilePage() {
     firstName: '',
     lastName: '',
     displayName: '',
-    jobTitle: 'Select job title',
     mobile: '',
     smsNotifications: false,
     email: '',
@@ -58,7 +56,6 @@ export function UserProfilePage() {
           firstName: isDentist ? 'Taylor' : 'John',
           lastName: isDentist ? 'Reed' : 'Doe',
           displayName: isDentist ? 'Dr. Taylor Reed, DDS' : 'Dr. John Doe, Endodontist',
-          jobTitle: 'Select job title',
           mobile: '',
           smsNotifications: false,
           email: isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com',
@@ -161,18 +158,6 @@ export function UserProfilePage() {
     showToast("Profile photo deleted.");
   };
 
-  const jobTitles = [
-    'Select job title',
-    'Practice Owner',
-    'Associate Dentist',
-    'Practice Admin / Manager',
-    'Front Desk Receptionist',
-    'Dental Assistant',
-    'Dental Hygienist',
-    'Endodontist',
-    'Treatment Coordinator'
-  ];
-
   return (
     <MainLayout title="User Profile">
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
@@ -215,6 +200,7 @@ export function UserProfilePage() {
                   src={profile.avatarUrl} 
                   alt="Profile picture" 
                   className="w-full h-full object-cover filter grayscale" 
+                  draggable={false}
                 />
               ) : (
                 <span className="text-2xl font-black text-black">{getInitials()}</span>
@@ -226,7 +212,7 @@ export function UserProfilePage() {
             
             <div className="text-center md:text-left space-y-1">
               <h3 className="text-lg font-black uppercase">{profile.displayName || 'No Name Set'}</h3>
-              <p className="text-xs text-muted-foreground uppercase font-bold">{profile.jobTitle !== 'Select job title' ? profile.jobTitle : 'Practice Member'}</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold">{isDentist ? 'Practice Owner' : 'Practice Admin'}</p>
               <button 
                 onClick={() => setIsPhotoModalOpen(true)}
                 className="text-[10px] font-black uppercase underline hover:text-muted-foreground block mt-2 mx-auto md:mx-0"
@@ -272,25 +258,6 @@ export function UserProfilePage() {
                   onChange={(e) => handleInputChange('displayName', e.target.value)}
                   className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
                 />
-              </div>
-
-              {/* Job Title */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest">Job Title</label>
-                <div className="relative">
-                  <select
-                    value={profile.jobTitle}
-                    onChange={(e) => handleInputChange('jobTitle', e.target.value)}
-                    className="wireframe-input appearance-none bg-transparent py-3 px-4 text-sm font-bold border-2 border-black w-full pr-10 focus:bg-black focus:text-white"
-                  >
-                    {jobTitles.map(title => (
-                      <option key={title} className="text-black bg-white" value={title}>{title}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-black">
-                    ▼
-                  </div>
-                </div>
               </div>
 
               {/* Mobile for SMS */}

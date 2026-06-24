@@ -228,11 +228,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
           setAccountEmail(profile.email || (isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com'));
           setAvatarUrl(profile.avatarUrl || null);
           
-          if (profile.jobTitle && profile.jobTitle !== 'Select job title') {
-            setRoleLabel(profile.jobTitle);
-          } else {
-            setRoleLabel(userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin'));
-          }
+          setRoleLabel(userRole === 'individual' ? 'Individual Learner' : (isDentist ? 'Practice Owner' : 'Practice Admin'));
 
           const first = profile.firstName || '';
           const last = profile.lastName || '';
