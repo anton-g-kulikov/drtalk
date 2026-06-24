@@ -16,6 +16,7 @@ export type ChannelCaseSummary = {
   isArchived: boolean;
   isExternal?: boolean;
   lastMessage: string;
+  unreadCount?: number;
 };
 
 type ChannelSidebarProps = {
@@ -71,15 +72,20 @@ function ChannelCaseRow({
     <button
       key={caseChannel.id}
       onClick={() => onSelectCaseChannel(caseChannel, parentChannel)}
-      className={`w-full flex items-center gap-2 py-1.5 pl-10 text-left transition-all ${
+      className={`w-full flex items-center justify-between py-1.5 pl-10 pr-3 text-left transition-all ${
         isActive
           ? 'bg-black text-white font-black'
           : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
       }`}
     >
-      <FileText size={10} className={isActive ? 'text-white' : 'text-black'} />
-      <span className="text-[10px] uppercase tracking-tight">{caseChannel.name}</span>
-      {isExternal && <span className="sr-only">External secure email</span>}
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <FileText size={10} className={isActive ? 'text-white' : 'text-black'} />
+        <span className="text-[10px] uppercase tracking-tight truncate">{caseChannel.name}</span>
+        {isExternal && <span className="sr-only">External secure email</span>}
+      </div>
+      {caseChannel.unreadCount && !isActive && (
+        <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{caseChannel.unreadCount}</span>
+      )}
     </button>
   );
 }

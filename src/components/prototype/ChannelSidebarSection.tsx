@@ -35,7 +35,7 @@ export function ChannelSidebarSection({
             <ChevronDown size={10} className="shrink-0" />
           )}
           <span className="text-[8px] font-black uppercase tracking-widest">{title}</span>
-          {isCollapsed && unreadCount > 0 && (
+          {unreadCount > 0 && (
             <span className="bg-black text-white text-[7px] font-black px-1.5 rounded-full ml-1 shrink-0">
               {unreadCount}
             </span>

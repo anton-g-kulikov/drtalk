@@ -22,6 +22,7 @@ export interface UnifiedReferral {
   archivedByDentist?: boolean;
   archivedBySpecialist?: boolean;
   dentistStatus?: ReferralStatus;
+  unreadCount?: number;
 }
 
 import { generateMockData, dentistPractices, specialistClinics } from './mockGenerator';

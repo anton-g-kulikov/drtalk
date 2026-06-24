@@ -85,7 +85,7 @@ describe('prototype components: channels.test', () => {
 
     expect(screen.getByText(/internal communication/i)).toBeInTheDocument();
     expect(screen.getByText(/team channel row/i)).toBeInTheDocument();
-    expect(screen.queryByText('2')).not.toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /internal communication/i }));
     await user.click(screen.getByRole('button', { name: /create/i }));
@@ -184,7 +184,7 @@ describe('prototype components: channels.test', () => {
     await user.click(screen.getByRole('button', { name: /clear/i }));
     await user.click(screen.getByRole('button', { name: /internal communication/i }));
     await user.click(screen.getByRole('button', { name: /connected practices/i }));
-    await user.click(screen.getByRole('button', { name: /^external — secure email$/i }));
+    await user.click(screen.getByRole('button', { name: /^external — secure email/i }));
     await user.click(screen.getByRole('button', { name: /group chats/i }));
     await user.click(screen.getByRole('button', { name: /patient comm/i }));
     await user.click(screen.getAllByRole('button', { name: /create/i })[1]);

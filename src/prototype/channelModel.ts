@@ -11,6 +11,7 @@ export type CaseChannel = {
   isArchived: boolean;
   isExternal?: boolean;
   lastMessage: string;
+  unreadCount?: number;
 };
 
 type PracticeDirectoryEntry = {
@@ -81,6 +82,7 @@ export function buildCaseChannels({
       isArchived: archived,
       isExternal: ref.id.startsWith('ext-'),
       lastMessage: archived ? 'Case archived.' : `Referral status: ${activeStatus}`,
+      unreadCount: ref.unreadCount,
     };
   });
 }
