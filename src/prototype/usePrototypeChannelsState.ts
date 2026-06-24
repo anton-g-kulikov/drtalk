@@ -230,6 +230,13 @@ export function usePrototypeChannelsState({
       setInternalCollapsed(true);
     }
 
+    if (resolution.parentChannel) {
+      setExpandedPractices((prev) => {
+        if (prev[resolution.parentChannel.id]) return prev;
+        return { ...prev, [resolution.parentChannel.id]: true };
+      });
+    }
+
     setActiveChannel(resolution.activeChannel);
     setActiveTab(resolution.targetTab);
   };
