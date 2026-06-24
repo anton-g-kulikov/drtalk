@@ -9,7 +9,7 @@ export default function LandingPage() {
   const router = useRouter();
   const { verify } = useVerification();
   const [email, setEmail] = useState("specialist@practice.com");
-  const [view, setView] = useState<'login' | 'forgot' | 'success'>('login');
+  const [view, setView] = useState<'login' | 'forgot' | 'success' | 'reset'>('login');
 
   return (
     <main className="min-h-screen bg-white text-black font-sans p-4 sm:p-10 flex items-center justify-center">
@@ -184,17 +184,58 @@ export default function LandingPage() {
                 <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed">
                   We have sent a secure password reset link to:
                 </p>
-                <div className="border-2 border-black bg-gray-50 py-3 px-4 font-mono text-xs font-bold inline-block break-all max-w-full">
+                <button
+                  onClick={() => setView('reset')}
+                  className="border-2 border-black bg-gray-50 py-3 px-4 font-mono text-xs font-bold inline-block break-all max-w-full hover:bg-gray-100 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer"
+                >
                   {email}
-                </div>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {view === 'reset' && (
+            <div className="space-y-6">
+              <div className="space-y-2">
+                <button 
+                  onClick={() => setView('forgot')}
+                  className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-muted-foreground hover:text-black transition-colors mb-2"
+                >
+                  <ArrowLeft size={12} /> Back
+                </button>
+                <h2 className="text-3xl font-black uppercase tracking-tighter italic">Set New Password</h2>
+                <p className="text-[10px] uppercase font-bold text-muted-foreground leading-relaxed">
+                  Choose a secure password to access your account.
+                </p>
               </div>
 
-              <div className="pt-4">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest">New Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="wireframe-input w-full"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase tracking-widest">Confirm Password</label>
+                  <input
+                    type="password"
+                    placeholder="••••••••"
+                    className="wireframe-input w-full"
+                  />
+                </div>
+
                 <button
-                  onClick={() => setView('login')}
-                  className="wireframe-button w-full border-2 border-black py-4 text-[11px] uppercase font-black flex items-center justify-center gap-2 hover:bg-black hover:text-white transition-all"
+                  onClick={() => {
+                    verify('owner');
+                    const isDentistEmail = email.toLowerCase().includes('dentist');
+                    router.push(isDentistEmail ? '/dentist/dashboard' : '/dashboard');
+                  }}
+                  className="wireframe-button w-full bg-black text-white py-5 text-[11px] uppercase font-black flex items-center justify-center gap-2 hover:bg-gray-900 transition-all mt-4"
                 >
-                  Return to Log In
+                  Save and Log In <LogIn size={16} />
                 </button>
               </div>
             </div>
