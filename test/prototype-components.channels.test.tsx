@@ -166,6 +166,7 @@ describe('prototype components: channels.test', () => {
         onToggleGroup={onToggleGroup}
         onTogglePatient={onTogglePatient}
         onCreateGroup={onCreateGroup}
+        onCreateInternalChannel={vi.fn()}
         onSelectChannel={onSelectChannel}
         onSelectCaseChannel={onSelectCaseChannel}
       />

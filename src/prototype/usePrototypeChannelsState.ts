@@ -15,6 +15,7 @@ import {
 } from '@/lib/referrals';
 import {
   buildChannelGroupCreation,
+  buildChannelInternalCreation,
   buildChannelMessageSend,
   resolveActiveChannelFromQuery,
   type ActiveChannelResolution,
@@ -80,6 +81,9 @@ export function usePrototypeChannelsState({
   const [groupChatName, setGroupChatName] = useState('');
   const [groupParticipants, setGroupParticipants] = useState<GroupParticipant[]>(mockGroupParticipants);
   const [groupChatError, setGroupChatError] = useState<string | null>(null);
+  const [showCreateInternalModal, setShowCreateInternalModal] = useState(false);
+  const [internalChannelName, setInternalChannelName] = useState('');
+  const [internalChannelError, setInternalChannelError] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [attachedDoc, setAttachedDoc] = useState<AttachedDocDraft | null>(null);
   const [sidebarSearchQuery, setSidebarSearchQuery] = useState('');
@@ -303,6 +307,34 @@ export function usePrototypeChannelsState({
     triggerToast('Group chat created successfully!');
   };
 
+  const handleCreateInternalChannel = () => {
+    const result = buildChannelInternalCreation({
+      channelName: internalChannelName,
+      existingChannels: channels,
+    });
+
+    if (!result.ok) {
+      setInternalChannelError(result.error);
+      return;
+    }
+
+    setChannels((prev) => [...prev, result.channel]);
+    setMessages((prev) => ({ ...prev, [result.channel.id]: [result.message] }));
+    setInternalChannelName('');
+    setInternalChannelError(null);
+    setShowCreateInternalModal(false);
+    setInternalCollapsed(false);
+    setActiveChannel(result.channel);
+    setActiveTab('messages');
+    triggerToast(`Channel #${result.channel.name} created successfully!`);
+  };
+
+  const onCancelCreateInternal = () => {
+    setInternalChannelName('');
+    setInternalChannelError(null);
+    setShowCreateInternalModal(false);
+  };
+
   const handleSendMessage = () => {
     if (isTrialEnded) {
       onPaywall();
@@ -479,6 +511,9 @@ export function usePrototypeChannelsState({
     showAttachmentDrawer,
     showChannelList,
     showCreateGroupModal,
+    showCreateInternalModal,
+    internalChannelName,
+    internalChannelError,
     showParticipantsModal,
     sidebarSearchQuery,
     toastMessage,
@@ -504,9 +539,14 @@ export function usePrototypeChannelsState({
     setShowAttachmentDrawer,
     setShowChannelList,
     setShowCreateGroupModal,
+    setShowCreateInternalModal,
+    setInternalChannelName,
+    setInternalChannelError,
     setShowParticipantsModal,
     setSidebarSearchQuery,
     handleCreateGroupChat,
+    handleCreateInternalChannel,
+    onCancelCreateInternal,
     handleSelectChannel,
     handleSendMessage,
     handleToggleReaction,

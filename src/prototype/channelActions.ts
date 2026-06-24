@@ -58,6 +58,49 @@ export function buildChannelGroupCreation({
   };
 }
 
+export type ChannelInternalCreationResult =
+  | { ok: false; error: string }
+  | { ok: true; channel: Channel; message: MessageItem };
+
+export function buildChannelInternalCreation({
+  channelName,
+  existingChannels,
+}: {
+  channelName: string;
+  existingChannels: Channel[];
+}): ChannelInternalCreationResult {
+  const trimmedName = channelName.trim().toLowerCase().replace(/\s+/g, '-');
+  if (!trimmedName) {
+    return { ok: false, error: 'Please enter a channel name.' };
+  }
+
+  const exists = existingChannels.some(
+    (c) => c.type === 'internal' && c.name.toLowerCase() === trimmedName
+  );
+  if (exists) {
+    return { ok: false, error: 'A channel with this name already exists.' };
+  }
+
+  const channelId = createPrototypeId('internal_');
+  return {
+    ok: true,
+    channel: {
+      id: channelId,
+      name: trimmedName,
+      type: 'internal',
+      lastMessage: 'Channel created.',
+      memberCount: 3,
+    },
+    message: {
+      id: createPrototypeId('m_'),
+      user: 'Me',
+      text: `Welcome to the #${trimmedName} channel!`,
+      time: getTimeString(),
+      type: 'self',
+    },
+  };
+}
+
 export type ChannelMessageSendResult =
   | { ok: false }
   | {

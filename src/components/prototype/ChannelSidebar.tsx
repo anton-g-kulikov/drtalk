@@ -49,6 +49,7 @@ type ChannelSidebarProps = {
   onToggleGroup: () => void;
   onTogglePatient: () => void;
   onCreateGroup: () => void;
+  onCreateInternalChannel: () => void;
   onSelectChannel: (channel: Channel) => void;
   onSelectCaseChannel: (caseChannel: ChannelCaseSummary, parentChannel: Channel) => void;
 };
@@ -114,6 +115,7 @@ export function ChannelSidebar({
   onToggleGroup,
   onTogglePatient,
   onCreateGroup,
+  onCreateInternalChannel,
   onSelectChannel,
   onSelectCaseChannel,
 }: ChannelSidebarProps) {
@@ -164,7 +166,15 @@ export function ChannelSidebar({
           unreadCount={internalUnreadCount}
           onToggle={onToggleInternal}
           withTopBorder={false}
-          action={<button className="text-[8px] font-black uppercase underline hover:text-black">Create +</button>}
+          action={
+            <button
+              type="button"
+              onClick={onCreateInternalChannel}
+              className="text-[8px] font-black uppercase underline hover:text-black"
+            >
+              Create +
+            </button>
+          }
         >
           <div className="space-y-1">
             {internalChannels.map((channel) => (

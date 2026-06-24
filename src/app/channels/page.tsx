@@ -7,6 +7,7 @@ import { useSubscription } from '@/components/SubscriptionContext';
 import { ChannelContentPane } from '@/components/prototype/ChannelContentPane';
 import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
 import { ChannelGroupModal } from '@/components/prototype/ChannelGroupModal';
+import { ChannelInternalModal } from '@/components/prototype/ChannelInternalModal';
 import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticipantsModal';
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
@@ -350,6 +351,7 @@ function ChannelsContent() {
           onToggleGroup={() => channelsState.setGroupCollapsed(!channelsState.groupCollapsed)}
           onTogglePatient={() => channelsState.setPatientCollapsed(!channelsState.patientCollapsed)}
           onCreateGroup={() => channelsState.setShowCreateGroupModal(true)}
+          onCreateInternalChannel={() => channelsState.setShowCreateInternalModal(true)}
           onSelectChannel={channelsState.handleSelectChannel}
           onSelectCaseChannel={handleSelectCaseChannel}
         />
@@ -869,6 +871,20 @@ function ChannelsContent() {
           onPracticeToggle={channelsState.onToggleGroupPractice}
           onCancel={channelsState.onCancelCreateGroup}
           onCreate={channelsState.handleCreateGroupChat}
+        />
+      )}
+
+      {/* Create Internal Channel Modal */}
+      {channelsState.showCreateInternalModal && (
+        <ChannelInternalModal
+          channelName={channelsState.internalChannelName}
+          error={channelsState.internalChannelError}
+          onChannelNameChange={(name) => {
+            channelsState.setInternalChannelName(name);
+            channelsState.setInternalChannelError(null);
+          }}
+          onCancel={channelsState.onCancelCreateInternal}
+          onCreate={channelsState.handleCreateInternalChannel}
         />
       )}
 

@@ -3,6 +3,7 @@ import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTy
 import type { CaseChannel } from '@/prototype/channelModel';
 import {
   buildChannelGroupCreation,
+  buildChannelInternalCreation,
   buildChannelMessageSend,
   resolveActiveChannelFromQuery,
 } from '@/prototype/channelActions';
@@ -121,5 +122,31 @@ describe('prototype channel actions', () => {
     expect(result?.parentChannel?.id).toBe('6');
     expect(result?.targetTab).toBe('documents');
     expect(result?.reactivateReferralId).toBe('1');
+  });
+
+  it('builds internal channel creation with sanitized name', () => {
+    const existing = [
+      { id: '1', name: 'general', type: 'internal' as const, lastMessage: '', memberCount: 1 }
+    ];
+    const result = buildChannelInternalCreation({
+      channelName: 'Clinical Board',
+      existingChannels: existing,
+    });
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.channel).toMatchObject({
+      name: 'clinical-board',
+      type: 'internal',
+    });
+    expect(result.message.text).toContain('#clinical-board');
+  });
+
+  it('rejects empty names or duplicates for internal channel creation', () => {
+    const existing = [
+      { id: '1', name: 'general', type: 'internal' as const, lastMessage: '', memberCount: 1 }
+    ];
+    expect(buildChannelInternalCreation({ channelName: '', existingChannels: existing }).ok).toBe(false);
+    expect(buildChannelInternalCreation({ channelName: 'general', existingChannels: existing }).ok).toBe(false);
   });
 });
