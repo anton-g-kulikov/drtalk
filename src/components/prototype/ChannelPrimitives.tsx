@@ -127,12 +127,12 @@ export function Message({
         setShowFullPicker(false);
       }
     }
-    if (showFullPicker && typeof document !== 'undefined') {
-      document.addEventListener('mousedown', handleClickOutside);
+    if (showFullPicker && typeof window !== 'undefined') {
+      window.document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
-      if (typeof document !== 'undefined') {
-        document.removeEventListener('mousedown', handleClickOutside);
+      if (typeof window !== 'undefined') {
+        window.document.removeEventListener('mousedown', handleClickOutside);
       }
     };
   }, [showFullPicker]);
