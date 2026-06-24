@@ -145,7 +145,19 @@ export default function DashboardPage() {
     setArchivedDocuments(updatedArchived);
     saveDashboardDocumentsToStorage('drtalk_specialist_docs', updatedActive);
     saveDashboardDocumentsToStorage('drtalk_specialist_archived_docs', updatedArchived);
-    showToast(`Marked ${docToArchive.name} as Spam`);
+    showToast(`Document ${docToArchive.name} archived!`);
+  };
+
+  const handleSpamDocument = (id: string) => {
+    const docToSpam = documents.find(d => d.id === id);
+    if (!docToSpam) return;
+    const updatedActive = documents.filter(d => d.id !== id);
+    const updatedArchived = [docToSpam, ...archivedDocuments];
+    setDocuments(updatedActive);
+    setArchivedDocuments(updatedArchived);
+    saveDashboardDocumentsToStorage('drtalk_specialist_docs', updatedActive);
+    saveDashboardDocumentsToStorage('drtalk_specialist_archived_docs', updatedArchived);
+    showToast(`Marked ${docToSpam.name} as Spam`);
   };
 
   const handleUnarchiveDocument = (id: string) => {
@@ -463,6 +475,7 @@ export default function DashboardPage() {
                       onForward={() => handleForwardDocument(doc)}
                       onIdentify={() => handleIdentifyDocument(doc)}
                       onArchive={handleArchiveDocument}
+                      onSpam={handleSpamDocument}
                       onUnarchive={handleUnarchiveDocument}
                       onOpenChannel={() => {
                         if (doc.fromChannel) {
