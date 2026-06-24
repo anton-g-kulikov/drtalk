@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Clock, MoreVertical, Copy, ChevronDown, Check, Info } from 'lucide-react';
+import { Clock, MessageSquare, Eye, Copy, ChevronDown, Check, Info } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
@@ -284,96 +284,101 @@ export default function ReferralsPage() {
             {/* Referral List */}
             <div className="space-y-2">
               {paginatedReferrals.length > 0 ? (
-                paginatedReferrals.map((referral) => (
-                  <div 
-                    key={referral.id} 
-                    onClick={() => handleReferralClick(referral.id)}
-                    className="wireframe-card p-4 hover:bg-gray-50 cursor-pointer transition-all group"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
-                      <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
-                        {isDentist ? (
-                          <>
-                            <p className="font-bold uppercase text-xs">{referral.patientName}</p>
-                            <p className="text-[9px] uppercase font-bold text-muted-foreground">by {referral.dentist}</p>
-                          </>
-                        ) : (
-                          <p className="font-bold uppercase text-xs">{referral.patientName}</p>
-                        )}
-                      </div>
-                      <div className="col-span-2">
-                        <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-sm border ${
-                          referral.urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
-                          referral.urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
-                          'bg-zinc-100 text-zinc-800 border-zinc-300'
-                        }`}>
-                          {referral.urgency || 'Routine'}
-                        </span>
-                      </div>
-                      {!isDentist && (
-                        <div className="col-span-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border border-black flex items-center justify-center">
-                              <span className="text-[8px] font-bold">{referral.source[0]}</span>
-                            </div>
-                            <span className="text-[10px] font-bold uppercase">{referral.source}</span>
-                          </div>
-                          <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
-                        </div>
-                      )}
-                      {/* Referring Practice / Referred To Practice */}
-                      <div className={isDentist ? 'col-span-5' : 'col-span-2'}>
-                        {isDentist ? (
-                          <div className="grid grid-cols-2 gap-x-4">
-                            <div>
-                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
-                              <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
-                            </div>
-                            {referral.specialistDoctor && (
-                              <div>
-                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
-                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <>
-                            <p className="text-[10px] font-bold uppercase">{referral.practice || referral.dentist}</p>
-                            {referral.dentist && referral.practice && (
-                              <p className="text-[8px] font-black uppercase text-black/50 mt-0.5">
-                                Ref. by {referral.dentist}
-                              </p>
-                            )}
-                          </>
-                        )}
-                      </div>
-                      {/* Specialist side only: Referred To Doctor column */}
-                      {!isDentist && (
-                        <div className="col-span-2">
-                          {referral.specialistDoctor ? (
+                paginatedReferrals.map((referral) => {
+                  const isPending = isDentist && (referral.status === 'Received' || referral.status === 'Sent');
+                  return (
+                    <div 
+                      key={referral.id} 
+                      onClick={isPending ? undefined : () => handleReferralClick(referral.id)}
+                      className={`wireframe-card p-4 transition-all group ${isPending ? 'opacity-85' : 'hover:bg-gray-50 cursor-pointer'}`}
+                    >
+                      <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-4">
+                        <div className={isDentist ? 'col-span-3' : 'col-span-2'}>
+                          {isDentist ? (
                             <>
-                              <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
-                              <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                              <p className="font-bold uppercase text-xs">{referral.patientName}</p>
+                              <p className="text-[9px] uppercase font-bold text-muted-foreground">by {referral.dentist}</p>
                             </>
                           ) : (
-                            <p className="text-[8px] uppercase font-bold text-black/30">—</p>
+                            <p className="font-bold uppercase text-xs">{referral.patientName}</p>
                           )}
                         </div>
-                      )}
-                      <div className="col-span-1">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Clock size={12} className="shrink-0" />
-                          <span className="text-[10px] font-bold uppercase whitespace-pre-line leading-tight">{referral.receivedAt}</span>
+                        <div className="col-span-2">
+                          <span className={`inline-block text-[8px] font-black uppercase px-2 py-0.5 rounded-sm border ${
+                            referral.urgency === 'Emergency' ? 'bg-red-100 text-red-900 border-red-300' :
+                            referral.urgency === 'Urgent' ? 'bg-amber-100 text-amber-900 border-amber-300' :
+                            'bg-zinc-100 text-zinc-800 border-zinc-300'
+                          }`}>
+                            {referral.urgency || 'Routine'}
+                          </span>
+                        </div>
+                        {!isDentist && (
+                          <div className="col-span-2">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border border-black flex items-center justify-center">
+                                <span className="text-[8px] font-bold">{referral.source[0]}</span>
+                              </div>
+                              <span className="text-[10px] font-bold uppercase">{referral.source}</span>
+                            </div>
+                            <p className="text-[8px] text-muted-foreground mt-1 uppercase tracking-tighter">{getReferralCode(referral.id)}</p>
+                          </div>
+                        )}
+                        {/* Referring Practice / Referred To Practice */}
+                        <div className={isDentist ? 'col-span-5' : 'col-span-2'}>
+                          {isDentist ? (
+                            <div className="grid grid-cols-2 gap-x-4">
+                              <div>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
+                                <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
+                              </div>
+                              {referral.specialistDoctor && (
+                                <div>
+                                  <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
+                                  <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-[10px] font-bold uppercase">{referral.practice || referral.dentist}</p>
+                              {referral.dentist && referral.practice && (
+                                <p className="text-[8px] font-black uppercase text-black/50 mt-0.5">
+                                  Ref. by {referral.dentist}
+                                </p>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        {/* Specialist side only: Referred To Doctor column */}
+                        {!isDentist && (
+                          <div className="col-span-2">
+                            {referral.specialistDoctor ? (
+                              <>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
+                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
+                              </>
+                            ) : (
+                              <p className="text-[8px] uppercase font-bold text-black/30">—</p>
+                            )}
+                          </div>
+                        )}
+                        <div className="col-span-1">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Clock size={12} className="shrink-0" />
+                            <span className="text-[10px] font-bold uppercase whitespace-pre-line leading-tight">{referral.receivedAt}</span>
+                          </div>
+                        </div>
+                        <div className="col-span-1 text-right">
+                          {!isPending && (
+                            <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all" title={isDentist ? "Message patient channel" : "View referral details"}>
+                              {isDentist ? <MessageSquare size={16} /> : <Eye size={16} />}
+                            </button>
+                          )}
                         </div>
                       </div>
-                      <div className="col-span-1 text-right">
-                        <button className="p-1 hover:bg-black hover:text-white border-2 border-transparent hover:border-black transition-all">
-                          <MoreVertical size={16} />
-                        </button>
-                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className="p-12 border-2 border-black border-dashed text-center">
                   <p className="text-[10px] font-bold uppercase text-muted-foreground">{isDentist ? "No patients found in this category." : "No referrals found in this category."}</p>
