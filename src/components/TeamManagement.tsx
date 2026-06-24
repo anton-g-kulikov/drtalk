@@ -67,6 +67,11 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  // States for interactive approval modal
+  const [approvingRequest, setApprovingRequest] = useState<JoinRequest | null>(null);
+  const [approvingRole, setApprovingRole] = useState<MemberRole>('Team Member');
+  const [approvingPhi, setApprovingPhi] = useState<boolean>(true);
+
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => {
@@ -74,17 +79,26 @@ export function TeamManagement({ backPath }: { backPath: string }) {
     }, 5000);
   };
 
-  const approveRequest = (request: JoinRequest) => {
+  const startApprovalProcess = (request: JoinRequest) => {
+    setApprovingRequest(request);
+    setApprovingRole(request.role);
+    setApprovingPhi(request.role === 'Team Member');
+  };
+
+  const handleConfirmApproval = () => {
+    if (!approvingRequest) return;
     const newMember: TeamMember = {
       id: generateId(),
-      name: request.name,
-      email: request.email,
-      role: request.role,
-      hasPhiAccess: request.role === 'Team Member',
+      name: approvingRequest.name,
+      email: approvingRequest.email,
+      role: approvingRole,
+      hasPhiAccess: approvingPhi,
       joinedAt: 'May 2024'
     };
     setTeam([...team, newMember]);
-    setRequests(requests.filter(r => r.id !== request.id));
+    setRequests(requests.filter(r => r.id !== approvingRequest.id));
+    setApprovingRequest(null);
+    showToast(`Approved ${approvingRequest.name} as ${approvingRole}`);
   };
 
   const denyRequest = (id: string) => {
@@ -213,7 +227,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                   </div>
                   <div className="col-span-3 w-full flex justify-end gap-3">
                     <button 
-                      onClick={() => approveRequest(request)}
+                      onClick={() => startApprovalProcess(request)}
                       className="text-[10px] font-black uppercase bg-black text-white px-4 py-2 hover:opacity-80 transition-opacity"
                     >
                       Confirm
@@ -360,6 +374,127 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                     Cancel
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Approve Team Member Modal */}
+        {approvingRequest && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center bg-white/95 backdrop-blur-sm p-4 overflow-y-auto">
+            <div className="w-full max-w-4xl bg-white border-4 border-black p-8 sm:p-10 shadow-[16px_16px_0px_0px_rgba(0,0,0,1)] space-y-8 animate-in zoom-in-95 duration-300">
+              <div className="space-y-4">
+                <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
+                  Approve Member: {approvingRequest.name}
+                </h2>
+                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  {approvingRequest.email}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-black">
+                {/* Role Management */}
+                <div className="wireframe-card p-6 space-y-6 border-black border-2 bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
+                      <UsersIcon size={16} />
+                    </div>
+                    <h3 className="font-black uppercase text-sm tracking-tight">Team Role</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    {(['Practice Admin', 'Team Member'] as MemberRole[]).map((role) => (
+                      <button
+                        key={role}
+                        onClick={() => {
+                          setApprovingRole(role);
+                          setApprovingPhi(role === 'Team Member' ? true : approvingPhi);
+                        }}
+                        className={`w-full text-left p-4 border-2 transition-all group flex items-center justify-between ${
+                          approvingRole === role 
+                            ? 'border-black bg-black text-white' 
+                            : 'border-black border-dashed hover:border-solid hover:bg-gray-50 text-black opacity-60 hover:opacity-100'
+                        }`}
+                      >
+                        <div>
+                          <p className="text-[10px] font-black uppercase tracking-widest">{role}</p>
+                          <p className={`text-[9px] uppercase mt-1 ${approvingRole === role ? 'text-gray-300' : 'text-muted-foreground'}`}>
+                            {role === 'Practice Admin' && 'Billing, scheduling & intake.'}
+                            {role === 'Team Member' && 'Patient care & clinical notes.'}
+                          </p>
+                        </div>
+                        {approvingRole === role && <CheckCircle2Icon size={16} />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* PHI Access Management */}
+                <div className="wireframe-card p-6 space-y-6 border-black border-2 bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
+                      <ShieldCheckIcon size={16} />
+                    </div>
+                    <h3 className="font-black uppercase text-sm tracking-tight">PHI Access Control</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="pt-1">
+                        <div 
+                          onClick={() => setApprovingPhi(prev => !prev)}
+                          className={`w-12 h-6 border-2 border-black relative cursor-pointer transition-colors ${
+                            approvingPhi ? 'bg-black' : 'bg-white'
+                          }`}
+                        >
+                          <div className={`absolute top-0.5 bottom-0.5 w-4 transition-all ${
+                            approvingPhi ? 'right-0.5 bg-white' : 'left-0.5 bg-black'
+                          }`} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest">
+                          {approvingPhi ? 'ACCESS GRANTED' : 'ACCESS RESTRICTED'}
+                        </p>
+                        <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold">
+                          Allow this member to view Protected Health Information (PHI) including patient charts, messages, and referrals.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 border-2 border-black border-dashed bg-gray-50 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <ShieldAlertIcon size={14} />
+                        <p className="text-[9px] font-black uppercase tracking-widest">
+                          Current Status: {!isVerified ? 'Pending' : approvingPhi ? 'Granted' : 'Restricted'}
+                        </p>
+                      </div>
+                      <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold italic">
+                        {!isVerified 
+                          ? 'Global restriction in effect. PHI will remain hidden until practice verification is complete.'
+                          : approvingPhi 
+                            ? 'Member can process referrals and view patient data.' 
+                            : 'Member is restricted from viewing all patient-identifiable data.'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t-2 border-black border-dashed">
+                <button 
+                  onClick={() => setApprovingRequest(null)}
+                  className="wireframe-button border-2 border-black bg-white text-black px-8 py-3 uppercase text-xs font-black tracking-widest hover:bg-gray-50 transition-all order-2 sm:order-1"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleConfirmApproval}
+                  className="wireframe-button bg-black text-white px-8 py-3 uppercase text-xs font-black tracking-widest hover:opacity-90 transition-all order-1 sm:order-2"
+                >
+                  Approve &amp; Save
+                </button>
               </div>
             </div>
           </div>
