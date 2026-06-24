@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   ChevronDown,
   Download,
-  ExternalLink,
+  Globe,
   Filter,
   MapPin,
   MessageCircle,
@@ -210,9 +210,22 @@ function PracticeCard({
           <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty} — {practice.type}</p>
         </div>
 
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <MapPin size={12} />
-          <span className="text-[9px] font-bold uppercase">{practice.location}</span>
+        <div className="space-y-1.5 pt-1">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <MapPin size={12} className="shrink-0" />
+            <span className="text-[9px] font-bold uppercase">{practice.location}</span>
+          </div>
+          <div className="flex items-center gap-2 text-muted-foreground hover:text-black transition-colors">
+            <Globe size={12} className="shrink-0" />
+            <a 
+              href={`https://www.${practice.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[9px] font-bold lowercase hover:underline break-all"
+            >
+              www.{practice.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com
+            </a>
+          </div>
         </div>
       </div>
 
@@ -253,14 +266,6 @@ function PracticeCard({
             )}
           </>
         )}
-        <a 
-          href="https://www.valleyendony.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="wireframe-button p-2 hover:bg-black hover:text-white transition-all flex items-center justify-center text-black"
-        >
-          <ExternalLink size={14} />
-        </a>
       </div>
     </div>
   );
