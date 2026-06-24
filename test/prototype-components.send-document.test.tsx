@@ -137,7 +137,7 @@ describe('prototype components: send document.test', () => {
       />
     );
 
-    expect(screen.getByText(/connected practices/i)).toBeInTheDocument();
+    expect(screen.getByText(/network/i)).toBeInTheDocument();
     expect(screen.getByText(/sunshine dental/i)).toBeInTheDocument();
     expect(screen.getByText(/valley endodontics/i)).toBeInTheDocument();
     expect(screen.getByText(/unverified/i)).toBeInTheDocument();

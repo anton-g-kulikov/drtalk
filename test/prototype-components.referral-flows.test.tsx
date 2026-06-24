@@ -384,6 +384,7 @@ describe('prototype components: referral flows.test', () => {
       />
     );
 
+    await user.click(screen.getByRole('button', { name: /more options/i }));
     const archiveBtn = screen.getByRole('button', { name: /archive channel/i });
     expect(archiveBtn).toBeInTheDocument();
     await user.click(archiveBtn);

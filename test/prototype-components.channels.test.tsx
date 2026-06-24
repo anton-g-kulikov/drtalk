@@ -284,8 +284,10 @@ describe('prototype components: channels.test', () => {
     expect(screen.getByText(/phi sharing is restricted/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /documents/i }));
+    await user.click(screen.getByRole('button', { name: /more options/i }));
     await user.click(screen.getByRole('button', { name: /participants/i }));
     await user.click(screen.getByTitle(/back to practice dashboard/i));
+    await user.click(screen.getByRole('button', { name: /more options/i }));
     await user.click(screen.getByRole('button', { name: /archive channel/i }));
     await user.type(screen.getByPlaceholderText(/message #alice cooper/i), ' updated');
     await user.click(screen.getByRole('button', { name: /attach document/i }));
@@ -434,7 +436,9 @@ describe('prototype components: channels.test', () => {
     expect(screen.queryByRole('button', { name: /archived conversations/i })).not.toBeInTheDocument();
 
     await user.click(screen.getByTitle(/back to practice dashboard/i));
+    await user.click(screen.getByRole('button', { name: /more options/i }));
     await user.click(screen.getByRole('button', { name: /archive channel/i }));
+    await user.click(screen.getByRole('button', { name: /more options/i }));
     await user.click(screen.getByRole('button', { name: /participants/i }));
     await user.click(screen.getByRole('button', { name: /documents/i }));
 
@@ -837,7 +841,7 @@ describe('prototype components: channels.test', () => {
 
     expect(screen.getByRole('heading', { name: /archived conversations/i })).toBeInTheDocument();
     expect(screen.getByText(/re-activate any per-case channel/i)).toBeInTheDocument();
-    expect(screen.getByText(/^alice cooper$/i, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#alice cooper$/i, { selector: 'p' })).toBeInTheDocument();
     expect(screen.getByText(/case id: d-1001/i)).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /re-activate alice cooper/i }));
