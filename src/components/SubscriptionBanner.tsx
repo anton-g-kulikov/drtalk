@@ -10,7 +10,7 @@ export function SubscriptionBanner() {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
 
-  if (plan !== 'Trial') return null;
+  if (isDentist || plan !== 'Trial') return null;
 
   return (
     <div className={`wireframe-card p-4 flex flex-col items-stretch gap-4 transition-all ${isTrialEnded ? 'bg-black text-white border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)]' : 'bg-gray-50 border-black border-dashed'}`}>

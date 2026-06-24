@@ -1,3 +1,12 @@
-import SubscriptionSettingsPage from '../../../settings/subscription/page';
+"use client";
 
-export default SubscriptionSettingsPage;
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function DentistSubscriptionRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace('/dentist/settings');
+  }, [router]);
+  return null;
+}

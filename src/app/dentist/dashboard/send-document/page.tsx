@@ -253,10 +253,6 @@ export default function DentistSendDocumentPage() {
   };
 
   const handleSendDocumentSubmit = () => {
-    if (isTrialEnded) {
-      setShowPaywall(true);
-      return;
-    }
     if (sendMode === 'connected' && selectedPractices.length === 0) {
       triggerToast("Please select at least one connected practice.");
       return;

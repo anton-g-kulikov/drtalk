@@ -280,11 +280,7 @@ export default function DentistDashboardPage() {
           }}
           onSendReferral={() => router.push('/dentist/referral')}
           onSendDocument={() => {
-            if (isTrialEnded) {
-              setShowPaywall(true);
-            } else {
-              router.push('/dentist/dashboard/send-document');
-            }
+            router.push('/dentist/dashboard/send-document');
           }}
         />
         <DashboardStats

@@ -30,7 +30,7 @@ export default function SettingsPage() {
     ...(!isDentist ? [{ icon: Inbox, label: 'Referral Intake', desc: 'Configure and copy credentials for inbound email, eFax, and public referral link.', href: '/settings/intake' }] : []),
     { icon: Bell, label: 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
-    { icon: CreditCard, label: 'Subscription', desc: isDentist ? 'View subscription status for sending referrals.' : 'View subscription status for referral processing.', href: isDentist ? '/dentist/settings/subscription' : '/settings/subscription' },
+    ...(!isDentist ? [{ icon: CreditCard, label: 'Subscription', desc: 'View subscription status for referral processing.', href: '/settings/subscription' }] : []),
   ];
 
   return (
