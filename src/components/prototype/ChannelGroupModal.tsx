@@ -1,4 +1,5 @@
-import { Users, X, Check } from 'lucide-react';
+import { useState } from 'react';
+import { Users, X, Check, Search } from 'lucide-react';
 import type { GroupParticipant } from '@/prototype/channelFixtures';
 
 type ChannelGroupModalProps = {
@@ -22,7 +23,15 @@ export function ChannelGroupModal({
   onCancel,
   onCreate,
 }: ChannelGroupModalProps) {
-  const participantsByPractice = participants.reduce((acc, participant) => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredParticipants = participants.filter(
+    (participant) =>
+      participant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      participant.practice.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const participantsByPractice = filteredParticipants.reduce((acc, participant) => {
     if (!acc[participant.practice]) acc[participant.practice] = [];
     acc[participant.practice].push(participant);
     return acc;
@@ -55,48 +64,79 @@ export function ChannelGroupModal({
           />
         </div>
 
-        <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block mb-2">Select Participants</label>
+        <div className="space-y-1.5 mb-4">
+          <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block">Select Participants</label>
+          <div className="relative flex items-center">
+            <span className="absolute left-3 text-black">
+              <Search size={12} />
+            </span>
+            <input
+              type="text"
+              placeholder="SEARCH BY NAME OR PRACTICE..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="wireframe-input w-full pl-9 pr-8 py-2 border-2 border-black text-[10px] uppercase font-bold text-black focus:outline-none"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 text-muted-foreground hover:text-black"
+                aria-label="Clear search query"
+              >
+                <X size={12} />
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="space-y-4 max-h-[40vh] overflow-y-auto mb-6 pr-2">
-          {Object.entries(participantsByPractice).map(([practiceName, members]) => {
-            const allGroupSelected = members.every(member => member.selected);
-            return (
-              <div key={practiceName} className="space-y-1.5">
-                <div className="flex justify-between items-end border-b border-black border-dashed pb-1">
-                  <h4 className="text-[8px] font-black uppercase text-muted-foreground tracking-wider">
-                    {practiceName}
-                  </h4>
-                  <button
-                    type="button"
-                    onClick={() => onPracticeToggle(members.map(member => member.id), !allGroupSelected)}
-                    className="flex items-center gap-1.5 text-[8px] font-black uppercase text-muted-foreground hover:text-black transition-colors"
-                  >
-                    <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center shrink-0 transition-colors ${allGroupSelected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
-                      <Check size={8} strokeWidth={4} />
-                    </div>
-                    <span>Select All</span>
-                  </button>
-                </div>
-                <div className="space-y-1.5">
-                  {members.map(participant => (
-                    <label key={participant.id} className="flex items-center justify-between p-2 border border-black hover:bg-gray-50 cursor-pointer transition-colors group">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center transition-colors ${participant.selected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
-                          <Check size={8} strokeWidth={4} />
-                        </div>
-                        <span className="text-[9px] font-bold uppercase text-black">{participant.name}</span>
+          {Object.keys(participantsByPractice).length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-[9px] uppercase font-black border-2 border-dashed border-gray-300">
+              No participants found
+            </div>
+          ) : (
+            Object.entries(participantsByPractice).map(([practiceName, members]) => {
+              const allGroupSelected = members.every(member => member.selected);
+              return (
+                <div key={practiceName} className="space-y-1.5">
+                  <div className="flex justify-between items-end border-b border-black border-dashed pb-1">
+                    <h4 className="text-[8px] font-black uppercase text-muted-foreground tracking-wider">
+                      {practiceName}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => onPracticeToggle(members.map(member => member.id), !allGroupSelected)}
+                      className="flex items-center gap-1.5 text-[8px] font-black uppercase text-muted-foreground hover:text-black transition-colors"
+                    >
+                      <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center shrink-0 transition-colors ${allGroupSelected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
+                        <Check size={8} strokeWidth={4} />
                       </div>
-                      <input
-                        type="checkbox"
-                        className="hidden"
-                        checked={participant.selected}
-                        onChange={() => onParticipantToggle(participant.id)}
-                      />
-                    </label>
-                  ))}
+                      <span>Select All</span>
+                    </button>
+                  </div>
+                  <div className="space-y-1.5">
+                    {members.map(participant => (
+                      <label key={participant.id} className="flex items-center justify-between p-2 border border-black hover:bg-gray-50 cursor-pointer transition-colors group">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-3.5 h-3.5 border border-black flex items-center justify-center transition-colors ${participant.selected ? 'bg-black text-white' : 'bg-white text-transparent'}`}>
+                            <Check size={8} strokeWidth={4} />
+                          </div>
+                          <span className="text-[9px] font-bold uppercase text-black">{participant.name}</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={participant.selected}
+                          onChange={() => onParticipantToggle(participant.id)}
+                        />
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         {error && (
