@@ -8,6 +8,7 @@ import { ChannelContentPane } from '@/components/prototype/ChannelContentPane';
 import { ChannelDocumentPreviewOverlay } from '@/components/prototype/ChannelDocumentPreviewOverlay';
 import { ChannelGroupModal } from '@/components/prototype/ChannelGroupModal';
 import { ChannelInternalModal } from '@/components/prototype/ChannelInternalModal';
+import { ChannelSubChannelModal } from '@/components/prototype/ChannelSubChannelModal';
 import { ChannelParticipantsModal } from '@/components/prototype/ChannelParticipantsModal';
 import { ChannelCaseSummary, ChannelSidebar } from '@/components/prototype/ChannelSidebar';
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
@@ -337,6 +338,7 @@ function ChannelsContent() {
           groupUnreadCount={channelsState.groupUnreadCount}
           patientUnreadCount={channelsState.patientUnreadCount}
           expandedPractices={channelsState.expandedPractices}
+          channels={channelsState.channels}
           internalChannels={channelsState.filteredInternalChannels}
           onPlatformChannels={channelsState.filteredOnPlatformChannels}
           externalChannels={channelsState.filteredExternalChannels}
@@ -352,6 +354,7 @@ function ChannelsContent() {
           onTogglePatient={() => channelsState.setPatientCollapsed(!channelsState.patientCollapsed)}
           onCreateGroup={() => channelsState.setShowCreateGroupModal(true)}
           onCreateInternalChannel={() => channelsState.setShowCreateInternalModal(true)}
+          onCreateSubChannel={channelsState.handleOpenCreateSubChannel}
           onSelectChannel={channelsState.handleSelectChannel}
           onSelectCaseChannel={handleSelectCaseChannel}
         />
@@ -885,6 +888,20 @@ function ChannelsContent() {
           }}
           onCancel={channelsState.onCancelCreateInternal}
           onCreate={channelsState.handleCreateInternalChannel}
+        />
+      )}
+
+      {/* Create Sub-channel Modal */}
+      {channelsState.showCreateSubChannelModal && (
+        <ChannelSubChannelModal
+          subChannelName={channelsState.subChannelName}
+          error={channelsState.subChannelError}
+          parentPracticeName={channelsState.subChannelParentPractice?.name || ''}
+          onSubChannelNameChange={(name) => {
+            channelsState.setSubChannelName(name);
+          }}
+          onCancel={channelsState.handleCancelCreateSubChannel}
+          onCreate={channelsState.handleCreateSubChannel}
         />
       )}
 

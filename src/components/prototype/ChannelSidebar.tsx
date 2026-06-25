@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { FileText, MoreHorizontal, Search } from 'lucide-react';
+import { FileText, Hash, MoreHorizontal, Search } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import type { Channel } from '@/prototype/channelTypes';
 import { ChannelItem } from '@/components/prototype/ChannelPrimitives';
@@ -35,6 +35,7 @@ type ChannelSidebarProps = {
   groupUnreadCount: number;
   patientUnreadCount: number;
   expandedPractices: Record<string, boolean>;
+  channels: Channel[];
   internalChannels: Channel[];
   onPlatformChannels: Channel[];
   externalChannels: Channel[];
@@ -51,9 +52,41 @@ type ChannelSidebarProps = {
   onTogglePatient: () => void;
   onCreateGroup: () => void;
   onCreateInternalChannel: () => void;
+  onCreateSubChannel: (parentChannel: Channel) => void;
   onSelectChannel: (channel: Channel) => void;
   onSelectCaseChannel: (caseChannel: ChannelCaseSummary, parentChannel: Channel) => void;
 };
+
+function ChannelSubRow({
+  subChannel,
+  isActive,
+  onSelectSubChannel,
+}: {
+  subChannel: Channel;
+  isActive: boolean;
+  onSelectSubChannel: () => void;
+}) {
+  const displayName = subChannel.name.startsWith('#') ? subChannel.name : `#${subChannel.name}`;
+  return (
+    <button
+      key={subChannel.id}
+      onClick={onSelectSubChannel}
+      className={`w-full flex items-center justify-between py-1.5 pl-10 pr-3 text-left transition-all ${
+        isActive
+          ? 'bg-black text-white font-black'
+          : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+      }`}
+    >
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <Hash size={10} className={isActive ? 'text-white' : 'text-black'} />
+        <span className="text-[10px] uppercase tracking-tight truncate">{displayName}</span>
+      </div>
+      {subChannel.unreadCount && !isActive && (
+        <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{subChannel.unreadCount}</span>
+      )}
+    </button>
+  );
+}
 
 function ChannelCaseRow({
   caseChannel,
@@ -106,6 +139,7 @@ export function ChannelSidebar({
   groupUnreadCount,
   patientUnreadCount,
   expandedPractices,
+  channels,
   internalChannels,
   onPlatformChannels,
   externalChannels,
@@ -122,6 +156,7 @@ export function ChannelSidebar({
   onTogglePatient,
   onCreateGroup,
   onCreateInternalChannel,
+  onCreateSubChannel,
   onSelectChannel,
   onSelectCaseChannel,
 }: ChannelSidebarProps) {
@@ -213,6 +248,7 @@ export function ChannelSidebar({
               <p className="text-[8px] text-muted-foreground italic uppercase">No on-platform connections yet.</p>
             ) : (
               onPlatformChannels.map((channel) => {
+                const practiceSubChannels = channels.filter((c) => c.parentId === channel.id && !c.isArchived);
                 const practiceCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && !caseChannel.isArchived);
                 return (
                   <div key={channel.id} className="space-y-0.5">
@@ -221,17 +257,30 @@ export function ChannelSidebar({
                       isActive={activeChannelId === channel.id}
                       onClick={() => onSelectChannel(channel)}
                       isExpanded={!!expandedPractices[channel.id]}
-                      hasSubChannels={practiceCases.length > 0}
+                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0}
+                      onCreateSubChannel={() => onCreateSubChannel(channel)}
                     />
-                    {expandedPractices[channel.id] && practiceCases.map((caseChannel) => (
-                      <ChannelCaseRow
-                        key={caseChannel.id}
-                        caseChannel={caseChannel}
-                        parentChannel={channel}
-                        isActive={activeChannelId === caseChannel.id}
-                        onSelectCaseChannel={onSelectCaseChannel}
-                      />
-                    ))}
+                    {expandedPractices[channel.id] && (
+                      <>
+                        {practiceSubChannels.map((subChannel) => (
+                          <ChannelSubRow
+                            key={subChannel.id}
+                            subChannel={subChannel}
+                            isActive={activeChannelId === subChannel.id}
+                            onSelectSubChannel={() => onSelectChannel(subChannel)}
+                          />
+                        ))}
+                        {practiceCases.map((caseChannel) => (
+                          <ChannelCaseRow
+                            key={caseChannel.id}
+                            caseChannel={caseChannel}
+                            parentChannel={channel}
+                            isActive={activeChannelId === caseChannel.id}
+                            onSelectCaseChannel={onSelectCaseChannel}
+                          />
+                        ))}
+                      </>
+                    )}
                   </div>
                 );
               })
@@ -250,6 +299,7 @@ export function ChannelSidebar({
               <p className="text-[8px] text-muted-foreground italic uppercase">No external connections yet.</p>
             ) : (
               externalChannels.map((channel) => {
+                const practiceSubChannels = channels.filter((c) => c.parentId === channel.id && !c.isArchived);
                 const practiceCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && !caseChannel.isArchived);
                 return (
                   <div key={channel.id} className="space-y-0.5">
@@ -258,18 +308,31 @@ export function ChannelSidebar({
                       isActive={activeChannelId === channel.id}
                       onClick={() => onSelectChannel(channel)}
                       isExpanded={!!expandedPractices[channel.id]}
-                      hasSubChannels={practiceCases.length > 0}
+                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0}
+                      onCreateSubChannel={() => onCreateSubChannel(channel)}
                     />
-                    {expandedPractices[channel.id] && practiceCases.map((caseChannel) => (
-                      <ChannelCaseRow
-                        key={caseChannel.id}
-                        caseChannel={caseChannel}
-                        parentChannel={channel}
-                        isActive={activeChannelId === caseChannel.id}
-                        isExternal
-                        onSelectCaseChannel={onSelectCaseChannel}
-                      />
-                    ))}
+                    {expandedPractices[channel.id] && (
+                      <>
+                        {practiceSubChannels.map((subChannel) => (
+                          <ChannelSubRow
+                            key={subChannel.id}
+                            subChannel={subChannel}
+                            isActive={activeChannelId === subChannel.id}
+                            onSelectSubChannel={() => onSelectChannel(subChannel)}
+                          />
+                        ))}
+                        {practiceCases.map((caseChannel) => (
+                          <ChannelCaseRow
+                            key={caseChannel.id}
+                            caseChannel={caseChannel}
+                            parentChannel={channel}
+                            isActive={activeChannelId === caseChannel.id}
+                            isExternal
+                            onSelectCaseChannel={onSelectCaseChannel}
+                          />
+                        ))}
+                      </>
+                    )}
                   </div>
                 );
               })

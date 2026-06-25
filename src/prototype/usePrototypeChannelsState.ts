@@ -102,6 +102,11 @@ export function usePrototypeChannelsState({
   const [docPage, setDocPage] = useState(1);
   const [isViewingArchivedDocs, setIsViewingArchivedDocs] = useState(false);
 
+  const [showCreateSubChannelModal, setShowCreateSubChannelModal] = useState(false);
+  const [subChannelName, setSubChannelName] = useState('');
+  const [subChannelParentPractice, setSubChannelParentPractice] = useState<Channel | null>(null);
+  const [subChannelError, setSubChannelError] = useState<string | null>(null);
+
   useEffect(() => {
     setTimeout(() => {
       setReferrals(getReferrals());
@@ -333,6 +338,66 @@ export function usePrototypeChannelsState({
     setInternalChannelName('');
     setInternalChannelError(null);
     setShowCreateInternalModal(false);
+  };
+
+  const handleCreateSubChannel = () => {
+    if (!subChannelName.trim() || !subChannelParentPractice) return;
+
+    const formattedName = subChannelName.trim().toLowerCase().replace(/\s+/g, '-');
+    const isDuplicate = channels.some(
+      (c) => c.parentId === subChannelParentPractice.id && c.name.toLowerCase() === formattedName
+    );
+
+    if (isDuplicate) {
+      setSubChannelError('A sub-channel with this name already exists.');
+      return;
+    }
+
+    const newChannelId = `sub_${Date.now()}`;
+    const newSubChannel: Channel = {
+      id: newChannelId,
+      name: formattedName,
+      type: 'inter-practice',
+      lastMessage: 'Sub-channel created.',
+      memberCount: subChannelParentPractice.memberCount,
+      parentId: subChannelParentPractice.id,
+      isExternal: subChannelParentPractice.isExternal,
+    };
+
+    const welcomeMsg: MessageItem = {
+      id: `msg_sys_${Date.now()}`,
+      user: 'System',
+      text: `Sub-channel #${formattedName} created successfully under ${subChannelParentPractice.name}.`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      type: 'other',
+    };
+
+    setChannels((prev) => [...prev, newSubChannel]);
+    setMessages((prev) => ({ ...prev, [newChannelId]: [welcomeMsg] }));
+
+    setExpandedPractices((prev) => ({ ...prev, [subChannelParentPractice.id]: true }));
+    setActiveChannel(newSubChannel);
+    setActiveTab('messages');
+
+    setSubChannelName('');
+    setSubChannelError(null);
+    setSubChannelParentPractice(null);
+    setShowCreateSubChannelModal(false);
+    triggerToast(`Sub-channel #${formattedName} created!`);
+  };
+
+  const handleOpenCreateSubChannel = (parentPractice: Channel) => {
+    setSubChannelParentPractice(parentPractice);
+    setSubChannelName('');
+    setSubChannelError(null);
+    setShowCreateSubChannelModal(true);
+  };
+
+  const handleCancelCreateSubChannel = () => {
+    setSubChannelName('');
+    setSubChannelError(null);
+    setSubChannelParentPractice(null);
+    setShowCreateSubChannelModal(false);
   };
 
   const handleSendMessage = () => {
@@ -651,5 +716,13 @@ export function usePrototypeChannelsState({
       );
       setGroupChatError(null);
     },
+    showCreateSubChannelModal,
+    subChannelName,
+    subChannelParentPractice,
+    subChannelError,
+    setSubChannelName,
+    handleCreateSubChannel,
+    handleOpenCreateSubChannel,
+    handleCancelCreateSubChannel,
   };
 }
