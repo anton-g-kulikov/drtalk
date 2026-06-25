@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { cleanup, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import LandingPage from '@/app/page';
 import ReferralPage from '@/app/referral/page';
 import OnboardingPage from '@/app/onboarding/page';
