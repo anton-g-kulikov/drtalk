@@ -394,8 +394,8 @@ describe('prototype components: channels.test', () => {
     );
 
     await user.click(screen.getByRole('button', { name: /send new document/i }));
-    await user.click(screen.getByRole('button', { name: /^view$/i }));
-    await user.click(screen.getByRole('button', { name: /^download$/i }));
+    await user.click(screen.getByRole('button', { name: /view document/i }));
+    await user.click(screen.getByRole('button', { name: /download document/i }));
 
     expect(onSendNewDocument).toHaveBeenCalledTimes(1);
     expect(onViewDocument).toHaveBeenCalledWith(expect.objectContaining({ id: 'doc-1' }));

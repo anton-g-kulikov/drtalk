@@ -1,4 +1,4 @@
-import { ChevronDown, Download, Eye, FileText, ImageIcon, Paperclip, Plus, Search, X, Forward } from 'lucide-react';
+import { ChevronDown, Download, Eye, FileText, ImageIcon, Paperclip, Plus, Search, X, Forward, Archive } from 'lucide-react';
 import type { SharedDocument } from '@/prototype/channelTypes';
 
 type ChannelDocumentsPaneProps = {
@@ -132,43 +132,51 @@ export function ChannelDocumentsPane({
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-4 pt-3 border-t border-black border-dashed flex-wrap">
+                    <div className="flex gap-2 mt-4 pt-2 border-t border-black/10 items-center">
                       <button
                         onClick={() => onViewDocument(document)}
-                        className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
+                        className="p-2 text-black hover:bg-zinc-100 transition-all flex items-center justify-center"
+                        title="View Document"
+                        aria-label="View Document"
                       >
-                        <Eye size={10} /> View
+                        <Eye size={14} />
                       </button>
                       <button
                         onClick={() => onDownloadDocument(document)}
-                        className="flex-1 wireframe-button bg-black text-white border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-white hover:text-black font-bold"
+                        className="p-2 text-black hover:bg-zinc-100 transition-all flex items-center justify-center"
+                        title="Download Document"
+                        aria-label="Download Document"
                       >
-                        <Download size={10} /> Download
+                        <Download size={14} />
                       </button>
                       {onForwardDocument && (
                         <button
                           onClick={() => onForwardDocument(document)}
-                          className="flex-1 wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 flex items-center justify-center gap-1 hover:bg-black hover:text-white font-bold"
+                          className="p-2 text-black hover:bg-zinc-100 transition-all flex items-center justify-center"
+                          title="Forward Document"
+                          aria-label="Forward Document"
                         >
-                          <Forward size={10} /> Forward
+                          <Forward size={14} />
                         </button>
                       )}
                       {onArchiveDocument && !isViewingArchivedDocs && (
                         <button
                           onClick={() => onArchiveDocument(document)}
-                          className="flex-none wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 px-3 flex items-center justify-center hover:bg-red-50 hover:text-red-600 hover:border-red-600 font-bold transition-colors"
+                          className="p-2 text-black hover:bg-zinc-100 transition-all flex items-center justify-center"
                           title="Archive Document"
+                          aria-label="Archive Document"
                         >
-                          Archive
+                          <Archive size={14} />
                         </button>
                       )}
                       {onUnarchiveDocument && isViewingArchivedDocs && (
                         <button
                           onClick={() => onUnarchiveDocument(document)}
-                          className="flex-none wireframe-button bg-white text-black border-black text-[9px] uppercase py-1 px-3 flex items-center justify-center hover:bg-green-50 hover:text-green-700 hover:border-green-700 font-bold transition-colors"
+                          className="p-2 text-black hover:bg-zinc-100 transition-all flex items-center justify-center"
                           title="Restore Document"
+                          aria-label="Restore Document"
                         >
-                          Unarchive
+                          <Archive size={14} className="rotate-180" />
                         </button>
                       )}
                     </div>
