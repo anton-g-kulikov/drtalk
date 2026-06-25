@@ -30,6 +30,7 @@ import {
   dentistAnalytics,
   networkRoleConfigs,
   specialistAnalytics,
+  GLOBAL_PRACTICE_TYPES,
   type NetworkRole,
   type NetworkRoleConfig,
   type NetworkTab,
@@ -400,13 +401,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     return Array.from(list).sort();
   }, [networkList]);
 
-  const types = React.useMemo(() => {
-    const list = new Set<string>();
-    networkList.forEach((p) => {
-      if (p.type) list.add(p.type);
-    });
-    return Array.from(list).sort();
-  }, [networkList]);
+  const types = GLOBAL_PRACTICE_TYPES;
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -517,6 +512,39 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
         {showFilters && (activeTab === 'directory' || activeTab === 'connected') && (
           <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col md:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+              {/* Type */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-type-filter">Practice Type</label>
+                <select
+                  id="network-type-filter"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All Types</option>
+                  {types.map((ty) => (
+                    <option key={ty} value={ty}>{ty}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Radius */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-radius-filter">Radius</label>
+                <select
+                  id="network-radius-filter"
+                  value={selectedRadius}
+                  onChange={(e) => setSelectedRadius(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All Distances</option>
+                  <option value="5">Within 5 miles</option>
+                  <option value="10">Within 10 miles</option>
+                  <option value="25">Within 25 miles</option>
+                  <option value="50">Within 50 miles</option>
+                </select>
+              </div>
+
               {/* State */}
               <div className="space-y-1.5">
                 <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-state-filter">State</label>
@@ -545,39 +573,6 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                   <option value="All">All Cities</option>
                   {cities.map((ct) => (
                     <option key={ct} value={ct}>{ct}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Radius */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-radius-filter">Radius</label>
-                <select
-                  id="network-radius-filter"
-                  value={selectedRadius}
-                  onChange={(e) => setSelectedRadius(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All Distances</option>
-                  <option value="5">Within 5 miles</option>
-                  <option value="10">Within 10 miles</option>
-                  <option value="25">Within 25 miles</option>
-                  <option value="50">Within 50 miles</option>
-                </select>
-              </div>
-
-              {/* Type */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-type-filter">Practice Type</label>
-                <select
-                  id="network-type-filter"
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All Types</option>
-                  {types.map((ty) => (
-                    <option key={ty} value={ty}>{ty}</option>
                   ))}
                 </select>
               </div>
