@@ -13,6 +13,7 @@ import {
   Lock,
   Mail,
   Paperclip,
+  Plus,
   Smartphone,
   Users,
 } from 'lucide-react';
@@ -24,6 +25,7 @@ type ChannelItemProps = {
   onClick: () => void;
   isExpanded?: boolean;
   hasSubChannels?: boolean;
+  onCreateSubChannel?: (event: React.MouseEvent) => void;
 };
 
 export function ChannelItem({
@@ -31,16 +33,17 @@ export function ChannelItem({
   isActive,
   onClick,
   isExpanded,
-  hasSubChannels
+  hasSubChannels,
+  onCreateSubChannel
 }: ChannelItemProps) {
   const pathname = usePathname();
   const isDentist = pathname.startsWith('/dentist');
   const displayName = (channel.id === '3' && !isDentist) ? 'Sunshine Dental' : channel.name;
 
   return (
-    <button
+    <div
       onClick={onClick}
-      className={`w-full flex items-center gap-3 p-2 text-left transition-all group ${isActive ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
+      className={`w-full flex items-center gap-3 p-2 text-left transition-all group cursor-pointer ${isActive ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
     >
       <div className={`w-6 h-6 border flex items-center justify-center shrink-0 ${isActive ? 'border-white' : 'border-black'}`}>
         {channel.type === 'internal' && <Hash size={12} />}
@@ -51,7 +54,7 @@ export function ChannelItem({
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
             {hasSubChannels && (
               <span className={`shrink-0 ${isActive ? 'text-white' : 'text-muted-foreground'}`}>
                 {isExpanded ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
@@ -75,15 +78,32 @@ export function ChannelItem({
               </span>
             )}
           </div>
-          {channel.unreadCount && !isActive && (
-            <span className="bg-black text-white text-[8px] px-1 rounded-full">{channel.unreadCount}</span>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onCreateSubChannel && channel.type === 'inter-practice' && !channel.parentId && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCreateSubChannel(e);
+                }}
+                className={`p-0.5 border flex items-center justify-center shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${
+                  isActive ? 'border-white text-white hover:bg-white hover:text-black' : 'border-black text-black hover:bg-black hover:text-white'
+                }`}
+                title="Create Sub-channel"
+              >
+                <Plus size={8} strokeWidth={3} />
+              </button>
+            )}
+            {channel.unreadCount && !isActive && (
+              <span className="bg-black text-white text-[8px] px-1 rounded-full">{channel.unreadCount}</span>
+            )}
+          </div>
         </div>
         <p className={`text-[8px] truncate font-medium ${isActive ? 'text-gray-400' : 'text-muted-foreground'}`}>
           {channel.lastMessage}
         </p>
       </div>
-    </button>
+    </div>
   );
 }
 
