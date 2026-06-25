@@ -268,7 +268,7 @@ function PracticeCard({
             <MapPin size={12} className="shrink-0" />
             <span className="text-[9px] font-bold uppercase">
               {practice.location}
-              {activeTab === 'directory' && ` (${getMockDistance(practice.id)} mi)`}
+              {(activeTab === 'directory' || activeTab === 'connected') && ` (${getMockDistance(practice.id)} mi)`}
             </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground hover:text-black transition-colors">
@@ -439,17 +439,17 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     showToast(`Connection removed with ${practice.name}`);
   };
 
-  const hasActiveDirectoryFilters = selectedState !== 'All' || selectedCity !== 'All' || selectedRadius !== 'All' || selectedType !== 'All';
+  const hasActiveFilters = selectedState !== 'All' || selectedCity !== 'All' || selectedRadius !== 'All' || selectedType !== 'All';
 
   const filteredNetwork = networkList.filter((practice) => {
     const searchStr = searchQuery.toLowerCase();
     const matchesSearch = practice.name.toLowerCase().includes(searchStr) || practice.specialty.toLowerCase().includes(searchStr);
     if (!matchesSearch) return false;
 
-    // Only apply directory filters if we're on the directory tab
-    if (activeTab === 'directory') {
+    // Apply filters if we're on the directory or connected tab
+    if (activeTab === 'directory' || activeTab === 'connected') {
       if (selectedType !== 'All' && practice.type !== selectedType) return false;
-      if (config.role === 'dentist' && practice.type !== 'Specialist') return false;
+      if (activeTab === 'directory' && config.role === 'dentist' && practice.type !== 'Specialist') return false;
 
       // State filter
       if (selectedState !== 'All') {
@@ -497,7 +497,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{config.subtitle}</p>
           </div>
-          {activeTab === 'directory' && (
+          {(activeTab === 'directory' || activeTab === 'connected') && (
             <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
               <div className="relative flex-1 sm:flex-none">
                 <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -505,7 +505,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
               </div>
               <button 
                 onClick={() => setShowFilters(!showFilters)}
-                className={`wireframe-button px-4 py-2.5 sm:py-0 flex items-center justify-center transition-colors border-2 border-black ${showFilters || hasActiveDirectoryFilters ? 'bg-black text-white' : 'bg-white text-black'}`}
+                className={`wireframe-button px-4 py-2.5 sm:py-0 flex items-center justify-center transition-colors border-2 border-black ${showFilters || hasActiveFilters ? 'bg-black text-white' : 'bg-white text-black'}`}
                 title="Toggle Filters"
               >
                 <Filter size={16} />
@@ -514,7 +514,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
           )}
         </div>
 
-        {showFilters && activeTab === 'directory' && (
+        {showFilters && (activeTab === 'directory' || activeTab === 'connected') && (
           <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col md:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 flex-1">
               {/* State */}
@@ -583,7 +583,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
               </div>
             </div>
 
-            {hasActiveDirectoryFilters && (
+            {hasActiveFilters && (
               <div className="flex items-end shrink-0">
                 <button
                   onClick={() => {

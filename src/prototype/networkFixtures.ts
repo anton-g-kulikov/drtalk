@@ -2,6 +2,20 @@ export type NetworkRole = 'specialist' | 'dentist';
 export type NetworkTab = 'analytics' | 'connected' | 'directory';
 export type NetworkTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
+export const GLOBAL_PRACTICE_TYPES = [
+  'Dentist',
+  'Pediatric Dentist',
+  'Orthodontist',
+  'Endodontist',
+  'Oral & Maxillofacial Surgeon',
+  'Periodontist',
+  'Prosthodontist',
+  'Dental Anesthesiologist',
+  'Oral Pathologist',
+  'Dental Business Partner',
+  'Dental Laboratory'
+];
+
 export type AnalyticsRow = {
   id: string;
   name: string;
