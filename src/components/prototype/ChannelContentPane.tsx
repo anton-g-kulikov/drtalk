@@ -170,7 +170,7 @@ export function ChannelContentPane({
               <Pin size={12} className="fill-current text-black shrink-0" />
               <div className="text-[10px] font-bold truncate">
                 <span className="uppercase font-black text-muted-foreground mr-1.5">Pinned:</span>
-                "{latestPinned.text}"
+                &quot;{latestPinned.text}&quot;
               </div>
             </div>
             <div className="flex items-center gap-3 shrink-0">
