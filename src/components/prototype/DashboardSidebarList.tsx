@@ -7,6 +7,8 @@ export type DashboardSidebarItem = {
   meta: string;
   initials?: string;
   timestamp?: string;
+  parentChannel?: string;
+  unreadCount?: number;
   actionLabel?: string;
   onClick?: () => void;
   onAction?: () => void;
@@ -73,21 +75,35 @@ export function DashboardSidebarList({
           return (
             <div
               key={item.id}
-              className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors"
+              className="p-4 flex gap-3 hover:bg-gray-50 cursor-pointer transition-colors relative"
               onClick={item.onClick}
             >
               {item.initials && (
                 <div className="w-8 h-8 border-2 border-black flex flex-col items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
               )}
               <div className="flex-1 space-y-1 min-w-0">
-                <div className="flex justify-between items-baseline">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                    <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-black shrink-0 scale-90 origin-left">{item.meta}</span>
+                <div className="flex justify-between items-start gap-2">
+                  <div className="min-w-0 flex-1">
+                    {item.parentChannel && (
+                      <p className="text-[7px] font-bold uppercase text-gray-500 tracking-wider mb-0.5">
+                        {item.parentChannel}
+                      </p>
+                    )}
+                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                      <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
+                      <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-black shrink-0 scale-90 origin-left">{item.meta}</span>
+                    </div>
                   </div>
-                  {item.timestamp && (
-                    <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right">{item.timestamp}</span>
-                  )}
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    {item.timestamp && (
+                      <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right leading-none">{item.timestamp}</span>
+                    )}
+                    {item.unreadCount ? (
+                      <span className="bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shrink-0">
+                        {item.unreadCount}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
                 <p className="text-[9px] uppercase truncate opacity-70 italic">
                   {item.message}
