@@ -477,7 +477,6 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                         onRemoveConnection={() => handleRemoveConnection(practice.id)}
                       />
                     ))}
-                    <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />
                   </NetworkSection>
                   {external.length > 0 && (
                     <NetworkSection label={`External — Fax / Email (${external.length})`} trailing="Off-platform · Secure Email transport">
@@ -508,7 +507,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                       onRemoveConnection={() => handleRemoveConnection(practice.id)}
                     />
                   ))}
-                  {activeTab === 'connected' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}
+                  {activeTab === 'directory' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}
                 </div>
               )}
             </div>
@@ -522,7 +521,13 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
         </div>
       )}
 
-      <InviteModal isOpen={isInviteModalOpen} onClose={() => setIsInviteModalOpen(false)} defaultRole={config.inviteDefaultRole} onSuccess={(email) => showToast(`Invitation sent to ${email}`)} />
+      <InviteModal
+        isOpen={isInviteModalOpen}
+        onClose={() => setIsInviteModalOpen(false)}
+        defaultRole={config.inviteDefaultRole}
+        mode="clinic"
+        onSuccess={(email, practiceName) => showToast(`Invitation sent to ${practiceName || email}`)}
+      />
     </MainLayout>
   );
 }

@@ -5,26 +5,32 @@ export function InviteModal({
   isOpen,
   onClose,
   onSuccess,
-  defaultRole = 'Team Member'
+  defaultRole = 'Team Member',
+  mode = 'colleague'
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (email: string) => void;
+  onSuccess: (email: string, practiceName?: string) => void;
   defaultRole?: string;
+  mode?: 'colleague' | 'clinic';
 }) {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState(defaultRole);
+  const [practiceName, setPracticeName] = useState('');
   
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    onSuccess(email);
+    onSuccess(email, mode === 'clinic' ? practiceName : undefined);
     setEmail('');
     setRole(defaultRole);
+    setPracticeName('');
     onClose();
   };
+
+  const isClinic = mode === 'clinic';
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-white/95 backdrop-blur-sm p-4">
@@ -33,43 +39,65 @@ export function InviteModal({
           <div className="w-16 h-16 border-4 border-black rounded-full flex items-center justify-center mx-auto bg-gray-50">
             <UserPlusIcon size={32} />
           </div>
-          <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">Invite to Practice</h2>
+          <h2 className="text-2xl font-black uppercase tracking-tighter italic leading-none">
+            {isClinic ? 'Invite a Clinic' : 'Invite to Practice'}
+          </h2>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
-            Send an invitation to join your practice network.
+            {isClinic 
+              ? 'Invite a clinical partner to connect and refer on drTalk.'
+              : 'Send an invitation to join your practice network.'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isClinic && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest block">
+                Practice / Clinic Name
+              </label>
+              <input 
+                type="text"
+                required
+                value={practiceName}
+                onChange={(e) => setPracticeName(e.target.value)}
+                placeholder="e.g. Oakwood Family Dental"
+                className="wireframe-input w-full py-4 px-4 text-sm bg-transparent border-2 border-black"
+              />
+            </div>
+          )}
+
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-              <MailIcon size={12} /> Email Address
+              <MailIcon size={12} /> {isClinic ? 'Contact Email' : 'Email Address'}
             </label>
             <input 
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="colleague@practice.com"
+              placeholder={isClinic ? "referrals@practice.com" : "colleague@practice.com"}
               className="wireframe-input w-full py-4 px-4 text-sm bg-transparent border-2 border-black"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest">Role</label>
-            <select 
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="wireframe-input w-full py-4 px-4 text-sm appearance-none bg-transparent border-2 border-black"
-            >
-              <option value="Practice Admin">Practice Admin</option>
-              <option value="Team Member">Team Member</option>
-            </select>
-          </div>
+          {!isClinic && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest">Role</label>
+              <select 
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="wireframe-input w-full py-4 px-4 text-sm appearance-none bg-transparent border-2 border-black"
+              >
+                <option value="Practice Admin">Practice Admin</option>
+                <option value="Team Member">Team Member</option>
+              </select>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-3 pt-4">
             <button 
               type="submit"
-              disabled={!email}
+              disabled={!email || (isClinic && !practiceName)}
               className="wireframe-button bg-black text-white py-4 uppercase text-sm font-black tracking-widest disabled:opacity-30"
             >
               Send Invitation

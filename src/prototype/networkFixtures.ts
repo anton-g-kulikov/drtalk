@@ -111,8 +111,8 @@ export const networkRoleConfigs: Record<NetworkRole, NetworkRoleConfig> = {
     analyticsConversionLabel: 'Received to Scheduled CR',
     analyticsBreakdownConversionLabel: 'Received to Scheduled',
     directoryAllLabel: 'All Practices',
-    inviteTitle: 'Invite a Colleague',
-    inviteCopy: 'Is your favorite specialist not on drTalk yet? Invite them to join your network.',
+    inviteTitle: 'Invite a Clinic',
+    inviteCopy: 'Is your favorite partner clinic not on drTalk yet? Invite them to join your network.',
     inviteDefaultRole: 'Specialist',
   },
   dentist: {
@@ -130,8 +130,8 @@ export const networkRoleConfigs: Record<NetworkRole, NetworkRoleConfig> = {
     analyticsConversionLabel: 'Sent to Scheduled CR',
     analyticsBreakdownConversionLabel: 'Sent to Scheduled',
     directoryAllLabel: 'All Specialists',
-    inviteTitle: 'Invite a Specialist',
-    inviteCopy: 'Is your favorite specialist not on drTalk yet? Invite them to join your network.',
+    inviteTitle: 'Invite a Clinic',
+    inviteCopy: 'Is your favorite partner clinic not on drTalk yet? Invite them to join your network.',
     inviteDefaultRole: 'Specialist',
   },
 };
