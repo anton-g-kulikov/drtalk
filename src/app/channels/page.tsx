@@ -161,15 +161,71 @@ function ChannelsContent() {
   const [customDocType, setCustomDocType] = useState<'pdf' | 'image' | 'zip' | 'doc'>('pdf');
   const [customDocSize, setCustomDocSize] = useState('0 KB');
 
-  // Sync selected practices to the active channel name if it's external or inter-practice
+  // Sync selected practices and pre-fill patient details from active channel if it is a case or patient channel
   useEffect(() => {
     if (showDirectUploadModal && channelsState.activeChannel) {
       const activeName = channelsState.activeChannel.name;
       if (activeName && activeName !== 'team-members') {
         setSelectedPractices([activeName]);
       }
+
+      // Check if it's a case channel or patient channel
+      const isCase = channelsState.activeChannel.id.startsWith('case_');
+      const isPatient = channelsState.activeChannel.type === 'patient';
+      if (isCase || isPatient) {
+        let referralId = '';
+        if (isCase) {
+          referralId = channelsState.activeChannel.id.replace('case_', '');
+        }
+
+        // Find referral by ID or matching patient name
+        const ref = referralId
+          ? channelsState.referrals.find(r => r.id === referralId)
+          : channelsState.referrals.find(r => r.patientName.toLowerCase() === activeName.toLowerCase());
+
+        if (ref) {
+          setSelectedReferral(ref.id);
+          setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+          const parts = ref.patientName.split(' ');
+          setPatientFirstName(parts[0] || '');
+          setPatientLastName(parts.slice(1).join(' ') || '');
+
+          let dob = '01/01/1990';
+          const patientLower = ref.patientName.toLowerCase();
+          if (ref.id === '1' || patientLower === 'alice cooper') dob = '12/04/1978';
+          else if (ref.id === 'D-1002' || patientLower === 'marco reyes') dob = '05/14/1988';
+          else if (ref.id === 'D-1003' || patientLower === 'nina patel') dob = '10/20/1990';
+          else if (ref.id === 'D-1005' || ref.id === 'D-1004' || patientLower === 'sarah jenkins') dob = '11/22/1992';
+          else if (patientLower === 'john doe') dob = '08/08/1985';
+          else if (patientLower === 'james dean') dob = '02/08/1931';
+          else if (patientLower === 'humphrey bogart') dob = '12/25/1899';
+          else if (patientLower === 'audrey hepburn') dob = '05/04/1929';
+          setPatientDob(dob);
+        } else {
+          // Pre-fill fields from channel name directly if no referral is found
+          const parts = activeName.split(' ');
+          setPatientFirstName(parts[0] || '');
+          setPatientLastName(parts.slice(1).join(' ') || '');
+          setSelectedReferral('');
+          setReferralSearchQuery('NONE / NEW REFERRAL');
+
+          let dob = '';
+          const nameLower = activeName.toLowerCase();
+          if (nameLower === 'alice cooper') dob = '12/04/1978';
+          else if (nameLower === 'marco reyes') dob = '05/14/1988';
+          else if (nameLower === 'nina patel') dob = '10/20/1990';
+          else if (nameLower === 'sarah jenkins') dob = '11/22/1992';
+          else if (nameLower === 'john doe') dob = '08/08/1985';
+          else if (nameLower === 'james dean') dob = '02/08/1931';
+          else if (nameLower === 'humphrey bogart') dob = '12/25/1899';
+          else if (nameLower === 'audrey hepburn') dob = '05/04/1929';
+          if (dob) {
+            setPatientDob(dob);
+          }
+        }
+      }
     }
-  }, [showDirectUploadModal, channelsState.activeChannel]);
+  }, [showDirectUploadModal, channelsState.activeChannel, channelsState.referrals]);
 
   const closeReferralDropdown = () => setIsReferralDropdownOpen(false);
 
