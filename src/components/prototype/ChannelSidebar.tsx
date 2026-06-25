@@ -81,7 +81,7 @@ function ChannelSubRow({
         <Hash size={10} className={isActive ? 'text-white' : 'text-black'} />
         <span className="text-[10px] uppercase tracking-tight truncate">{displayName}</span>
       </div>
-      {subChannel.unreadCount && !isActive && (
+      {subChannel.unreadCount && subChannel.unreadCount > 1 && !isActive && (
         <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{subChannel.unreadCount}</span>
       )}
     </button>
@@ -116,7 +116,7 @@ function ChannelCaseRow({
         <span className="text-[10px] uppercase tracking-tight truncate">{caseChannel.name}</span>
         {isExternal && <span className="sr-only">External secure email</span>}
       </div>
-      {caseChannel.unreadCount && !isActive && (
+      {caseChannel.unreadCount && caseChannel.unreadCount > 1 && !isActive && (
         <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{caseChannel.unreadCount}</span>
       )}
     </button>
