@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { 
   FileText,
@@ -79,10 +79,35 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     UNRECOGNIZED_DOC_ROLE[id] ?? 'specialist'
   );
 
-  // Load unified referrals from localStorage
   const [referrals, setReferrals] = useState<UnifiedReferral[]>(initialReferrals);
   const referral = referrals.find(r => r.id === id) || referrals[0];
-  const caseDocs = initialDocuments.filter(d => d.channelId === `case_${referral.id}`);
+  const [caseDocs, setCaseDocs] = useState(() => initialDocuments.filter(d => d.channelId === `case_${referral.id}`));
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let docType: 'pdf' | 'image' | 'zip' | 'doc' = 'doc';
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') docType = 'pdf';
+    else if (['png', 'jpg', 'jpeg', 'gif'].includes(ext || '')) docType = 'image';
+    else if (['zip', 'rar', '7z'].includes(ext || '')) docType = 'zip';
+
+    const newDoc = {
+      id: Math.random().toString(36).substr(2, 9),
+      channelId: `case_${referral.id}`,
+      name: file.name.toUpperCase(),
+      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      type: docType,
+      sentBy: unrecognizedRole === 'specialist' ? 'Specialist Practice' : 'Dentist Practice',
+      sentAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setCaseDocs(prev => [...prev, newDoc]);
+    setDownloadToast(`Attached "${file.name}" successfully.`);
+    setTimeout(() => setDownloadToast(null), 3000);
+  };
 
   const [currentStatus, setCurrentStatus] = useState<ReferralStatus>(referral.status);
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
@@ -528,13 +553,17 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   </section>
 
                   {/* Attachment summary — click to open document tab */}
-                  {caseDocs.length > 0 && (
-                    <section className="space-y-4">
-                      <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">
-                        Attachments ({caseDocs.length})
-                      </h4>
-                      <div className="space-y-2">
-                        {caseDocs.map((doc) => (
+                  <section className="space-y-4">
+                    <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">
+                      Attached Documents ({caseDocs.length})
+                    </h4>
+                    <div className="space-y-2">
+                      {caseDocs.length === 0 ? (
+                        <p className="text-[10px] uppercase text-muted-foreground italic p-2 border border-dashed border-black/20 text-center">
+                          No attached documents yet.
+                        </p>
+                      ) : (
+                        caseDocs.map((doc) => (
                           <button
                             key={doc.id}
                             onClick={() => setActiveTab(doc.id)}
@@ -549,10 +578,23 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                             </div>
                             <span className="text-[8px] font-black uppercase px-2 py-0.5 border border-current shrink-0">View</span>
                           </button>
-                        ))}
-                      </div>
-                    </section>
-                  )}
+                        ))
+                      )}
+
+                      <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="w-full flex items-center justify-center gap-2 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group transition-all text-[10px] font-bold uppercase mt-2"
+                      >
+                        + Attach Document
+                      </button>
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                    </div>
+                  </section>
                 </div>
               </div>
             </div>
