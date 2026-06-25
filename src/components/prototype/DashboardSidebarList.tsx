@@ -89,7 +89,7 @@ export function DashboardSidebarList({
                 )}
                 <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
                   <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                  {item.unreadCount ? (
+                  {item.unreadCount && item.unreadCount > 1 ? (
                     <span className="bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shrink-0">
                       {item.unreadCount}
                     </span>
