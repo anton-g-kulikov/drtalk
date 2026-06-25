@@ -82,32 +82,33 @@ export function DashboardSidebarList({
                 <div className="w-8 h-8 border-2 border-black flex flex-col items-center justify-center bg-white font-bold text-[10px] shrink-0">{item.initials}</div>
               )}
               <div className="flex-1 space-y-1 min-w-0">
-                <div className="flex justify-between items-start gap-2">
-                  <div className="min-w-0 flex-1">
-                    {item.parentChannel && (
-                      <p className="text-[7px] font-bold uppercase text-gray-500 tracking-wider mb-0.5">
-                        {item.parentChannel}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-                      <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                      <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-black shrink-0 scale-90 origin-left">{item.meta}</span>
-                      {item.unreadCount ? (
-                        <span className="bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shrink-0">
-                          {item.unreadCount}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    {item.timestamp && (
-                      <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right leading-none">{item.timestamp}</span>
-                    )}
-                  </div>
+                {item.parentChannel && (
+                  <p className="text-[7px] font-bold uppercase text-gray-500 tracking-wider mb-0.5">
+                    {item.parentChannel}
+                  </p>
+                )}
+                <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
+                  <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
+                  {item.unreadCount ? (
+                    <span className="bg-black text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full min-w-[16px] text-center shrink-0">
+                      {item.unreadCount}
+                    </span>
+                  ) : null}
                 </div>
-                <p className="text-[9px] uppercase truncate opacity-70 italic">
-                  {item.message}
-                </p>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-black shrink-0 scale-90 origin-left">{item.meta}</span>
+                </div>
+
+                <div className="flex justify-between items-center gap-4 text-[9px] pt-1">
+                  <p className="uppercase truncate opacity-70 italic flex-1 text-black">
+                    {item.message}
+                  </p>
+                  {item.timestamp && (
+                    <span className="text-[7px] text-muted-foreground uppercase shrink-0 text-right whitespace-nowrap">
+                      {item.timestamp.replace('\n', ' • ')}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           );
