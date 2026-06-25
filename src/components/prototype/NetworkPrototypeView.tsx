@@ -266,7 +266,10 @@ function PracticeCard({
         <div className="space-y-1.5 pt-1">
           <div className="flex items-center gap-2 text-muted-foreground">
             <MapPin size={12} className="shrink-0" />
-            <span className="text-[9px] font-bold uppercase">{practice.location}</span>
+            <span className="text-[9px] font-bold uppercase">
+              {practice.location}
+              {activeTab === 'directory' && ` (${getMockDistance(practice.id)} mi)`}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-muted-foreground hover:text-black transition-colors">
             <Globe size={12} className="shrink-0" />
@@ -341,6 +344,14 @@ function InvitePlaceholder({ config, onInvite }: { config: NetworkRoleConfig; on
   );
 }
 
+const getMockDistance = (practiceId: string) => {
+  let sum = 0;
+  for (let i = 0; i < practiceId.length; i++) {
+    sum += practiceId.charCodeAt(i);
+  }
+  return (sum % 45) + 3; // 3 to 47 miles
+};
+
 export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const config = networkRoleConfigs[role];
   const [activeTab, setActiveTab] = useState<NetworkTab>('analytics');
@@ -349,6 +360,12 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
+
+  const [selectedState, setSelectedState] = useState('All');
+  const [selectedCity, setSelectedCity] = useState('All');
+  const [selectedRadius, setSelectedRadius] = useState('All');
+  const [selectedType, setSelectedType] = useState('All');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     setNetworkList(getNetwork());
@@ -362,6 +379,34 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  const cities = React.useMemo(() => {
+    const list = new Set<string>();
+    networkList.forEach((p) => {
+      if (p.location && p.location.includes(',')) {
+        list.add(p.location.split(',')[0].trim());
+      }
+    });
+    return Array.from(list).sort();
+  }, [networkList]);
+
+  const states = React.useMemo(() => {
+    const list = new Set<string>();
+    networkList.forEach((p) => {
+      if (p.location && p.location.includes(',')) {
+        list.add(p.location.split(',')[1].trim());
+      }
+    });
+    return Array.from(list).sort();
+  }, [networkList]);
+
+  const types = React.useMemo(() => {
+    const list = new Set<string>();
+    networkList.forEach((p) => {
+      if (p.type) list.add(p.type);
+    });
+    return Array.from(list).sort();
+  }, [networkList]);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -394,12 +439,38 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     showToast(`Connection removed with ${practice.name}`);
   };
 
+  const hasActiveDirectoryFilters = selectedState !== 'All' || selectedCity !== 'All' || selectedRadius !== 'All' || selectedType !== 'All';
+
   const filteredNetwork = networkList.filter((practice) => {
     const searchStr = searchQuery.toLowerCase();
     const matchesSearch = practice.name.toLowerCase().includes(searchStr) || practice.specialty.toLowerCase().includes(searchStr);
     if (!matchesSearch) return false;
 
-    if (config.role === 'dentist' && practice.type !== 'Specialist') return false;
+    // Only apply directory filters if we're on the directory tab
+    if (activeTab === 'directory') {
+      if (selectedType !== 'All' && practice.type !== selectedType) return false;
+      if (config.role === 'dentist' && practice.type !== 'Specialist') return false;
+
+      // State filter
+      if (selectedState !== 'All') {
+        const statePart = practice.location?.split(',')?.[1]?.trim() || '';
+        if (statePart !== selectedState) return false;
+      }
+
+      // City filter
+      if (selectedCity !== 'All') {
+        const cityPart = practice.location?.split(',')?.[0]?.trim() || '';
+        if (cityPart !== selectedCity) return false;
+      }
+
+      // Radius filter
+      if (selectedRadius !== 'All') {
+        const distance = getMockDistance(practice.id);
+        const radiusVal = parseInt(selectedRadius, 10);
+        if (distance > radiusVal) return false;
+      }
+    }
+
     if (activeTab === 'connected' && practice.status !== 'Connected') return false;
     if (activeTab === 'directory') {
       if (practice.status === 'Connected') return false;
@@ -426,16 +497,109 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{config.subtitle}</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-            <div className="relative flex-1 sm:flex-none">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <input type="text" placeholder={config.searchPlaceholder} className="wireframe-input pl-10 py-2.5 text-[10px] w-full md:w-64 shadow-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          {activeTab === 'directory' && (
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+              <div className="relative flex-1 sm:flex-none">
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <input type="text" placeholder={config.searchPlaceholder} className="wireframe-input pl-10 py-2.5 text-[10px] w-full md:w-64 shadow-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+              </div>
+              <button 
+                onClick={() => setShowFilters(!showFilters)}
+                className={`wireframe-button px-4 py-2.5 sm:py-0 flex items-center justify-center transition-colors border-2 border-black ${showFilters || hasActiveDirectoryFilters ? 'bg-black text-white' : 'bg-white text-black'}`}
+                title="Toggle Filters"
+              >
+                <Filter size={16} />
+              </button>
             </div>
-            <button className="wireframe-button px-4 py-2.5 sm:py-0 flex items-center justify-center">
-              <Filter size={16} />
-            </button>
-          </div>
+          )}
         </div>
+
+        {showFilters && activeTab === 'directory' && (
+          <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col md:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+              {/* State */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-state-filter">State</label>
+                <select
+                  id="network-state-filter"
+                  value={selectedState}
+                  onChange={(e) => setSelectedState(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All States</option>
+                  {states.map((st) => (
+                    <option key={st} value={st}>{st}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* City */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-city-filter">City</label>
+                <select
+                  id="network-city-filter"
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All Cities</option>
+                  {cities.map((ct) => (
+                    <option key={ct} value={ct}>{ct}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Radius */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-radius-filter">Radius</label>
+                <select
+                  id="network-radius-filter"
+                  value={selectedRadius}
+                  onChange={(e) => setSelectedRadius(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All Distances</option>
+                  <option value="5">Within 5 miles</option>
+                  <option value="10">Within 10 miles</option>
+                  <option value="25">Within 25 miles</option>
+                  <option value="50">Within 50 miles</option>
+                </select>
+              </div>
+
+              {/* Type */}
+              <div className="space-y-1.5">
+                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-type-filter">Practice Type</label>
+                <select
+                  id="network-type-filter"
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                >
+                  <option value="All">All Types</option>
+                  {types.map((ty) => (
+                    <option key={ty} value={ty}>{ty}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {hasActiveDirectoryFilters && (
+              <div className="flex items-end shrink-0">
+                <button
+                  onClick={() => {
+                    setSelectedState('All');
+                    setSelectedCity('All');
+                    setSelectedRadius('All');
+                    setSelectedType('All');
+                  }}
+                  className="wireframe-button px-4 py-2 text-[10px] uppercase font-bold border-red-200 text-red-600 hover:bg-red-50 h-9 shrink-0"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="space-y-6">
           <div className="border-b-2 border-black">
