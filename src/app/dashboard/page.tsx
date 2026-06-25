@@ -505,11 +505,11 @@ export default function DashboardPage() {
               title="Recent Conversations"
               icon={<MessageSquare size={18} />}
               items={[
-                { id: 1, name: 'team-members', message: 'Reviewing tooth #14...', initials: 'TM', meta: 'Internal', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
-                { id: 2, name: 'Sunshine Dental', message: 'Practice connection active.', initials: 'SD', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Sunshine%20Dental') },
-                { id: 3, name: 'Downtown Oral Surgery', message: 'Referral sent for Bob Marley.', initials: 'DO', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Downtown%20Oral%20Surgery') },
-                { id: 4, name: 'Alice Cooper', message: 'Got it, thank you!', initials: 'AC', meta: 'Patient', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Alice%20Cooper') },
-                { id: 5, name: 'Emergency Case Board', message: 'Case discussion initiated.', initials: 'EC', meta: 'Group', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
+                { id: 1, name: 'TEAM-MEMBERS', message: 'Reviewing tooth #14...', initials: 'TM', meta: 'Internal', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
+                { id: 2, name: 'SUNSHINE DENTAL', message: 'Practice connection active.', initials: 'SD', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Sunshine%20Dental') },
+                { id: 3, name: 'DOWNTOWN ORAL SURGERY', message: 'Referral sent for Bob Marley.', initials: 'DO', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Downtown%20Oral%20Surgery') },
+                { id: 4, name: 'ALICE COOPER (SUNSHINE DENTAL)', message: 'Got it, thank you!', initials: 'AC', meta: 'Patient', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels?practice=Alice%20Cooper') },
+                { id: 5, name: 'EMERGENCY CASE BOARD', message: 'Case discussion initiated.', initials: 'EC', meta: 'Group', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/channels') },
               ]}
             />
 

@@ -83,7 +83,7 @@ export function DashboardSidebarList({
                 <div className="flex justify-between items-baseline">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <p className="text-[9px] font-bold uppercase truncate">{item.name}</p>
-                    <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-muted-foreground shrink-0 scale-90 origin-left">{item.meta}</span>
+                    <span className="text-[7px] font-bold px-1 py-0.25 border border-black uppercase text-black shrink-0 scale-90 origin-left">{item.meta}</span>
                   </div>
                   {item.timestamp && (
                     <span className="text-[7px] text-muted-foreground uppercase shrink-0 whitespace-pre-line text-right">{item.timestamp}</span>

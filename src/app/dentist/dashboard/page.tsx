@@ -384,11 +384,11 @@ export default function DentistDashboardPage() {
               title="Recent Conversations"
               icon={<MessageSquare size={18} />}
               items={[
-                { id: 1, name: 'team-members', message: 'Did anyone review the morning labs yet?', initials: 'TM', meta: 'Internal', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels') },
-                { id: 2, name: 'Valley Endodontics', message: 'Regarding Alice Cooper: pano received.', initials: 'VE', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Valley%20Endodontics') },
-                { id: 3, name: 'Downtown Oral Surgery', message: 'Requesting pano image for Marco Reyes.', initials: 'DO', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Downtown%20Oral%20Surgery') },
-                { id: 4, name: 'Alice Cooper', message: 'Got it, thank you!', initials: 'AC', meta: 'Patient', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Alice%20Cooper') },
-                { id: 5, name: 'Case Coordination Group', message: 'Dr. Jones joined the group.', initials: 'CC', meta: 'Group', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels') },
+                { id: 1, name: 'TEAM-MEMBERS', message: 'Did anyone review the morning labs yet?', initials: 'TM', meta: 'Internal', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels') },
+                { id: 2, name: 'VALLEY ENDODONTICS', message: 'Regarding Alice Cooper: pano received.', initials: 'VE', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Valley%20Endodontics') },
+                { id: 3, name: 'DOWNTOWN ORAL SURGERY', message: 'Requesting pano image for Marco Reyes.', initials: 'DO', meta: 'Inter-Practice', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Downtown%20Oral%20Surgery') },
+                { id: 4, name: 'ALICE COOPER (VALLEY ENDODONTICS)', message: 'Got it, thank you!', initials: 'AC', meta: 'Patient', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels?practice=Alice%20Cooper') },
+                { id: 5, name: 'CASE COORDINATION GROUP', message: 'Dr. Jones joined the group.', initials: 'CC', meta: 'Group', timestamp: '10:05 AM\n05/11/2026', onClick: () => router.push('/dentist/channels') },
               ]}
             />
 
