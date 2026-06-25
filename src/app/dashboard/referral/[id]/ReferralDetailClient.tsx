@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
@@ -30,6 +30,32 @@ export default function ReferralDetailClient() {
   const referral = mockReferrals.find(r => r.id === resolvedId) || mockReferrals[0];
   const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>(referral.urgency || 'Routine');
   const [practiceName, setPracticeName] = useState(referral.practice);
+
+  const [attachments, setAttachments] = useState([
+    { name: 'VIEW_SCAN_1.DCM', type: 'DICOM', size: '12.4 MB' },
+    { name: 'VIEW_SCAN_2.DCM', type: 'DICOM', size: '8.2 MB' },
+    { name: 'VIEW_SCAN_3.DCM', type: 'DICOM', size: '10.1 MB' },
+  ]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let docType = 'doc';
+    const ext = file.name.split('.').pop()?.toLowerCase();
+    if (ext === 'pdf') docType = 'PDF';
+    else if (['png', 'jpg', 'jpeg', 'gif'].includes(ext || '')) docType = 'IMAGE';
+    else if (['zip', 'rar', '7z'].includes(ext || '')) docType = 'ZIP';
+
+    const newAttachment = {
+      name: file.name.toUpperCase(),
+      type: docType.toUpperCase(),
+      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+    };
+
+    setAttachments(prev => [...prev, newAttachment]);
+  };
 
   const getStatusColor = (status: ReferralStatus) => {
     switch (status) {
@@ -173,14 +199,10 @@ export default function ReferralDetailClient() {
                     </p>
                   </div>
                 </section>
-                <section className="space-y-6">
-                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Attachments (3)</h4>
+                 <section className="space-y-6">
+                  <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Attached Documents ({attachments.length})</h4>
                   <div className="space-y-2">
-                    {[
-                      { name: 'VIEW_SCAN_1.DCM', type: 'DICOM', size: '12.4 MB' },
-                      { name: 'VIEW_SCAN_2.DCM', type: 'DICOM', size: '8.2 MB' },
-                      { name: 'VIEW_SCAN_3.DCM', type: 'DICOM', size: '10.1 MB' },
-                    ].map((file, i) => (
+                    {attachments.map((file, i) => (
                       <div key={i} className="flex items-center gap-3 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group cursor-pointer transition-all">
                         <FileText size={18} className="shrink-0" />
                         <div className="flex flex-col flex-1 overflow-hidden">
@@ -189,6 +211,19 @@ export default function ReferralDetailClient() {
                         </div>
                       </div>
                     ))}
+                    
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full flex items-center justify-center gap-2 p-3 border-2 border-black border-dashed hover:bg-black hover:text-white group transition-all text-[10px] font-bold uppercase mt-2"
+                    >
+                      + Attach Document
+                    </button>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
                   </div>
                 </section>
               </div>
