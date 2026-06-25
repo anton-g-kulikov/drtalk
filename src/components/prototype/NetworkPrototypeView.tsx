@@ -198,20 +198,24 @@ function PracticeCard({
     <div className={`wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full ${practice.isExternal && config.role === 'specialist' ? 'border-dashed' : ''}`}>
       <div className="p-6 space-y-4 flex-1">
         <div className="flex justify-between items-start">
-          <div className={`w-12 h-12 border-2 border-black flex items-center justify-center transition-all ${practice.isExternal && config.role === 'specialist' ? 'bg-gray-100 group-hover:bg-gray-200' : 'bg-gray-50 group-hover:bg-black group-hover:text-white'}`}>
-            <Building2 size={24} />
+          <div className="flex flex-col items-start gap-2">
+            <div className={`w-12 h-12 border-2 border-black flex items-center justify-center transition-all ${practice.isExternal && config.role === 'specialist' ? 'bg-gray-100 group-hover:bg-gray-200' : 'bg-gray-50 group-hover:bg-black group-hover:text-white'}`}>
+              <Building2 size={24} />
+            </div>
+            {practice.isExternal && (
+              <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
+                External / Fax / Email
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex flex-col items-end gap-1">
-              <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'}`}>
-                {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
-              </span>
-              {practice.isExternal && (
-                <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
-                  External / Fax / Email
+            {practice.status !== 'Connected' && (
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black bg-transparent text-black">
+                  {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
 
             {practice.status === 'Connected' && onRemoveConnection && (
               <div className="relative">
