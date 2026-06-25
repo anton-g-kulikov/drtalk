@@ -5,7 +5,7 @@ import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   ArrowLeft, FileText, Download, 
-  AlertTriangle, Send, MoreHorizontal 
+  AlertTriangle, Send, MoreHorizontal, Pencil
 } from 'lucide-react';
 import { useRouter, useParams } from 'next/navigation';
 
@@ -119,9 +119,10 @@ export default function ReferralDetailClient() {
               <div className="flex gap-6">
                 <button 
                   onClick={() => setIsEditorMode(!isEditorMode)}
-                  className="text-[10px] font-bold uppercase underline hover:text-black transition-colors"
+                  className={isEditorMode ? "text-[10px] font-bold uppercase underline hover:text-black transition-colors" : "hover:opacity-75 transition-opacity pb-0.5"}
+                  title={isEditorMode ? 'Save Changes' : 'Enter Edit Mode'}
                 >
-                  {isEditorMode ? 'Save Changes' : 'Enter Edit Mode'}
+                  {isEditorMode ? 'Save Changes' : <Pencil size={12} className="text-black inline" />}
                 </button>
               </div>
             </div>
@@ -131,9 +132,9 @@ export default function ReferralDetailClient() {
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Patient Details</h4>
                   <div className="space-y-5">
-                    <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} />
-                    <DataField label="Date of Birth" value="MAY 14, 1985" />
-                    <DataField label="Contact Phone" value="(555) 012-3456" />
+                    <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
+                    <DataField label="Date of Birth" value="MAY 14, 1985" edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
+                    <DataField label="Contact Phone" value="(555) 012-3456" edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
                     <div className="space-y-1.5 pt-2">
                       <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block">Urgency</label>
                       <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded-sm border ${
@@ -149,15 +150,16 @@ export default function ReferralDetailClient() {
                 <section className="space-y-6">
                   <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Referral Source</h4>
                   <div className="space-y-5">
-                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} />
+                     <DataField label="Input Channel" value={referral.source} edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
                      <DataField 
                        label="Referring Practice" 
                        value={practiceName} 
                        edit={isEditorMode} 
                        onChange={setPracticeName}
                        canEditInline={true}
+                       onEditRequest={() => setIsEditorMode(true)}
                      />
-                     <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} />
+                     <DataField label="Referring Dentist" value={referral.dentist} edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
                   </div>
                 </section>
               </div>
@@ -251,13 +253,15 @@ function DataField({
   value, 
   edit, 
   onChange,
-  canEditInline 
+  canEditInline,
+  onEditRequest
 }: { 
   label: string, 
   value: string, 
   edit?: boolean,
   onChange?: (val: string) => void,
-  canEditInline?: boolean
+  canEditInline?: boolean,
+  onEditRequest?: () => void
 }) {
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -283,6 +287,8 @@ function DataField({
       setTempValue(value);
     }
   };
+
+  const isMissingValue = value.includes('MISSING');
 
   return (
     <div className="space-y-1">
@@ -313,16 +319,25 @@ function DataField({
       ) : (
         <div 
           onClick={() => {
-            if (canEditInline) setIsInlineEditing(true);
+            if (isMissingValue && onEditRequest) {
+              onEditRequest();
+            } else if (canEditInline) {
+              setIsInlineEditing(true);
+            }
           }}
-          className={`group flex items-center gap-2 ${canEditInline ? 'cursor-pointer select-none' : ''}`}
+          className={`group flex items-center gap-2 ${(canEditInline || (isMissingValue && onEditRequest)) ? 'cursor-pointer select-none' : ''}`}
         >
-          <p className="font-bold text-xs uppercase group-hover:underline">
+          <p className={`font-bold text-xs uppercase group-hover:underline ${isMissingValue ? 'text-red-600 bg-red-50 px-2 py-0.5 border border-red-300 rounded-sm inline-block' : ''}`}>
             {value}
           </p>
           {canEditInline && (
             <span className="text-[8px] opacity-0 group-hover:opacity-100 text-muted-foreground transition-opacity uppercase font-bold">
               (Click to edit)
+            </span>
+          )}
+          {isMissingValue && onEditRequest && (
+            <span className="text-[8px] opacity-0 group-hover:opacity-100 text-red-600 transition-opacity uppercase font-bold">
+              (Click to enter edit mode)
             </span>
           )}
         </div>
