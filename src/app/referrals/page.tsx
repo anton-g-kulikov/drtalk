@@ -7,11 +7,35 @@ import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
 import { getPrototypePageNumbers } from '@/prototype/pagination';
-import { ReferralPipelineControls, ReferralTimeRange } from '@/components/prototype/ReferralPipelineControls';
+import { ReferralPipelineControls, ReferralTimeRange, ReferralSortOption } from '@/components/prototype/ReferralPipelineControls';
 
 import { ReferralStatus } from '@/lib/referrals';
 
 import { useVerification } from '@/components/VerificationContext';
+
+const parseReceivedAtDate = (receivedAt: string) => {
+  const parts = receivedAt.split('\n');
+  const datePart = parts[1] || parts[0];
+  const timePart = parts[0] && parts[1] ? parts[0] : '';
+  const match = datePart.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (!match) return new Date(0);
+  const month = parseInt(match[1], 10);
+  const day = parseInt(match[2], 10);
+  const year = parseInt(match[3], 10);
+  
+  if (timePart) {
+    const timeMatch = timePart.match(/(\d{2}):(\d{2})\s*(AM|PM)/i);
+    if (timeMatch) {
+      let hours = parseInt(timeMatch[1], 10);
+      const minutes = parseInt(timeMatch[2], 10);
+      const ampm = timeMatch[3].toUpperCase();
+      if (ampm === 'PM' && hours < 12) hours += 12;
+      if (ampm === 'AM' && hours === 12) hours = 0;
+      return new Date(year, month - 1, day, hours, minutes);
+    }
+  }
+  return new Date(year, month - 1, day);
+};
 
 export default function ReferralsPage() {
   const [mockReferrals, setMockReferrals] = useState<UnifiedReferral[]>(initialReferrals);
@@ -60,11 +84,12 @@ export default function ReferralsPage() {
   }, [activeTab]);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState<ReferralSortOption>('date-desc');
 
-  // Reset page to 1 when filters change
+  // Reset page to 1 when filters or sorting changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, timeRange, searchQuery, selectedUrgency, selectedSource, selectedPracticeFilter, showIncompleteOnly]);
+  }, [activeTab, timeRange, searchQuery, selectedUrgency, selectedSource, selectedPracticeFilter, showIncompleteOnly, sortBy]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -152,12 +177,32 @@ export default function ReferralsPage() {
     return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice && matchesTimeRange;
   });
 
+  const sortedReferrals = React.useMemo(() => {
+    const referralsCopy = [...filteredReferrals];
+    referralsCopy.sort((a, b) => {
+      if (sortBy === 'date-desc') {
+        return parseReceivedAtDate(b.receivedAt).getTime() - parseReceivedAtDate(a.receivedAt).getTime();
+      }
+      if (sortBy === 'date-asc') {
+        return parseReceivedAtDate(a.receivedAt).getTime() - parseReceivedAtDate(b.receivedAt).getTime();
+      }
+      if (sortBy === 'name-asc') {
+        return a.patientName.localeCompare(b.patientName);
+      }
+      if (sortBy === 'name-desc') {
+        return b.patientName.localeCompare(a.patientName);
+      }
+      return 0;
+    });
+    return referralsCopy;
+  }, [filteredReferrals, sortBy]);
+
   const ITEMS_PER_PAGE = 10;
-  const totalReferralPages = Math.ceil(filteredReferrals.length / ITEMS_PER_PAGE);
+  const totalReferralPages = Math.ceil(sortedReferrals.length / ITEMS_PER_PAGE);
   const paginatedReferrals = React.useMemo(() => {
     const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredReferrals.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredReferrals, currentPage]);
+    return sortedReferrals.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedReferrals, currentPage]);
 
   return (
     <MainLayout title={isDentist ? "Patients" : "Referrals"}>
@@ -254,6 +299,7 @@ export default function ReferralsPage() {
               selectedPracticeFilter={selectedPracticeFilter}
               showIncompleteOnly={showIncompleteOnly}
               practiceOptions={practiceOptions}
+              sortBy={sortBy}
               onActiveTabChange={setActiveTab}
               onTimeRangeChange={setTimeRange}
               onSearchQueryChange={setSearchQuery}
@@ -268,6 +314,7 @@ export default function ReferralsPage() {
                 setShowIncompleteOnly(false);
                 setSelectedPracticeFilter('All');
               }}
+              onSortByChange={setSortBy}
             />
 
             {/* List Headers */}

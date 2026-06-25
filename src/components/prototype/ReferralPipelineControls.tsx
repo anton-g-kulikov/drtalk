@@ -5,6 +5,8 @@ import type { ReferralStatus } from '@/lib/referrals';
 
 export type ReferralTimeRange = 'day' | 'week' | 'month' | 'quarter' | 'year';
 
+export type ReferralSortOption = 'date-desc' | 'date-asc' | 'name-asc' | 'name-desc';
+
 type ReferralPipelineControlsProps = {
   isDentist: boolean;
   activeTab: ReferralStatus;
@@ -16,6 +18,7 @@ type ReferralPipelineControlsProps = {
   selectedPracticeFilter: string;
   showIncompleteOnly: boolean;
   practiceOptions: string[];
+  sortBy?: ReferralSortOption;
   onActiveTabChange: (tab: ReferralStatus) => void;
   onTimeRangeChange: (range: ReferralTimeRange) => void;
   onSearchQueryChange: (query: string) => void;
@@ -25,6 +28,7 @@ type ReferralPipelineControlsProps = {
   onPracticeChange: (practice: string) => void;
   onIncompleteOnlyChange: (showIncompleteOnly: boolean) => void;
   onClearFilters: () => void;
+  onSortByChange?: (sortBy: ReferralSortOption) => void;
 };
 
 function getTabLabel(tab: ReferralStatus, isDentist: boolean) {
@@ -48,6 +52,7 @@ export function ReferralPipelineControls({
   selectedPracticeFilter,
   showIncompleteOnly,
   practiceOptions,
+  sortBy = 'date-desc',
   onActiveTabChange,
   onTimeRangeChange,
   onSearchQueryChange,
@@ -57,6 +62,7 @@ export function ReferralPipelineControls({
   onPracticeChange,
   onIncompleteOnlyChange,
   onClearFilters,
+  onSortByChange = () => {},
 }: ReferralPipelineControlsProps) {
   const hasActiveFilters = selectedUrgency !== 'All' || selectedSource !== 'All' || showIncompleteOnly || selectedPracticeFilter !== 'All';
   const tabs: ReferralStatus[] = ['Received', 'Accepted', 'Scheduled', 'Released', 'Archived'];
@@ -106,6 +112,23 @@ export function ReferralPipelineControls({
               <option value="month">Last 30 Days</option>
               <option value="quarter">Last 90 Days</option>
               <option value="year">Last 12 Months</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={14} className="text-black" />
+            </div>
+          </div>
+          <div className="relative">
+            <label className="sr-only" htmlFor="referral-sort-by">Sort By</label>
+            <select
+              id="referral-sort-by"
+              value={sortBy}
+              onChange={(event) => onSortByChange(event.target.value as ReferralSortOption)}
+              className="wireframe-input py-2 pl-4 pr-10 text-[11px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+            >
+              <option value="date-desc">Date (Newest First)</option>
+              <option value="date-asc">Date (Oldest First)</option>
+              <option value="name-asc">Patient Name (A-Z)</option>
+              <option value="name-desc">Patient Name (Z-A)</option>
             </select>
             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
               <ChevronDown size={14} className="text-black" />
