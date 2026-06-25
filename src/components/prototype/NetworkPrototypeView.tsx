@@ -166,12 +166,14 @@ function PracticeCard({
   practice,
   showToast,
   onDismiss,
+  onRemoveConnection,
 }: {
   activeTab: NetworkTab;
   config: NetworkRoleConfig;
   practice: NetworkPractice;
   showToast: (message: string) => void;
   onDismiss?: () => void;
+  onRemoveConnection?: () => void;
 }) {
   const router = useRouter();
 
@@ -198,6 +200,20 @@ function PracticeCard({
               <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
                 External / Fax / Email
               </span>
+            )}
+            {practice.status === 'Connected' && onRemoveConnection && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (typeof window !== 'undefined' && window.confirm && !window.confirm(`Are you sure you want to remove the connection with ${practice.name}?`)) {
+                    return;
+                  }
+                  onRemoveConnection();
+                }}
+                className="text-[8px] font-bold text-zinc-400 hover:text-red-600 hover:underline transition-colors uppercase tracking-tight mt-1"
+              >
+                Remove Connection
+              </button>
             )}
           </div>
         </div>
@@ -327,6 +343,20 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     showToast("Suggestion dismissed");
   };
 
+  const handleRemoveConnection = (practiceId: string) => {
+    const practice = networkList.find(p => p.id === practiceId);
+    if (!practice) return;
+    const updated = networkList.map((p) => {
+      if (p.id === practiceId) {
+        return { ...p, status: (p.isExternal ? 'Suggested' : 'Nearby') as any };
+      }
+      return p;
+    });
+    setNetworkList(updated);
+    saveNetwork(updated);
+    showToast(`Connection removed with ${practice.name}`);
+  };
+
   const filteredNetwork = networkList.filter((practice) => {
     const searchStr = searchQuery.toLowerCase();
     const matchesSearch = practice.name.toLowerCase().includes(searchStr) || practice.specialty.toLowerCase().includes(searchStr);
@@ -407,6 +437,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                         practice={practice}
                         showToast={showToast}
                         onDismiss={() => handleDismiss(practice.id)}
+                        onRemoveConnection={() => handleRemoveConnection(practice.id)}
                       />
                     ))}
                     <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />
@@ -421,6 +452,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                           practice={practice}
                           showToast={showToast}
                           onDismiss={() => handleDismiss(practice.id)}
+                          onRemoveConnection={() => handleRemoveConnection(practice.id)}
                         />
                       ))}
                     </NetworkSection>
@@ -436,6 +468,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                       practice={practice}
                       showToast={showToast}
                       onDismiss={() => handleDismiss(practice.id)}
+                      onRemoveConnection={() => handleRemoveConnection(practice.id)}
                     />
                   ))}
                   {activeTab === 'connected' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}

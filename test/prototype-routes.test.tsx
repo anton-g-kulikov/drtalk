@@ -108,7 +108,13 @@ describe('prototype route use cases', () => {
     expect(await screen.findByRole('heading', { name: /specialist network/i })).toBeInTheDocument();
     expect(screen.getByText(/total referrals sent/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /my network/i }));
-    expect(screen.getAllByText(/send referral/i).length).toBeGreaterThan(0);
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+    const removeButtons = screen.getAllByRole('button', { name: /remove connection/i });
+    expect(removeButtons.length).toBeGreaterThan(0);
+    await user.click(removeButtons[0]);
+    expect(confirmSpy).toHaveBeenCalled();
+    expect(screen.getByText(/connection removed with/i)).toBeInTheDocument();
+    confirmSpy.mockRestore();
   });
 
   it('document detail renders preview metadata and archives active inbox documents', async () => {
