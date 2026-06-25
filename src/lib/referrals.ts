@@ -209,6 +209,7 @@ export interface Channel {
   memberCount: number;
   isVerified?: boolean;
   isExternal?: boolean;
+  isArchived?: boolean;
 }
 
 export const initialNetwork: NetworkPractice[] = [

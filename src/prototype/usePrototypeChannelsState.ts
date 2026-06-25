@@ -107,6 +107,11 @@ export function usePrototypeChannelsState({
   const [subChannelParentPractice, setSubChannelParentPractice] = useState<Channel | null>(null);
   const [subChannelError, setSubChannelError] = useState<string | null>(null);
 
+  const [replyingToMessage, setReplyingToMessage] = useState<MessageItem | null>(null);
+  const [pinnedMessages, setPinnedMessages] = useState<string[]>([]);
+  const [messageToForward, setMessageToForward] = useState<MessageItem | null>(null);
+  const [isForwardMessageModalOpen, setIsForwardMessageModalOpen] = useState(false);
+
   useEffect(() => {
     setTimeout(() => {
       setReferrals(getReferrals());
@@ -400,12 +405,69 @@ export function usePrototypeChannelsState({
     setShowCreateSubChannelModal(false);
   };
 
+  const handleReplyMessage = (messageId: string) => {
+    const channelMsgs = messages[activeChannel.id] || [];
+    const msg = channelMsgs.find((m) => m.id === messageId);
+    if (msg) {
+      setReplyingToMessage(msg);
+    }
+  };
+
+  const handleForwardMessage = (messageId: string) => {
+    const channelMsgs = messages[activeChannel.id] || [];
+    const msg = channelMsgs.find((m) => m.id === messageId);
+    if (msg) {
+      setMessageToForward(msg);
+      setIsForwardMessageModalOpen(true);
+    }
+  };
+
+  const handlePinMessage = (messageId: string) => {
+    setPinnedMessages((prev) => {
+      const isAlreadyPinned = prev.includes(messageId);
+      if (isAlreadyPinned) {
+        triggerToast('Message unpinned');
+        return prev.filter((id) => id !== messageId);
+      } else {
+        triggerToast('Message pinned to channel');
+        return [...prev, messageId];
+      }
+    });
+  };
+
+  const handleCopyMessage = (messageId: string) => {
+    const channelMsgs = messages[activeChannel.id] || [];
+    const msg = channelMsgs.find((m) => m.id === messageId);
+    if (msg) {
+      navigator.clipboard.writeText(msg.text);
+      triggerToast('Message copied to clipboard');
+    }
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages((prev) => {
+      const channelMsgs = prev[activeChannel.id] || [];
+      const updatedMsgs = channelMsgs.filter((m) => m.id !== messageId);
+      return {
+        ...prev,
+        [activeChannel.id]: updatedMsgs,
+      };
+    });
+    triggerToast('Message deleted');
+  };
+
   const handleSendMessage = () => {
     if (isTrialEnded) {
       onPaywall();
       return;
     }
     if (!inputText.trim() && !attachedDoc) return;
+
+    let textToSend = inputText;
+    if (replyingToMessage) {
+      textToSend = `> Replying to ${replyingToMessage.user === 'Me' ? 'You' : replyingToMessage.user}: "${replyingToMessage.text.substring(0, 60)}${replyingToMessage.text.length > 60 ? '...' : ''}"\n\n${inputText}`;
+      setReplyingToMessage(null);
+    }
 
     const result = buildChannelMessageSend({
       activeChannel,
@@ -414,7 +476,7 @@ export function usePrototypeChannelsState({
       referrals,
       messages,
       documents,
-      inputText,
+      inputText: textToSend,
       attachedDoc,
     });
     if (!result.ok) return;
@@ -724,5 +786,17 @@ export function usePrototypeChannelsState({
     handleCreateSubChannel,
     handleOpenCreateSubChannel,
     handleCancelCreateSubChannel,
+    replyingToMessage,
+    setReplyingToMessage,
+    pinnedMessages,
+    handleReplyMessage,
+    handleForwardMessage,
+    handlePinMessage,
+    handleCopyMessage,
+    handleDeleteMessage,
+    messageToForward,
+    setMessageToForward,
+    isForwardMessageModalOpen,
+    setIsForwardMessageModalOpen,
   };
 }

@@ -104,6 +104,46 @@ function ChannelsContent() {
     setDocumentToForward(null);
   };
 
+  const handleConfirmForwardMessage = (
+    targets: { name: string; isCustom?: boolean; customType?: 'email' | 'fax' }[],
+    note: string
+  ) => {
+    const msg = channelsState.messageToForward;
+    if (!msg) return;
+
+    targets.forEach(t => {
+      const targetChannel = channelsState.channels.find(
+        c => c.name.toLowerCase() === t.name.toLowerCase()
+      );
+      
+      const forwardText = `[Forwarded Message from ${msg.user === 'Me' ? 'You' : msg.user}]:\n"${msg.text}"${note ? `\n\nNote: ${note}` : ''}`;
+      
+      const newMsg: MessageItem = {
+        id: 'msg_fwd_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+        user: 'Me',
+        text: forwardText,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        type: 'self',
+      };
+
+      if (targetChannel) {
+        channelsState.setMessages(prev => {
+          const channelMsgs = prev[targetChannel.id] || [];
+          return {
+            ...prev,
+            [targetChannel.id]: [...channelMsgs, newMsg]
+          };
+        });
+      } else {
+        channelsState.triggerToast(`Forwarded message sent to ${t.name}`);
+      }
+    });
+
+    channelsState.triggerToast(`Message forwarded to ${targets.length} recipient(s)`);
+    channelsState.setMessageToForward(null);
+    channelsState.setIsForwardMessageModalOpen(false);
+  };
+
   const [showDirectUploadModal, setShowDirectUploadModal] = useState(false);
   const [customDocName, setCustomDocName] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
@@ -435,6 +475,14 @@ function ChannelsContent() {
           onViewArchivedDocuments={() => channelsState.setIsViewingArchivedDocs(!channelsState.isViewingArchivedDocs)}
           onForwardDocument={handleForwardDocument}
           onToggleReaction={channelsState.handleToggleReaction}
+          onReplyMessage={channelsState.handleReplyMessage}
+          onForwardMessage={channelsState.handleForwardMessage}
+          onPinMessage={channelsState.handlePinMessage}
+          onCopyMessage={channelsState.handleCopyMessage}
+          onDeleteMessage={channelsState.handleDeleteMessage}
+          pinnedMessages={channelsState.pinnedMessages}
+          replyingToMessage={channelsState.replyingToMessage}
+          onCancelReply={() => channelsState.setReplyingToMessage(null)}
         />
       </div>
 
@@ -916,6 +964,7 @@ function ChannelsContent() {
       )}
 
       <ForwardDocumentModal
+        key="forward-document-modal"
         isOpen={isForwardModalOpen}
         onClose={() => {
           setIsForwardModalOpen(false);
@@ -925,6 +974,20 @@ function ChannelsContent() {
         documentSize={documentToForward?.size || ''}
         isDentist={isDentist}
         onConfirmForward={handleConfirmForward}
+      />
+
+      <ForwardDocumentModal
+        key="forward-message-modal"
+        isOpen={channelsState.isForwardMessageModalOpen}
+        onClose={() => {
+          channelsState.setIsForwardMessageModalOpen(false);
+          channelsState.setMessageToForward(null);
+        }}
+        documentName={channelsState.messageToForward?.text || ''}
+        documentSize=""
+        isDentist={isDentist}
+        isMessage={true}
+        onConfirmForward={handleConfirmForwardMessage}
       />
     </div>
   );

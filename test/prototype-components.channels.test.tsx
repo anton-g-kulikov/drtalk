@@ -187,7 +187,7 @@ describe('prototype components: channels.test', () => {
     await user.click(screen.getByRole('button', { name: /^external — secure email/i }));
     await user.click(screen.getByRole('button', { name: /group chats/i }));
     await user.click(screen.getByRole('button', { name: /patient comm/i }));
-    await user.click(screen.getAllByRole('button', { name: /create/i })[1]);
+    await user.click(screen.getAllByRole('button', { name: /Create \+/ })[1]);
     await user.click(screen.getByRole('button', { name: /team huddle/i }));
     await user.click(screen.getByRole('button', { name: /alice cooper/i }));
 

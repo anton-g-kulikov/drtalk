@@ -35,7 +35,7 @@ type ChannelSidebarProps = {
   groupUnreadCount: number;
   patientUnreadCount: number;
   expandedPractices: Record<string, boolean>;
-  channels: Channel[];
+  channels?: Channel[];
   internalChannels: Channel[];
   onPlatformChannels: Channel[];
   externalChannels: Channel[];
@@ -52,7 +52,7 @@ type ChannelSidebarProps = {
   onTogglePatient: () => void;
   onCreateGroup: () => void;
   onCreateInternalChannel: () => void;
-  onCreateSubChannel: (parentChannel: Channel) => void;
+  onCreateSubChannel?: (parentChannel: Channel) => void;
   onSelectChannel: (channel: Channel) => void;
   onSelectCaseChannel: (caseChannel: ChannelCaseSummary, parentChannel: Channel) => void;
 };
@@ -139,7 +139,7 @@ export function ChannelSidebar({
   groupUnreadCount,
   patientUnreadCount,
   expandedPractices,
-  channels,
+  channels = [],
   internalChannels,
   onPlatformChannels,
   externalChannels,
@@ -156,7 +156,7 @@ export function ChannelSidebar({
   onTogglePatient,
   onCreateGroup,
   onCreateInternalChannel,
-  onCreateSubChannel,
+  onCreateSubChannel = () => {},
   onSelectChannel,
   onSelectCaseChannel,
 }: ChannelSidebarProps) {

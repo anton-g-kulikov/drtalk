@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Mail, Paperclip, Send, Smile } from 'lucide-react';
-import type { Channel } from '@/prototype/channelTypes';
+import { Mail, Paperclip, Send, Smile, X } from 'lucide-react';
+import type { Channel, MessageItem } from '@/prototype/channelTypes';
 import {
   AttachedDocumentPreview,
   ChannelAttachmentDrawer,
@@ -22,6 +22,8 @@ type ChannelMessageComposerProps = {
   onCloseAttachmentDrawer: () => void;
   onRemoveAttachment: () => void;
   onSendMessage: () => void;
+  replyingToMessage?: MessageItem | null;
+  onCancelReply?: () => void;
 };
 
 const EMOJIS = ['👍', '❤️', '😆', '😮', '😢', '🙏', '🎉', '🔥', '👏', '🙂', '😀', '😂', '😉', '💯', '🚀', '✅'];
@@ -39,6 +41,8 @@ export function ChannelMessageComposer({
   onCloseAttachmentDrawer,
   onRemoveAttachment,
   onSendMessage,
+  replyingToMessage = null,
+  onCancelReply = () => {},
 }: ChannelMessageComposerProps) {
   const canSend = inputText.trim().length > 0 || attachedDocument !== null;
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -107,6 +111,23 @@ export function ChannelMessageComposer({
               document={attachedDocument}
               onRemove={onRemoveAttachment}
             />
+          )}
+
+          {replyingToMessage && (
+            <div className="flex items-center justify-between p-2.5 bg-gray-100 border-2 border-black text-black">
+              <div className="min-w-0">
+                <p className="text-[8px] font-black uppercase text-muted-foreground">Replying to {replyingToMessage.user === 'Me' ? 'You' : replyingToMessage.user}</p>
+                <p className="text-[10px] truncate font-bold text-black">{replyingToMessage.text}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onCancelReply}
+                className="text-black hover:text-red-600 p-1 shrink-0 flex items-center justify-center"
+                aria-label="Cancel reply"
+              >
+                <X size={12} />
+              </button>
+            </div>
           )}
 
           <textarea

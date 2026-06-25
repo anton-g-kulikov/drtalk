@@ -16,6 +16,12 @@ import {
   Plus,
   Smartphone,
   Users,
+  MoreHorizontal,
+  CornerUpLeft,
+  Forward,
+  Pin,
+  Copy,
+  Trash2,
 } from 'lucide-react';
 import type { Channel, SharedDocument } from '@/prototype/channelTypes';
 
@@ -42,6 +48,7 @@ export function ChannelItem({
 
   return (
     <div
+      role="button"
       onClick={onClick}
       className={`w-full flex items-center gap-3 p-2 text-left transition-all group cursor-pointer ${isActive ? 'bg-black text-white' : 'hover:bg-gray-100'}`}
     >
@@ -118,6 +125,12 @@ type MessageProps = {
   hideHeader?: boolean;
   reactions?: Record<string, string[]>;
   onToggleReaction?: (messageId: string, emoji: string) => void;
+  onReply?: (messageId: string) => void;
+  onForward?: (messageId: string) => void;
+  onPin?: (messageId: string) => void;
+  onCopy?: (messageId: string) => void;
+  onDelete?: (messageId: string) => void;
+  isPinned?: boolean;
 };
 
 const REACTION_EMOJIS = ['👍', '❤️', '😆', '😮', '😢'];
@@ -133,21 +146,33 @@ export function Message({
   document,
   hideHeader,
   reactions = {},
-  onToggleReaction
+  onToggleReaction,
+  onReply,
+  onForward,
+  onPin,
+  onCopy,
+  onDelete,
+  isPinned
 }: MessageProps) {
   const isSelf = type === 'self';
   const hasReactions = Object.values(reactions).some(users => users && users.length > 0);
   
   const [showFullPicker, setShowFullPicker] = useState(false);
+  const [showActionMenu, setShowActionMenu] = useState(false);
+  
   const pickerRef = useRef<HTMLDivElement>(null);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
         setShowFullPicker(false);
       }
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
+        setShowActionMenu(false);
+      }
     }
-    if (showFullPicker && typeof window !== 'undefined') {
+    if ((showFullPicker || showActionMenu) && typeof window !== 'undefined') {
       window.document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
@@ -155,7 +180,7 @@ export function Message({
         window.document.removeEventListener('mousedown', handleClickOutside);
       }
     };
-  }, [showFullPicker]);
+  }, [showFullPicker, showActionMenu]);
 
   return (
     <div className={`flex flex-col ${isSelf ? 'items-end' : 'items-start'} ${hideHeader ? '!mt-1' : ''} space-y-1 group relative w-full`}>
@@ -164,11 +189,17 @@ export function Message({
           {!isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">{user}</span>}
           <span className="text-[8px] text-muted-foreground uppercase font-bold">{time}</span>
           {isSelf && <span className="text-[9px] font-black uppercase tracking-tighter">You</span>}
+          {isPinned && <Pin size={8} className="text-black shrink-0 fill-current" />}
         </div>
       )}
       
       <div className="relative">
-        <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm ${isSelf ? 'bg-black text-white' : 'bg-white text-black'}`}>
+        <div className={`max-w-md wireframe-card p-3 text-xs leading-snug shadow-sm relative ${isSelf ? 'bg-black text-white' : 'bg-white text-black'}`}>
+          {isPinned && hideHeader && (
+            <div className="absolute top-1 right-1">
+              <Pin size={8} className="fill-current text-muted-foreground" />
+            </div>
+          )}
           {text && <div className="whitespace-pre-wrap">{text}</div>}
 
           {document && (
@@ -214,8 +245,8 @@ export function Message({
           )}
         </div>
 
-        {/* Floating Reaction Menu on Hover */}
-        <div className={`absolute -top-4 ${isSelf ? 'right-2' : 'left-2'} hidden group-hover:flex items-center gap-2 bg-white border border-gray-200 px-3 py-1.5 rounded-full shadow-lg z-10 transition-all duration-200`}>
+        {/* Floating Reaction & Action Menu on Hover */}
+        <div className={`absolute -top-4 ${isSelf ? 'right-2' : 'left-2'} hidden group-hover:flex items-center gap-2 bg-white border border-gray-200 px-3 py-1 rounded-full shadow-lg z-10 transition-all duration-200`}>
           {REACTION_EMOJIS.map((emoji) => (
             <button
               key={emoji}
@@ -232,6 +263,7 @@ export function Message({
               onClick={(e) => {
                 e.stopPropagation();
                 setShowFullPicker(!showFullPicker);
+                setShowActionMenu(false);
               }}
               title="More Reactions"
             >
@@ -254,6 +286,84 @@ export function Message({
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          <div className="w-[1px] h-3 bg-gray-300 self-center" />
+
+          {/* Action Menu (Reply, Forward, Pin, Copy, Delete) */}
+          <div className="relative" ref={actionMenuRef}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowActionMenu(!showActionMenu);
+                setShowFullPicker(false);
+              }}
+              className="text-black hover:text-gray-600 flex items-center justify-center"
+              title="Message Actions"
+            >
+              <MoreHorizontal size={14} />
+            </button>
+
+            {showActionMenu && (
+              <div className={`absolute bottom-full ${isSelf ? 'right-0' : 'left-0'} mb-2 z-50 bg-white border-2 border-black py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-28 uppercase text-[8px] font-black divide-y-2 divide-black text-black`}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowActionMenu(false);
+                    onReply?.(id);
+                  }}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-2"
+                >
+                  <CornerUpLeft size={10} />
+                  <span>Reply</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowActionMenu(false);
+                    onForward?.(id);
+                  }}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-2"
+                >
+                  <Forward size={10} />
+                  <span>Forward</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowActionMenu(false);
+                    onPin?.(id);
+                  }}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-2"
+                >
+                  <Pin size={10} />
+                  <span>{isPinned ? 'Unpin' : 'Pin'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowActionMenu(false);
+                    onCopy?.(id);
+                  }}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-2"
+                >
+                  <Copy size={10} />
+                  <span>Copy</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowActionMenu(false);
+                    onDelete?.(id);
+                  }}
+                  className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-2 text-red-600 hover:text-white"
+                >
+                  <Trash2 size={10} />
+                  <span>Delete</span>
+                </button>
               </div>
             )}
           </div>
