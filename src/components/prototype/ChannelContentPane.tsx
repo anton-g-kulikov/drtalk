@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from 'react';
 import type { Channel, MessageItem, SharedDocument } from '@/prototype/channelTypes';
 import type { AttachmentOption } from '@/components/prototype/ChannelAttachmentControls';
 import type { ChannelCaseSummary } from '@/components/prototype/ChannelSidebar';
@@ -9,6 +10,7 @@ import { ChannelConversationHeader } from '@/components/prototype/ChannelConvers
 import { ChannelDocumentsPane } from '@/components/prototype/ChannelDocumentsPane';
 import { ChannelMessageComposer } from '@/components/prototype/ChannelMessageComposer';
 import { Message } from '@/components/prototype/ChannelPrimitives';
+import { Pin, MoreHorizontal } from 'lucide-react';
 
 type MessageDisplay = {
   type: MessageItem['type'];
@@ -58,6 +60,14 @@ type ChannelContentPaneProps = {
   isViewingArchivedDocs?: boolean;
   onForwardDocument?: (document: SharedDocument) => void;
   onToggleReaction?: (messageId: string, emoji: string) => void;
+  onReplyMessage?: (id: string) => void;
+  onForwardMessage?: (id: string) => void;
+  onPinMessage?: (id: string) => void;
+  onCopyMessage?: (id: string) => void;
+  onDeleteMessage?: (id: string) => void;
+  pinnedMessages?: string[];
+  replyingToMessage?: MessageItem | null;
+  onCancelReply?: () => void;
 };
 
 export function ChannelContentPane({
@@ -103,7 +113,34 @@ export function ChannelContentPane({
   isViewingArchivedDocs,
   onForwardDocument,
   onToggleReaction,
+  onReplyMessage = () => {},
+  onForwardMessage = () => {},
+  onPinMessage = () => {},
+  onCopyMessage = () => {},
+  onDeleteMessage = () => {},
+  pinnedMessages = [],
+  replyingToMessage = null,
+  onCancelReply = () => {},
 }: ChannelContentPaneProps) {
+  const [showPinnedMenu, setShowPinnedMenu] = useState(false);
+  const pinnedMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (pinnedMenuRef.current && !pinnedMenuRef.current.contains(event.target as Node)) {
+        setShowPinnedMenu(false);
+      }
+    }
+    if (showPinnedMenu && typeof window !== 'undefined') {
+      window.document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.document.removeEventListener('mousedown', handleClickOutside);
+      }
+    };
+  }, [showPinnedMenu]);
+
   const shouldShowArchived = activeTab === 'archived' && (
     (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
     activeChannel.type === 'internal'
@@ -122,6 +159,55 @@ export function ChannelContentPane({
         onOpenParticipants={onOpenParticipants}
         referralStatus={referralStatus}
       />
+
+      {(() => {
+        const activeChannelPinnedMessages = messages.filter((m) => pinnedMessages.includes(m.id));
+        if (activeChannelPinnedMessages.length === 0) return null;
+        const latestPinned = activeChannelPinnedMessages[activeChannelPinnedMessages.length - 1];
+        return (
+          <div className="bg-white border-b-2 border-black px-6 py-2 flex items-center justify-between gap-4 shrink-0 text-black animate-fade-in">
+            <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <Pin size={12} className="fill-current text-black shrink-0" />
+              <div className="text-[10px] font-bold truncate">
+                <span className="uppercase font-black text-muted-foreground mr-1.5">Pinned:</span>
+                "{latestPinned.text}"
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {activeChannelPinnedMessages.length > 1 && (
+                <span className="text-[8px] bg-black text-white px-1.5 py-0.5 font-black">
+                  +{activeChannelPinnedMessages.length - 1} MORE
+                </span>
+              )}
+              <div className="relative" ref={pinnedMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setShowPinnedMenu(!showPinnedMenu)}
+                  className="text-black hover:text-gray-600 flex items-center justify-center p-1"
+                  title="Pinned Message Actions"
+                >
+                  <MoreHorizontal size={14} />
+                </button>
+                {showPinnedMenu && (
+                  <div className="absolute right-0 top-full mt-1 z-50 bg-white border-2 border-black py-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-20 uppercase text-[8px] font-black text-black">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPinnedMenu(false);
+                        onPinMessage(latestPinned.id);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all flex items-center gap-1.5"
+                    >
+                      <Pin size={10} />
+                      <span>Unpin</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {shouldShowArchived ? (
         <ChannelArchivedConversations
@@ -155,6 +241,12 @@ export function ChannelContentPane({
                         hideHeader={!!isGrouped}
                         reactions={message.reactions}
                         onToggleReaction={onToggleReaction}
+                        onReply={onReplyMessage}
+                        onForward={onForwardMessage}
+                        onPin={onPinMessage}
+                        onCopy={onCopyMessage}
+                        onDelete={onDeleteMessage}
+                        isPinned={pinnedMessages.includes(message.id)}
                         document={message.document ? {
                           ...message.document,
                           sentBy: formatDocumentSender(message.document.sentBy),
@@ -190,6 +282,8 @@ export function ChannelContentPane({
                 onCloseAttachmentDrawer={onCloseAttachmentDrawer}
                 onRemoveAttachment={onRemoveAttachment}
                 onSendMessage={onSendMessage}
+                replyingToMessage={replyingToMessage}
+                onCancelReply={onCancelReply}
               />
             </>
           ) : (
