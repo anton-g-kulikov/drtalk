@@ -20,6 +20,7 @@ import {
   TrendingDown,
   UserPlus,
   Users,
+  MoreHorizontal,
 } from 'lucide-react';
 import { MainLayout } from '@/components/MainLayout';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
@@ -176,6 +177,14 @@ function PracticeCard({
   onRemoveConnection?: () => void;
 }) {
   const router = useRouter();
+  const [showMenu, setShowMenu] = useState(false);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const closeMenu = () => setShowMenu(false);
+    window.addEventListener('click', closeMenu);
+    return () => window.removeEventListener('click', closeMenu);
+  }, [showMenu]);
 
   const handleDentistPrimaryAction = () => {
     if (practice.status === 'Connected' || activeTab !== 'directory') {
@@ -192,28 +201,52 @@ function PracticeCard({
           <div className={`w-12 h-12 border-2 border-black flex items-center justify-center transition-all ${practice.isExternal && config.role === 'specialist' ? 'bg-gray-100 group-hover:bg-gray-200' : 'bg-gray-50 group-hover:bg-black group-hover:text-white'}`}>
             <Building2 size={24} />
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'}`}>
-              {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
-            </span>
-            {practice.isExternal && (
-              <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
-                External / Fax / Email
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-end gap-1">
+              <span className={`text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black ${practice.status === 'Connected' ? 'bg-black text-white' : 'bg-transparent text-black'}`}>
+                {practice.status === 'Nearby' ? 'Suggested (Nearby)' : practice.status}
               </span>
-            )}
+              {practice.isExternal && (
+                <span className="text-[7px] font-black uppercase px-1.5 py-0.5 bg-white text-black border border-black whitespace-nowrap">
+                  External / Fax / Email
+                </span>
+              )}
+            </div>
+
             {practice.status === 'Connected' && onRemoveConnection && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (typeof window !== 'undefined' && window.confirm && !window.confirm(`Are you sure you want to remove the connection with ${practice.name}?`)) {
-                    return;
-                  }
-                  onRemoveConnection();
-                }}
-                className="text-[8px] font-bold text-zinc-400 hover:text-red-600 hover:underline transition-colors uppercase tracking-tight mt-1"
-              >
-                Remove Connection
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowMenu(!showMenu);
+                  }}
+                  className="p-1 hover:bg-zinc-100 border border-transparent hover:border-black transition-all flex items-center justify-center text-black"
+                  title="Practice Actions"
+                  aria-label="Practice Actions"
+                >
+                  <MoreHorizontal size={14} />
+                </button>
+
+                {showMenu && (
+                  <div className="absolute right-0 mt-1 z-10 bg-white border-2 border-black py-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-32 text-[8px] font-black uppercase text-black">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowMenu(false);
+                        if (typeof window !== 'undefined' && window.confirm && !window.confirm(`Are you sure you want to remove the connection with ${practice.name}?`)) {
+                          return;
+                        }
+                        onRemoveConnection();
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 hover:bg-black hover:text-white transition-all text-red-600 hover:text-white"
+                    >
+                      Remove Connection
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

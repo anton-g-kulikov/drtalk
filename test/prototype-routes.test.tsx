@@ -109,9 +109,10 @@ describe('prototype route use cases', () => {
     expect(screen.getByText(/total referrals sent/i)).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /my network/i }));
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
-    const removeButtons = screen.getAllByRole('button', { name: /remove connection/i });
-    expect(removeButtons.length).toBeGreaterThan(0);
-    await user.click(removeButtons[0]);
+    const actionMenus = screen.getAllByRole('button', { name: /practice actions/i });
+    expect(actionMenus.length).toBeGreaterThan(0);
+    await user.click(actionMenus[0]);
+    await user.click(screen.getByRole('button', { name: /remove connection/i }));
     expect(confirmSpy).toHaveBeenCalled();
     expect(screen.getByText(/connection removed with/i)).toBeInTheDocument();
     confirmSpy.mockRestore();
