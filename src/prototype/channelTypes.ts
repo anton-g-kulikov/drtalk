@@ -10,6 +10,7 @@ export interface Channel {
   isVerified?: boolean;
   isExternal?: boolean;
   isArchived?: boolean;
+  parentId?: string;
 }
 
 export interface SharedDocument {

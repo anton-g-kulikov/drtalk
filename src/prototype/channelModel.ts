@@ -113,15 +113,20 @@ export function filterPracticeChannels(
 ): Channel[] {
   const normalizedQuery = query.toLowerCase();
   return channels
-    .filter((channel) => channel.type === 'inter-practice')
+    .filter((channel) => channel.type === 'inter-practice' && !channel.parentId)
     .filter((channel) => {
       const matchesPractice = channel.name.toLowerCase().includes(normalizedQuery);
+      const hasMatchingSubChannel = channels.some((c) =>
+        c.parentId === channel.id &&
+        !c.isArchived &&
+        c.name.toLowerCase().includes(normalizedQuery)
+      );
       const hasMatchingCase = caseChannels.some((caseChannel) =>
         caseChannel.practiceId === channel.id &&
         !caseChannel.isArchived &&
         caseChannel.name.toLowerCase().includes(normalizedQuery)
       );
-      return matchesPractice || hasMatchingCase;
+      return matchesPractice || hasMatchingSubChannel || hasMatchingCase;
     });
 }
 
