@@ -42,8 +42,8 @@ export function DashboardSidebarList({
                 className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 hover:bg-gray-50 transition-colors"
               >
                 <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <p className="text-[10px] font-bold uppercase truncate">{item.name}</p>
+                  <p className="text-[10px] font-bold uppercase truncate">{item.name}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
                     <span className="text-[7px] font-bold px-1.5 py-0.5 border border-black uppercase text-muted-foreground shrink-0">{item.meta}</span>
                   </div>
                   <p className="text-[8px] uppercase text-muted-foreground">
