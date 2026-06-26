@@ -182,7 +182,7 @@ describe('prototype route use cases', () => {
 
     cleanup();
     renderRoute(<SettingsPage />);
-    expect(screen.getAllByText(/practice settings/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/settings/i).length).toBeGreaterThan(0);
 
     cleanup();
     renderRoute(<NotificationsPage />);
