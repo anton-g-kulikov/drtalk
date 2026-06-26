@@ -34,14 +34,14 @@ export default function SettingsPage() {
   ];
 
   return (
-    <MainLayout title="Practice Settings">
+    <MainLayout title="Settings">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-1">
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
-              Practice Settings
+              Settings
             </h2>
-            <CommentMarker id="settings-main" title="Practice Settings" description="Global practice configuration and team access." />
+            <CommentMarker id="settings-main" title="Settings" description="Global practice configuration and team access." />
           </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
             Practice management, team access, and referral operations

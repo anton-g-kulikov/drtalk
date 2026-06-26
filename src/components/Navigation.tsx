@@ -195,7 +195,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
               } ${userRole === 'individual' ? 'hidden' : ''}`}
           >
             <Settings size={18} />
-            Practice Settings
+            Settings
           </Link>
 
         </div>
@@ -309,7 +309,7 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
               </div>
               {[
                 { label: 'View Profile', href: isDentist ? '/dentist/settings/profile/user' : '/settings/profile/user' },
-                { icon: Settings, label: isDentist ? 'Practice Profile' : 'Practice Settings', href: isDentist ? '/dentist/settings' : '/settings' },
+                { icon: Settings, label: 'Settings', href: isDentist ? '/dentist/settings' : '/settings' },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
               ].map((item, i) => (
                 <Link

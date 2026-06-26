@@ -50,7 +50,7 @@ export function VerificationIntroStep({ onStart, onCancel }: VerificationIntroSt
 
         <div className="pt-2">
           <p className="text-[9px] uppercase font-bold text-muted-foreground leading-relaxed italic text-center px-4">
-            Once verified, all team members in your practice will be granted PHI access. Granular user settings can be managed later in Practice Settings.
+            Once verified, all team members in your practice will be granted PHI access. Granular user settings can be managed later in Settings.
           </p>
         </div>
 
