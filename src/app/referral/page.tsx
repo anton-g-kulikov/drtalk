@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import {
-  ChevronRight, ArrowLeft
+  ChevronRight, ArrowLeft, ChevronDown
 } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
@@ -16,6 +16,8 @@ import {
   GuestReferralPatientStep,
   GuestReferralSuccessStep,
 } from '@/components/prototype/guest-referral/GuestReferralStepViews';
+import { getReferrals, saveReferrals, type UnifiedReferral } from '@/lib/referrals';
+import { SPECIALIST_DOCTORS } from '@/lib/mockGenerator';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -65,11 +67,22 @@ function ReferralFormContent() {
   const [email, setEmail] = useState('');
   const [doctorName, setDoctorName] = useState('');
   const [practiceName, setPracticeName] = useState('');
-  const [receivingDoctor, setReceivingDoctor] = useState('');
+  const [receivingDoctor, setReceivingDoctor] = useState('First Available');
   const [sendCopyToPatient, setSendCopyToPatient] = useState(false);
   const [patientCell, setPatientCell] = useState('');
   const [patientEmail, setPatientEmail] = useState('');
   const { verify } = useVerification();
+
+  const [patientFirstName, setPatientFirstName] = useState('');
+  const [patientLastName, setPatientLastName] = useState('');
+  const [patientDob, setPatientDob] = useState('');
+  const [patientPhone, setPatientPhone] = useState('');
+  const [patientInsurance, setPatientInsurance] = useState('');
+  const [procedure, setProcedure] = useState('Consultation');
+  const [toothNumber, setToothNumber] = useState('');
+  const [clinicalNotes, setClinicalNotes] = useState('');
+  const [urgency, setUrgency] = useState<'Routine' | 'Urgent' | 'Emergency'>('Routine');
+  const [showDoctorDropdown, setShowDoctorDropdown] = useState(false);
 
   // Practice selection states
   const [selectedState, setSelectedState] = useState('');
@@ -114,6 +127,11 @@ function ReferralFormContent() {
     }
   }, [practiceParam]);
 
+  // Reset receiving doctor when target practice changes
+  useEffect(() => {
+    setReceivingDoctor('First Available');
+  }, [targetPractice, targetPractices]);
+
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     if (typeof window !== 'undefined') {
@@ -124,6 +142,12 @@ function ReferralFormContent() {
   };
 
   const nextStep = (next: ReferralStep) => setStep(next);
+
+  const selectedPracticeName = isInternal
+    ? (targetPractices[0] || '')
+    : targetPractice;
+  const clinicDoctors = selectedPracticeName ? (SPECIALIST_DOCTORS[selectedPracticeName] || []) : [];
+  const doctorOptions = ['First Available', ...clinicDoctors];
 
   // Filter practices based on selected state and search text
   const filteredPractices = selectedState 
@@ -207,18 +231,57 @@ function ReferralFormContent() {
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold uppercase">Select Receiving doctor</label>
-                  <select 
-                    value={receivingDoctor}
-                    onChange={(e) => setReceivingDoctor(e.target.value)}
-                    disabled={isInternal ? targetPractices.length === 0 : !targetPractice}
-                    className="wireframe-input bg-white appearance-none cursor-pointer disabled:opacity-40"
-                  >
-                    <option value="">Select a doctor</option>
-                    <option value="1">Dr. John Taylor</option>
-                    <option value="2">Dr. Sarah Reed</option>
-                  </select>
+                <div className="space-y-1 relative">
+                  <label className="text-[10px] font-bold uppercase block text-black">Select Receiving doctor</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      readOnly
+                      placeholder="Select a doctor"
+                      value={receivingDoctor || 'First Available'}
+                      onClick={() => {
+                        if (isInternal ? targetPractices.length > 0 : targetPractice) {
+                          setShowDoctorDropdown(!showDoctorDropdown);
+                        }
+                      }}
+                      disabled={isInternal ? targetPractices.length === 0 : !targetPractice}
+                      className="wireframe-input py-2.5 px-3.5 pr-10 text-xs font-bold text-black border-2 border-black bg-white w-full cursor-pointer disabled:opacity-40 select-none uppercase h-[38px]"
+                    />
+                    <button
+                      type="button"
+                      disabled={isInternal ? targetPractices.length === 0 : !targetPractice}
+                      onClick={() => {
+                        if (isInternal ? targetPractices.length > 0 : targetPractice) {
+                          setShowDoctorDropdown(!showDoctorDropdown);
+                        }
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-black disabled:opacity-40"
+                    >
+                      <ChevronDown size={14} className={`transition-transform duration-200 ${showDoctorDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+
+                  {showDoctorDropdown && (
+                    <>
+                      <div className="fixed inset-0 z-40" onClick={() => setShowDoctorDropdown(false)} />
+                      <div className="absolute left-0 right-0 mt-1 z-50 bg-white border-2 border-black max-h-48 overflow-y-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px]">
+                        {doctorOptions.map((doc) => (
+                          <div
+                            key={doc}
+                            onClick={() => {
+                              setReceivingDoctor(doc);
+                              setShowDoctorDropdown(false);
+                            }}
+                            className={`p-2.5 hover:bg-black hover:text-white cursor-pointer font-bold border-b border-black/10 flex justify-between items-center ${
+                              (receivingDoctor || 'First Available') === doc ? 'bg-zinc-100 text-black font-black' : 'bg-white text-black'
+                            }`}
+                          >
+                            <span>{doc}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -265,6 +328,16 @@ function ReferralFormContent() {
             targetPractice={targetPractice}
             onBack={() => nextStep('IDENTIFY')}
             onContinue={() => nextStep('CASE')}
+            patientFirstName={patientFirstName}
+            patientLastName={patientLastName}
+            patientDob={patientDob}
+            patientPhone={patientPhone}
+            patientInsurance={patientInsurance}
+            onPatientFirstNameChange={setPatientFirstName}
+            onPatientLastNameChange={setPatientLastName}
+            onPatientDobChange={setPatientDob}
+            onPatientPhoneChange={setPatientPhone}
+            onPatientInsuranceChange={setPatientInsurance}
           />
         );
 
@@ -273,6 +346,14 @@ function ReferralFormContent() {
           <GuestReferralCaseStep
             onBack={() => nextStep('PATIENT')}
             onContinue={() => nextStep('DOCS')}
+            procedure={procedure}
+            toothNumber={toothNumber}
+            clinicalNotes={clinicalNotes}
+            urgency={urgency}
+            onProcedureChange={setProcedure}
+            onToothNumberChange={setToothNumber}
+            onClinicalNotesChange={setClinicalNotes}
+            onUrgencyChange={setUrgency}
           />
         );
 
@@ -283,7 +364,40 @@ function ReferralFormContent() {
             patientCell={patientCell}
             patientEmail={patientEmail}
             onBack={() => nextStep('CASE')}
-            onSubmit={() => nextStep('SUCCESS')}
+            onSubmit={() => {
+              const now = new Date();
+              const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+              const dateStr = now.toLocaleDateString([], { month: '2-digit', day: '2-digit', year: 'numeric' });
+              const receivedAt = `${timeStr}\n${dateStr}`;
+              
+              const resolvedPractice = isInternal 
+                ? (targetPractices[0] || 'Valley Endodontics') 
+                : (targetPractice || 'Valley Endodontics');
+                
+              const finalDoctor = receivingDoctor === 'First Available' ? '' : receivingDoctor;
+
+              const newRef: UnifiedReferral = {
+                id: `D-${Date.now().toString().slice(-4)}`,
+                patientName: patientFirstName && patientLastName ? `${patientFirstName} ${patientLastName}` : 'NEW PATIENT',
+                type: procedure || 'Consultation',
+                source: isInternal ? 'App' : 'Web',
+                completion: 100,
+                status: isInternal ? 'Sent' : 'Received',
+                receivedAt,
+                lastUpdate: receivedAt,
+                nextStep: 'Waiting for specialist review',
+                dentist: doctorName || 'Dr. Taylor Reed',
+                specialist: resolvedPractice,
+                specialistDoctor: finalDoctor,
+                practice: practiceName || 'Sunshine Dental',
+                urgency: urgency || 'Routine',
+                sender: doctorName || 'Dr. Taylor Reed',
+              };
+
+              const currentReferrals = getReferrals();
+              saveReferrals([newRef, ...currentReferrals]);
+              nextStep('SUCCESS');
+            }}
             onSendCopyToPatientChange={setSendCopyToPatient}
             onPatientCellChange={setPatientCell}
             onPatientEmailChange={setPatientEmail}
