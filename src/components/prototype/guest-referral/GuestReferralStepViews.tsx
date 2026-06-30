@@ -44,9 +44,33 @@ type GuestReferralPatientStepProps = {
   targetPractice: string;
   onBack: () => void;
   onContinue: () => void;
+  patientFirstName?: string;
+  patientLastName?: string;
+  patientDob?: string;
+  patientPhone?: string;
+  patientInsurance?: string;
+  onPatientFirstNameChange?: (val: string) => void;
+  onPatientLastNameChange?: (val: string) => void;
+  onPatientDobChange?: (val: string) => void;
+  onPatientPhoneChange?: (val: string) => void;
+  onPatientInsuranceChange?: (val: string) => void;
 };
 
-export function GuestReferralPatientStep({ targetPractice, onBack, onContinue }: GuestReferralPatientStepProps) {
+export function GuestReferralPatientStep({
+  targetPractice,
+  onBack,
+  onContinue,
+  patientFirstName = '',
+  patientLastName = '',
+  patientDob = '',
+  patientPhone = '',
+  patientInsurance = '',
+  onPatientFirstNameChange,
+  onPatientLastNameChange,
+  onPatientDobChange,
+  onPatientPhoneChange,
+  onPatientInsuranceChange,
+}: GuestReferralPatientStepProps) {
   return (
     <div className="space-y-8 w-full max-w-lg">
       <div className="flex items-center gap-4">
@@ -67,26 +91,56 @@ export function GuestReferralPatientStep({ targetPractice, onBack, onContinue }:
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase">Patient First Name</label>
-              <input type="text" placeholder="Enter patient first name" className="wireframe-input" />
+              <input
+                type="text"
+                placeholder="Enter patient first name"
+                className="wireframe-input"
+                value={patientFirstName}
+                onChange={(e) => onPatientFirstNameChange?.(e.target.value)}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase">Patient Last Name</label>
-              <input type="text" placeholder="Enter patient last name" className="wireframe-input" />
+              <input
+                type="text"
+                placeholder="Enter patient last name"
+                className="wireframe-input"
+                value={patientLastName}
+                onChange={(e) => onPatientLastNameChange?.(e.target.value)}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase">Date of Birth</label>
-              <input type="text" placeholder="MM/DD/YYYY" className="wireframe-input" />
+              <input
+                type="text"
+                placeholder="MM/DD/YYYY"
+                className="wireframe-input"
+                value={patientDob}
+                onChange={(e) => onPatientDobChange?.(e.target.value)}
+              />
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold uppercase">Phone Number</label>
-              <input type="text" placeholder="(555) 000-0000" className="wireframe-input" />
+              <input
+                type="text"
+                placeholder="(555) 000-0000"
+                className="wireframe-input"
+                value={patientPhone}
+                onChange={(e) => onPatientPhoneChange?.(e.target.value)}
+              />
             </div>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase">Insurance Provider (Optional)</label>
-            <input type="text" placeholder="Delta Dental" className="wireframe-input" />
+            <input
+              type="text"
+              placeholder="Delta Dental"
+              className="wireframe-input"
+              value={patientInsurance}
+              onChange={(e) => onPatientInsuranceChange?.(e.target.value)}
+            />
           </div>
         </div>
         <button
@@ -103,9 +157,28 @@ export function GuestReferralPatientStep({ targetPractice, onBack, onContinue }:
 type GuestReferralCaseStepProps = {
   onBack: () => void;
   onContinue: () => void;
+  procedure?: string;
+  toothNumber?: string;
+  clinicalNotes?: string;
+  urgency?: 'Routine' | 'Urgent' | 'Emergency';
+  onProcedureChange?: (val: string) => void;
+  onToothNumberChange?: (val: string) => void;
+  onClinicalNotesChange?: (val: string) => void;
+  onUrgencyChange?: (val: 'Routine' | 'Urgent' | 'Emergency') => void;
 };
 
-export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseStepProps) {
+export function GuestReferralCaseStep({
+  onBack,
+  onContinue,
+  procedure = 'Consultation',
+  toothNumber = '',
+  clinicalNotes = '',
+  urgency = 'Routine',
+  onProcedureChange,
+  onToothNumberChange,
+  onClinicalNotesChange,
+  onUrgencyChange,
+}: GuestReferralCaseStepProps) {
   const [hasReferralPad, setHasReferralPad] = useState(true);
 
   useEffect(() => {
@@ -150,7 +223,11 @@ export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseS
             <div className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Procedure / Reason for Referral</label>
-                <select className="wireframe-input bg-white appearance-none cursor-pointer">
+                <select
+                  value={procedure}
+                  onChange={(e) => onProcedureChange?.(e.target.value)}
+                  className="wireframe-input bg-white appearance-none cursor-pointer"
+                >
                   <option value="Consultation">General Consultation</option>
                   <option value="Root Canal">Root Canal Treatment</option>
                   <option value="Extraction">Extraction / Oral Surgery</option>
@@ -160,7 +237,13 @@ export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseS
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Tooth Number(s)</label>
-                <input type="text" placeholder="e.g. #3, #18 (or All)" className="wireframe-input" />
+                <input
+                  type="text"
+                  placeholder="e.g. #3, #18 (or All)"
+                  className="wireframe-input"
+                  value={toothNumber}
+                  onChange={(e) => onToothNumberChange?.(e.target.value)}
+                />
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold uppercase">Clinical Notes / Comments</label>
@@ -168,6 +251,8 @@ export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseS
                   rows={4} 
                   placeholder="Provide additional clinical notes, patient symptoms, or history..." 
                   className="wireframe-input resize-none py-2"
+                  value={clinicalNotes}
+                  onChange={(e) => onClinicalNotesChange?.(e.target.value)}
                 />
               </div>
             </div>
@@ -175,9 +260,15 @@ export function GuestReferralCaseStep({ onBack, onContinue }: GuestReferralCaseS
           <div className="space-y-1">
             <label className="text-[10px] font-bold uppercase">Urgency</label>
             <div className="flex gap-4">
-              {['Routine', 'Urgent', 'Emergency'].map((level) => (
+              {(['Routine', 'Urgent', 'Emergency'] as const).map((level) => (
                 <label key={level} className="flex-1 border-2 border-black p-3 flex items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 has-[:checked]:bg-black has-[:checked]:text-white transition-all">
-                  <input type="radio" name="urgency" className="hidden" defaultChecked={level === 'Routine'} />
+                  <input
+                    type="radio"
+                    name="urgency"
+                    className="hidden"
+                    checked={urgency === level}
+                    onChange={() => onUrgencyChange?.(level)}
+                  />
                   <span className="text-[10px] font-bold uppercase">{level}</span>
                 </label>
               ))}
