@@ -378,12 +378,10 @@ export default function ReferralsPage() {
                                 <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Practice</p>
                                 <p className="text-[10px] font-bold uppercase">{referral.specialist}</p>
                               </div>
-                              {referral.specialistDoctor && (
-                                <div>
-                                  <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
-                                  <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
-                                </div>
-                              )}
+                              <div>
+                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Specialist</p>
+                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor || "First Available"}</p>
+                              </div>
                             </div>
                           ) : (
                             <>
@@ -399,14 +397,8 @@ export default function ReferralsPage() {
                         {/* Specialist side only: Referred To Doctor column */}
                         {!isDentist && (
                           <div className="col-span-2">
-                            {referral.specialistDoctor ? (
-                              <>
-                                <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
-                                <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor}</p>
-                              </>
-                            ) : (
-                              <p className="text-[8px] uppercase font-bold text-black/30">—</p>
-                            )}
+                            <p className="text-[9px] font-black uppercase text-black/40 tracking-widest">Doctor</p>
+                            <p className="text-[10px] font-bold uppercase">{referral.specialistDoctor || "First Available"}</p>
                           </div>
                         )}
                         <div className="col-span-1">

@@ -19,7 +19,7 @@ import {
   type DashboardDocumentItem,
 } from '@/prototype/dashboardDocuments';
 import { saveDashboardDocumentsToStorage } from '@/prototype/dashboardDocumentStorage';
-import { getInitialDentistDocs, getInitialSpecialistDocs } from '@/lib/mockGenerator';
+import { getInitialDentistDocs, getInitialSpecialistDocs, SPECIALIST_DOCTORS } from '@/lib/mockGenerator';
 import {
   appendReferralComment,
   loadReferralActivityLogs,
@@ -114,6 +114,13 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [practiceName, setPracticeName] = useState(referral.practice);
   const [assignedTo, setAssignedTo] = useState<string>(referral?.assignedTo || 'none');
 
+  const [editedPatientName, setEditedPatientName] = useState('');
+  const [editedDentist, setEditedDentist] = useState('');
+  const [editedSpecialistDoctor, setEditedSpecialistDoctor] = useState('');
+
+  const clinicDoctors = referral?.specialist ? (SPECIALIST_DOCTORS[referral.specialist] || []) : [];
+  const doctorOptions = ['First Available', ...clinicDoctors];
+
   const [activityLogs, setActivityLogs] = useState<ReferralActivityLog[]>([]);
   const [commentText, setCommentText] = useState('');
 
@@ -172,6 +179,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
         setUrgency(ref.urgency || 'Routine');
         setPracticeName(ref.practice);
         setAssignedTo(ref.assignedTo || 'none');
+        setEditedPatientName(ref.patientName || '');
+        setEditedDentist(ref.dentist || '');
+        setEditedSpecialistDoctor(ref.specialistDoctor || 'First Available');
         
         const initialLogs = loadReferralActivityLogs(ref);
         if (ref.status === 'Received' || ref.status === 'Sent') {
@@ -202,6 +212,26 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     });
     setReferrals(result.referrals);
     setActivityLogs(result.activityLogs);
+  };
+
+  const handleSaveChanges = () => {
+    const finalDoc = editedSpecialistDoctor === 'First Available' ? '' : editedSpecialistDoctor;
+    const updated = referrals.map(r => {
+      if (r.id === referral.id) {
+        return {
+          ...r,
+          patientName: editedPatientName,
+          dentist: editedDentist,
+          specialistDoctor: finalDoc,
+          urgency,
+          practice: practiceName,
+        };
+      }
+      return r;
+    });
+    setReferrals(updated);
+    saveReferrals(updated);
+    setIsEditorMode(false);
   };
 
   const handlePostComment = () => {
@@ -469,7 +499,13 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                 <h3 className="font-bold uppercase text-xs tracking-widest">Case Information</h3>
                 <div className="flex gap-6">
                   <button 
-                    onClick={() => setIsEditorMode(!isEditorMode)}
+                    onClick={() => {
+                      if (isEditorMode) {
+                        handleSaveChanges();
+                      } else {
+                        setIsEditorMode(true);
+                      }
+                    }}
                     className={isEditorMode ? "text-[10px] font-bold uppercase underline hover:text-black transition-colors" : "hover:opacity-75 transition-opacity pb-0.5"}
                     title={isEditorMode ? 'Save Changes' : 'Enter Edit Mode'}
                   >
@@ -483,7 +519,13 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                   <section className="space-y-6">
                     <h4 className="text-[11px] font-black uppercase text-muted-foreground border-b border-black/10 pb-2">Patient Details</h4>
                     <div className="space-y-5">
-                      <DataField label="Full Name" value={referral.patientName} edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
+                      <DataField 
+                        label="Full Name" 
+                        value={editedPatientName} 
+                        edit={isEditorMode} 
+                        onChange={setEditedPatientName}
+                        onEditRequest={() => setIsEditorMode(true)} 
+                      />
                       <DataField 
                         label="Date of Birth" 
                         value={referral.id === '2' ? '[MISSING - ACTION REQUIRED]' : 'MAY 14, 1985'} 
@@ -514,7 +556,7 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                       <DataField label="Input Channel" value={referral.source} edit={isEditorMode} onEditRequest={() => setIsEditorMode(true)} />
                       <DataField 
                         label="Referring Practice" 
-                        value={referral.id === '1' || referral.practice === 'unknown' ? '[MISSING - ACTION REQUIRED]' : (practiceName || '')} 
+                        value={practiceName === 'unknown' ? '[MISSING - ACTION REQUIRED]' : (practiceName || '')} 
                         edit={isEditorMode} 
                         onChange={setPracticeName}
                         canEditInline={true}
@@ -522,8 +564,9 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                       />
                       <DataField 
                         label="Referring Dentist" 
-                        value={referral.id === '1' ? '[MISSING - ACTION REQUIRED]' : referral.dentist} 
+                        value={editedDentist} 
                         edit={isEditorMode} 
+                        onChange={setEditedDentist}
                         onEditRequest={() => setIsEditorMode(true)}
                       />
                     </div>
@@ -537,9 +580,11 @@ export default function ReferralDetailClient({ id }: { id: string }) {
                     <div className="space-y-5">
                       <DataField
                         label="Doctor"
-                        value={referral.specialistDoctor || '—'}
+                        value={editedSpecialistDoctor || 'First Available'}
                         edit={isEditorMode}
+                        onChange={setEditedSpecialistDoctor}
                         onEditRequest={() => setIsEditorMode(true)}
+                        options={doctorOptions}
                       />
                     </div>
                   </section>
@@ -662,14 +707,16 @@ function DataField({
   edit, 
   onChange,
   canEditInline,
-  onEditRequest
+  onEditRequest,
+  options
 }: { 
   label: string, 
   value: string, 
   edit?: boolean,
   onChange?: (val: string) => void,
   canEditInline?: boolean,
-  onEditRequest?: () => void
+  onEditRequest?: () => void,
+  options?: string[]
 }) {
   const [isInlineEditing, setIsInlineEditing] = useState(false);
   const [tempValue, setTempValue] = useState(value);
@@ -702,15 +749,32 @@ function DataField({
     <div className="space-y-1">
       <label className="text-[8px] font-bold uppercase text-muted-foreground">{label}</label>
       {edit ? (
-        <input 
-          type="text" 
-          value={tempValue} 
-          onChange={(e) => {
-            setTempValue(e.target.value);
-            if (onChange) onChange(e.target.value);
-          }} 
-          className="wireframe-input py-1 text-xs" 
-        />
+        options ? (
+          <select
+            value={tempValue}
+            onChange={(e) => {
+              setTempValue(e.target.value);
+              if (onChange) onChange(e.target.value);
+            }}
+            className="wireframe-input py-1 text-xs bg-white border border-black focus:outline-none w-full"
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <input 
+            type="text" 
+            value={tempValue} 
+            onChange={(e) => {
+              setTempValue(e.target.value);
+              if (onChange) onChange(e.target.value);
+            }} 
+            className="wireframe-input py-1 text-xs" 
+          />
+        )
       ) : isInlineEditing && canEditInline ? (
         <div className="flex items-center gap-2">
           <input
