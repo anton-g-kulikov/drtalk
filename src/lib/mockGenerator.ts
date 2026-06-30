@@ -90,7 +90,7 @@ export const specialistClinics = [
 ];
 
 // Map of specialist clinic -> doctor roster (used to populate specialistDoctor on generated referrals)
-const SPECIALIST_DOCTORS: Record<string, string[]> = {
+export const SPECIALIST_DOCTORS: Record<string, string[]> = {
   'Valley Endodontics':         ['Dr. Emma Smith', 'Dr. Robert Hayes'],
   'Downtown Oral Surgery':      ['Dr. Bob Wilson', 'Dr. Lisa Park'],
   'Metro Orthodontics':         ['Dr. Carol Danvers', 'Dr. James Lee'],
