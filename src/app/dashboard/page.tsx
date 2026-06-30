@@ -35,7 +35,8 @@ import {
   initialDocuments, 
 } from '@/prototype/channelFixtures';
 import type { SharedDocument } from '@/prototype/channelTypes';
-import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice } from '@/lib/referrals';
+import { getReferrals, isInRange, UnifiedReferral, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest } from '@/lib/referrals';
+import { ConnectionRequestBanner } from '@/components/prototype/ConnectionRequestBanner';
 import { 
   getInitialSpecialistDocs, 
   getInitialSpecialistArchivedDocs,
@@ -76,6 +77,42 @@ export default function DashboardPage() {
     !p.isExternal &&
     !p.dismissed
   );
+
+  const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setConnectionRequests(getConnectionRequests());
+    }, 0);
+  }, []);
+
+  const handleAcceptRequest = (request: ConnectionRequest) => {
+    // Remove from requests
+    const updatedRequests = connectionRequests.filter(r => r.id !== request.id);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    // Add to network as Connected
+    const newPractice: NetworkPractice = {
+      id: request.fromPracticeId,
+      name: request.fromPracticeName,
+      type: 'Dentist',
+      specialty: request.fromSpecialty,
+      location: request.fromLocation,
+      status: 'Connected',
+      verified: true,
+    };
+    const updatedNetwork = [...networkList.filter(p => p.id !== request.fromPracticeId), newPractice];
+    setNetworkList(updatedNetwork);
+    saveNetwork(updatedNetwork);
+    showToast(`Connected with ${request.fromPracticeName} — inter-practice channel created`);
+  };
+
+  const handleDeclineRequest = (requestId: string) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== requestId);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    showToast('Connection request declined');
+  };
 
   const handleDismissSuggestion = (id: string) => {
     const updated = networkList.map(p => p.id === id ? { ...p, dismissed: true } : p);
@@ -513,9 +550,16 @@ export default function DashboardPage() {
               ]}
             />
 
+            <ConnectionRequestBanner
+              requests={connectionRequests}
+              onAccept={handleAcceptRequest}
+              onDecline={handleDeclineRequest}
+            />
+
             <DashboardSidebarList
               title="Suggested Connections"
               icon={<Users size={18} />}
+              onSeeAll={() => router.push('/network?tab=directory')}
               items={suggestedConnections.map(p => ({
                 id: p.id,
                 name: p.name,

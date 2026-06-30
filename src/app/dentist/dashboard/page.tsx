@@ -37,7 +37,8 @@ import {
   mockChannels,
 } from '@/prototype/channelFixtures';
 import type { MessageItem, SharedDocument } from '@/prototype/channelTypes';
-import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice } from '@/lib/referrals';
+import { getReferrals, saveReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange, getNetwork, saveNetwork, getChannels, saveChannels, getMessages, saveMessages, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest } from '@/lib/referrals';
+import { ConnectionRequestBanner } from '@/components/prototype/ConnectionRequestBanner';
 import { getInitialDentistDocs, getInitialDentistArchivedDocs, specialistClinics } from '@/lib/mockGenerator';
 
 // Referral type compatibility
@@ -76,6 +77,40 @@ export default function DentistDashboardPage() {
     setNetworkList(updated);
     saveNetwork(updated);
     triggerToast(`Connection request sent to ${practice.name}`);
+  };
+
+  const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setConnectionRequests(getConnectionRequests());
+    }, 0);
+  }, []);
+
+  const handleAcceptRequest = (request: ConnectionRequest) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== request.id);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    const newPractice: NetworkPractice = {
+      id: request.fromPracticeId,
+      name: request.fromPracticeName,
+      type: 'Specialist',
+      specialty: request.fromSpecialty,
+      location: request.fromLocation,
+      status: 'Connected',
+      verified: true,
+    };
+    const updatedNetwork = [...networkList.filter(p => p.id !== request.fromPracticeId), newPractice];
+    setNetworkList(updatedNetwork);
+    saveNetwork(updatedNetwork);
+    triggerToast(`Connected with ${request.fromPracticeName} — inter-practice channel created`);
+  };
+
+  const handleDeclineRequest = (requestId: string) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== requestId);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    triggerToast('Connection request declined');
   };
 
   const sentReferrals: SentReferral[] = referralsList.filter(r => r.id.startsWith('D-') || r.id === '1' || (r.practice && r.practice.toLowerCase() === 'sunshine dental') || (r.dentist && (r.dentist.includes('Reed') || r.dentist.includes('Taylor'))));
@@ -392,9 +427,16 @@ export default function DentistDashboardPage() {
               ]}
             />
 
+             <ConnectionRequestBanner
+              requests={connectionRequests}
+              onAccept={handleAcceptRequest}
+              onDecline={handleDeclineRequest}
+            />
+
              <DashboardSidebarList
               title="Suggested Connections"
               icon={<Users size={18} />}
+              onSeeAll={() => router.push('/dentist/network?tab=directory')}
               items={suggestedConnections.map(p => ({
                 id: p.id,
                 name: p.name,
