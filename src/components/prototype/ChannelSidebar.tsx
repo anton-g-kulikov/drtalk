@@ -81,7 +81,7 @@ function ChannelSubRow({
         <Hash size={10} className={isActive ? 'text-white' : 'text-black'} />
         <span className="text-[10px] uppercase tracking-tight truncate">{displayName}</span>
       </div>
-      {subChannel.unreadCount && subChannel.unreadCount > 1 && !isActive && (
+      {subChannel.unreadCount && subChannel.unreadCount > 0 && !isActive && (
         <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{subChannel.unreadCount}</span>
       )}
     </button>
@@ -116,11 +116,31 @@ function ChannelCaseRow({
         <span className="text-[10px] uppercase tracking-tight truncate">{caseChannel.name}</span>
         {isExternal && <span className="sr-only">External secure email</span>}
       </div>
-      {caseChannel.unreadCount && caseChannel.unreadCount > 1 && !isActive && (
+      {caseChannel.unreadCount && caseChannel.unreadCount > 0 && !isActive && (
         <span className="bg-black text-white text-[8px] px-1.5 py-0.2 rounded-full shrink-0 ml-1.5">{caseChannel.unreadCount}</span>
       )}
     </button>
   );
+}
+
+function sortChannels(channelsList: Channel[]): { unread: Channel[], read: Channel[] } {
+  const unread = (channelsList || []).filter((c) => c.unreadCount && c.unreadCount > 0);
+  const read = (channelsList || []).filter((c) => !c.unreadCount || c.unreadCount === 0);
+
+  unread.sort((a, b) => a.name.localeCompare(b.name));
+  read.sort((a, b) => a.name.localeCompare(b.name));
+
+  return { unread, read };
+}
+
+function sortCaseChannels(casesList: ChannelCaseSummary[]): { unread: ChannelCaseSummary[], read: ChannelCaseSummary[] } {
+  const unread = (casesList || []).filter((c) => c.unreadCount && c.unreadCount > 0);
+  const read = (casesList || []).filter((c) => !c.unreadCount || c.unreadCount === 0);
+
+  unread.sort((a, b) => a.name.localeCompare(b.name));
+  read.sort((a, b) => a.name.localeCompare(b.name));
+
+  return { unread, read };
 }
 
 export function ChannelSidebar({
@@ -221,14 +241,32 @@ export function ChannelSidebar({
           }
         >
           <div className="space-y-1">
-            {internalChannels.map((channel) => (
-              <ChannelItem
-                key={channel.id}
-                channel={channel}
-                isActive={activeChannelId === channel.id}
-                onClick={() => onSelectChannel(channel)}
-              />
-            ))}
+            {(() => {
+              const { unread, read } = sortChannels(internalChannels);
+              return (
+                <>
+                  {unread.map((channel) => (
+                    <ChannelItem
+                      key={channel.id}
+                      channel={channel}
+                      isActive={activeChannelId === channel.id}
+                      onClick={() => onSelectChannel(channel)}
+                    />
+                  ))}
+                  {unread.length > 0 && read.length > 0 && (
+                    <div className="border-t border-black/10 border-dashed my-1.5" />
+                  )}
+                  {read.map((channel) => (
+                    <ChannelItem
+                      key={channel.id}
+                      channel={channel}
+                      isActive={activeChannelId === channel.id}
+                      onClick={() => onSelectChannel(channel)}
+                    />
+                  ))}
+                </>
+              );
+            })()}
             {archivedInternalCount > 0 && (
               <button
                 onClick={() => onSelectChannel({ id: 'archive_internal', name: 'Archived Channels', type: 'archive_internal', memberCount: archivedInternalCount } as any)}
@@ -289,15 +327,34 @@ export function ChannelSidebar({
                             onSelectSubChannel={() => onSelectChannel(subChannel)}
                           />
                         ))}
-                        {practiceCases.map((caseChannel) => (
-                          <ChannelCaseRow
-                            key={caseChannel.id}
-                            caseChannel={caseChannel}
-                            parentChannel={channel}
-                            isActive={activeChannelId === caseChannel.id}
-                            onSelectCaseChannel={onSelectCaseChannel}
-                          />
-                        ))}
+                        {(() => {
+                          const { unread, read } = sortCaseChannels(practiceCases);
+                          return (
+                            <>
+                              {unread.map((caseChannel) => (
+                                <ChannelCaseRow
+                                  key={caseChannel.id}
+                                  caseChannel={caseChannel}
+                                  parentChannel={channel}
+                                  isActive={activeChannelId === caseChannel.id}
+                                  onSelectCaseChannel={onSelectCaseChannel}
+                                />
+                              ))}
+                              {unread.length > 0 && read.length > 0 && (
+                                <div className="border-t border-black/10 border-dashed my-1.5 ml-10 mr-3" />
+                              )}
+                              {read.map((caseChannel) => (
+                                <ChannelCaseRow
+                                  key={caseChannel.id}
+                                  caseChannel={caseChannel}
+                                  parentChannel={channel}
+                                  isActive={activeChannelId === caseChannel.id}
+                                  onSelectCaseChannel={onSelectCaseChannel}
+                                />
+                              ))}
+                            </>
+                          );
+                        })()}
                         {practiceArchivedCases.length > 0 && (
                           <button
                             onClick={() => onSelectChannel({ id: 'archive_cases_' + channel.id, name: `Archived Cases - ${channel.name}`, type: 'archive_cases', parentId: channel.id, memberCount: practiceArchivedCases.length } as any)}
@@ -356,16 +413,36 @@ export function ChannelSidebar({
                             onSelectSubChannel={() => onSelectChannel(subChannel)}
                           />
                         ))}
-                        {practiceCases.map((caseChannel) => (
-                          <ChannelCaseRow
-                            key={caseChannel.id}
-                            caseChannel={caseChannel}
-                            parentChannel={channel}
-                            isActive={activeChannelId === caseChannel.id}
-                            isExternal
-                            onSelectCaseChannel={onSelectCaseChannel}
-                          />
-                        ))}
+                        {(() => {
+                          const { unread, read } = sortCaseChannels(practiceCases);
+                          return (
+                            <>
+                              {unread.map((caseChannel) => (
+                                <ChannelCaseRow
+                                  key={caseChannel.id}
+                                  caseChannel={caseChannel}
+                                  parentChannel={channel}
+                                  isActive={activeChannelId === caseChannel.id}
+                                  isExternal
+                                  onSelectCaseChannel={onSelectCaseChannel}
+                                />
+                              ))}
+                              {unread.length > 0 && read.length > 0 && (
+                                <div className="border-t border-black/10 border-dashed my-1.5 ml-10 mr-3" />
+                              )}
+                              {read.map((caseChannel) => (
+                                <ChannelCaseRow
+                                  key={caseChannel.id}
+                                  caseChannel={caseChannel}
+                                  parentChannel={channel}
+                                  isActive={activeChannelId === caseChannel.id}
+                                  isExternal
+                                  onSelectCaseChannel={onSelectCaseChannel}
+                                />
+                              ))}
+                            </>
+                          );
+                        })()}
                         {practiceArchivedCases.length > 0 && (
                           <button
                             onClick={() => onSelectChannel({ id: 'archive_cases_' + channel.id, name: `Archived Cases - ${channel.name}`, type: 'archive_cases', parentId: channel.id, memberCount: practiceArchivedCases.length } as any)}
@@ -409,14 +486,32 @@ export function ChannelSidebar({
             {groupChannels.length === 0 && archivedGroupCount === 0 ? (
               <p className="text-[8px] text-muted-foreground italic uppercase">No group chats yet.</p>
             ) : (
-              groupChannels.map((channel) => (
-                <ChannelItem
-                  key={channel.id}
-                  channel={channel}
-                  isActive={activeChannelId === channel.id}
-                  onClick={() => onSelectChannel(channel)}
-                />
-              ))
+              (() => {
+                const { unread, read } = sortChannels(groupChannels);
+                return (
+                  <>
+                    {unread.map((channel) => (
+                      <ChannelItem
+                        key={channel.id}
+                        channel={channel}
+                        isActive={activeChannelId === channel.id}
+                        onClick={() => onSelectChannel(channel)}
+                      />
+                    ))}
+                    {unread.length > 0 && read.length > 0 && (
+                      <div className="border-t border-black/10 border-dashed my-1.5" />
+                    )}
+                    {read.map((channel) => (
+                      <ChannelItem
+                        key={channel.id}
+                        channel={channel}
+                        isActive={activeChannelId === channel.id}
+                        onClick={() => onSelectChannel(channel)}
+                      />
+                    ))}
+                  </>
+                );
+              })()
             )}
             {archivedGroupCount > 0 && (
               <button

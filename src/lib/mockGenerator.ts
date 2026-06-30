@@ -366,6 +366,7 @@ export function generateMockData() {
       const r4 = getDeterministicRandom(i + 300);
 
       // Status assignment based on how old the referral is (dayDiff)
+      let unreadCount: number | undefined = undefined;
       let status: ReferralStatus = 'Released';
       if (dayDiff === 0) {
         // Today's incoming referrals: 90% Received (Review), 10% Scheduled
@@ -438,6 +439,16 @@ export function generateMockData() {
         if (isFromSunshine) {
           practice = 'Sunshine Dental';
           dentist = 'Dr. Taylor Reed';
+          if (status !== 'Archived' && i < 150) {
+            const indexHash = i % 25;
+            if (indexHash === 0) unreadCount = 2;
+            else if (indexHash === 3) unreadCount = 1;
+            else if (indexHash === 6) unreadCount = 3;
+            else if (indexHash === 9) unreadCount = 1;
+            else if (indexHash === 12) unreadCount = 2;
+            else if (indexHash === 15) unreadCount = 1;
+            else if (indexHash === 18) unreadCount = 3;
+          }
         } else {
           // Exclude Sunshine Dental from the other 50% to make it exactly 50%
           const nonSunshinePractices = dentistPractices.filter(p => p.name !== 'Sunshine Dental');
@@ -505,7 +516,8 @@ export function generateMockData() {
         ...(specialistDoctor ? { specialistDoctor } : {}),
         practice,
         urgency,
-        sender
+        sender,
+        ...(unreadCount !== undefined ? { unreadCount } : {})
       };
 
       referrals.push(referralItem);
