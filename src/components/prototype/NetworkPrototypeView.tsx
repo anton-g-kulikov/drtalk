@@ -269,7 +269,7 @@ function PracticeCard({
             <h3 className="font-black uppercase text-sm tracking-tight">{practice.name}</h3>
             {practice.verified && <ShieldCheck size={14} className="text-black" />}
           </div>
-          <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty} — {practice.type}</p>
+          <p className="text-[10px] font-bold uppercase text-muted-foreground">{practice.specialty}</p>
         </div>
 
         <div className="space-y-1.5 pt-1">
