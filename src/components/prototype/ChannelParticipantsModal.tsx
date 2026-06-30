@@ -246,7 +246,7 @@ export function ChannelParticipantsModal({
               {/* Main/Active Participants List */}
               <div className="space-y-2">
                 <p className="text-[7.5px] text-zinc-400 font-bold uppercase tracking-wider mb-2 leading-relaxed">
-                  Uncheck a user's name to exclude them from this channel, or check it again to restore their access.
+                  Uncheck a user&apos;s name to exclude them from this channel, or check it again to restore their access.
                 </p>
                 {Object.entries(participantsByPractice).map(([practiceName, members]) => (
                   <div key={practiceName} className="space-y-2 pt-2 first:pt-0">

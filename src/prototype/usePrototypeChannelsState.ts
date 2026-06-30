@@ -290,6 +290,7 @@ export function usePrototypeChannelsState({
         };
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannel.id, isDentist, referrals, baseChannels]);
 
 
