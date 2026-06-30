@@ -282,6 +282,63 @@ export function saveNetwork(network: NetworkPractice[]) {
   localStorage.setItem('drtalk_network', JSON.stringify(network));
 }
 
+// ── Connection Requests ───────────────────────────────────────────────────────
+
+export interface ConnectionRequest {
+  id: string;
+  fromPracticeId: string;
+  fromPracticeName: string;
+  fromSpecialty: string;
+  fromLocation: string;
+  sentAt: string; // ISO date string
+}
+
+export const initialConnectionRequests: ConnectionRequest[] = [
+  {
+    id: 'cr-1',
+    fromPracticeId: 'dn-req-1',
+    fromPracticeName: 'Glacier Peak Dental',
+    fromSpecialty: 'General Dentistry',
+    fromLocation: 'Phoenix, AZ',
+    sentAt: '2026-06-29T14:30:00Z',
+  },
+  {
+    id: 'cr-2',
+    fromPracticeId: 'dn-req-2',
+    fromPracticeName: 'Harbor Light Dental',
+    fromSpecialty: 'Cosmetic Dentistry',
+    fromLocation: 'Tempe, AZ',
+    sentAt: '2026-06-30T08:15:00Z',
+  },
+  {
+    id: 'cr-3',
+    fromPracticeId: 'dn-req-3',
+    fromPracticeName: 'Summit Ridge Dental',
+    fromSpecialty: 'General Dentistry',
+    fromLocation: 'Chandler, AZ',
+    sentAt: '2026-06-30T09:45:00Z',
+  },
+];
+
+export function getConnectionRequests(): ConnectionRequest[] {
+  if (typeof window === 'undefined') return initialConnectionRequests;
+  const stored = localStorage.getItem('drtalk_connection_requests');
+  if (!stored) {
+    localStorage.setItem('drtalk_connection_requests', JSON.stringify(initialConnectionRequests));
+    return initialConnectionRequests;
+  }
+  try {
+    return JSON.parse(stored) as ConnectionRequest[];
+  } catch {
+    return initialConnectionRequests;
+  }
+}
+
+export function saveConnectionRequests(requests: ConnectionRequest[]) {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('drtalk_connection_requests', JSON.stringify(requests));
+}
+
 
 export function getChannels(isDentist: boolean): Channel[] {
   if (typeof window === 'undefined') return [];
