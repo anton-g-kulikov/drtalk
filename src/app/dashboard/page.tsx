@@ -566,6 +566,7 @@ export default function DashboardPage() {
                 message: p.location,
                 meta: p.specialty,
                 actionLabel: 'Connect',
+                onClick: () => router.push(`/network?tab=directory&highlight=${encodeURIComponent(p.id)}`),
                 onAction: () => handleConnectSuggestion(p),
                 onDismiss: () => handleDismissSuggestion(p.id)
               }))}

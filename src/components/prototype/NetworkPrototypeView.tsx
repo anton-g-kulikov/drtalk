@@ -170,6 +170,7 @@ function PracticeCard({
   showToast,
   onDismiss,
   onRemoveConnection,
+  isHighlighted,
 }: {
   activeTab: NetworkTab;
   config: NetworkRoleConfig;
@@ -177,6 +178,7 @@ function PracticeCard({
   showToast: (message: string) => void;
   onDismiss?: () => void;
   onRemoveConnection?: () => void;
+  isHighlighted?: boolean;
 }) {
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
@@ -197,7 +199,12 @@ function PracticeCard({
   };
 
   return (
-    <div className={`wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full ${practice.isExternal && config.role === 'specialist' ? 'border-dashed' : ''}`}>
+    <div
+      data-practice-id={practice.id}
+      className={`wireframe-card group hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] transition-all overflow-hidden flex flex-col h-full ${
+        practice.isExternal && config.role === 'specialist' ? 'border-dashed' : ''
+      } ${isHighlighted ? 'ring-2 ring-offset-2 ring-black animate-pulse' : ''}`}
+    >
       <div className="p-6 space-y-4 flex-1">
         <div className="flex justify-between items-start">
           <div className="flex flex-col items-start gap-2">
@@ -389,6 +396,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const [selectedRadius, setSelectedRadius] = useState('All');
   const [selectedType, setSelectedType] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
+  const [highlightPracticeId, setHighlightPracticeId] = useState<string | null>(null);
 
   useEffect(() => {
     setNetworkList(getNetwork());
@@ -398,8 +406,15 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const tabParam = params.get('tab');
+    const highlightParam = params.get('highlight');
     if (tabParam === 'directory' || tabParam === 'connected' || tabParam === 'analytics') {
       const timer = setTimeout(() => setActiveTab(tabParam), 0);
+      if (highlightParam) {
+        // Show all practices so the highlighted card is always visible
+        setDirectoryFilter('all');
+        setHighlightPracticeId(highlightParam);
+        setTimeout(() => setHighlightPracticeId(null), 2500);
+      }
       return () => clearTimeout(timer);
     }
   }, []);
@@ -430,6 +445,16 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     setToastMessage(message);
     setTimeout(() => setToastMessage(null), 5000);
   };
+
+  // Scroll to the highlighted practice card after the grid renders
+  useEffect(() => {
+    if (!highlightPracticeId) return;
+    const timer = setTimeout(() => {
+      const el = document.querySelector(`[data-practice-id="${highlightPracticeId}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150); // small delay lets the grid paint first
+    return () => clearTimeout(timer);
+  }, [highlightPracticeId]);
 
   const handleAcceptConnectionRequest = (request: ConnectionRequest) => {
     const updatedRequests = connectionRequests.filter(r => r.id !== request.id);
@@ -689,6 +714,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                         showToast={showToast}
                         onDismiss={() => handleDismiss(practice.id)}
                         onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                        isHighlighted={highlightPracticeId === practice.id}
                       />
                     ))}
                   </NetworkSection>
@@ -703,6 +729,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                           showToast={showToast}
                           onDismiss={() => handleDismiss(practice.id)}
                           onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                          isHighlighted={highlightPracticeId === practice.id}
                         />
                       ))}
                     </NetworkSection>
@@ -728,6 +755,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                       showToast={showToast}
                       onDismiss={() => handleDismiss(practice.id)}
                       onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                      isHighlighted={highlightPracticeId === practice.id}
                     />
                   ))}
                   {activeTab === 'directory' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}

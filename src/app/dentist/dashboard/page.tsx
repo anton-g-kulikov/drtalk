@@ -443,6 +443,7 @@ export default function DentistDashboardPage() {
                 message: p.location,
                 meta: p.specialty,
                 actionLabel: 'Connect',
+                onClick: () => router.push(`/dentist/network?tab=directory&highlight=${encodeURIComponent(p.id)}`),
                 onAction: () => handleConnectSuggestion(p),
                 onDismiss: () => handleDismissSuggestion(p.id)
               }))}
