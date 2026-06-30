@@ -101,7 +101,7 @@ export function ChannelItem({
                 <Plus size={8} strokeWidth={3} />
               </button>
             )}
-            {channel.unreadCount && channel.unreadCount > 1 && !isActive && (
+            {channel.unreadCount && channel.unreadCount > 0 && !isActive && (
               <span className="bg-black text-white text-[8px] px-1 rounded-full">{channel.unreadCount}</span>
             )}
           </div>
