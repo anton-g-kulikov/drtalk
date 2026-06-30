@@ -333,7 +333,7 @@ export function getChannels(isDentist: boolean): Channel[] {
       'westside endodontics'
     ]);
     defaults = [
-      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 4 },
       { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
       ...specialistClinics.map(clinic => ({
         id: clinic.id,
@@ -355,7 +355,7 @@ export function getChannels(isDentist: boolean): Channel[] {
       'grand canyon dental group',
     ]);
     defaults = [
-      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+      { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 4 },
       { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
       ...dentistPractices.map(practice => ({
         id: practice.id,

@@ -7,7 +7,7 @@ export const initialDocuments: SharedDocument[] = mockData.documents;
 export const initialMessages: Record<string, MessageItem[]> = mockData.messages;
 
 export const mockChannels: Channel[] = [
-  { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 12 },
+  { id: '1', name: 'team-members', type: 'internal', lastMessage: 'Reviewing tooth #14...', unreadCount: 2, memberCount: 4 },
   { id: '2', name: 'admin-billing', type: 'internal', lastMessage: 'March report ready.', memberCount: 4 },
   ...specialistClinics.map(clinic => ({
     id: clinic.id,
@@ -28,8 +28,12 @@ export interface GroupParticipant {
 }
 
 export const mockGroupParticipants: GroupParticipant[] = [
+  { id: 'gp_taylor', name: 'Dr. Taylor Reed', practice: 'Sunshine Dental (Me)', selected: false },
   { id: 'gp1', name: 'Dr. John Smith', practice: 'Sunshine Dental (Me)', selected: false },
   { id: 'gp2', name: 'Jane Doe', practice: 'Sunshine Dental (Me)', selected: false },
+  { id: 'gp_extra1', name: 'Mike Johnson', practice: 'Sunshine Dental (Me)', selected: false },
+  { id: 'gp_extra2', name: 'Sarah Wilson', practice: 'Sunshine Dental (Me)', selected: false },
+  { id: 'gp_doe', name: 'Dr. John Doe', practice: 'Valley Endodontics', selected: false },
   { id: 'gp3', name: 'Dr. Clara Valley', practice: 'Valley Endodontics', selected: false },
   { id: 'gp4', name: 'Robert Chen', practice: 'Valley Endodontics', selected: false },
   { id: 'gp5', name: 'Dr. Marcus Jones', practice: 'Downtown Oral Surgery', selected: false },

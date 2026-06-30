@@ -44,6 +44,96 @@ type AttachedDocDraft = {
   type: SharedDocument['type'];
 };
 
+const getDirectoryUsers = (isDentist: boolean) => {
+  const ownPracticeName = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+
+  return [
+    // Own Practice Users (exactly the 4 active users in the logged-in practice)
+    { id: 'gp_emma', name: 'Dr. Emma Smith', role: 'Owner', practice: ownPracticeName },
+    { id: 'gp_alice', name: 'Alice Johnson', role: 'Practice Admin', practice: ownPracticeName },
+    { id: 'gp_bob', name: 'Bob Wilson', role: 'Team Member', practice: ownPracticeName },
+    { id: 'gp_carol', name: 'Carol Danvers', role: 'Team Member', practice: ownPracticeName },
+
+    // Connected Practice Users
+    { id: 'gp3', name: 'Dr. Clara Valley', role: 'Owner', practice: isDentist ? 'Valley Endodontics' : 'Valley Endodontics (External)' },
+    { id: 'gp4', name: 'Robert Chen', role: 'Practice Admin', practice: isDentist ? 'Valley Endodontics' : 'Valley Endodontics (External)' },
+
+    { id: 'gp1', name: 'Dr. John Smith', role: 'Owner', practice: 'Sunshine Dental' },
+    { id: 'gp2', name: 'Jane Doe', role: 'Team Member', practice: 'Sunshine Dental' },
+    { id: 'gpExtra1', name: 'Mike Johnson', role: 'Team Member', practice: 'Sunshine Dental' },
+    { id: 'gpExtra2', name: 'Sarah Wilson', role: 'Practice Admin', practice: 'Sunshine Dental' },
+
+    { id: 'gp_oak1', name: 'Dr. Patricia Oakridge', role: 'Owner', practice: 'Oakridge Dental' },
+    { id: 'gp_oak2', name: 'Frank Oakridge', role: 'Practice Admin', practice: 'Oakridge Dental' },
+
+    { id: 'gp_db1', name: 'Dr. Sarah Bloom', role: 'Owner', practice: 'Desert Bloom Dental' },
+    { id: 'gp_db2', name: 'Alice Bloom', role: 'Team Member', practice: 'Desert Bloom Dental' },
+
+    // Other clinics
+    { id: 'gp5', name: 'Dr. Marcus Jones', role: 'Owner', practice: 'Downtown Oral Surgery' },
+    { id: 'gp6', name: 'Linda Brooks', role: 'Practice Admin', practice: 'Downtown Oral Surgery' },
+    { id: 'gp7', name: 'Dr. Angela Metro', role: 'Owner', practice: 'Metro Orthodontics' },
+    { id: 'gp8', name: 'Dr. David Bowie', role: 'Owner', practice: 'Arizona Periodontics' },
+  ];
+};
+
+function getInitialParticipantsForChannel(
+  channel: Channel,
+  isDentist: boolean,
+  referralsList?: UnifiedReferral[],
+  channelsList?: Channel[]
+): { id: string; name: string; role: string; practice: string; selected: boolean }[] {
+  const ownPractice = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+  const referrals = (referralsList && referralsList.length > 0) ? referralsList : getReferrals();
+  const channels = (channelsList && channelsList.length > 0) ? channelsList : getChannels(isDentist);
+  const directory = getDirectoryUsers(isDentist);
+
+  if (channel.type === 'internal' || channel.type === 'public') {
+    return directory
+      .filter((u) => u.practice === ownPractice)
+      .map((u) => ({ ...u, selected: true }));
+  }
+
+  if (channel.type === 'group') {
+    return directory.map((u) => ({
+      ...u,
+      selected: u.id === 'gp_emma' || u.id === 'gp_alice' || u.id === 'gp_bob',
+    }));
+  }
+
+  let otherPractice = '';
+  if (channel.id.startsWith('case_')) {
+    const refId = channel.id.replace('case_', '');
+    const referral = referrals.find((r) => r.id === refId);
+    if (referral) {
+      otherPractice = isDentist ? referral.specialist || '' : referral.practice || '';
+    }
+  } else if (channel.parentId) {
+    const parent = channels.find((c) => c.id === channel.parentId);
+    if (parent) {
+      otherPractice = parent.name;
+    } else {
+      otherPractice = 'Valley Endodontics';
+    }
+  } else {
+    otherPractice = channel.name;
+  }
+
+  const normalize = (p: string) => p.toLowerCase().replace(/\s*\(me\)\s*/g, '').trim();
+  const normOwn = normalize(ownPractice);
+  const normOther = normalize(otherPractice);
+
+  return directory
+    .filter((u) => {
+      const normUserPractice = normalize(u.practice);
+      if (normUserPractice === normOwn) {
+        return u.id.startsWith('gp_');
+      }
+      return normUserPractice === normOther;
+    })
+    .map((u) => ({ ...u, selected: true }));
+}
+
 type UsePrototypeChannelsStateArgs = {
   isDentist: boolean;
   practiceParam: string | null;
@@ -66,7 +156,18 @@ export function usePrototypeChannelsState({
   onNavigate,
 }: UsePrototypeChannelsStateArgs) {
   const [referrals, setReferrals] = useState<UnifiedReferral[]>(initialReferrals);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channelParticipants, setChannelParticipants] = useState<Record<string, { id: string; name: string; role: string; practice: string; selected: boolean }[]>>({});
+  const [baseChannels, setChannels] = useState<Channel[]>([]);
+  const channels = useMemo(() => {
+    return baseChannels.map((c) => {
+      const participantsList = channelParticipants[c.id] || getInitialParticipantsForChannel(c, isDentist, referrals, baseChannels);
+      const activeCount = participantsList.filter((p) => p.selected).length;
+      return {
+        ...c,
+        memberCount: activeCount,
+      };
+    });
+  }, [baseChannels, channelParticipants, isDentist, referrals]);
   const [activeChannel, setActiveChannel] = useState<Channel>(mockChannels[0]);
   const [messages, setMessages] = useState<Record<string, MessageItem[]>>({});
   const [documents, setDocuments] = useState<SharedDocument[]>(initialDocuments);
@@ -79,7 +180,8 @@ export function usePrototypeChannelsState({
   const [expandedPractices, setExpandedPractices] = useState<Record<string, boolean>>({});
   const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
   const [groupChatName, setGroupChatName] = useState('');
-  const [groupParticipants, setGroupParticipants] = useState<GroupParticipant[]>(mockGroupParticipants);
+  const [isGroupNameManuallyEdited, setIsGroupNameManuallyEdited] = useState(false);
+  const [groupParticipants, setGroupParticipants] = useState<GroupParticipant[]>([]);
   const [groupChatError, setGroupChatError] = useState<string | null>(null);
   const [showCreateInternalModal, setShowCreateInternalModal] = useState(false);
   const [internalChannelName, setInternalChannelName] = useState('');
@@ -92,12 +194,7 @@ export function usePrototypeChannelsState({
   const [showAttachmentDrawer, setShowAttachmentDrawer] = useState(false);
   const [previewDocument, setPreviewDocument] = useState<SharedDocument | null>(null);
   const [showParticipantsModal, setShowParticipantsModal] = useState(false);
-  const [participants, setParticipants] = useState([
-    { id: 'p1', name: 'Dr. John Smith', role: 'Dentist', selected: true },
-    { id: 'p2', name: 'Jane Doe', role: 'Hygienist', selected: true },
-    { id: 'p3', name: 'Mike Johnson', role: 'Assistant', selected: true },
-    { id: 'p4', name: 'Sarah Wilson', role: 'Front Desk', selected: true },
-  ]);
+  const [participants, setParticipants] = useState<{ id: string; name: string; role: string; practice: string; selected: boolean }[]>([]);
   const [showChannelList, setShowChannelList] = useState(false);
   const [docPage, setDocPage] = useState(1);
   const [isViewingArchivedDocs, setIsViewingArchivedDocs] = useState(false);
@@ -133,10 +230,68 @@ export function usePrototypeChannelsState({
   }, [isDentist]);
 
   useEffect(() => {
-    if (channels.length > 0) {
-      saveChannels(isDentist, channels);
+    const directory = getDirectoryUsers(isDentist);
+    setGroupParticipants(
+      directory.map((u) => ({
+        id: u.id,
+        name: u.name,
+        practice: u.practice,
+        selected: false,
+      }))
+    );
+  }, [isDentist]);
+
+  const storageKey = isDentist ? 'drtalk_channel_participants_dentist_v7' : 'drtalk_channel_participants_specialist_v7';
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('drtalk_channel_participants_dentist');
+      localStorage.removeItem('drtalk_channel_participants_specialist');
+      localStorage.removeItem('drtalk_channel_participants_dentist_v2');
+      localStorage.removeItem('drtalk_channel_participants_specialist_v2');
+      localStorage.removeItem('drtalk_channel_participants_dentist_v3');
+      localStorage.removeItem('drtalk_channel_participants_specialist_v3');
+      localStorage.removeItem('drtalk_channel_participants_dentist_v4');
+      localStorage.removeItem('drtalk_channel_participants_specialist_v4');
+      localStorage.removeItem('drtalk_channel_participants_dentist_v5');
+      localStorage.removeItem('drtalk_channel_participants_specialist_v5');
+      localStorage.removeItem('drtalk_channel_participants_dentist_v6');
+      localStorage.removeItem('drtalk_channel_participants_specialist_v6');
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        try {
+          setChannelParticipants(JSON.parse(stored));
+        } catch (e) {
+          // ignore
+        }
+      }
     }
-  }, [channels, isDentist]);
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (Object.keys(channelParticipants).length > 0) {
+      localStorage.setItem(storageKey, JSON.stringify(channelParticipants));
+    }
+  }, [channelParticipants, storageKey]);
+
+  useEffect(() => {
+    if (!activeChannel) return;
+    const existing = channelParticipants[activeChannel.id];
+    if (existing) {
+      setParticipants(existing);
+    } else {
+      const initial = getInitialParticipantsForChannel(activeChannel, isDentist, referrals, baseChannels);
+      setParticipants(initial);
+      setChannelParticipants(prev => {
+        if (prev[activeChannel.id]) return prev;
+        return {
+          ...prev,
+          [activeChannel.id]: initial
+        };
+      });
+    }
+  }, [activeChannel.id, isDentist, referrals, baseChannels]);
+
 
   const caseChannels = useMemo(() => buildCaseChannels({
     referrals,
@@ -307,9 +462,30 @@ export function usePrototypeChannelsState({
 
     setChannels((prev) => [...prev, result.channel]);
     setMessages((prev) => ({ ...prev, [result.channel.id]: [result.message] }));
+
+    const initialParticipants = getDirectoryUsers(isDentist).map((u) => {
+      const selectedInModal = groupParticipants.some((gp) => gp.id === u.id && gp.selected);
+      return {
+        ...u,
+        selected: selectedInModal,
+      };
+    });
+    setChannelParticipants((prev) => ({
+      ...prev,
+      [result.channel.id]: initialParticipants,
+    }));
+
     setGroupChatName('');
-    setGroupParticipants(mockGroupParticipants);
+    setGroupParticipants(
+      getDirectoryUsers(isDentist).map((u) => ({
+        id: u.id,
+        name: u.name,
+        practice: u.practice,
+        selected: false,
+      }))
+    );
     setGroupChatError(null);
+    setIsGroupNameManuallyEdited(false);
     setShowCreateGroupModal(false);
     setGroupCollapsed(false);
     setActiveChannel(result.channel);
@@ -656,6 +832,10 @@ export function usePrototypeChannelsState({
     setConnectedCollapsed,
     setGroupChatError,
     setGroupChatName,
+    onGroupChatNameChange: (name: string) => {
+      setGroupChatName(name);
+      setIsGroupNameManuallyEdited(name.trim() !== '');
+    },
     setGroupCollapsed,
     setGroupParticipants,
     setInputText,
@@ -692,8 +872,16 @@ export function usePrototypeChannelsState({
     onCancelCreateGroup: () => {
       setShowCreateGroupModal(false);
       setGroupChatName('');
-      setGroupParticipants(mockGroupParticipants);
+      setGroupParticipants(
+        getDirectoryUsers(isDentist).map((u) => ({
+          id: u.id,
+          name: u.name,
+          practice: u.practice,
+          selected: false,
+        }))
+      );
       setGroupChatError(null);
+      setIsGroupNameManuallyEdited(false);
     },
     onAttachNew: () => {
       onNavigate(isDentist ? '/dentist/dashboard/send-document' : '/dashboard/send-document');
@@ -701,13 +889,13 @@ export function usePrototypeChannelsState({
     },
     onSendNewDocument: () => onNavigate(isDentist ? '/dentist/dashboard/send-document' : '/dashboard/send-document'),
     onArchiveCase: () => {
-      if (activeChannel.type === 'internal') {
-        const updatedChannels = channels.map((c) =>
+      if (activeChannel.type === 'internal' || activeChannel.type === 'group') {
+        const updatedChannels = baseChannels.map((c) =>
           c.id === activeChannel.id ? { ...c, isArchived: true } : c
         );
         setChannels(updatedChannels);
-        triggerToast(`Archived internal channel #${activeChannel.name}!`);
-        const nextChannel = updatedChannels.find((c) => c.type === 'internal' && !c.isArchived) ||
+        triggerToast(`Archived ${activeChannel.type === 'group' ? 'group chat' : 'internal channel'} "${activeChannel.name}"!`);
+        const nextChannel = updatedChannels.find((c) => c.type === activeChannel.type && !c.isArchived) ||
                             updatedChannels.find((c) => !c.isArchived);
         if (nextChannel) {
           setActiveChannel(nextChannel);
@@ -732,14 +920,14 @@ export function usePrototypeChannelsState({
     onReactivateArchived: (conversationId: string) => {
       const archivedCase = caseChannels.find((caseChannel) => caseChannel.id === conversationId);
       if (!archivedCase) {
-        const archivedInternal = channels.find((c) => c.id === conversationId && c.type === 'internal');
-        if (archivedInternal) {
-          const updatedChannels = channels.map((c) =>
+        const archivedChan = baseChannels.find((c) => c.id === conversationId && (c.type === 'internal' || c.type === 'group'));
+        if (archivedChan) {
+          const updatedChannels = baseChannels.map((c) =>
             c.id === conversationId ? { ...c, isArchived: false } : c
           );
           setChannels(updatedChannels);
-          triggerToast(`Re-activated internal channel #${archivedInternal.name}!`);
-          setActiveChannel({ ...archivedInternal, isArchived: false });
+          triggerToast(`Re-activated ${archivedChan.type === 'group' ? 'group chat' : 'internal channel'} "${archivedChan.name}"!`);
+          setActiveChannel({ ...archivedChan, isArchived: false });
           setActiveTab('messages');
         }
         return;
@@ -762,20 +950,74 @@ export function usePrototypeChannelsState({
     },
 
     onToggleParticipant: (id: string) => {
-      setParticipants((prev) => prev.map((participant) => participant.id === id ? { ...participant, selected: !participant.selected } : participant));
+      setParticipants((prev) => {
+        const next = prev.map((participant) =>
+          participant.id === id ? { ...participant, selected: !participant.selected } : participant
+        );
+
+        setChannelParticipants((cp) => ({
+          ...cp,
+          [activeChannel.id]: next,
+        }));
+
+        const activeMembersCount = next.filter((m) => m.selected).length;
+
+        setChannels((currentChannels) =>
+          currentChannels.map((c) =>
+            c.id === activeChannel.id ? { ...c, memberCount: activeMembersCount } : c
+          )
+        );
+
+        setActiveChannel((currentActive) => {
+          if (currentActive && currentActive.id === activeChannel.id) {
+            return { ...currentActive, memberCount: activeMembersCount };
+          }
+          return currentActive;
+        });
+
+        return next;
+      });
     },
     onToggleGroupParticipant: (id: string) => {
-      setGroupParticipants((prev) => prev.map((participant) => participant.id === id ? { ...participant, selected: !participant.selected } : participant));
+      setGroupParticipants((prev) => {
+        const next = prev.map((participant) =>
+          participant.id === id ? { ...participant, selected: !participant.selected } : participant
+        );
+
+        if (!isGroupNameManuallyEdited) {
+          const selected = next.filter((p) => p.selected);
+          const getFirstName = (fullName: string) => {
+            const clean = fullName.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s+/i, '').trim();
+            return clean.split(' ')[0];
+          };
+          const autoName = selected.map((p) => getFirstName(p.name)).join(', ');
+          setGroupChatName(autoName);
+        }
+
+        return next;
+      });
       setGroupChatError(null);
     },
     onToggleGroupPractice: (participantIds: string[], shouldSelect: boolean) => {
-      setGroupParticipants((prev) =>
-        prev.map((participant) =>
+      setGroupParticipants((prev) => {
+        const next = prev.map((participant) =>
           participantIds.includes(participant.id)
             ? { ...participant, selected: shouldSelect }
-            : participant,
-        ),
-      );
+            : participant
+        );
+
+        if (!isGroupNameManuallyEdited) {
+          const selected = next.filter((p) => p.selected);
+          const getFirstName = (fullName: string) => {
+            const clean = fullName.replace(/^(Dr\.|Mr\.|Ms\.|Mrs\.)\s+/i, '').trim();
+            return clean.split(' ')[0];
+          };
+          const autoName = selected.map((p) => getFirstName(p.name)).join(', ');
+          setGroupChatName(autoName);
+        }
+
+        return next;
+      });
       setGroupChatError(null);
     },
     showCreateSubChannelModal,
