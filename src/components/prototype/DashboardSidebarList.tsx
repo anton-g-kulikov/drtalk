@@ -19,18 +19,28 @@ type DashboardSidebarListProps = {
   title: string;
   icon?: ReactNode;
   items: DashboardSidebarItem[];
+  onSeeAll?: () => void;
 };
 
 export function DashboardSidebarList({
   title,
   icon,
   items,
+  onSeeAll,
 }: DashboardSidebarListProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 border-b-2 border-black pb-2">
         {icon}
-        <h3 className="font-bold uppercase text-xs tracking-widest">{title}</h3>
+        <h3 className="font-bold uppercase text-xs tracking-widest flex-1">{title}</h3>
+        {onSeeAll && (
+          <button
+            onClick={onSeeAll}
+            className="text-[8px] font-black uppercase tracking-wider text-black hover:underline underline-offset-2 shrink-0 flex items-center gap-0.5 transition-opacity hover:opacity-70"
+          >
+            See All →
+          </button>
+        )}
       </div>
 
       <div className="wireframe-card p-0 divide-y-2 divide-black bg-white overflow-hidden">
