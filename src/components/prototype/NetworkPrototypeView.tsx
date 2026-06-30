@@ -25,7 +25,8 @@ import {
 import { MainLayout } from '@/components/MainLayout';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { InviteModal } from '@/components/InviteModal';
-import { getNetwork, saveNetwork, type NetworkPractice } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest } from '@/lib/referrals';
+import { ConnectionRequestBanner } from '@/components/prototype/ConnectionRequestBanner';
 import {
   dentistAnalytics,
   networkRoleConfigs,
@@ -312,14 +313,34 @@ function PracticeCard({
           )
         ) : (
           <>
-            <Link href={`/channels?practice=${encodeURIComponent(practice.name)}`} className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${practice.isExternal ? 'bg-white text-black hover:bg-gray-100 border-2 border-black' : 'bg-black text-white hover:bg-zinc-800'}`}>
-              <MessageCircle size={14} />
-              {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
-            </Link>
-            {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') && onDismiss && (
-              <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
-                Dismiss
-              </button>
+            {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') ? (
+              <>
+                <button
+                  onClick={() => {
+                    showToast(`Connection request sent to ${practice.name}`);
+                  }}
+                  className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
+                >
+                  Connect
+                </button>
+                {onDismiss && (
+                  <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
+                    Dismiss
+                  </button>
+                )}
+              </>
+            ) : (
+              <>
+                <Link href={`/channels?practice=${encodeURIComponent(practice.name)}`} className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${practice.isExternal ? 'bg-white text-black hover:bg-gray-100 border-2 border-black' : 'bg-black text-white hover:bg-zinc-800'}`}>
+                  <MessageCircle size={14} />
+                  {practice.isExternal ? 'Send Secure Message' : 'Chat Now'}
+                </Link>
+                {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') && onDismiss && (
+                  <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
+                    Dismiss
+                  </button>
+                )}
+              </>
             )}
           </>
         )}
@@ -361,6 +382,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [networkList, setNetworkList] = useState<NetworkPractice[]>([]);
+  const [connectionRequests, setConnectionRequests] = useState<ConnectionRequest[]>([]);
 
   const [selectedState, setSelectedState] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
@@ -370,6 +392,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
 
   useEffect(() => {
     setNetworkList(getNetwork());
+    setConnectionRequests(getConnectionRequests());
   }, []);
 
   useEffect(() => {
@@ -406,6 +429,32 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const showToast = (message: string) => {
     setToastMessage(message);
     setTimeout(() => setToastMessage(null), 5000);
+  };
+
+  const handleAcceptConnectionRequest = (request: ConnectionRequest) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== request.id);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    const newPractice: NetworkPractice = {
+      id: request.fromPracticeId,
+      name: request.fromPracticeName,
+      type: 'Dentist',
+      specialty: request.fromSpecialty,
+      location: request.fromLocation,
+      status: 'Connected',
+      verified: true,
+    };
+    const updatedNetwork = [...networkList.filter(p => p.id !== request.fromPracticeId), newPractice];
+    setNetworkList(updatedNetwork);
+    saveNetwork(updatedNetwork);
+    showToast(`Connected with ${request.fromPracticeName} — inter-practice channel created`);
+  };
+
+  const handleDeclineConnectionRequest = (requestId: string) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== requestId);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    showToast('Connection request declined');
   };
 
   const handleDismiss = (practiceId: string) => {
@@ -624,6 +673,12 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
 
               {config.role === 'specialist' && activeTab === 'connected' ? (
                 <div className="space-y-10">
+                  <ConnectionRequestBanner
+                    requests={connectionRequests}
+                    onAccept={handleAcceptConnectionRequest}
+                    onDecline={handleDeclineConnectionRequest}
+                    mode="inline"
+                  />
                   <NetworkSection label={`On-Platform (${onPlatform.length})`}>
                     {onPlatform.map((practice) => (
                       <PracticeCard
@@ -654,7 +709,16 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                   )}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="space-y-6">
+                  {activeTab === 'connected' && (
+                    <ConnectionRequestBanner
+                      requests={connectionRequests}
+                      onAccept={handleAcceptConnectionRequest}
+                      onDecline={handleDeclineConnectionRequest}
+                      mode="inline"
+                    />
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredNetwork.map((practice) => (
                     <PracticeCard
                       key={practice.id}
@@ -667,6 +731,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                     />
                   ))}
                   {activeTab === 'directory' && <InvitePlaceholder config={config} onInvite={() => setIsInviteModalOpen(true)} />}
+                  </div>
                 </div>
               )}
             </div>
