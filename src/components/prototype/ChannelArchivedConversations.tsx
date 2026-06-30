@@ -8,35 +8,56 @@ export type ArchivedChannelConversation = {
   referralId: string;
   isArchived: boolean;
   lastMessage: string;
+  type?: string;
 };
 
 type ChannelArchivedConversationsProps = {
   conversations: ArchivedChannelConversation[];
   onReactivate: (conversationId: string) => void;
   isInternal?: boolean;
+  channelType?: string;
 };
 
 export function ChannelArchivedConversations({
   conversations,
   onReactivate,
   isInternal = false,
+  channelType,
 }: ChannelArchivedConversationsProps) {
+  const title = channelType === 'group'
+    ? 'Archived Groups'
+    : isInternal
+    ? 'Archived Channels'
+    : 'Archived Conversations';
+
+  const subtitle = channelType === 'group'
+    ? 'Re-activate any group chat to resume communication'
+    : isInternal
+    ? 'Re-activate any internal channel to resume communication'
+    : 'Re-activate any per-case channel to resume communication';
+
+  const emptyText = channelType === 'group'
+    ? 'No archived group chats.'
+    : isInternal
+    ? 'No archived internal channels.'
+    : 'No archived conversations for this practice.';
+
   return (
     <div className="flex-1 overflow-y-auto p-8 bg-zinc-50">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="wireframe-card p-6 bg-white border-2 border-black space-y-6">
           <div className="border-b-2 border-black pb-3">
             <h3 className="text-sm font-black uppercase tracking-widest italic text-black">
-              {isInternal ? 'Archived Channels' : 'Archived Conversations'}
+              {title}
             </h3>
             <p className="text-[10px] text-muted-foreground uppercase font-bold mt-1">
-              {isInternal ? 'Re-activate any internal channel to resume communication' : 'Re-activate any per-case channel to resume communication'}
+              {subtitle}
             </p>
           </div>
 
           {conversations.length === 0 ? (
             <div className="p-8 border-2 border-black border-dashed text-center text-muted-foreground uppercase text-[10px] font-bold">
-              {isInternal ? 'No archived internal channels.' : 'No archived conversations for this practice.'}
+              {emptyText}
             </div>
           ) : (
             <div className="divide-y divide-black/10">
@@ -45,7 +66,11 @@ export function ChannelArchivedConversations({
                   <div>
                     <p className="font-bold text-xs uppercase text-black">#{conversation.name}</p>
                     <p className="text-[8px] text-muted-foreground uppercase font-bold mt-0.5">
-                      {isInternal ? 'Internal Channel' : `Case ID: ${conversation.id.replace('case_', '')}`}
+                      {conversation.type === 'group'
+                        ? 'Group Chat'
+                        : conversation.type === 'internal'
+                        ? 'Internal Channel'
+                        : `Case ID: ${conversation.id.replace('case_', '')}`}
                     </p>
                   </div>
                   <button

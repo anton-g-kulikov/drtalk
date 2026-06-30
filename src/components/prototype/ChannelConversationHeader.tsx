@@ -70,59 +70,69 @@ export function ChannelConversationHeader({
             <h3 className="font-black uppercase text-xs truncate text-black">
               {displayName}
             </h3>
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
-              <span className="text-[8px] text-muted-foreground uppercase font-black">
-                {isCaseChannel ? `Case ${getReferralCode(activeChannel.id.replace('case_', ''))}` : `${activeChannel.memberCount} Members`}
-              </span>
-              {activeChannel.isExternal && (
-                <span className="text-[7px] font-black uppercase px-1.5 py-0.5 border border-black bg-gray-100 whitespace-nowrap">
-                  External &bull; Secure Email
+            {!activeChannel.type.startsWith('archive_') ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="w-1.5 h-1.5 rounded-full bg-black animate-pulse" />
+                <span className="text-[8px] text-muted-foreground uppercase font-black">
+                  {isCaseChannel ? `Case ${getReferralCode(activeChannel.id.replace('case_', ''))}` : `${activeChannel.memberCount} Members`}
                 </span>
-              )}
-            </div>
+                {activeChannel.isExternal && (
+                  <span className="text-[7px] font-black uppercase px-1.5 py-0.5 border border-black bg-gray-100 whitespace-nowrap">
+                    External &bull; Secure Email
+                  </span>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[8px] text-muted-foreground uppercase font-black">
+                  {activeChannel.memberCount} Archived {activeChannel.type === 'archive_internal' ? 'Channels' : activeChannel.type === 'archive_group' ? 'Groups' : 'Cases'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
-        <div className="relative text-black">
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-1.5 hover:bg-gray-100 border-2 border-black text-black flex items-center justify-center transition-all bg-white"
-            aria-label="More options"
-          >
-            <MoreVertical size={16} />
-          </button>
+        {!activeChannel.type.startsWith('archive_') && (
+          <div className="relative text-black">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-1.5 hover:bg-gray-100 border-2 border-black text-black flex items-center justify-center transition-all bg-white"
+              aria-label="More options"
+            >
+              <MoreVertical size={16} />
+            </button>
 
-          {isMenuOpen && (
-            <>
-              <div className="fixed inset-0 z-30" onClick={() => setIsMenuOpen(false)} />
-              <div className="absolute right-0 mt-2 z-40 bg-white border-2 border-black w-44 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px] font-black divide-y-2 divide-black">
-                <button
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    onOpenParticipants();
-                  }}
-                  className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all"
-                >
-                  Participants
-                </button>
-                {(isCaseChannel || activeChannel.type === 'internal') && (
+            {isMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setIsMenuOpen(false)} />
+                <div className="absolute right-0 mt-2 z-40 bg-white border-2 border-black w-44 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase text-[9px] font-black divide-y-2 divide-black">
                   <button
                     onClick={() => {
                       setIsMenuOpen(false);
-                      onArchiveCase();
+                      onOpenParticipants();
                     }}
-                    className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all text-red-600 hover:text-white"
+                    className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all"
                   >
-                    Archive Channel
+                    Participants
                   </button>
-                )}
-              </div>
-            </>
-          )}
-        </div>
+                  {(isCaseChannel || activeChannel.type === 'internal' || activeChannel.type === 'group') && (
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        onArchiveCase();
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all text-red-600 hover:text-white"
+                    >
+                      Archive Channel
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
-      {(activeChannel.type === 'inter-practice' || activeChannel.type === 'internal') && (
+      {activeChannel.type === 'inter-practice' && (
         <div className="h-10 bg-white border-b-2 border-black flex px-6 shrink-0 gap-4">
           <button
             onClick={() => onActiveTabChange('messages')}
@@ -133,39 +143,15 @@ export function ChannelConversationHeader({
           >
             Messages
           </button>
-          {activeChannel.type === 'inter-practice' && (
-            <button
-              onClick={() => onActiveTabChange('documents')}
-              className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'documents'
-                ? 'border-black text-black font-black'
-                : 'border-transparent text-muted-foreground hover:text-black'
-                }`}
-            >
-              Documents
-            </button>
-          )}
-          {activeChannel.type === 'internal' && (
-            <button
-              onClick={() => onActiveTabChange('archived')}
-              className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'archived'
-                ? 'border-black text-black font-black'
-                : 'border-transparent text-muted-foreground hover:text-black'
-                }`}
-            >
-              Archived Channels
-            </button>
-          )}
-          {activeChannel.type === 'inter-practice' && !isCaseChannel && (
-            <button
-              onClick={() => onActiveTabChange('archived')}
-              className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'archived'
-                ? 'border-black text-black font-black'
-                : 'border-transparent text-muted-foreground hover:text-black'
-                }`}
-            >
-              Archived Conversations
-            </button>
-          )}
+          <button
+            onClick={() => onActiveTabChange('documents')}
+            className={`text-[9px] font-black uppercase tracking-wider px-4 border-b-4 transition-all ${activeTab === 'documents'
+              ? 'border-black text-black font-black'
+              : 'border-transparent text-muted-foreground hover:text-black'
+              }`}
+          >
+            Documents
+          </button>
         </div>
       )}
     </>

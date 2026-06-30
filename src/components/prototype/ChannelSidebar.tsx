@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { FileText, Hash, MoreHorizontal, Search } from 'lucide-react';
+import { FileText, Hash, MoreHorizontal, Search, Folder } from 'lucide-react';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import type { Channel } from '@/prototype/channelTypes';
 import { ChannelItem } from '@/components/prototype/ChannelPrimitives';
@@ -160,6 +160,9 @@ export function ChannelSidebar({
   onSelectChannel,
   onSelectCaseChannel,
 }: ChannelSidebarProps) {
+  const archivedInternalCount = (channels || []).filter((c) => c.type === 'internal' && c.isArchived).length;
+  const archivedGroupCount = (channels || []).filter((c) => c.type === 'group' && c.isArchived).length;
+
   return (
     <div className={`${showChannelList ? 'fixed inset-0 z-50' : 'hidden'} lg:relative lg:flex lg:w-80 border-r-2 border-black flex-col bg-white overflow-hidden`}>
       {showChannelList && (
@@ -226,6 +229,21 @@ export function ChannelSidebar({
                 onClick={() => onSelectChannel(channel)}
               />
             ))}
+            {archivedInternalCount > 0 && (
+              <button
+                onClick={() => onSelectChannel({ id: 'archive_internal', name: 'Archived Channels', type: 'archive_internal', memberCount: archivedInternalCount } as any)}
+                className={`w-full flex items-center justify-between py-1.5 px-3 text-left transition-all ${
+                  activeChannelId === 'archive_internal'
+                    ? 'bg-black text-white font-black'
+                    : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <Folder size={12} className={activeChannelId === 'archive_internal' ? 'text-white' : 'text-black'} />
+                  <span className="text-[10px] uppercase tracking-tight truncate">Archived Channels ({archivedInternalCount})</span>
+                </div>
+              </button>
+            )}
           </div>
         </ChannelSidebarSection>
 
@@ -250,6 +268,7 @@ export function ChannelSidebar({
               onPlatformChannels.map((channel) => {
                 const practiceSubChannels = channels.filter((c) => c.parentId === channel.id && !c.isArchived);
                 const practiceCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && !caseChannel.isArchived);
+                const practiceArchivedCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && caseChannel.isArchived);
                 return (
                   <div key={channel.id} className="space-y-0.5">
                     <ChannelItem
@@ -257,7 +276,7 @@ export function ChannelSidebar({
                       isActive={activeChannelId === channel.id}
                       onClick={() => onSelectChannel(channel)}
                       isExpanded={!!expandedPractices[channel.id]}
-                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0}
+                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0 || practiceArchivedCases.length > 0}
                       onCreateSubChannel={() => onCreateSubChannel(channel)}
                     />
                     {expandedPractices[channel.id] && (
@@ -279,6 +298,21 @@ export function ChannelSidebar({
                             onSelectCaseChannel={onSelectCaseChannel}
                           />
                         ))}
+                        {practiceArchivedCases.length > 0 && (
+                          <button
+                            onClick={() => onSelectChannel({ id: 'archive_cases_' + channel.id, name: `Archived Cases - ${channel.name}`, type: 'archive_cases', parentId: channel.id, memberCount: practiceArchivedCases.length } as any)}
+                            className={`w-full flex items-center justify-between py-1.5 pl-10 pr-3 text-left transition-all ${
+                              activeChannelId === 'archive_cases_' + channel.id
+                                ? 'bg-black text-white font-black'
+                                : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <Folder size={10} className={activeChannelId === 'archive_cases_' + channel.id ? 'text-white' : 'text-black'} />
+                              <span className="text-[10px] uppercase tracking-tight truncate">Archived Cases ({practiceArchivedCases.length})</span>
+                            </div>
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
@@ -301,6 +335,7 @@ export function ChannelSidebar({
               externalChannels.map((channel) => {
                 const practiceSubChannels = channels.filter((c) => c.parentId === channel.id && !c.isArchived);
                 const practiceCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && !caseChannel.isArchived);
+                const practiceArchivedCases = caseChannels.filter((caseChannel) => caseChannel.practiceId === channel.id && caseChannel.isArchived);
                 return (
                   <div key={channel.id} className="space-y-0.5">
                     <ChannelItem
@@ -308,7 +343,7 @@ export function ChannelSidebar({
                       isActive={activeChannelId === channel.id}
                       onClick={() => onSelectChannel(channel)}
                       isExpanded={!!expandedPractices[channel.id]}
-                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0}
+                      hasSubChannels={practiceSubChannels.length > 0 || practiceCases.length > 0 || practiceArchivedCases.length > 0}
                       onCreateSubChannel={() => onCreateSubChannel(channel)}
                     />
                     {expandedPractices[channel.id] && (
@@ -331,6 +366,21 @@ export function ChannelSidebar({
                             onSelectCaseChannel={onSelectCaseChannel}
                           />
                         ))}
+                        {practiceArchivedCases.length > 0 && (
+                          <button
+                            onClick={() => onSelectChannel({ id: 'archive_cases_' + channel.id, name: `Archived Cases - ${channel.name}`, type: 'archive_cases', parentId: channel.id, memberCount: practiceArchivedCases.length } as any)}
+                            className={`w-full flex items-center justify-between py-1.5 pl-10 pr-3 text-left transition-all ${
+                              activeChannelId === 'archive_cases_' + channel.id
+                                ? 'bg-black text-white font-black'
+                                : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <Folder size={10} className={activeChannelId === 'archive_cases_' + channel.id ? 'text-white' : 'text-black'} />
+                              <span className="text-[10px] uppercase tracking-tight truncate">Archived Cases ({practiceArchivedCases.length})</span>
+                            </div>
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
@@ -356,7 +406,7 @@ export function ChannelSidebar({
           }
         >
           <div className="space-y-1">
-            {groupChannels.length === 0 ? (
+            {groupChannels.length === 0 && archivedGroupCount === 0 ? (
               <p className="text-[8px] text-muted-foreground italic uppercase">No group chats yet.</p>
             ) : (
               groupChannels.map((channel) => (
@@ -367,6 +417,21 @@ export function ChannelSidebar({
                   onClick={() => onSelectChannel(channel)}
                 />
               ))
+            )}
+            {archivedGroupCount > 0 && (
+              <button
+                onClick={() => onSelectChannel({ id: 'archive_group', name: 'Archived Groups', type: 'archive_group', memberCount: archivedGroupCount } as any)}
+                className={`w-full flex items-center justify-between py-1.5 px-3 text-left transition-all ${
+                  activeChannelId === 'archive_group'
+                    ? 'bg-black text-white font-black'
+                    : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <Folder size={12} className={activeChannelId === 'archive_group' ? 'text-white' : 'text-black'} />
+                  <span className="text-[10px] uppercase tracking-tight truncate">Archived Groups ({archivedGroupCount})</span>
+                </div>
+              </button>
             )}
           </div>
         </ChannelSidebarSection>

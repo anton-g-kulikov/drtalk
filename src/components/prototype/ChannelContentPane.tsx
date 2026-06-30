@@ -141,10 +141,15 @@ export function ChannelContentPane({
     };
   }, [showPinnedMenu]);
 
-  const shouldShowArchived = activeTab === 'archived' && (
-    (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
-    activeChannel.type === 'internal'
-  );
+  const shouldShowArchived =
+    activeChannel.type === 'archive_internal' ||
+    activeChannel.type === 'archive_group' ||
+    activeChannel.type === 'archive_cases' ||
+    (activeTab === 'archived' && (
+      (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
+      activeChannel.type === 'internal' ||
+      activeChannel.type === 'group'
+    ));
 
   return (
     <div className="flex-1 flex flex-col bg-gray-50 relative">
@@ -213,7 +218,16 @@ export function ChannelContentPane({
         <ChannelArchivedConversations
           conversations={archivedConversations}
           onReactivate={onReactivateArchived}
-          isInternal={activeChannel.type === 'internal'}
+          isInternal={activeChannel.type === 'internal' || activeChannel.type === 'archive_internal'}
+          channelType={
+            activeChannel.type === 'archive_internal'
+              ? 'internal'
+              : activeChannel.type === 'archive_group'
+              ? 'group'
+              : activeChannel.type === 'archive_cases'
+              ? 'case'
+              : activeChannel.type
+          }
         />
       ) : (
         <>

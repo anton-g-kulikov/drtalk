@@ -460,21 +460,78 @@ function ChannelsContent() {
           isDentist={isDentist}
           activeTab={channelsState.activeTab}
           messages={channelsState.messages[channelsState.activeChannel.id] || []}
-          archivedConversations={
-            channelsState.activeChannel.type === 'internal'
-              ? channelsState.channels
-                  .filter((c) => c.type === 'internal' && c.isArchived)
-                  .map((c) => ({
-                    id: c.id,
-                    name: c.name,
-                    patientName: '',
-                    practiceId: '',
-                    referralId: '',
-                    isArchived: true,
-                    lastMessage: c.lastMessage || '',
-                  }))
-              : channelsState.caseChannels.filter((caseChannel) => caseChannel.practiceId === channelsState.activeChannel.id && caseChannel.isArchived)
-          }
+          archivedConversations={(() => {
+            const actType = channelsState.activeChannel.type;
+            if (actType === 'archive_internal') {
+              return channelsState.channels
+                .filter((c) => c.type === 'internal' && c.isArchived)
+                .map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  patientName: '',
+                  practiceId: '',
+                  referralId: '',
+                  isArchived: true,
+                  lastMessage: c.lastMessage || '',
+                  type: 'internal',
+                }));
+            }
+            if (actType === 'archive_group') {
+              return channelsState.channels
+                .filter((c) => c.type === 'group' && c.isArchived)
+                .map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  patientName: '',
+                  practiceId: '',
+                  referralId: '',
+                  isArchived: true,
+                  lastMessage: c.lastMessage || '',
+                  type: 'group',
+                }));
+            }
+            if (actType === 'archive_cases') {
+              const parentId = (channelsState.activeChannel as any).parentId;
+              return channelsState.caseChannels
+                .filter((c) => c.practiceId === parentId && c.isArchived)
+                .map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  patientName: c.patientName,
+                  practiceId: c.practiceId,
+                  referralId: c.referralId,
+                  isArchived: true,
+                  lastMessage: c.lastMessage,
+                  type: 'case',
+                }));
+            }
+            if (actType === 'internal' || actType === 'group') {
+              return channelsState.channels
+                .filter((c) => (c.type === 'internal' || c.type === 'group') && c.isArchived)
+                .map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  patientName: '',
+                  practiceId: '',
+                  referralId: '',
+                  isArchived: true,
+                  lastMessage: c.lastMessage || '',
+                  type: c.type,
+                }));
+            }
+            return channelsState.caseChannels
+              .filter((c) => c.practiceId === channelsState.activeChannel.id && c.isArchived)
+              .map((c) => ({
+                id: c.id,
+                name: c.name,
+                patientName: c.patientName,
+                practiceId: c.practiceId,
+                referralId: c.referralId,
+                isArchived: true,
+                lastMessage: c.lastMessage,
+                type: 'case',
+              }));
+          })()}
           inputText={channelsState.inputText}
           attachedDocument={channelsState.attachedDoc}
           showAttachmentDrawer={channelsState.showAttachmentDrawer}
@@ -971,7 +1028,7 @@ function ChannelsContent() {
           participants={channelsState.groupParticipants}
           error={channelsState.groupChatError}
           onGroupChatNameChange={(name) => {
-            channelsState.setGroupChatName(name);
+            channelsState.onGroupChatNameChange(name);
             channelsState.setGroupChatError(null);
           }}
           onParticipantToggle={channelsState.onToggleGroupParticipant}
@@ -1016,6 +1073,7 @@ function ChannelsContent() {
           onClose={() => channelsState.setShowParticipantsModal(false)}
           channelId={channelsState.activeChannel.id}
           isDentist={isDentist}
+          channelType={channelsState.activeChannel.type}
         />
       )}
 
