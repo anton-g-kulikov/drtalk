@@ -135,7 +135,7 @@ export function NetworkPracticeDetailContent({
                 <div className="flex items-center gap-3">
                   <Navigation size={16} className="text-black shrink-0" />
                   <div>
-                    <p className="text-[8px] font-black uppercase text-zinc-400">Radius / Distance</p>
+                    <p className="text-[8px] font-black uppercase text-zinc-400">Distance</p>
                     <p className="text-xs font-bold uppercase">{getMockDistance(practice.id)} mi</p>
                   </div>
                 </div>
