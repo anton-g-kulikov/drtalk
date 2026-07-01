@@ -44,7 +44,6 @@ function guessPatientName(filename: string): string {
 }
 
 export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: UnrecognizedSenderPageContentProps) {
-  const [activeTab, setActiveTab] = useState<'document' | 'categorize'>('document');
   const [senderPractice, setSenderPractice] = useState('');
   const [practiceSearch, setPracticeSearch] = useState('');
   const [showPracticeDropdown, setShowPracticeDropdown] = useState(false);
@@ -95,7 +94,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Page header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-4">
@@ -138,41 +137,10 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="border-b-2 border-black flex items-end gap-0">
-        <button
-          onClick={() => setActiveTab('document')}
-          className={`flex items-center gap-1.5 px-5 py-2.5 text-[10px] font-black uppercase tracking-wider border-2 border-b-0 transition-all shrink-0 ${
-            activeTab === 'document'
-              ? 'border-black bg-black text-white'
-              : 'border-black/30 bg-white text-black hover:border-black hover:bg-zinc-50'
-          }`}
-        >
-          <FileText size={11} />
-          <span className="truncate max-w-[160px]">{doc.name.replace(/\.[^.]+$/, '').slice(0, 20)}</span>
-          <span className={`text-[7px] px-1 py-0.5 font-black border shrink-0 ${activeTab === 'document' ? 'border-white/40 text-white/80' : 'border-black/30 text-zinc-500'}`}>
-            {doc.name.split('.').pop()?.toUpperCase()}
-          </span>
-        </button>
-        <button
-          onClick={() => setActiveTab('categorize')}
-          className={`px-5 py-2.5 text-[10px] font-black uppercase tracking-wider border-2 border-b-0 transition-all shrink-0 ${
-            activeTab === 'categorize'
-              ? 'border-black bg-black text-white'
-              : 'border-black/30 bg-white text-black hover:border-black hover:bg-zinc-50'
-          }`}
-        >
-          Categorize &amp; Route
-          {!canSubmit && (
-            <span className="ml-2 text-[6px] px-1 py-0.5 border font-black align-middle border-current">
-              PENDING
-            </span>
-          )}
-        </button>
-      </div>
+      {/* Main content: document + form side by side */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start">
 
-      {/* Tab content */}
-      {activeTab === 'document' ? (
+        {/* Left: Document viewer */}
         <div className="wireframe-card p-0 overflow-hidden bg-white">
           <DocumentViewerTab
             documentName={doc.name}
@@ -183,10 +151,21 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
             onDownload={triggerDownload}
           />
         </div>
-      ) : (
-        /* Categorize tab */
+
+        {/* Right: Categorize form */}
         <div className="wireframe-card p-0 bg-white overflow-hidden">
-          <div className="max-w-xl mx-auto p-8 space-y-6">
+          {/* Form header */}
+          <div className="px-6 py-4 border-b-2 border-black bg-zinc-50 flex items-center gap-2">
+            <div className="w-2 h-2 bg-black" />
+            <span className="text-[10px] font-black uppercase tracking-widest">Categorize &amp; Route</span>
+            {!canSubmit && (
+              <span className="ml-auto text-[7px] px-1.5 py-0.5 border border-black font-black uppercase text-black">
+                Pending
+              </span>
+            )}
+          </div>
+
+          <div className="p-6 space-y-6">
 
             {/* Sender practice */}
             <div className={`space-y-1.5 transition-opacity duration-200 ${itemType === 'spam' ? 'opacity-40 pointer-events-none' : ''}`}>
@@ -298,43 +277,43 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
               <label className="text-[9px] font-black uppercase tracking-wider block text-black">
                 Categorize As
               </label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 gap-2">
                 <button
                   onClick={() => setItemType('referral')}
-                  className={`p-4 border-2 text-left transition-all ${
+                  className={`p-3 border-2 text-left transition-all ${
                     itemType === 'referral'
                       ? 'border-black bg-black text-white'
                       : 'border-black bg-white text-black hover:bg-zinc-50'
                   }`}
                 >
                   <p className="font-black uppercase text-[10px]">Referral Case</p>
-                  <p className={`text-[8px] uppercase mt-1 ${itemType === 'referral' ? 'opacity-70' : 'text-muted-foreground'}`}>
+                  <p className={`text-[8px] uppercase mt-0.5 ${itemType === 'referral' ? 'opacity-70' : 'text-muted-foreground'}`}>
                     Creates a per-case channel
                   </p>
                 </button>
                 <button
                   onClick={() => setItemType('document')}
-                  className={`p-4 border-2 text-left transition-all ${
+                  className={`p-3 border-2 text-left transition-all ${
                     itemType === 'document'
                       ? 'border-black bg-black text-white'
                       : 'border-black bg-white text-black hover:bg-zinc-50'
                   }`}
                 >
                   <p className="font-black uppercase text-[10px]">Document</p>
-                  <p className={`text-[8px] uppercase mt-1 ${itemType === 'document' ? 'opacity-70' : 'text-muted-foreground'}`}>
+                  <p className={`text-[8px] uppercase mt-0.5 ${itemType === 'document' ? 'opacity-70' : 'text-muted-foreground'}`}>
                     Routes to practice channel
                   </p>
                 </button>
                 <button
                   onClick={() => setItemType('spam')}
-                  className={`p-4 border-2 text-left transition-all ${
+                  className={`p-3 border-2 text-left transition-all ${
                     itemType === 'spam'
                       ? 'border-black bg-black text-white'
                       : 'border-black bg-white text-black hover:bg-zinc-50'
                   }`}
                 >
                   <p className="font-black uppercase text-[10px]">Spam / Dismiss</p>
-                  <p className={`text-[8px] uppercase mt-1 ${itemType === 'spam' ? 'opacity-70' : 'text-muted-foreground'}`}>
+                  <p className={`text-[8px] uppercase mt-0.5 ${itemType === 'spam' ? 'opacity-70' : 'text-muted-foreground'}`}>
                     Permanently dismisses this item
                   </p>
                 </button>
@@ -372,7 +351,7 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
             </div>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Download toast */}
       {downloadToast && (
