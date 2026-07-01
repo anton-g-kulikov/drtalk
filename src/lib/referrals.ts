@@ -297,7 +297,7 @@ export interface ConnectionRequest {
 export const initialConnectionRequests: ConnectionRequest[] = [
   {
     id: 'cr-1',
-    fromPracticeId: 'dn-req-1',
+    fromPracticeId: 'dn-13',
     fromPracticeName: 'Glacier Peak Dental',
     fromSpecialty: 'General Dentistry',
     fromLocation: 'Phoenix, AZ',
@@ -305,7 +305,7 @@ export const initialConnectionRequests: ConnectionRequest[] = [
   },
   {
     id: 'cr-2',
-    fromPracticeId: 'dn-req-2',
+    fromPracticeId: 'dn-14',
     fromPracticeName: 'Harbor Light Dental',
     fromSpecialty: 'Cosmetic Dentistry',
     fromLocation: 'Tempe, AZ',
@@ -313,7 +313,7 @@ export const initialConnectionRequests: ConnectionRequest[] = [
   },
   {
     id: 'cr-3',
-    fromPracticeId: 'dn-req-3',
+    fromPracticeId: 'dn-16',
     fromPracticeName: 'Summit Ridge Dental',
     fromSpecialty: 'General Dentistry',
     fromLocation: 'Chandler, AZ',
@@ -329,8 +329,14 @@ export function getConnectionRequests(): ConnectionRequest[] {
     return initialConnectionRequests;
   }
   try {
-    return JSON.parse(stored) as ConnectionRequest[];
-  } catch {
+    const parsed = JSON.parse(stored);
+    // Reset if using old dn-req-* practice IDs
+    if (Array.isArray(parsed) && parsed.some(r => r.fromPracticeId.includes('req'))) {
+      localStorage.setItem('drtalk_connection_requests', JSON.stringify(initialConnectionRequests));
+      return initialConnectionRequests;
+    }
+    return parsed;
+  } catch (e) {
     return initialConnectionRequests;
   }
 }
