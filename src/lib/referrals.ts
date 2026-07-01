@@ -477,3 +477,11 @@ export function getFullAddress(location: string): string {
   if (location.split(',').length > 2) return location;
   return `123 Dental Way, Ste 100, ${location} 85001`;
 }
+
+export function getMockDistance(practiceId: string): number {
+  let sum = 0;
+  for (let i = 0; i < practiceId.length; i++) {
+    sum += practiceId.charCodeAt(i);
+  }
+  return (sum % 45) + 3; // 3 to 47 miles
+}

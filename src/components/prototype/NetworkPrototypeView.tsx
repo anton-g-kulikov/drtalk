@@ -14,6 +14,7 @@ import {
   MapPin,
   MessageCircle,
   Phone,
+  Navigation,
   Printer,
   Search,
   ShieldCheck,
@@ -26,7 +27,7 @@ import {
 import { MainLayout } from '@/components/MainLayout';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { InviteModal } from '@/components/InviteModal';
-import { getNetwork, saveNetwork, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest, getFullAddress } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest, getFullAddress, getMockDistance } from '@/lib/referrals';
 import { ConnectionRequestBanner } from '@/components/prototype/ConnectionRequestBanner';
 import {
   dentistAnalytics,
@@ -286,9 +287,16 @@ function PracticeCard({
             <MapPin size={12} className="shrink-0 mt-0.5" />
             <span className="text-[9px] font-bold uppercase leading-tight">
               {getFullAddress(practice.location)}
-              {(activeTab === 'directory' || activeTab === 'connected') && ` (${getMockDistance(practice.id)} mi)`}
             </span>
           </div>
+          {(activeTab === 'directory' || activeTab === 'connected') && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Navigation size={12} className="shrink-0" />
+              <span className="text-[9px] font-bold uppercase">
+                {getMockDistance(practice.id)} mi (Radius)
+              </span>
+            </div>
+          )}
           {practice.phone && (
             <div className="flex items-center gap-2 text-muted-foreground">
               <Phone size={12} className="shrink-0" />
@@ -388,13 +396,7 @@ function InvitePlaceholder({ config, onInvite }: { config: NetworkRoleConfig; on
   );
 }
 
-const getMockDistance = (practiceId: string) => {
-  let sum = 0;
-  for (let i = 0; i < practiceId.length; i++) {
-    sum += practiceId.charCodeAt(i);
-  }
-  return (sum % 45) + 3; // 3 to 47 miles
-};
+
 
 export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
   const config = networkRoleConfigs[role];

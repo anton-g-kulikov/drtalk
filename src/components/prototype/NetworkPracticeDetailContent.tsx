@@ -2,9 +2,9 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Building2, Globe, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Building2, Globe, MapPin, MessageCircle, Phone, ShieldCheck, Navigation } from 'lucide-react';
 import { MainLayout } from '@/components/MainLayout';
-import { getNetwork, saveNetwork, type NetworkPractice, getFullAddress } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice, getFullAddress, getMockDistance } from '@/lib/referrals';
 
 type NetworkPracticeDetailContentProps = {
   practiceId: string;
@@ -129,6 +129,14 @@ export function NetworkPracticeDetailContent({
                   <div>
                     <p className="text-[8px] font-black uppercase text-zinc-400">Address / Location</p>
                     <p className="text-xs font-bold uppercase leading-tight">{getFullAddress(practice.location)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Navigation size={16} className="text-black shrink-0" />
+                  <div>
+                    <p className="text-[8px] font-black uppercase text-zinc-400">Radius / Distance</p>
+                    <p className="text-xs font-bold uppercase">{getMockDistance(practice.id)} mi</p>
                   </div>
                 </div>
 
