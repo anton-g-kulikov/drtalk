@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from "@/components/MainLayout";
-import { Clock, MessageSquare, Eye, Copy, ChevronDown, Check, Info } from 'lucide-react';
+import { Clock, MessageSquare, Eye, Copy, ChevronDown, Check, Info, FileText, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { getReferrals, UnifiedReferral, initialReferrals, getReferralCode, isInRange } from '@/lib/referrals';
@@ -70,6 +70,7 @@ export default function ReferralsPage() {
   const [selectedUrgency, setSelectedUrgency] = useState<string>('All');
   const [selectedSource, setSelectedSource] = useState<string>('All');
   const [selectedPracticeFilter, setSelectedPracticeFilter] = useState<string>('All');
+  const [selectedDoctor, setSelectedDoctor] = useState<string>('All');
   const [showIncompleteOnly, setShowIncompleteOnly] = useState(false);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function ReferralsPage() {
   // Reset page to 1 when filters or sorting changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, timeRange, searchQuery, selectedUrgency, selectedSource, selectedPracticeFilter, showIncompleteOnly, sortBy]);
+  }, [activeTab, timeRange, searchQuery, selectedUrgency, selectedSource, selectedPracticeFilter, selectedDoctor, showIncompleteOnly, sortBy]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -126,6 +127,16 @@ export default function ReferralsPage() {
       )
     )
   ), [mockReferrals, isDentist]);
+
+  const doctorOptions = React.useMemo(() => (
+    Array.from(
+      new Set(
+        mockReferrals
+          .map((r) => r.specialistDoctor)
+          .filter((d): d is string => !!d && d !== 'unknown')
+      )
+    )
+  ), [mockReferrals]);
 
   const filteredReferrals = mockReferrals.filter(r => {
     if (isDentist) {
@@ -172,9 +183,11 @@ export default function ReferralsPage() {
     const practiceName = isDentist ? r.specialist : r.practice;
     const matchesPractice = selectedPracticeFilter === 'All' || practiceName === selectedPracticeFilter;
     
+    const matchesDoctor = selectedDoctor === 'All' || r.specialistDoctor === selectedDoctor;
+
     const matchesTimeRange = isInRange(r.receivedAt, timeRange);
 
-    return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice && matchesTimeRange;
+    return matchesTab && matchesQuery && matchesUrgency && matchesSource && matchesCompletion && matchesPractice && matchesDoctor && matchesTimeRange;
   });
 
   const sortedReferrals = React.useMemo(() => {
@@ -196,6 +209,25 @@ export default function ReferralsPage() {
     });
     return referralsCopy;
   }, [filteredReferrals, sortBy]);
+
+  const stats = React.useMemo(() => {
+    const roleReferrals = mockReferrals.filter(r => {
+      if (isDentist) {
+        const isFromSunshine = r.id.startsWith('D-') || r.id === '1' || (r.practice && r.practice.toLowerCase() === 'sunshine dental') || (r.dentist && (r.dentist.includes('Reed') || r.dentist.includes('Taylor')));
+        return isFromSunshine;
+      } else {
+        return !r.id.startsWith('D-');
+      }
+    });
+
+    const docFiltered = roleReferrals.filter(r => selectedDoctor === 'All' || r.specialistDoctor === selectedDoctor);
+
+    const receivedCount = docFiltered.filter(r => r.status !== 'Draft' && isInRange(r.receivedAt, timeRange)).length;
+    const scheduledCount = docFiltered.filter(r => r.status === 'Scheduled' && isInRange(r.receivedAt, timeRange)).length;
+    const releasedCount = docFiltered.filter(r => r.status === 'Released' && isInRange(r.receivedAt, timeRange)).length;
+
+    return { receivedCount, scheduledCount, releasedCount };
+  }, [mockReferrals, isDentist, selectedDoctor, timeRange]);
 
   const ITEMS_PER_PAGE = 10;
   const totalReferralPages = Math.ceil(sortedReferrals.length / ITEMS_PER_PAGE);
@@ -286,36 +318,101 @@ export default function ReferralsPage() {
           )}
         </div>
 
-          {/* Referral Pipeline */}
-          <div className="space-y-6">
-            <ReferralPipelineControls
-              isDentist={isDentist}
-              activeTab={activeTab}
-              timeRange={timeRange}
-              searchQuery={searchQuery}
-              showFilters={showFilters}
-              selectedUrgency={selectedUrgency}
-              selectedSource={selectedSource}
-              selectedPracticeFilter={selectedPracticeFilter}
-              showIncompleteOnly={showIncompleteOnly}
-              practiceOptions={practiceOptions}
-              sortBy={sortBy}
-              onActiveTabChange={setActiveTab}
-              onTimeRangeChange={setTimeRange}
-              onSearchQueryChange={setSearchQuery}
-              onShowFiltersChange={setShowFilters}
-              onUrgencyChange={setSelectedUrgency}
-              onSourceChange={setSelectedSource}
-              onPracticeChange={setSelectedPracticeFilter}
-              onIncompleteOnlyChange={setShowIncompleteOnly}
-              onClearFilters={() => {
-                setSelectedUrgency('All');
-                setSelectedSource('All');
-                setShowIncompleteOnly(false);
-                setSelectedPracticeFilter('All');
-              }}
-              onSortByChange={setSortBy}
-            />
+        {/* Stat Widgets & Doctor Selector Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
+            <FileText size={32} className="text-black shrink-0" />
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Received</p>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.receivedCount.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-green-700 bg-green-50 border border-green-200">
+                  <TrendingUp size={12} />
+                  15%
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
+            <Calendar size={32} className="text-black shrink-0" />
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Scheduled</p>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.scheduledCount.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-green-700 bg-green-50 border border-green-200">
+                  <TrendingUp size={12} />
+                  8%
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
+            <FileText size={32} className="text-black shrink-0" />
+            <div className="space-y-1">
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Released</p>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.releasedCount.toString().padStart(2, '0')}</span>
+                <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-red-700 bg-red-50 border border-red-200">
+                  <TrendingDown size={12} />
+                  4%
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="wireframe-card p-5 bg-white flex flex-col justify-between border-2 border-black hover:bg-zinc-50 transition-colors">
+            <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referred/Assigned To Doctor</p>
+            <div className="relative mt-2">
+              <select
+                id="page-doctor-filter"
+                value={selectedDoctor}
+                onChange={(event) => setSelectedDoctor(event.target.value)}
+                className="wireframe-input py-2 pl-4 pr-10 text-[11px] font-bold text-black border-2 border-black bg-white w-full focus:outline-none appearance-none cursor-pointer h-10 uppercase"
+              >
+                <option value="All">ALL DOCTORS</option>
+                {doctorOptions.map((doc) => (
+                  <option key={doc} value={doc}>
+                    {doc.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-black" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Referral Pipeline */}
+        <div className="space-y-6">
+          <ReferralPipelineControls
+            isDentist={isDentist}
+            activeTab={activeTab}
+            timeRange={timeRange}
+            searchQuery={searchQuery}
+            showFilters={showFilters}
+            selectedUrgency={selectedUrgency}
+            selectedSource={selectedSource}
+            selectedPracticeFilter={selectedPracticeFilter}
+            showIncompleteOnly={showIncompleteOnly}
+            practiceOptions={practiceOptions}
+            sortBy={sortBy}
+            onActiveTabChange={setActiveTab}
+            onTimeRangeChange={setTimeRange}
+            onSearchQueryChange={setSearchQuery}
+            onShowFiltersChange={setShowFilters}
+            onUrgencyChange={setSelectedUrgency}
+            onSourceChange={setSelectedSource}
+            onPracticeChange={setSelectedPracticeFilter}
+            onIncompleteOnlyChange={setShowIncompleteOnly}
+            onClearFilters={() => {
+              setSelectedUrgency('All');
+              setSelectedSource('All');
+              setShowIncompleteOnly(false);
+              setSelectedPracticeFilter('All');
+              setSelectedDoctor('All');
+            }}
+            onSortByChange={setSortBy}
+          />
 
             {/* List Headers */}
             <div className={`hidden md:grid grid-cols-12 px-4 py-2 text-[9px] font-bold uppercase text-muted-foreground tracking-widest border-b border-black mt-4`}>
