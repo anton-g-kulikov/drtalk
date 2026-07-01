@@ -194,6 +194,7 @@ export interface NetworkPractice {
   type: string;
   specialty: string;
   location: string;
+  phone: string;
   status: 'Connected' | 'Nearby' | 'Suggested';
   verified: boolean;
   isExternal?: boolean;
@@ -214,46 +215,46 @@ export interface Channel {
 
 export const initialNetwork: NetworkPractice[] = [
   // ── On-platform Specialist neighbours (dentist-side sees these) ───────────
-  { id: 'sp-1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: 'sp-2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', status: 'Connected', verified: true },
-  { id: 'sp-3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', status: 'Nearby', verified: true },
-  { id: 'sp-4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', status: 'Suggested', verified: false },
-  { id: 'sp-5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', status: 'Nearby', verified: true },
+  { id: 'sp-1', name: 'Valley Endodontics', type: 'Specialist', specialty: 'Endodontics', location: 'Phoenix, AZ', phone: '(602) 555-9900', status: 'Connected', verified: true },
+  { id: 'sp-2', name: 'Downtown Oral Surgery', type: 'Specialist', specialty: 'Oral Surgery', location: 'Phoenix, AZ', phone: '(602) 555-9901', status: 'Connected', verified: true },
+  { id: 'sp-3', name: 'Arizona Periodontics', type: 'Specialist', specialty: 'Periodontics', location: 'Scottsdale, AZ', phone: '(480) 555-0123', status: 'Nearby', verified: true },
+  { id: 'sp-4', name: 'Desert Dental Implants', type: 'Specialist', specialty: 'Implantology', location: 'Tempe, AZ', phone: '(480) 555-4567', status: 'Suggested', verified: false },
+  { id: 'sp-5', name: 'Skyline Orthodontics', type: 'Specialist', specialty: 'Orthodontics', location: 'Phoenix, AZ', phone: '(602) 555-8899', status: 'Nearby', verified: true },
 
   // ── 16 On-platform Dentist connections (specialist-side "My Network") ─────
-  { id: 'dn-1',  name: 'Sunshine Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: true },
-  { id: 'dn-2',  name: 'Desert Bloom Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', status: 'Connected', verified: true },
-  { id: 'dn-3',  name: 'Mountain View Family Dental',    type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Connected', verified: true },
-  { id: 'dn-4',  name: 'Oakridge Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: true },
-  { id: 'dn-5',  name: 'Black Family Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       status: 'Connected', verified: true },
-  { id: 'dn-6',  name: 'White Dental Group',             type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   status: 'Connected', verified: true },
-  { id: 'dn-7',  name: 'Miller & Associates',            type: 'Dentist', specialty: 'Family Dentistry',    location: 'Gilbert, AZ',    status: 'Connected', verified: true },
-  { id: 'dn-8',  name: 'Westside Pediatric Dentistry',  type: 'Dentist', specialty: 'Pediatric Dentistry', location: 'Glendale, AZ',   status: 'Connected', verified: true },
-  { id: 'dn-9',  name: 'Aspen Crest Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Peoria, AZ',     status: 'Connected', verified: true },
-  { id: 'dn-10', name: 'Boulder Valley Dental',          type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Connected', verified: true },
-  { id: 'dn-11', name: 'Canyon Creek Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', status: 'Connected', verified: false },
-  { id: 'dn-12', name: 'Foothills Family Dentistry',    type: 'Dentist', specialty: 'Family Dentistry',    location: 'Ahwatukee, AZ',  status: 'Connected', verified: true },
-  { id: 'dn-13', name: 'Glacier Peak Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    status: 'Nearby',    verified: true },
-  { id: 'dn-14', name: 'Harbor Light Dental',           type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      status: 'Nearby',    verified: true },
-  { id: 'dn-15', name: 'Meadowbrook Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       status: 'Nearby',    verified: false },
-  { id: 'dn-16', name: 'Summit Ridge Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   status: 'Suggested', verified: false },
+  { id: 'dn-1',  name: 'Sunshine Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    phone: '(602) 555-1111', status: 'Connected', verified: true },
+  { id: 'dn-2',  name: 'Desert Bloom Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', phone: '(480) 555-2222', status: 'Connected', verified: true },
+  { id: 'dn-3',  name: 'Mountain View Family Dental',    type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      phone: '(480) 555-3333', status: 'Connected', verified: true },
+  { id: 'dn-4',  name: 'Oakridge Dental',                type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    phone: '(602) 555-4444', status: 'Connected', verified: true },
+  { id: 'dn-5',  name: 'Black Family Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       phone: '(480) 555-5555', status: 'Connected', verified: true },
+  { id: 'dn-6',  name: 'White Dental Group',             type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   phone: '(480) 555-6666', status: 'Connected', verified: true },
+  { id: 'dn-7',  name: 'Miller & Associates',            type: 'Dentist', specialty: 'Family Dentistry',    location: 'Gilbert, AZ',    phone: '(480) 555-7777', status: 'Connected', verified: true },
+  { id: 'dn-8',  name: 'Westside Pediatric Dentistry',  type: 'Dentist', specialty: 'Pediatric Dentistry', location: 'Glendale, AZ',   phone: '(623) 555-8888', status: 'Connected', verified: true },
+  { id: 'dn-9',  name: 'Aspen Crest Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Peoria, AZ',     phone: '(623) 555-9999', status: 'Connected', verified: true },
+  { id: 'dn-10', name: 'Boulder Valley Dental',          type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      phone: '(480) 555-1010', status: 'Connected', verified: true },
+  { id: 'dn-11', name: 'Canyon Creek Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Scottsdale, AZ', phone: '(480) 555-2020', status: 'Connected', verified: false },
+  { id: 'dn-12', name: 'Foothills Family Dentistry',    type: 'Dentist', specialty: 'Family Dentistry',    location: 'Ahwatukee, AZ',  phone: '(480) 555-3030', status: 'Connected', verified: true },
+  { id: 'dn-13', name: 'Glacier Peak Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Phoenix, AZ',    phone: '(602) 555-4040', status: 'Nearby',    verified: true },
+  { id: 'dn-14', name: 'Harbor Light Dental',           type: 'Dentist', specialty: 'Cosmetic Dentistry',  location: 'Tempe, AZ',      phone: '(480) 555-5050', status: 'Nearby',    verified: true },
+  { id: 'dn-15', name: 'Meadowbrook Dental',            type: 'Dentist', specialty: 'General Dentistry',   location: 'Mesa, AZ',       phone: '(480) 555-6060', status: 'Nearby',    verified: false },
+  { id: 'dn-16', name: 'Summit Ridge Dental',           type: 'Dentist', specialty: 'General Dentistry',   location: 'Chandler, AZ',   phone: '(480) 555-7070', status: 'Suggested', verified: false },
 
   // ── 15 External contacts (off-platform, connected via e-fax / secure email) ─
-  { id: 'ext-1',  name: 'Pinecrest Dental Group',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-2',  name: 'Oakwood Family Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Scottsdale, AZ', status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-3',  name: 'Riverfront Dental Care',       type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ',      status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-4',  name: 'Heritage Dental Partners',     type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Gilbert, AZ',    status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-5',  name: 'Sunrise Smiles Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Mesa, AZ',       status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-6',  name: 'Desert Rose Dentistry',        type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Peoria, AZ',     status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-7',  name: 'Copper State Dental',          type: 'Dentist',    specialty: 'General Dentistry',  location: 'Glendale, AZ',   status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-8',  name: 'Cactus Park Dental',           type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-9',  name: 'Red Rock Dental Studio',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Sedona, AZ',     status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-10', name: 'Grand Canyon Dental Group',    type: 'Dentist',    specialty: 'General Dentistry',  location: 'Flagstaff, AZ',  status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-11', name: 'Apex Endodontics',             type: 'Specialist', specialty: 'Endodontics',        location: 'Phoenix, AZ',    status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-12', name: 'Metro Oral Surgery',           type: 'Specialist', specialty: 'Oral Surgery',       location: 'Scottsdale, AZ', status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-13', name: 'Summit Periodontics',          type: 'Specialist', specialty: 'Periodontics',       location: 'Tempe, AZ',      status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-14', name: 'Desert Ridge Implants',        type: 'Specialist', specialty: 'Implantology',       location: 'Chandler, AZ',   status: 'Connected', verified: false, isExternal: true },
-  { id: 'ext-15', name: 'Valley Orthodontic Center',    type: 'Specialist', specialty: 'Orthodontics',       location: 'Mesa, AZ',       status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-1',  name: 'Pinecrest Dental Group',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Phoenix, AZ',    phone: '(602) 555-0111', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-2',  name: 'Oakwood Family Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Scottsdale, AZ', phone: '(480) 555-0122', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-3',  name: 'Riverfront Dental Care',       type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Tempe, AZ',      phone: '(480) 555-0133', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-4',  name: 'Heritage Dental Partners',     type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Gilbert, AZ',    phone: '(480) 555-0144', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-5',  name: 'Sunrise Smiles Dental',        type: 'Dentist',    specialty: 'General Dentistry',  location: 'Mesa, AZ',       phone: '(480) 555-0155', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-6',  name: 'Desert Rose Dentistry',        type: 'Dentist',    specialty: 'Cosmetic Dentistry', location: 'Peoria, AZ',     phone: '(623) 555-0166', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-7',  name: 'Copper State Dental',          type: 'Dentist',    specialty: 'General Dentistry',  location: 'Glendale, AZ',   phone: '(623) 555-0177', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-8',  name: 'Cactus Park Dental',           type: 'Dentist',    specialty: 'Family Dentistry',   location: 'Phoenix, AZ',    phone: '(602) 555-0188', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-9',  name: 'Red Rock Dental Studio',       type: 'Dentist',    specialty: 'General Dentistry',  location: 'Sedona, AZ',     phone: '(928) 555-0199', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-10', name: 'Grand Canyon Dental Group',    type: 'Dentist',    specialty: 'General Dentistry',  location: 'Flagstaff, AZ',  phone: '(928) 555-0200', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-11', name: 'Apex Endodontics',             type: 'Specialist', specialty: 'Endodontics',        location: 'Phoenix, AZ',    phone: '(602) 555-0211', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-12', name: 'Metro Oral Surgery',           type: 'Specialist', specialty: 'Oral Surgery',       location: 'Scottsdale, AZ', phone: '(480) 555-0222', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-13', name: 'Summit Periodontics',          type: 'Specialist', specialty: 'Periodontics',       location: 'Tempe, AZ',      phone: '(480) 555-0233', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-14', name: 'Desert Ridge Implants',        type: 'Specialist', specialty: 'Implantology',       location: 'Chandler, AZ',   phone: '(480) 555-0244', status: 'Connected', verified: false, isExternal: true },
+  { id: 'ext-15', name: 'Valley Orthodontic Center',    type: 'Specialist', specialty: 'Orthodontics',       location: 'Mesa, AZ',       phone: '(480) 555-0255', status: 'Connected', verified: false, isExternal: true },
 ];
 
 export function getNetwork(): NetworkPractice[] {
@@ -265,8 +266,8 @@ export function getNetwork(): NetworkPractice[] {
   }
   try {
     const parsed = JSON.parse(stored);
-    // Refresh if stale (old list had < 28 entries or no external contacts)
-    if (Array.isArray(parsed) && (parsed.length < 28 || !parsed.some((p: NetworkPractice) => p.isExternal))) {
+    // Refresh if stale (old list had < 28 entries, or no external contacts, or missing phone numbers)
+    if (Array.isArray(parsed) && (parsed.length < 28 || !parsed.some((p: NetworkPractice) => p.isExternal) || !parsed.some((p: NetworkPractice) => p.phone))) {
       localStorage.setItem('drtalk_network', JSON.stringify(initialNetwork));
       return initialNetwork;
     }
