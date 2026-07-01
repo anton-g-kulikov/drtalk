@@ -185,7 +185,7 @@ describe('prototype components: channels.test', () => {
     await user.click(screen.getByRole('button', { name: /internal communication/i }));
     await user.click(screen.getByRole('button', { name: /connected practices/i }));
     await user.click(screen.getByRole('button', { name: /^external — secure email/i }));
-    await user.click(screen.getByRole('button', { name: /group chats/i }));
+    await user.click(screen.getByRole('button', { name: /direct messages/i }));
     await user.click(screen.getByRole('button', { name: /patient comm/i }));
     await user.click(screen.getAllByRole('button', { name: /Create \+/ })[1]);
     await user.click(screen.getByRole('button', { name: /team huddle/i }));
@@ -774,16 +774,16 @@ describe('prototype components: channels.test', () => {
       />
     );
 
-    expect(screen.getByText(/create group chat/i)).toBeInTheDocument();
+    expect(screen.getByText(/create direct messages channel/i)).toBeInTheDocument();
     expect(screen.getByText(/sunshine dental \(me\)/i)).toBeInTheDocument();
     expect(screen.getByText(/valley endodontics/i)).toBeInTheDocument();
     expect(screen.getByText(/please select at least one participant/i)).toBeInTheDocument();
 
-    await user.type(screen.getByPlaceholderText(/enter group chat name/i), 'Referral review');
+    await user.type(screen.getByPlaceholderText(/enter channel name/i), 'Referral review');
     await user.click(screen.getByText(/dr\. john smith/i));
     await user.click(screen.getAllByRole('button', { name: /select all/i })[0]);
     await user.click(screen.getByRole('button', { name: /cancel/i }));
-    await user.click(screen.getByRole('button', { name: /create group/i }));
+    await user.click(screen.getByRole('button', { name: /create channel/i }));
 
     expect(onGroupChatNameChange).toHaveBeenCalled();
     expect(onParticipantToggle).toHaveBeenCalledWith('gp1');

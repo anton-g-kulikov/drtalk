@@ -28,12 +28,12 @@ export function ChannelGroupModal({
       <div className="bg-white border-4 border-black p-8 max-w-lg w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
         <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-4">
           <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
-            <Users size={16} /> Create Group Chat
+            <Users size={16} /> Create Direct Messages Channel
           </h3>
           <button
             onClick={onCancel}
             className="hover:text-black text-black"
-            aria-label="Close group chat modal"
+            aria-label="Close direct message modal"
           >
             <X size={16} />
           </button>
@@ -41,10 +41,10 @@ export function ChannelGroupModal({
 
         <div className="space-y-4 mb-6">
           <div className="space-y-1">
-            <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Group Chat Name</label>
+            <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground">Channel Name</label>
             <input
               type="text"
-              placeholder="ENTER GROUP CHAT NAME..."
+              placeholder="ENTER CHANNEL NAME..."
               value={groupChatName}
               onChange={(event) => onGroupChatNameChange(event.target.value)}
               className="wireframe-input w-full p-2.5 border-2 border-black text-[10px] uppercase font-bold text-black focus:outline-none"
@@ -76,7 +76,7 @@ export function ChannelGroupModal({
             onClick={onCreate}
             className="wireframe-button bg-black text-white border-black text-[10px] uppercase py-2 px-6 font-black hover:bg-white hover:text-black transition-all"
           >
-            Create Group
+            Create Channel
           </button>
         </div>
       </div>

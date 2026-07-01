@@ -1021,7 +1021,7 @@ function ChannelsContent() {
           </div>
         </div>
       )}
-      {/* Create Group Chat Modal */}
+      {/* Create Direct Messages Channel Modal */}
       {channelsState.showCreateGroupModal && (
         <ChannelGroupModal
           groupChatName={channelsState.groupChatName}

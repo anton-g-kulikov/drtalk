@@ -30,7 +30,7 @@ export function buildChannelGroupCreation({
 }): ChannelGroupCreationResult {
   const trimmedName = groupName.trim();
   if (!trimmedName) {
-    return { ok: false, error: 'Please enter a group chat name.' };
+    return { ok: false, error: 'Please enter a channel name.' };
   }
 
   const selectedPeople = participants.filter((participant) => participant.selected);
@@ -45,13 +45,13 @@ export function buildChannelGroupCreation({
       id: channelId,
       name: trimmedName,
       type: 'group',
-      lastMessage: 'Group chat created.',
+      lastMessage: 'Direct message created.',
       memberCount: selectedPeople.length + 1,
     },
     message: {
       id: createPrototypeId('m_welcome_'),
       user: 'System',
-      text: `Group chat "${trimmedName}" created with ${selectedPeople.map((person) => person.name).join(', ')}.`,
+      text: `Direct message "${trimmedName}" created with ${selectedPeople.map((person) => person.name).join(', ')}.`,
       time: getTimeString(),
       type: 'other',
     },

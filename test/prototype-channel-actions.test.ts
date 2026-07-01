@@ -70,7 +70,7 @@ describe('prototype channel actions', () => {
   it('rejects empty group names and empty participant sets', () => {
     expect(buildChannelGroupCreation({ groupName: '', participants: [] })).toEqual({
       ok: false,
-      error: 'Please enter a group chat name.',
+      error: 'Please enter a channel name.',
     });
     expect(buildChannelGroupCreation({
       groupName: 'Case Review',
