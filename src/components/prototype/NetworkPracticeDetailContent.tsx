@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Building2, Globe, MapPin, MessageCircle, Phone, ShieldCheck } from 'lucide-react';
 import { MainLayout } from '@/components/MainLayout';
-import { getNetwork, saveNetwork, type NetworkPractice } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice, getFullAddress } from '@/lib/referrals';
 
 type NetworkPracticeDetailContentProps = {
   practiceId: string;
@@ -124,11 +124,11 @@ export function NetworkPracticeDetailContent({
 
               {/* Detail fields */}
               <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <MapPin size={16} className="text-black shrink-0" />
+                <div className="flex items-start gap-3">
+                  <MapPin size={16} className="text-black shrink-0 mt-0.5" />
                   <div>
                     <p className="text-[8px] font-black uppercase text-zinc-400">Address / Location</p>
-                    <p className="text-xs font-bold uppercase">{practice.location}</p>
+                    <p className="text-xs font-bold uppercase leading-tight">{getFullAddress(practice.location)}</p>
                   </div>
                 </div>
 

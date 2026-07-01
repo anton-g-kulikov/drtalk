@@ -458,3 +458,22 @@ export function saveMessages(messages: Record<string, any[]>) {
   if (typeof window === 'undefined') return;
   localStorage.setItem('drtalk_messages', JSON.stringify(messages));
 }
+
+export function getFullAddress(location: string): string {
+  if (!location) return '123 Dental Way, Ste 100, Phoenix, AZ 85020';
+  const loc = location.toLowerCase();
+  if (loc.includes('phoenix')) return '7500 N Dreamy Draw Dr, Ste 110, Phoenix, AZ 85020';
+  if (loc.includes('scottsdale')) return '9220 E Mountain View Rd, Ste 208, Scottsdale, AZ 85258';
+  if (loc.includes('tempe')) return '1845 E Broadway Rd, Ste 102, Tempe, AZ 85282';
+  if (loc.includes('mesa')) return '4121 E Valley Auto Dr, Ste 101, Mesa, AZ 85206';
+  if (loc.includes('chandler')) return '2905 W Warner Rd, Ste 15, Chandler, AZ 85224';
+  if (loc.includes('gilbert')) return '3303 S Lindsay Rd, Ste 106, Gilbert, AZ 85297';
+  if (loc.includes('glendale')) return '5700 W Olive Ave, Ste 104, Glendale, AZ 85302';
+  if (loc.includes('peoria')) return '8390 W Desert Cove Ave, Ste 105, Peoria, AZ 85345';
+  if (loc.includes('ahwatukee')) return '15215 S 48th St, Ste 120, Ahwatukee, AZ 85044';
+  if (loc.includes('sedona')) return '3130 State Route 89A, Ste 2, Sedona, AZ 86336';
+  if (loc.includes('flagstaff')) return '1501 S Yale St, Ste 150, Flagstaff, AZ 86001';
+  
+  if (location.split(',').length > 2) return location;
+  return `123 Dental Way, Ste 100, ${location} 85001`;
+}

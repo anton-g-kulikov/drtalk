@@ -26,7 +26,7 @@ import {
 import { MainLayout } from '@/components/MainLayout';
 import { CommentMarker } from '@/components/Comments/CommentMarker';
 import { InviteModal } from '@/components/InviteModal';
-import { getNetwork, saveNetwork, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest } from '@/lib/referrals';
+import { getNetwork, saveNetwork, type NetworkPractice, getConnectionRequests, saveConnectionRequests, type ConnectionRequest, getFullAddress } from '@/lib/referrals';
 import { ConnectionRequestBanner } from '@/components/prototype/ConnectionRequestBanner';
 import {
   dentistAnalytics,
@@ -282,10 +282,10 @@ function PracticeCard({
         </div>
 
         <div className="space-y-1.5 pt-1">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin size={12} className="shrink-0" />
-            <span className="text-[9px] font-bold uppercase">
-              {practice.location}
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <MapPin size={12} className="shrink-0 mt-0.5" />
+            <span className="text-[9px] font-bold uppercase leading-tight">
+              {getFullAddress(practice.location)}
               {(activeTab === 'directory' || activeTab === 'connected') && ` (${getMockDistance(practice.id)} mi)`}
             </span>
           </div>
