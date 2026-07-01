@@ -910,7 +910,6 @@ export function usePrototypeChannelsState({
     showCreateGroupModal,
     showCreateInternalModal,
     internalParticipants,
-    showCreateSubChannelModal,
     subChannelParticipants,
     internalChannelName,
     internalChannelError,

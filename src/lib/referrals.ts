@@ -194,7 +194,7 @@ export interface NetworkPractice {
   type: string;
   specialty: string;
   location: string;
-  phone: string;
+  phone?: string;
   status: 'Connected' | 'Nearby' | 'Suggested';
   verified: boolean;
   isExternal?: boolean;
