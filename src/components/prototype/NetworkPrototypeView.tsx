@@ -293,7 +293,7 @@ function PracticeCard({
             <div className="flex items-center gap-2 text-muted-foreground">
               <Navigation size={12} className="shrink-0" />
               <span className="text-[9px] font-bold uppercase">
-                {getMockDistance(practice.id)} mi (Radius)
+                {getMockDistance(practice.id)} mi
               </span>
             </div>
           )}
