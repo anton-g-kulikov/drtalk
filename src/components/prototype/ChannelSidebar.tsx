@@ -468,7 +468,7 @@ export function ChannelSidebar({
         </ChannelSidebarSection>
 
         <ChannelSidebarSection
-          title="Group Chats"
+          title="Direct Messages"
           isCollapsed={groupCollapsed}
           unreadCount={groupUnreadCount}
           onToggle={onToggleGroup}
@@ -484,7 +484,7 @@ export function ChannelSidebar({
         >
           <div className="space-y-1">
             {groupChannels.length === 0 && archivedGroupCount === 0 ? (
-              <p className="text-[8px] text-muted-foreground italic uppercase">No group chats yet.</p>
+              <p className="text-[8px] text-muted-foreground italic uppercase">No direct messages yet.</p>
             ) : (
               (() => {
                 const { unread, read } = sortChannels(groupChannels);

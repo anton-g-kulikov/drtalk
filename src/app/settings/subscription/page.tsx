@@ -74,7 +74,7 @@ const SECTIONS = [
       { name: 'In-office channels', starter: false, pro: true, business: true },
       { name: 'Connected Practice channels', starter: true, pro: true, business: true },
       { name: 'Per-patient channels', starter: true, pro: true, business: true },
-      { name: 'Group chats', starter: true, pro: true, business: true },
+      { name: 'Direct messages', starter: true, pro: true, business: true },
       { name: 'Attachments', starter: true, pro: true, business: true },
       { name: 'Reactions', starter: false, pro: true, business: true },
       { name: 'Archive channels', starter: false, pro: true, business: true },

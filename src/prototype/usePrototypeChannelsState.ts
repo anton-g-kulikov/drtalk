@@ -539,7 +539,7 @@ export function usePrototypeChannelsState({
     setGroupCollapsed(false);
     setActiveChannel(result.channel);
     setActiveTab('messages');
-    triggerToast('Group chat created successfully!');
+    triggerToast('Direct message created successfully!');
   };
 
   const handleCreateInternalChannel = () => {
@@ -1022,7 +1022,7 @@ export function usePrototypeChannelsState({
           c.id === activeChannel.id ? { ...c, isArchived: true } : c
         );
         setChannels(updatedChannels);
-        triggerToast(`Archived ${activeChannel.type === 'group' ? 'group chat' : 'internal channel'} "${activeChannel.name}"!`);
+        triggerToast(`Archived ${activeChannel.type === 'group' ? 'direct message' : 'internal channel'} "${activeChannel.name}"!`);
         const nextChannel = updatedChannels.find((c) => c.type === activeChannel.type && !c.isArchived) ||
                             updatedChannels.find((c) => !c.isArchived);
         if (nextChannel) {
@@ -1054,7 +1054,7 @@ export function usePrototypeChannelsState({
             c.id === conversationId ? { ...c, isArchived: false } : c
           );
           setChannels(updatedChannels);
-          triggerToast(`Re-activated ${archivedChan.type === 'group' ? 'group chat' : 'internal channel'} "${archivedChan.name}"!`);
+          triggerToast(`Re-activated ${archivedChan.type === 'group' ? 'direct message' : 'internal channel'} "${archivedChan.name}"!`);
           setActiveChannel({ ...archivedChan, isArchived: false });
           setActiveTab('messages');
         }

@@ -25,19 +25,19 @@ export function ChannelArchivedConversations({
   channelType,
 }: ChannelArchivedConversationsProps) {
   const title = channelType === 'group'
-    ? 'Archived Groups'
+    ? 'Archived Direct Messages'
     : isInternal
     ? 'Archived Channels'
     : 'Archived Conversations';
 
   const subtitle = channelType === 'group'
-    ? 'Re-activate any group chat to resume communication'
+    ? 'Re-activate any direct message to resume communication'
     : isInternal
     ? 'Re-activate any internal channel to resume communication'
     : 'Re-activate any per-case channel to resume communication';
 
   const emptyText = channelType === 'group'
-    ? 'No archived group chats.'
+    ? 'No archived direct messages.'
     : isInternal
     ? 'No archived internal channels.'
     : 'No archived conversations for this practice.';
@@ -67,7 +67,7 @@ export function ChannelArchivedConversations({
                     <p className="font-bold text-xs uppercase text-black">#{conversation.name}</p>
                     <p className="text-[8px] text-muted-foreground uppercase font-bold mt-0.5">
                       {conversation.type === 'group'
-                        ? 'Group Chat'
+                        ? 'Direct Message'
                         : conversation.type === 'internal'
                         ? 'Internal Channel'
                         : `Case ID: ${conversation.id.replace('case_', '')}`}

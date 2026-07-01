@@ -128,14 +128,14 @@ export function ChannelParticipantsModal({
           {isGroupChat ? (
             /* ==================== GROUP CHAT MODEL (OPT-IN) ==================== */
             <>
-              {/* Active Group Members */}
+              {/* Active DM Members */}
               <div className="space-y-2">
                 <span className="text-[8px] font-black uppercase tracking-wider text-gray-500 block mb-1">
-                  Active Group Members
+                  Active DM Members
                 </span>
                 {activeGroupMembers.length === 0 ? (
                   <p className="text-[9px] font-bold text-gray-400 uppercase italic py-2">
-                    No active members in this group.
+                    No active members in this DM.
                   </p>
                 ) : (
                   activeGroupMembers.map((participant) => (
@@ -165,11 +165,11 @@ export function ChannelParticipantsModal({
                 )}
               </div>
 
-              {/* Add People to Group */}
+              {/* Add People to DM */}
               <div className="space-y-3 pt-4 border-t-2 border-dashed border-black/25">
                 <div>
                   <span className="text-[8px] font-black uppercase tracking-wider text-gray-500 block mb-2">
-                    Add People to Group
+                    Add People to DM
                   </span>
                   <div className="relative flex items-center mb-3">
                     <span className="absolute left-3 text-black">
@@ -197,7 +197,7 @@ export function ChannelParticipantsModal({
 
                 {availableToAdd.length === 0 ? (
                   <p className="text-[9px] font-black uppercase text-center text-zinc-400 py-2">
-                    Everyone has been added to the group.
+                    Everyone has been added to the DM.
                   </p>
                 ) : filteredAvailableToAdd.length === 0 ? (
                   <p className="text-[9px] font-black uppercase text-center text-zinc-400 py-2">
