@@ -184,6 +184,7 @@ export function usePrototypeChannelsState({
   const [groupParticipants, setGroupParticipants] = useState<GroupParticipant[]>([]);
   const [groupChatError, setGroupChatError] = useState<string | null>(null);
   const [showCreateInternalModal, setShowCreateInternalModal] = useState(false);
+  const [internalParticipants, setInternalParticipants] = useState<GroupParticipant[]>([]);
   const [internalChannelName, setInternalChannelName] = useState('');
   const [internalChannelError, setInternalChannelError] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
@@ -200,6 +201,7 @@ export function usePrototypeChannelsState({
   const [isViewingArchivedDocs, setIsViewingArchivedDocs] = useState(false);
 
   const [showCreateSubChannelModal, setShowCreateSubChannelModal] = useState(false);
+  const [subChannelParticipants, setSubChannelParticipants] = useState<GroupParticipant[]>([]);
   const [subChannelName, setSubChannelName] = useState('');
   const [subChannelParentPractice, setSubChannelParentPractice] = useState<Channel | null>(null);
   const [subChannelError, setSubChannelError] = useState<string | null>(null);
@@ -240,6 +242,52 @@ export function usePrototypeChannelsState({
       }))
     );
   }, [isDentist]);
+
+  useEffect(() => {
+    if (showCreateInternalModal) {
+      const ownPracticeName = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+      const directory = getDirectoryUsers(isDentist);
+      setInternalParticipants(
+        directory
+          .filter((u) => u.practice === ownPracticeName)
+          .map((u) => ({
+            id: u.id,
+            name: u.name,
+            practice: u.practice,
+            selected: true,
+          }))
+      );
+    }
+  }, [showCreateInternalModal, isDentist]);
+
+  useEffect(() => {
+    if (showCreateSubChannelModal && subChannelParentPractice) {
+      const ownPracticeName = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+      const otherPracticeName = subChannelParentPractice.name;
+      const directory = getDirectoryUsers(isDentist);
+      
+      const normalize = (p: string) => p.toLowerCase().replace(/\s*\(me\)\s*/g, '').trim();
+      const normOwn = normalize(ownPracticeName);
+      const normOther = normalize(otherPracticeName);
+
+      setSubChannelParticipants(
+        directory
+          .filter((u) => {
+            const normUserPractice = normalize(u.practice);
+            if (normUserPractice === normOwn) {
+              return u.id.startsWith('gp_');
+            }
+            return normUserPractice === normOther;
+          })
+          .map((u) => ({
+            id: u.id,
+            name: u.name,
+            practice: u.practice,
+            selected: true,
+          }))
+      );
+    }
+  }, [showCreateSubChannelModal, subChannelParentPractice, isDentist]);
 
   const storageKey = isDentist ? 'drtalk_channel_participants_dentist_v7' : 'drtalk_channel_participants_specialist_v7';
 
@@ -505,6 +553,23 @@ export function usePrototypeChannelsState({
       return;
     }
 
+    const ownPracticeName = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+    const directory = getDirectoryUsers(isDentist);
+    const initialParticipants = directory
+      .filter((u) => u.practice === ownPracticeName)
+      .map((u) => {
+        const selectedInModal = internalParticipants.some((gp) => gp.id === u.id && gp.selected);
+        return {
+          ...u,
+          selected: selectedInModal,
+        };
+      });
+
+    setChannelParticipants((prev) => ({
+      ...prev,
+      [result.channel.id]: initialParticipants,
+    }));
+
     setChannels((prev) => [...prev, result.channel]);
     setMessages((prev) => ({ ...prev, [result.channel.id]: [result.message] }));
     setInternalChannelName('');
@@ -553,6 +618,34 @@ export function usePrototypeChannelsState({
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       type: 'other',
     };
+
+    const ownPracticeName = isDentist ? 'Sunshine Dental (Me)' : 'Valley Endodontics';
+    const otherPracticeName = subChannelParentPractice.name;
+    const directory = getDirectoryUsers(isDentist);
+    const normalize = (p: string) => p.toLowerCase().replace(/\s*\(me\)\s*/g, '').trim();
+    const normOwn = normalize(ownPracticeName);
+    const normOther = normalize(otherPracticeName);
+
+    const initialParticipants = directory
+      .filter((u) => {
+        const normUserPractice = normalize(u.practice);
+        if (normUserPractice === normOwn) {
+          return u.id.startsWith('gp_');
+        }
+        return normUserPractice === normOther;
+      })
+      .map((u) => {
+        const selectedInModal = subChannelParticipants.some((gp) => gp.id === u.id && gp.selected);
+        return {
+          ...u,
+          selected: selectedInModal,
+        };
+      });
+
+    setChannelParticipants((prev) => ({
+      ...prev,
+      [newChannelId]: initialParticipants,
+    }));
 
     setChannels((prev) => [...prev, newSubChannel]);
     setMessages((prev) => ({ ...prev, [newChannelId]: [welcomeMsg] }));
@@ -816,6 +909,9 @@ export function usePrototypeChannelsState({
     showChannelList,
     showCreateGroupModal,
     showCreateInternalModal,
+    internalParticipants,
+    showCreateSubChannelModal,
+    subChannelParticipants,
     internalChannelName,
     internalChannelError,
     showParticipantsModal,
@@ -839,6 +935,38 @@ export function usePrototypeChannelsState({
     },
     setGroupCollapsed,
     setGroupParticipants,
+    onToggleInternalParticipant: (id: string) => {
+      setInternalParticipants((prev) =>
+        prev.map((participant) =>
+          participant.id === id ? { ...participant, selected: !participant.selected } : participant
+        )
+      );
+    },
+    onToggleInternalPractice: (participantIds: string[], shouldSelect: boolean) => {
+      setInternalParticipants((prev) =>
+        prev.map((participant) =>
+          participantIds.includes(participant.id)
+            ? { ...participant, selected: shouldSelect }
+            : participant
+        )
+      );
+    },
+    onToggleSubChannelParticipant: (id: string) => {
+      setSubChannelParticipants((prev) =>
+        prev.map((participant) =>
+          participant.id === id ? { ...participant, selected: !participant.selected } : participant
+        )
+      );
+    },
+    onToggleSubChannelPractice: (participantIds: string[], shouldSelect: boolean) => {
+      setSubChannelParticipants((prev) =>
+        prev.map((participant) =>
+          participantIds.includes(participant.id)
+            ? { ...participant, selected: shouldSelect }
+            : participant
+        )
+      );
+    },
     setInputText,
     setInternalCollapsed,
     setPatientCollapsed,

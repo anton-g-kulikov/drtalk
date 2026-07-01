@@ -1043,10 +1043,13 @@ function ChannelsContent() {
         <ChannelInternalModal
           channelName={channelsState.internalChannelName}
           error={channelsState.internalChannelError}
+          participants={channelsState.internalParticipants}
           onChannelNameChange={(name) => {
             channelsState.setInternalChannelName(name);
             channelsState.setInternalChannelError(null);
           }}
+          onParticipantToggle={channelsState.onToggleInternalParticipant}
+          onPracticeToggle={channelsState.onToggleInternalPractice}
           onCancel={channelsState.onCancelCreateInternal}
           onCreate={channelsState.handleCreateInternalChannel}
         />
@@ -1058,9 +1061,12 @@ function ChannelsContent() {
           subChannelName={channelsState.subChannelName}
           error={channelsState.subChannelError}
           parentPracticeName={channelsState.subChannelParentPractice?.name || ''}
+          participants={channelsState.subChannelParticipants}
           onSubChannelNameChange={(name) => {
             channelsState.setSubChannelName(name);
           }}
+          onParticipantToggle={channelsState.onToggleSubChannelParticipant}
+          onPracticeToggle={channelsState.onToggleSubChannelPractice}
           onCancel={channelsState.handleCancelCreateSubChannel}
           onCreate={channelsState.handleCreateSubChannel}
         />

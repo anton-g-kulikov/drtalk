@@ -1,9 +1,14 @@
 import { Hash, X } from 'lucide-react';
+import type { GroupParticipant } from '@/prototype/channelFixtures';
+import { ParticipantSelector } from '@/components/prototype/ParticipantSelector';
 
 type ChannelInternalModalProps = {
   channelName: string;
   error: string | null;
+  participants: GroupParticipant[];
   onChannelNameChange: (name: string) => void;
+  onParticipantToggle: (id: string) => void;
+  onPracticeToggle: (participantIds: string[], shouldSelect: boolean) => void;
   onCancel: () => void;
   onCreate: () => void;
 };
@@ -11,13 +16,16 @@ type ChannelInternalModalProps = {
 export function ChannelInternalModal({
   channelName,
   error,
+  participants,
   onChannelNameChange,
+  onParticipantToggle,
+  onPracticeToggle,
   onCancel,
   onCreate,
 }: ChannelInternalModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in text-black">
-      <div className="bg-white border-4 border-black p-8 max-w-md w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
+      <div className="bg-white border-4 border-black p-8 max-w-lg w-full shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] animate-slide-in">
         <div className="flex justify-between items-center pb-2 border-b-2 border-black mb-6">
           <h3 className="text-sm font-black uppercase tracking-widest text-black flex items-center gap-2">
             <Hash size={16} /> Create Internal Channel
@@ -49,8 +57,15 @@ export function ChannelInternalModal({
             </p>
           </div>
 
+          <ParticipantSelector
+            participants={participants}
+            onParticipantToggle={onParticipantToggle}
+            onPracticeToggle={onPracticeToggle}
+            maxHeightClass="max-h-[30vh]"
+          />
+
           {error && (
-            <div className="border border-red-500 bg-red-55 text-red-900 px-3 py-2 text-[9px] font-bold uppercase tracking-wider">
+            <div className="border border-red-500 bg-red-50 text-red-900 px-3 py-2 text-[9px] font-bold uppercase tracking-wider">
               {error}
             </div>
           )}
