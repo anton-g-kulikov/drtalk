@@ -554,6 +554,7 @@ export default function DashboardPage() {
               requests={connectionRequests}
               onAccept={handleAcceptRequest}
               onDecline={handleDeclineRequest}
+              role="specialist"
             />
 
             <DashboardSidebarList
@@ -566,7 +567,7 @@ export default function DashboardPage() {
                 message: p.location,
                 meta: p.specialty,
                 actionLabel: 'Connect',
-                onClick: () => router.push(`/network?tab=directory&highlight=${encodeURIComponent(p.id)}`),
+                onClick: () => router.push(`/network/practice/${p.id}`),
                 onAction: () => handleConnectSuggestion(p),
                 onDismiss: () => handleDismissSuggestion(p.id)
               }))}

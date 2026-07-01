@@ -13,6 +13,7 @@ import {
   Filter,
   MapPin,
   MessageCircle,
+  Phone,
   Printer,
   Search,
   ShieldCheck,
@@ -205,7 +206,15 @@ function PracticeCard({
         practice.isExternal && config.role === 'specialist' ? 'border-dashed' : ''
       } ${isHighlighted ? 'ring-2 ring-offset-2 ring-black animate-pulse' : ''}`}
     >
-      <div className="p-6 space-y-4 flex-1">
+      <div
+        onClick={() => {
+          const path = config.role === 'dentist'
+            ? `/dentist/network/practice/${practice.id}`
+            : `/network/practice/${practice.id}`;
+          router.push(path);
+        }}
+        className="p-6 space-y-4 flex-1 cursor-pointer hover:bg-zinc-50/50 transition-colors"
+      >
         <div className="flex justify-between items-start">
           <div className="flex flex-col items-start gap-2">
             <div className={`w-12 h-12 border-2 border-black flex items-center justify-center transition-all ${practice.isExternal && config.role === 'specialist' ? 'bg-gray-100 group-hover:bg-gray-200' : 'bg-gray-50 group-hover:bg-black group-hover:text-white'}`}>
@@ -217,7 +226,7 @@ function PracticeCard({
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             {practice.status !== 'Connected' && (
               <div className="flex flex-col items-end gap-1">
                 <span className="text-[8px] font-bold uppercase px-1.5 py-0.5 border border-black bg-transparent text-black">
@@ -280,7 +289,13 @@ function PracticeCard({
               {(activeTab === 'directory' || activeTab === 'connected') && ` (${getMockDistance(practice.id)} mi)`}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground hover:text-black transition-colors">
+          {practice.phone && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Phone size={12} className="shrink-0" />
+              <span className="text-[9px] font-bold uppercase">{practice.phone}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 text-muted-foreground hover:text-black transition-colors" onClick={(e) => e.stopPropagation()}>
             <Globe size={12} className="shrink-0" />
             <a 
               href={`https://www.${practice.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`}

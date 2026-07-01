@@ -1,6 +1,5 @@
-"use client";
-
 import React from 'react';
+import Link from 'next/link';
 import { UserCheck, MapPin, X, Check } from 'lucide-react';
 import type { ConnectionRequest } from '@/lib/referrals';
 
@@ -10,6 +9,7 @@ type ConnectionRequestBannerProps = {
   onDecline: (requestId: string) => void;
   /** Visual mode: 'sidebar' = compact widget, 'inline' = full-width panel */
   mode?: 'sidebar' | 'inline';
+  role?: 'dentist' | 'specialist';
 };
 
 function timeAgo(iso: string): string {
@@ -25,6 +25,7 @@ export function ConnectionRequestBanner({
   onAccept,
   onDecline,
   mode = 'sidebar',
+  role = 'specialist',
 }: ConnectionRequestBannerProps) {
   if (requests.length === 0) return null;
 
@@ -52,9 +53,14 @@ export function ConnectionRequestBanner({
             >
               {/* Practice info */}
               <div className="flex-1 space-y-1 min-w-0">
-                <p className="text-[10px] font-bold uppercase leading-tight truncate">
-                  {req.fromPracticeName}
-                </p>
+                <div className="truncate">
+                  <Link
+                    href={role === 'dentist' ? `/dentist/network/practice/${req.fromPracticeId}` : `/network/practice/${req.fromPracticeId}`}
+                    className="text-[10px] font-bold uppercase leading-tight hover:underline cursor-pointer text-black"
+                  >
+                    {req.fromPracticeName}
+                  </Link>
+                </div>
                 <span className="text-[7px] font-bold px-1.5 py-0.5 border border-black uppercase text-muted-foreground inline-block">
                   {req.fromSpecialty}
                 </span>
@@ -99,9 +105,14 @@ export function ConnectionRequestBanner({
               {/* Practice info */}
               <div className="space-y-1 min-w-0">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-[10px] font-bold uppercase leading-tight truncate">
-                    {req.fromPracticeName}
-                  </p>
+                  <div className="truncate flex-1">
+                    <Link
+                      href={role === 'dentist' ? `/dentist/network/practice/${req.fromPracticeId}` : `/network/practice/${req.fromPracticeId}`}
+                      className="text-[10px] font-bold uppercase leading-tight hover:underline cursor-pointer text-black"
+                    >
+                      {req.fromPracticeName}
+                    </Link>
+                  </div>
                   <span className="text-[7px] text-muted-foreground uppercase font-bold shrink-0 whitespace-nowrap">
                     {timeAgo(req.sentAt)}
                   </span>

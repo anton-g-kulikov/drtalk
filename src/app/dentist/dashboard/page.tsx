@@ -431,6 +431,7 @@ export default function DentistDashboardPage() {
               requests={connectionRequests}
               onAccept={handleAcceptRequest}
               onDecline={handleDeclineRequest}
+              role="dentist"
             />
 
              <DashboardSidebarList
@@ -443,7 +444,7 @@ export default function DentistDashboardPage() {
                 message: p.location,
                 meta: p.specialty,
                 actionLabel: 'Connect',
-                onClick: () => router.push(`/dentist/network?tab=directory&highlight=${encodeURIComponent(p.id)}`),
+                onClick: () => router.push(`/dentist/network/practice/${p.id}`),
                 onAction: () => handleConnectSuggestion(p),
                 onDismiss: () => handleDismissSuggestion(p.id)
               }))}
