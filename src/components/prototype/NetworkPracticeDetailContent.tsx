@@ -9,7 +9,7 @@ import { getNetwork, saveNetwork, type NetworkPractice } from '@/lib/referrals';
 type NetworkPracticeDetailContentProps = {
   practiceId: string;
   role: 'dentist' | 'specialist';
-  onBack: () => void;
+  onBack?: () => void;
 };
 
 export function NetworkPracticeDetailContent({
@@ -20,6 +20,14 @@ export function NetworkPracticeDetailContent({
   const router = useRouter();
   const [practice, setPractice] = useState<NetworkPractice | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      router.push(role === 'dentist' ? '/dentist/network' : '/network');
+    }
+  };
 
   useEffect(() => {
     const list = getNetwork();
@@ -62,7 +70,7 @@ export function NetworkPracticeDetailContent({
       <MainLayout title="Practice Profile">
         <div className="max-w-4xl mx-auto py-12 text-center space-y-4">
           <p className="text-sm font-black uppercase text-zinc-500">Practice not found</p>
-          <button onClick={onBack} className="text-[10px] font-black uppercase underline hover:text-black">
+          <button onClick={handleBack} className="text-[10px] font-black uppercase underline hover:text-black">
             Go Back
           </button>
         </div>
@@ -79,7 +87,7 @@ export function NetworkPracticeDetailContent({
         {/* Back button */}
         <div className="flex items-center justify-between border-b-2 border-black pb-4">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="flex items-center gap-1.5 text-[10px] font-black uppercase text-black hover:text-zinc-600 transition-colors"
           >
             <ArrowLeft size={14} />
