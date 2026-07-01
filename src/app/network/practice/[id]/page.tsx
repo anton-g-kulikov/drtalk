@@ -1,11 +1,12 @@
 import React from 'react';
 import { NetworkPracticeDetailContent } from '@/components/prototype/NetworkPracticeDetailContent';
-import { initialNetwork } from '@/lib/referrals';
 
 export function generateStaticParams() {
-  return initialNetwork.map((p) => ({
-    id: p.id,
-  }));
+  const ids: string[] = [];
+  for (let i = 1; i <= 5; i++) ids.push(`sp-${i}`);
+  for (let i = 1; i <= 16; i++) ids.push(`dn-${i}`);
+  for (let i = 1; i <= 15; i++) ids.push(`ext-${i}`);
+  return ids.map((id) => ({ id }));
 }
 
 type PageProps = {
