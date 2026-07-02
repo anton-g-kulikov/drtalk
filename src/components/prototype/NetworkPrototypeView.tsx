@@ -594,21 +594,6 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{config.subtitle}</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-center">
-            {(activeTab === 'directory' || activeTab === 'connected') && (
-              <>
-                <div className="relative flex-1 sm:flex-none">
-                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input type="text" placeholder={config.searchPlaceholder} className="wireframe-input pl-10 py-2.5 text-[10px] w-full md:w-64 shadow-sm" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-                </div>
-                <button 
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`wireframe-button px-4 py-2.5 sm:py-0 flex items-center justify-center transition-colors border-2 border-black ${showFilters || hasActiveFilters ? 'bg-black text-white' : 'bg-white text-black'}`}
-                  title="Toggle Filters"
-                >
-                  <Filter size={16} />
-                </button>
-              </>
-            )}
             <button
               onClick={() => router.push(role === 'dentist' ? '/dentist/network/invite' : '/network/invite')}
               className="wireframe-button bg-black text-white text-[10px] uppercase px-6 py-2.5 flex items-center justify-center gap-2 w-full sm:w-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black border-2 border-black transition-all font-black"
@@ -617,93 +602,6 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
             </button>
           </div>
         </div>
-
-        {showFilters && (activeTab === 'directory' || activeTab === 'connected') && (
-          <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col md:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 flex-1">
-              {/* Type */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-type-filter">Practice Type</label>
-                <select
-                  id="network-type-filter"
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All Types</option>
-                  {types.map((ty) => (
-                    <option key={ty} value={ty}>{ty}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Radius */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-radius-filter">Radius</label>
-                <select
-                  id="network-radius-filter"
-                  value={selectedRadius}
-                  onChange={(e) => setSelectedRadius(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All Distances</option>
-                  <option value="5">Within 5 miles</option>
-                  <option value="10">Within 10 miles</option>
-                  <option value="25">Within 25 miles</option>
-                  <option value="50">Within 50 miles</option>
-                </select>
-              </div>
-
-              {/* State */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-state-filter">State</label>
-                <select
-                  id="network-state-filter"
-                  value={selectedState}
-                  onChange={(e) => setSelectedState(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All States</option>
-                  {states.map((st) => (
-                    <option key={st} value={st}>{st}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* City */}
-              <div className="space-y-1.5">
-                <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-city-filter">City</label>
-                <select
-                  id="network-city-filter"
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
-                >
-                  <option value="All">All Cities</option>
-                  {cities.map((ct) => (
-                    <option key={ct} value={ct}>{ct}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {hasActiveFilters && (
-              <div className="flex items-end shrink-0">
-                <button
-                  onClick={() => {
-                    setSelectedState('All');
-                    setSelectedCity('All');
-                    setSelectedRadius('All');
-                    setSelectedType('All');
-                  }}
-                  className="wireframe-button px-4 py-2 text-[10px] uppercase font-bold border-red-200 text-red-600 hover:bg-red-50 h-9 shrink-0"
-                >
-                  Clear
-                </button>
-              </div>
-            )}
-          </div>
-        )}
 
         <div className="space-y-6">
           <div className="border-b-2 border-black">
@@ -715,6 +613,118 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
               ))}
             </div>
           </div>
+
+          {(activeTab === 'directory' || activeTab === 'connected') && (
+            <>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in duration-200">
+                <div className="relative flex-1 max-w-xl">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder={config.searchPlaceholder}
+                    className="wireframe-input pl-10 py-2.5 text-[10px] w-full shadow-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`wireframe-button flex items-center justify-center gap-2 px-6 py-2.5 text-[10px] uppercase font-bold transition-colors h-10 w-full md:w-auto border-2 border-black ${
+                    showFilters || hasActiveFilters ? 'bg-black text-white' : 'bg-white text-black'
+                  }`}
+                >
+                  <Filter size={14} /> Filters {hasActiveFilters && '•'}
+                </button>
+              </div>
+
+              {showFilters && (
+                <div className="wireframe-card p-5 border-2 border-black bg-zinc-50 flex flex-col md:flex-row gap-6 animate-in slide-in-from-top-2 duration-200">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+                    {/* Type */}
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-type-filter">Practice Type</label>
+                      <select
+                        id="network-type-filter"
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                      >
+                        <option value="All">All Types</option>
+                        {types.map((ty) => (
+                          <option key={ty} value={ty}>{ty}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Radius */}
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-radius-filter">Radius</label>
+                      <select
+                        id="network-radius-filter"
+                        value={selectedRadius}
+                        onChange={(e) => setSelectedRadius(e.target.value)}
+                        className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                      >
+                        <option value="All">All Distances</option>
+                        <option value="5">Within 5 miles</option>
+                        <option value="10">Within 10 miles</option>
+                        <option value="25">Within 25 miles</option>
+                        <option value="50">Within 50 miles</option>
+                      </select>
+                    </div>
+
+                    {/* State */}
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-state-filter">State</label>
+                      <select
+                        id="network-state-filter"
+                        value={selectedState}
+                        onChange={(e) => setSelectedState(e.target.value)}
+                        className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                      >
+                        <option value="All">All States</option>
+                        {states.map((st) => (
+                          <option key={st} value={st}>{st}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* City */}
+                    <div className="space-y-1.5">
+                      <label className="text-[8px] font-black uppercase tracking-wider text-muted-foreground block" htmlFor="network-city-filter">City</label>
+                      <select
+                        id="network-city-filter"
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        className="wireframe-input py-1.5 px-3 text-[10px] uppercase w-full bg-white h-9 border border-black focus:outline-none"
+                      >
+                        <option value="All">All Cities</option>
+                        {cities.map((ct) => (
+                          <option key={ct} value={ct}>{ct}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  {hasActiveFilters && (
+                    <div className="flex items-end shrink-0">
+                      <button
+                        onClick={() => {
+                          setSelectedState('All');
+                          setSelectedCity('All');
+                          setSelectedRadius('All');
+                          setSelectedType('All');
+                        }}
+                        className="wireframe-button px-4 py-2 text-[10px] uppercase font-bold border-red-200 text-red-600 hover:bg-red-50 h-9 shrink-0"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
 
           {activeTab === 'analytics' ? (
             <NetworkAnalytics config={config} />
