@@ -172,6 +172,8 @@ function PracticeCard({
   showToast,
   onDismiss,
   onRemoveConnection,
+  onConnect,
+  isPendingConnect,
   isHighlighted,
 }: {
   activeTab: NetworkTab;
@@ -180,6 +182,8 @@ function PracticeCard({
   showToast: (message: string) => void;
   onDismiss?: () => void;
   onRemoveConnection?: () => void;
+  onConnect?: () => void;
+  isPendingConnect?: boolean;
   isHighlighted?: boolean;
 }) {
   const router = useRouter();
@@ -197,7 +201,12 @@ function PracticeCard({
       router.push(`/dentist/referral?practice=${encodeURIComponent(practice.name)}`);
       return;
     }
-    showToast(`Connection request sent to ${practice.name}`);
+    if (isPendingConnect) return;
+    if (onConnect) {
+      onConnect();
+    } else {
+      showToast(`Connection request sent to ${practice.name}`);
+    }
   };
 
   return (
@@ -331,8 +340,16 @@ function PracticeCard({
             </>
           ) : (
             <>
-              <button onClick={handleDentistPrimaryAction} className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black">
-                {activeTab === 'directory' ? 'Connect' : 'Refer & Connect'}
+              <button
+                disabled={isPendingConnect}
+                onClick={handleDentistPrimaryAction}
+                className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${
+                  isPendingConnect
+                    ? 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed shadow-none'
+                    : 'bg-black text-white hover:bg-zinc-800'
+                }`}
+              >
+                {isPendingConnect ? 'Request Sent' : activeTab === 'directory' ? 'Connect' : 'Refer & Connect'}
               </button>
               {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') && onDismiss && (
                 <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
@@ -346,12 +363,21 @@ function PracticeCard({
             {activeTab === 'directory' && (practice.status === 'Nearby' || practice.status === 'Suggested') ? (
               <>
                 <button
+                  disabled={isPendingConnect}
                   onClick={() => {
-                    showToast(`Connection request sent to ${practice.name}`);
+                    if (onConnect) {
+                      onConnect();
+                    } else {
+                      showToast(`Connection request sent to ${practice.name}`);
+                    }
                   }}
-                  className="flex-1 wireframe-button bg-black text-white text-[9px] uppercase py-2 flex items-center justify-center gap-2 hover:bg-zinc-800 transition-all font-black"
+                  className={`flex-1 wireframe-button text-[9px] uppercase py-2 flex items-center justify-center gap-2 transition-all font-black ${
+                    isPendingConnect
+                      ? 'bg-gray-100 text-gray-400 border border-gray-300 cursor-not-allowed shadow-none'
+                      : 'bg-black text-white hover:bg-zinc-800'
+                  }`}
                 >
-                  Connect
+                  {isPendingConnect ? 'Request Sent' : 'Connect'}
                 </button>
                 {onDismiss && (
                   <button onClick={onDismiss} className="wireframe-button bg-white text-black text-[9px] uppercase py-2 px-3 border-2 border-black hover:bg-gray-100 transition-all font-black">
@@ -507,6 +533,33 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
     setConnectionRequests(updatedRequests);
     saveConnectionRequests(updatedRequests);
     showToast('Connection request declined');
+  };
+
+  const handleCancelConnectionRequest = (requestId: string) => {
+    const updatedRequests = connectionRequests.filter(r => r.id !== requestId);
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    showToast('Connection request cancelled');
+  };
+
+  const handleSendConnectionRequest = (practice: NetworkPractice) => {
+    if (connectionRequests.some(r => r.fromPracticeId === practice.id)) {
+      showToast(`Already sent request to ${practice.name}`);
+      return;
+    }
+    const newRequest: ConnectionRequest = {
+      id: `cr-sent-${Date.now()}`,
+      fromPracticeId: practice.id,
+      fromPracticeName: practice.name,
+      fromSpecialty: practice.specialty,
+      fromLocation: practice.location,
+      sentAt: new Date().toISOString(),
+      direction: 'outgoing',
+    };
+    const updatedRequests = [...connectionRequests, newRequest];
+    setConnectionRequests(updatedRequests);
+    saveConnectionRequests(updatedRequests);
+    showToast(`Connection request sent to ${practice.name}`);
   };
 
   const handleDismiss = (practiceId: string) => {
@@ -747,6 +800,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                     requests={connectionRequests}
                     onAccept={handleAcceptConnectionRequest}
                     onDecline={handleDeclineConnectionRequest}
+                    onCancel={handleCancelConnectionRequest}
                     mode="inline"
                   />
                   <NetworkSection label={`On-Platform (${onPlatform.length})`}>
@@ -759,6 +813,8 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                         showToast={showToast}
                         onDismiss={() => handleDismiss(practice.id)}
                         onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                        onConnect={() => handleSendConnectionRequest(practice)}
+                        isPendingConnect={connectionRequests.some(r => r.fromPracticeId === practice.id && r.direction === 'outgoing')}
                         isHighlighted={highlightPracticeId === practice.id}
                       />
                     ))}
@@ -774,6 +830,8 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                           showToast={showToast}
                           onDismiss={() => handleDismiss(practice.id)}
                           onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                          onConnect={() => handleSendConnectionRequest(practice)}
+                          isPendingConnect={connectionRequests.some(r => r.fromPracticeId === practice.id && r.direction === 'outgoing')}
                           isHighlighted={highlightPracticeId === practice.id}
                         />
                       ))}
@@ -787,6 +845,7 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                       requests={connectionRequests}
                       onAccept={handleAcceptConnectionRequest}
                       onDecline={handleDeclineConnectionRequest}
+                      onCancel={handleCancelConnectionRequest}
                       mode="inline"
                     />
                   )}
@@ -800,6 +859,8 @@ export function NetworkPrototypeView({ role }: { role: NetworkRole }) {
                       showToast={showToast}
                       onDismiss={() => handleDismiss(practice.id)}
                       onRemoveConnection={() => handleRemoveConnection(practice.id)}
+                      onConnect={() => handleSendConnectionRequest(practice)}
+                      isPendingConnect={connectionRequests.some(r => r.fromPracticeId === practice.id && r.direction === 'outgoing')}
                       isHighlighted={highlightPracticeId === practice.id}
                     />
                   ))}
