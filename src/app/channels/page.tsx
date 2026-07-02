@@ -596,6 +596,7 @@ function ChannelsContent() {
           pinnedMessages={channelsState.pinnedMessages}
           replyingToMessage={channelsState.replyingToMessage}
           onCancelReply={() => channelsState.setReplyingToMessage(null)}
+          onRenameChannel={channelsState.handleRenameChannel}
         />
       </div>
 
