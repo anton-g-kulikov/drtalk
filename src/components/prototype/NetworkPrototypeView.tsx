@@ -42,10 +42,40 @@ import {
 
 function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
   const [timeRange, setTimeRange] = useState<NetworkTimeRange>('month');
+  const [selectedClinic, setSelectedClinic] = useState('All');
+  const [selectedDoc, setSelectedDoc] = useState('All');
+
   const data = config.role === 'dentist' ? dentistAnalytics[timeRange] : specialistAnalytics[timeRange];
 
+  const clinicOptions = config.role === 'dentist'
+    ? ['Valley Endodontics', 'Downtown Oral Surgery', 'Arizona Periodontics']
+    : ['Sunshine Dental', 'Desert Bloom Dental', 'Mountain View Family Dental'];
+
+  const doctorOptions = ['Dr. Emma Smith', 'Dr. Bob Wilson', 'Dr. Carol Danvers'];
+
+  // Apply filters
+  let breakdownRows = [...data.breakdown];
+  if (selectedClinic !== 'All') {
+    breakdownRows = breakdownRows.filter(row => row.name === selectedClinic);
+  }
+
+  const docFactor = selectedDoc === 'Dr. Emma Smith' ? 0.45 : selectedDoc === 'Dr. Bob Wilson' ? 0.35 : selectedDoc === 'Dr. Carol Danvers' ? 0.2 : 1.0;
+
+  const filteredBreakdown = breakdownRows.map(row => {
+    const primary = Math.round(row.primary * docFactor);
+    const scheduled = Math.round(row.scheduled * docFactor);
+    const released = Math.round(row.released * docFactor);
+    const conversion = primary > 0 ? Math.round((scheduled / primary) * 100) : 0;
+    return { ...row, primary, scheduled, released, conversion };
+  });
+
+  const totalPrimary = filteredBreakdown.reduce((sum, r) => sum + r.primary, 0);
+  const totalScheduled = filteredBreakdown.reduce((sum, r) => sum + r.scheduled, 0);
+  const totalReleased = filteredBreakdown.reduce((sum, r) => sum + r.released, 0);
+  const conversionRate = totalPrimary > 0 ? Math.round((totalScheduled / totalPrimary) * 100) : 0;
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 animate-in fade-in duration-300 text-black">
       <div className="flex justify-between items-center flex-col sm:flex-row gap-4">
         <h3 className="text-xl font-black uppercase italic tracking-tighter">Network Performance</h3>
         <div className="flex items-center gap-2">
@@ -74,11 +104,76 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
         </div>
       </div>
 
+      {/* Filters Toolbar */}
+      <div className="flex flex-wrap gap-4 items-center p-4 bg-zinc-50 border-2 border-black">
+        <div className="space-y-1">
+          <label htmlFor="analytics-clinic-filter" className="text-[9px] font-black uppercase text-muted-foreground block">
+            {config.role === 'dentist' ? 'Referred Clinic' : 'Referring Clinic'}
+          </label>
+          <div className="relative">
+            <select
+              id="analytics-clinic-filter"
+              value={selectedClinic}
+              onChange={(e) => setSelectedClinic(e.target.value)}
+              className="wireframe-input py-1.5 pl-3 pr-8 text-[10px] font-bold uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-8 border border-black min-w-[180px]"
+            >
+              <option value="All">All Clinics</option>
+              {clinicOptions.map(c => (
+                <option key={c} value={c}>{c.toUpperCase()}</option>
+              ))}
+            </select>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={12} className="text-black" />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-1">
+          <label htmlFor="analytics-doctor-filter" className="text-[9px] font-black uppercase text-muted-foreground block">
+            {config.role === 'dentist' ? 'Referred Doctor' : 'Receiving/Assigned Doctor'}
+          </label>
+          <div className="relative">
+            <select
+              id="analytics-doctor-filter"
+              value={selectedDoc}
+              onChange={(e) => setSelectedDoc(e.target.value)}
+              className="wireframe-input py-1.5 pl-3 pr-8 text-[10px] font-bold uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-8 border border-black min-w-[180px]"
+            >
+              <option value="All">All Doctors</option>
+              {doctorOptions.map(d => (
+                <option key={d} value={d}>{d.toUpperCase()}</option>
+              ))}
+            </select>
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={12} className="text-black" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Badges for Active Selections */}
+      {(selectedClinic !== 'All' || selectedDoc !== 'All') && (
+        <div className="flex flex-wrap gap-2 items-center">
+          {selectedClinic !== 'All' && (
+            <div className="bg-black text-white px-3 py-1.5 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 rounded-sm">
+              <span>Clinic: {selectedClinic}</span>
+              <button type="button" onClick={() => setSelectedClinic('All')} className="hover:text-red-400 font-bold ml-1">✕</button>
+            </div>
+          )}
+          {selectedDoc !== 'All' && (
+            <div className="bg-black text-white px-3 py-1.5 text-[9px] font-black uppercase tracking-wider inline-flex items-center gap-1.5 rounded-sm">
+              <span>{config.role === 'dentist' ? 'Referred Doctor' : 'Assigned Doctor'}: {selectedDoc}</span>
+              <button type="button" onClick={() => setSelectedDoc('All')} className="hover:text-red-400 font-bold ml-1">✕</button>
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label={config.analyticsPrimaryLabel} value={data.totalPrimary} icon={<ArrowUpRight size={16} className="text-black" />} trend={data.totalPrimary % 10 - 2} />
-        <MetricCard label="Scheduled" value={data.totalScheduled} icon={<CheckCircle2 size={16} className="text-black" />} trend={data.totalScheduled % 8 - 1} />
-        <MetricCard label={config.analyticsConversionLabel} value={`${data.conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} trend={data.conversionRate % 5 - 1} />
-        <MetricCard label="Released" value={data.totalReleased} icon={<Users size={16} className="text-black" />} trend={data.totalReleased % 12 - 3} />
+        <MetricCard label={config.analyticsPrimaryLabel} value={totalPrimary} icon={<ArrowUpRight size={16} className="text-black" />} trend={totalPrimary % 10 - 2} />
+        <MetricCard label="Scheduled" value={totalScheduled} icon={<CheckCircle2 size={16} className="text-black" />} trend={totalScheduled % 8 - 1} />
+        <MetricCard label={config.analyticsConversionLabel} value={`${conversionRate}%`} icon={<TrendingUp size={16} className="text-black" />} trend={conversionRate % 5 - 1} />
+        <MetricCard label="Released" value={totalReleased} icon={<Users size={16} className="text-black" />} trend={totalReleased % 12 - 3} />
       </div>
 
       <div className="wireframe-card overflow-hidden">
@@ -97,7 +192,7 @@ function NetworkAnalytics({ config }: { config: NetworkRoleConfig }) {
               </tr>
             </thead>
             <tbody>
-              {data.breakdown.map((row, idx) => (
+              {filteredBreakdown.map((row, idx) => (
                 <tr key={row.id} className={`text-sm ${idx !== data.breakdown.length - 1 ? 'border-b border-gray-200' : ''} hover:bg-gray-50 transition-colors bg-white`}>
                   <td className="p-4 font-bold">{row.name}</td>
                   <td className="p-4">
