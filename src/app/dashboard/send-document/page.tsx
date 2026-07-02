@@ -5,6 +5,8 @@ import { MainLayout } from "@/components/MainLayout";
 import { SendDocumentPatientFields } from '@/components/prototype/SendDocumentPatientFields';
 import { SendDocumentPracticeSelector } from '@/components/prototype/SendDocumentPracticeSelector';
 import { SendDocumentUploadSection } from '@/components/prototype/SendDocumentUploadSection';
+import { SendDocumentReferralSelector } from '@/components/prototype/SendDocumentReferralSelector';
+import { getReferrals, getReferralCode, UnifiedReferral } from '@/lib/referrals';
 import {
   FileText, Send, ArrowLeft
 } from 'lucide-react';
@@ -70,6 +72,88 @@ export default function SpecialistSendDocumentPage() {
   const [patientLastName, setPatientLastName] = useState('');
   const [patientDob, setPatientDob] = useState('');
   const [uploadMessage, setUploadMessage] = useState('');
+
+  const [referralsList, setReferralsList] = useState<UnifiedReferral[]>([]);
+
+  useEffect(() => {
+    setReferralsList(getReferrals());
+  }, []);
+
+  const receivedReferrals = React.useMemo(() => {
+    return referralsList.filter(r => !r.id.startsWith('D-') && r.id !== '1' && !r.dentist.includes('Reed') && !r.dentist.includes('Taylor'));
+  }, [referralsList]);
+
+  const [selectedReferral, setSelectedReferral] = useState('');
+  const [referralSearchQuery, setReferralSearchQuery] = useState('NONE / NEW REFERRAL');
+  const [isReferralDropdownOpen, setIsReferralDropdownOpen] = useState(false);
+
+  // Filter referrals depending on selected recipient practices
+  const filteredReferralsForDoc = React.useMemo(() => {
+    if (selectedPractices.length === 0) return receivedReferrals;
+    return receivedReferrals.filter(r => selectedPractices.includes(r.practice || r.dentist));
+  }, [selectedPractices, receivedReferrals]);
+
+  const filteredReferralsList = React.useMemo(() => {
+    if (!referralSearchQuery || referralSearchQuery === 'NONE / NEW REFERRAL') {
+      return filteredReferralsForDoc;
+    }
+    const query = referralSearchQuery.toLowerCase().trim();
+    return filteredReferralsForDoc.filter(r => {
+      const code = getReferralCode(r.id).toLowerCase();
+      const name = r.patientName.toLowerCase();
+      return code.includes(query) || name.includes(query);
+    });
+  }, [filteredReferralsForDoc, referralSearchQuery]);
+
+  const closeReferralDropdown = () => {
+    setIsReferralDropdownOpen(false);
+    if (selectedReferral) {
+      const ref = receivedReferrals.find(r => r.id === selectedReferral);
+      if (ref) {
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+      }
+    } else {
+      setReferralSearchQuery('NONE / NEW REFERRAL');
+    }
+  };
+
+  const handleSelectReferral = (refId: string) => {
+    setSelectedReferral(refId);
+    if (refId) {
+      const ref = receivedReferrals.find(r => r.id === refId);
+      if (ref) {
+        const practiceName = ref.practice || ref.dentist;
+        if (!selectedPractices.includes(practiceName)) {
+          setSelectedPractices(prev => [...prev, practiceName]);
+        }
+        
+        const parts = ref.patientName.trim().split(/\s+/);
+        const first = parts[0] || '';
+        const last = parts.slice(1).join(' ') || '';
+        
+        let dob = '';
+        if (ref.id === '1' || ref.patientName.toLowerCase() === 'alice cooper') dob = '12/04/1978';
+        else if (ref.id === 'D-1002' || ref.patientName.toLowerCase() === 'marco reyes') dob = '05/14/1988';
+        else if (ref.id === 'D-1003' || ref.patientName.toLowerCase() === 'nina patel') dob = '10/20/1990';
+        else if (ref.id === 'D-1005' || ref.id === 'D-1004' || ref.patientName.toLowerCase() === 'sarah jenkins') dob = '11/22/1992';
+        else if (ref.patientName.toLowerCase() === 'john doe') dob = '08/08/1985';
+        else if (ref.patientName.toLowerCase() === 'james dean') dob = '02/08/1931';
+        else if (ref.patientName.toLowerCase() === 'humphrey bogart') dob = '12/25/1899';
+        else if (ref.patientName.toLowerCase() === 'audrey hepburn') dob = '05/04/1929';
+        else dob = '01/01/1990';
+
+        setPatientFirstName(first);
+        setPatientLastName(last);
+        setPatientDob(dob);
+        setReferralSearchQuery(`${getReferralCode(ref.id)} - ${ref.patientName}`);
+      }
+    } else {
+      setPatientFirstName('');
+      setPatientLastName('');
+      setPatientDob('');
+      setReferralSearchQuery('NONE / NEW REFERRAL');
+    }
+  };
 
   const connectedPractices = dentistPractices;
 
@@ -167,6 +251,7 @@ export default function SpecialistSendDocumentPage() {
         size: customDocSize,
         type: customDocType,
       },
+      selectedReferral,
       patient: {
         firstName: patientFirstName,
         lastName: patientLastName,
@@ -192,6 +277,8 @@ export default function SpecialistSendDocumentPage() {
     setPatientDob('');
     setUploadMessage('');
     setSelectedPractices([]);
+    setSelectedReferral('');
+    setReferralSearchQuery('NONE / NEW REFERRAL');
     setCustomRecipient('');
 
     // Trigger toast
@@ -312,6 +399,28 @@ export default function SpecialistSendDocumentPage() {
                 </div>
               </div>
             )}
+
+            <SendDocumentReferralSelector
+              searchQuery={referralSearchQuery}
+              isOpen={isReferralDropdownOpen}
+              referrals={filteredReferralsList.map((ref) => ({
+                id: ref.id,
+                code: getReferralCode(ref.id),
+                patientName: ref.patientName,
+                specialist: ref.practice || ref.dentist,
+              }))}
+              onSearchQueryChange={setReferralSearchQuery}
+              onOpenChange={(open) => {
+                if (!open) {
+                  closeReferralDropdown();
+                } else {
+                  setIsReferralDropdownOpen(true);
+                }
+              }}
+              onSelectReferral={(referralId) => {
+                handleSelectReferral(referralId);
+              }}
+            />
 
             <SendDocumentUploadSection
               inputId="dashboard-file-input"
