@@ -318,8 +318,28 @@ export default function ReferralsPage() {
           )}
         </div>
 
+        {/* Global Time Range Filter */}
+        <div className="flex justify-start items-center mt-6">
+          <div className="relative">
+            <select
+              value={timeRange}
+              onChange={(event) => setTimeRange(event.target.value as ReferralTimeRange)}
+              className="wireframe-input py-2 pl-4 pr-10 text-[10px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
+            >
+              <option value="day">Today</option>
+              <option value="week">Last 7 Days</option>
+              <option value="month">Last 30 Days</option>
+              <option value="quarter">Last 90 Days</option>
+              <option value="year">Last 12 Months</option>
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+              <ChevronDown size={14} className="text-black" />
+            </div>
+          </div>
+        </div>
+
         {/* Stat Widgets & Doctor Selector Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3">
           <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
             <FileText size={32} className="text-black shrink-0" />
             <div className="space-y-1">
@@ -395,7 +415,6 @@ export default function ReferralsPage() {
           <ReferralPipelineControls
             isDentist={isDentist}
             activeTab={activeTab}
-            timeRange={timeRange}
             searchQuery={searchQuery}
             showFilters={showFilters}
             selectedUrgency={selectedUrgency}
@@ -405,7 +424,6 @@ export default function ReferralsPage() {
             practiceOptions={practiceOptions}
             sortBy={sortBy}
             onActiveTabChange={setActiveTab}
-            onTimeRangeChange={setTimeRange}
             onSearchQueryChange={setSearchQuery}
             onShowFiltersChange={setShowFilters}
             onUrgencyChange={setSelectedUrgency}

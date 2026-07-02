@@ -10,7 +10,6 @@ export type ReferralSortOption = 'date-desc' | 'date-asc' | 'name-asc' | 'name-d
 type ReferralPipelineControlsProps = {
   isDentist: boolean;
   activeTab: ReferralStatus;
-  timeRange: ReferralTimeRange;
   searchQuery: string;
   showFilters: boolean;
   selectedUrgency: string;
@@ -20,7 +19,6 @@ type ReferralPipelineControlsProps = {
   practiceOptions: string[];
   sortBy?: ReferralSortOption;
   onActiveTabChange: (tab: ReferralStatus) => void;
-  onTimeRangeChange: (range: ReferralTimeRange) => void;
   onSearchQueryChange: (query: string) => void;
   onShowFiltersChange: (show: boolean) => void;
   onUrgencyChange: (urgency: string) => void;
@@ -44,7 +42,6 @@ function getTabLabel(tab: ReferralStatus, isDentist: boolean) {
 export function ReferralPipelineControls({
   isDentist,
   activeTab,
-  timeRange,
   searchQuery,
   showFilters,
   selectedUrgency,
@@ -54,7 +51,6 @@ export function ReferralPipelineControls({
   practiceOptions,
   sortBy = 'date-desc',
   onActiveTabChange,
-  onTimeRangeChange,
   onSearchQueryChange,
   onShowFiltersChange,
   onUrgencyChange,
@@ -99,24 +95,7 @@ export function ReferralPipelineControls({
           />
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
-          <div className="relative">
-            <label className="sr-only" htmlFor="referral-time-range">Time Range</label>
-            <select
-              id="referral-time-range"
-              value={timeRange}
-              onChange={(event) => onTimeRangeChange(event.target.value as ReferralTimeRange)}
-              className="wireframe-input py-2 pl-4 pr-10 text-[11px] font-black uppercase appearance-none bg-white cursor-pointer hover:bg-gray-50 focus:outline-none h-10 border-2 border-black"
-            >
-              <option value="day">Today</option>
-              <option value="week">Last 7 Days</option>
-              <option value="month">Last 30 Days</option>
-              <option value="quarter">Last 90 Days</option>
-              <option value="year">Last 12 Months</option>
-            </select>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-              <ChevronDown size={14} className="text-black" />
-            </div>
-          </div>
+
           <div className="relative">
             <label className="sr-only" htmlFor="referral-sort-by">Sort By</label>
             <select
