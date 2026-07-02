@@ -4,7 +4,7 @@ import { getPrototypePageNumbers } from '@/prototype/pagination';
 export type DentistSentReferralRow = {
   id: string;
   patientName: string;
-  sender: string;
+  specialistDoctor: string;
   specialist: string;
   code: string;
   status: string;
@@ -37,7 +37,7 @@ export function DentistSentReferralsSection({
 }: DentistSentReferralsSectionProps) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-4 border-black pb-2 text-black">
         <div className="flex items-center gap-2">
           <div className="w-3.5 h-3.5 bg-black"></div>
           <h3 className="font-black uppercase text-sm tracking-widest italic">Patients Referred</h3>
@@ -57,13 +57,13 @@ export function DentistSentReferralsSection({
         {referrals.map((referral) => (
           <div
             key={referral.id}
-            className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer"
+            className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer text-black"
             onClick={() => onReferralClick(referral.id)}
           >
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
               <div className="md:col-span-4">
                 <div className="flex items-center gap-2">
-                  <p className="text-xs font-black uppercase">Patient: {referral.patientName}</p>
+                  <p className="text-xs font-black uppercase">{referral.patientName}</p>
                   {referral.urgency === 'Urgent' && (
                     <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
                   )}
@@ -71,11 +71,11 @@ export function DentistSentReferralsSection({
                     <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
                   )}
                 </div>
-                <p className="text-[9px] uppercase font-bold text-muted-foreground">Sender: {referral.sender}</p>
+                <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.code}</p>
               </div>
               <div className="md:col-span-4">
                 <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
-                <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.code}</p>
+                <p className="text-[9px] uppercase font-bold text-muted-foreground">Referred to: {referral.specialistDoctor}</p>
               </div>
               <div className="md:col-span-2">
                 <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
