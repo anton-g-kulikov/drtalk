@@ -7,6 +7,7 @@ import {
   getReferrals,
   saveChannels,
   saveMessages,
+  saveReferrals,
   updateReferralStatus,
   updateDentistReferralStatus,
   unarchiveReferral,
@@ -798,6 +799,47 @@ export function usePrototypeChannelsState({
     });
   };
 
+  const handleRenameChannel = (channelId: string, newName: string) => {
+    if (!newName.trim()) return;
+
+    if (channelId.startsWith('case_')) {
+      const referralId = channelId.replace('case_', '');
+      const updatedRefs = referrals.map((r) => {
+        if (r.id === referralId) {
+          return { ...r, patientName: newName };
+        }
+        return r;
+      });
+      setReferrals(updatedRefs);
+      saveReferrals(updatedRefs);
+
+      if (activeChannel.id === channelId) {
+        setActiveChannel((prev) => ({
+          ...prev,
+          name: newName.toUpperCase(),
+        }));
+      }
+    } else {
+      const updatedChannels = baseChannels.map((c) => {
+        if (c.id === channelId) {
+          return { ...c, name: newName };
+        }
+        return c;
+      });
+      setChannels(updatedChannels);
+      saveChannels(isDentist, updatedChannels as any);
+
+      if (activeChannel.id === channelId) {
+        setActiveChannel((prev) => ({
+          ...prev,
+          name: newName,
+        }));
+      }
+    }
+
+    triggerToast('Channel renamed successfully!');
+  };
+
   useEffect(() => {
     setDocPage(1);
   }, [docSearchQuery, activeChannel.id]);
@@ -1168,5 +1210,6 @@ export function usePrototypeChannelsState({
     setMessageToForward,
     isForwardMessageModalOpen,
     setIsForwardMessageModalOpen,
+    handleRenameChannel,
   };
 }
