@@ -87,6 +87,11 @@ export function ReferralActivitySidebar({
           const timeStr = timeParts[0] || '';
           const dateStr = timeParts[1] || '';
 
+          const isSystem = log.user.toLowerCase() === 'system';
+          const resolvedUser = log.user.toLowerCase() === 'administrator'
+            ? (typeof window !== 'undefined' && window.location.pathname.startsWith('/dentist') ? 'Dr. Taylor Reed' : 'Dr. Emma Smith')
+            : log.user;
+
           return (
             <div key={index} className={`grid grid-cols-[75px_1fr] gap-x-3 items-start ${isGrouped ? '!mt-2' : ''}`}>
               {/* Column 1: Date & Time */}
@@ -97,8 +102,8 @@ export function ReferralActivitySidebar({
 
               {/* Column 2: Author & Text */}
               <div className="space-y-0.5 min-w-0">
-                {!isGrouped && (
-                  <div className="text-[9px] font-black uppercase text-black">{log.user}</div>
+                {!isGrouped && !isSystem && (
+                  <div className="text-[9px] font-black uppercase text-black">{resolvedUser}</div>
                 )}
                 <div className={`text-[11px] leading-relaxed ${log.isDark ? 'text-black font-medium' : 'text-muted-foreground'}`}>
                   {log.text.includes(practiceName || 'unknown') && log.text.includes('received') ? (
