@@ -323,7 +323,9 @@ export default function ReferralsPage() {
           <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
             <FileText size={32} className="text-black shrink-0" />
             <div className="space-y-1">
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Received</p>
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
+                {isDentist ? 'Patients Referred' : 'Referrals Received'}
+              </p>
               <div className="flex items-center gap-2">
                 <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.receivedCount.toString().padStart(2, '0')}</span>
                 <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-green-700 bg-green-50 border border-green-200">
@@ -336,7 +338,9 @@ export default function ReferralsPage() {
           <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
             <Calendar size={32} className="text-black shrink-0" />
             <div className="space-y-1">
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Scheduled</p>
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
+                {isDentist ? 'Patients Scheduled' : 'Referrals Scheduled'}
+              </p>
               <div className="flex items-center gap-2">
                 <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.scheduledCount.toString().padStart(2, '0')}</span>
                 <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-green-700 bg-green-50 border border-green-200">
@@ -349,7 +353,9 @@ export default function ReferralsPage() {
           <div className="wireframe-card p-5 bg-white flex items-center gap-4 border-2 border-black hover:bg-zinc-50 transition-colors">
             <FileText size={32} className="text-black shrink-0" />
             <div className="space-y-1">
-              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referrals Released</p>
+              <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
+                {isDentist ? 'Patients Released' : 'Referrals Released'}
+              </p>
               <div className="flex items-center gap-2">
                 <span className="text-3xl font-bold tracking-tighter block leading-none">{stats.releasedCount.toString().padStart(2, '0')}</span>
                 <div className="flex items-center gap-0.5 text-[10px] font-bold px-1.5 py-0.5 text-red-700 bg-red-50 border border-red-200">
@@ -360,7 +366,9 @@ export default function ReferralsPage() {
             </div>
           </div>
           <div className="wireframe-card p-5 bg-white flex flex-col justify-between border-2 border-black hover:bg-zinc-50 transition-colors">
-            <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">Referred/Assigned To Doctor</p>
+            <p className="text-[9px] font-black uppercase text-muted-foreground tracking-wider">
+              {isDentist ? 'Referred By' : 'Referred/Assigned To Doctor'}
+            </p>
             <div className="relative mt-2">
               <select
                 id="page-doctor-filter"
