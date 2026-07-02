@@ -18,6 +18,7 @@ type ChannelConversationHeaderProps = {
   onOpenParticipants: () => void;
   onCompleteCare?: () => void;
   referralStatus?: ReferralStatus;
+  onRenameChannel?: (channelId: string, newName: string) => void;
 };
 
 export function ChannelConversationHeader({
@@ -31,8 +32,12 @@ export function ChannelConversationHeader({
   onOpenParticipants,
   onCompleteCare,
   referralStatus,
+  onRenameChannel,
 }: ChannelConversationHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
+  const [newChannelName, setNewChannelName] = useState('');
+  
   const isCaseChannel = activeChannel.id.startsWith('case_');
   const displayName = isCaseChannel || activeChannel.id !== '3' || isDentist
     ? activeChannel.name
@@ -114,6 +119,18 @@ export function ChannelConversationHeader({
                   >
                     Participants
                   </button>
+                  {onRenameChannel && (
+                    <button
+                      onClick={() => {
+                        setIsMenuOpen(false);
+                        setNewChannelName(activeChannel.name);
+                        setIsRenameModalOpen(true);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-black hover:text-white transition-all"
+                    >
+                      Rename Channel
+                    </button>
+                  )}
                   {(isCaseChannel || activeChannel.type === 'internal' || activeChannel.type === 'group') && (
                     <button
                       onClick={() => {
@@ -152,6 +169,50 @@ export function ChannelConversationHeader({
           >
             Documents
           </button>
+        </div>
+      )}
+
+      {isRenameModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white border-4 border-black p-6 max-w-sm w-full shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-black">
+            <h3 className="text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4">
+              Rename Channel
+            </h3>
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="rename-channel-input" className="text-[10px] font-black uppercase block mb-1">
+                  New Name
+                </label>
+                <input
+                  id="rename-channel-input"
+                  type="text"
+                  className="wireframe-input w-full p-2 text-xs font-bold border-2 border-black"
+                  value={newChannelName}
+                  onChange={(e) => setNewChannelName(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  onClick={() => setIsRenameModalOpen(false)}
+                  className="wireframe-button bg-white text-black px-4 py-2 border-2 border-black hover:bg-gray-100 font-bold uppercase text-[9px]"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    if (newChannelName.trim()) {
+                      onRenameChannel?.(activeChannel.id, newChannelName.trim());
+                      setIsRenameModalOpen(false);
+                    }
+                  }}
+                  className="wireframe-button bg-black text-white px-4 py-2 hover:bg-zinc-800 font-black uppercase text-[9px]"
+                >
+                  Rename
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </>

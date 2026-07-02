@@ -68,6 +68,7 @@ type ChannelContentPaneProps = {
   pinnedMessages?: string[];
   replyingToMessage?: MessageItem | null;
   onCancelReply?: () => void;
+  onRenameChannel?: (channelId: string, newName: string) => void;
 };
 
 export function ChannelContentPane({
@@ -121,6 +122,7 @@ export function ChannelContentPane({
   pinnedMessages = [],
   replyingToMessage = null,
   onCancelReply = () => {},
+  onRenameChannel,
 }: ChannelContentPaneProps) {
   const [showPinnedMenu, setShowPinnedMenu] = useState(false);
   const pinnedMenuRef = useRef<HTMLDivElement>(null);
@@ -163,6 +165,7 @@ export function ChannelContentPane({
         onArchiveCase={onArchiveCase}
         onOpenParticipants={onOpenParticipants}
         referralStatus={referralStatus}
+        onRenameChannel={onRenameChannel}
       />
 
       {(() => {
