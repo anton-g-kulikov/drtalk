@@ -292,6 +292,7 @@ export interface ConnectionRequest {
   fromSpecialty: string;
   fromLocation: string;
   sentAt: string; // ISO date string
+  direction?: 'incoming' | 'outgoing';
 }
 
 export const initialConnectionRequests: ConnectionRequest[] = [
@@ -302,6 +303,7 @@ export const initialConnectionRequests: ConnectionRequest[] = [
     fromSpecialty: 'General Dentistry',
     fromLocation: 'Phoenix, AZ',
     sentAt: '2026-06-29T14:30:00Z',
+    direction: 'incoming',
   },
   {
     id: 'cr-2',
@@ -310,6 +312,7 @@ export const initialConnectionRequests: ConnectionRequest[] = [
     fromSpecialty: 'Cosmetic Dentistry',
     fromLocation: 'Tempe, AZ',
     sentAt: '2026-06-30T08:15:00Z',
+    direction: 'incoming',
   },
   {
     id: 'cr-3',
@@ -318,6 +321,25 @@ export const initialConnectionRequests: ConnectionRequest[] = [
     fromSpecialty: 'General Dentistry',
     fromLocation: 'Chandler, AZ',
     sentAt: '2026-06-30T09:45:00Z',
+    direction: 'incoming',
+  },
+  {
+    id: 'cr-sent-1',
+    fromPracticeId: 'sp-4',
+    fromPracticeName: 'Desert Dental Implants',
+    fromSpecialty: 'Implantology',
+    fromLocation: 'Tempe, AZ',
+    sentAt: '2026-07-01T10:00:00Z',
+    direction: 'outgoing',
+  },
+  {
+    id: 'cr-sent-2',
+    fromPracticeId: 'sp-5',
+    fromPracticeName: 'Skyline Orthodontics',
+    fromSpecialty: 'Orthodontics',
+    fromLocation: 'Phoenix, AZ',
+    sentAt: '2026-07-01T15:30:00Z',
+    direction: 'outgoing',
   },
 ];
 
@@ -332,6 +354,11 @@ export function getConnectionRequests(): ConnectionRequest[] {
     const parsed = JSON.parse(stored);
     // Reset if using old dn-req-* practice IDs
     if (Array.isArray(parsed) && parsed.some(r => r.fromPracticeId.includes('req'))) {
+      localStorage.setItem('drtalk_connection_requests', JSON.stringify(initialConnectionRequests));
+      return initialConnectionRequests;
+    }
+    // Reset if missing the new sent requests
+    if (Array.isArray(parsed) && !parsed.some(r => r.direction === 'outgoing')) {
       localStorage.setItem('drtalk_connection_requests', JSON.stringify(initialConnectionRequests));
       return initialConnectionRequests;
     }
