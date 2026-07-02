@@ -391,7 +391,7 @@ export default function DentistDashboardPage() {
               referrals={paginatedReferrals.map((referral) => ({
                 id: referral.id,
                 patientName: referral.patientName,
-                sender: referral.sender || referral.dentist || 'Practice Team',
+                specialistDoctor: referral.specialistDoctor || 'Dr. Emma Smith',
                 specialist: referral.specialist,
                 code: getReferralCode(referral.id),
                 status: referral.status,
