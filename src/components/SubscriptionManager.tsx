@@ -1,131 +1,167 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSubscription } from './SubscriptionContext';
-import { Check, X, ShieldAlert, Zap, Globe, Users } from 'lucide-react';
+import { Check, X, Shield, Infinity, Send, MessageSquare, BarChart3, GraduationCap } from 'lucide-react';
 
-const PLANS = [
+const VALUE_PROPS = [
   {
-    id: 'Starter',
-    name: 'Starter',
-    tagline: 'Communication and referrals',
-    price: 'Free',
-    features: [
-      { icon: Users, text: 'Up to 10 team members' },
-      { icon: Globe, text: 'Up to 5 connected practices' }
-    ],
-    buttonText: 'Try for free'
+    icon: Infinity,
+    title: "No limits on growth",
+    desc: "Unlimited referrals and connections, so your network grows with you"
   },
   {
-    id: 'Pro',
-    name: 'Pro',
-    tagline: 'Recommended for small teams',
-    price: '$110',
-    priceSuffix: '/month',
-    badge: 'Best value',
-    features: [
-      { icon: Users, text: 'Unlimited team members' },
-      { icon: Globe, text: 'Unlimited connections' }
-    ],
-    buttonText: 'Upgrade'
+    icon: Shield,
+    title: "Nothing gets lost",
+    desc: "Unlimited history, fully HIPAA compliant and encrypted"
   },
   {
-    id: 'BusinessPlus',
-    name: 'Business plus',
-    tagline: 'For specialty practices',
-    price: '$299',
-    priceSuffix: '/month',
-    features: [
-      { icon: Users, text: 'Up to 3 providers' },
-      { icon: Zap, text: '$99/mo for each additional provider' }
-    ],
-    buttonText: 'Upgrade'
+    icon: Send,
+    title: "Refer in seconds",
+    desc: "Custom-branded referral pad built into your workflow"
+  },
+  {
+    icon: MessageSquare,
+    title: "Stay in the loop",
+    desc: "Chat, channels, and e-fax, on desktop or mobile"
+  },
+  {
+    icon: BarChart3,
+    title: "See what's working",
+    desc: "Referral reporting and trends across your network"
+  },
+  {
+    icon: GraduationCap,
+    title: "Keep learning",
+    desc: "Learning hub access for CE credits and mentorship"
   }
 ];
 
 export function SubscriptionManager() {
   const { showPaywall, setShowPaywall, setPlan, isTrialEnded, plan, daysRemaining } = useSubscription();
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
 
   if (!showPaywall) return null;
 
-  const handleSelectPlan = (planId: any) => {
-    setPlan(planId);
+  const handleSelectPlan = () => {
+    setPlan('Pro');
     setShowPaywall(false);
   };
 
+  const isCurrent = plan === 'Pro';
+
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center bg-white/95 backdrop-blur-md p-4 sm:p-8 overflow-y-auto">
-      <div className="w-full max-w-6xl space-y-12 py-12">
+      <div className="w-full max-w-4xl space-y-10 py-12">
         
+        {/* Close Button */}
+        <div className="flex justify-end max-w-2xl mx-auto">
+          <button 
+            onClick={() => setShowPaywall(false)}
+            className="p-2 border-2 border-black hover:bg-black hover:text-white transition-all shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-white"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
         {/* Header */}
-        <div className="text-center space-y-6 max-w-2xl mx-auto">
-          <h1 className="text-5xl sm:text-7xl font-black uppercase tracking-tighter italic leading-none">
-            {isTrialEnded ? 'Your trial has ended' : 'Choose your plan'}
+        <div className="text-center space-y-4 max-w-2xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tighter italic leading-none">
+            {isTrialEnded ? 'Your trial has ended' : 'Upgrade to Pro'}
           </h1>
-          <div className="space-y-2">
-            <p className="text-xs sm:text-sm text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
-              Choose the right plan to continue processing referrals and communicating with your network.
-            </p>
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest leading-relaxed">
+            Get unlimited access to referrals, connections, secure communication, and more.
+          </p>
+        </div>
+
+        {/* Billing Switcher */}
+        <div className="flex justify-center">
+          <div className="border-2 border-black p-1 bg-white inline-flex rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <button
+              onClick={() => setBillingPeriod('monthly')}
+              className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-wider transition-all rounded-none ${
+                billingPeriod === 'monthly'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingPeriod('annual')}
+              className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-wider transition-all rounded-none flex items-center gap-1.5 ${
+                billingPeriod === 'annual'
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-100'
+              }`}
+            >
+              <span>Annual</span>
+              <span className="text-[8px] bg-red-100 text-red-600 px-1.5 py-0.5 font-bold uppercase tracking-tight">
+                Save 15%
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Pricing Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PLANS.map((p) => {
-            const isCurrent = (p.id === 'Starter' && (plan === 'Trial' || plan === 'Starter'));
-            
-            return (
-              <div 
-                key={p.id} 
-                className={`wireframe-card p-10 bg-white flex flex-col space-y-8 relative transition-all hover:translate-y-[-4px] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] ${p.badge || isCurrent ? 'border-4 border-black' : 'border-2 border-black opacity-90'}`}
-              >
-                {p.badge && (
-                  <div className="absolute top-0 right-10 -translate-y-1/2 bg-black text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    {p.badge}
-                  </div>
-                )}
-                
-                {isCurrent && (
-                  <div className="absolute top-0 left-10 -translate-y-1/2 bg-black text-white px-4 py-1.5 text-[10px] font-black uppercase tracking-widest border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    Current Plan
-                  </div>
-                )}
-
-              <div className="space-y-2">
-                <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none">{p.name}</h3>
-                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{p.tagline}</p>
-              </div>
-
-              <div className="flex items-baseline gap-1">
-                <span className="text-6xl font-black tracking-tighter italic leading-none">{p.price}</span>
-                {p.priceSuffix && <span className="text-xs text-muted-foreground uppercase font-black">{p.priceSuffix}</span>}
-              </div>
-
-              <ul className="space-y-4 flex-grow pt-4">
-                {p.features.map((f, idx) => (
-                  <li key={idx} className="flex items-start gap-3">
-                    <f.icon size={16} className="shrink-0 mt-0.5" />
-                    <span className="text-[11px] uppercase font-bold leading-tight">{f.text}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <button 
-                onClick={() => handleSelectPlan(p.id)}
-                className={`w-full py-5 text-[11px] font-black uppercase tracking-[0.2em] transition-all border-4 border-black ${p.id === 'Pro' ? 'bg-black text-white hover:bg-white hover:text-black shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]' : 'bg-white text-black hover:bg-black hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]'}`}
-              >
-                {isCurrent 
-                  ? (isTrialEnded ? 'Trial Ended' : `Ends in ${daysRemaining} days`)
-                  : p.buttonText
-                }
-              </button>
+        {/* Main Grid: Card & Value Props side-by-side on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-start max-w-4xl mx-auto">
+          
+          {/* Left: Pricing Card */}
+          <div className="wireframe-card p-8 bg-white flex flex-col space-y-6 relative transition-all border-4 border-black shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] w-full">
+            <div className="absolute top-0 right-8 -translate-y-1/2 bg-black text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+              Best value
             </div>
-            );
-          })}
+
+            <div className="space-y-1">
+              <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none">Pro Plan</h3>
+              <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest">
+                {billingPeriod === 'monthly' ? 'Recommended for practices of all sizes' : 'Recommended for practices of all sizes (15% savings)'}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-0.5">
+              <div className="flex items-baseline gap-1">
+                <span className="text-5xl font-black tracking-tighter italic leading-none">
+                  {billingPeriod === 'monthly' ? '$199' : '$169'}
+                </span>
+                <span className="text-xs text-muted-foreground uppercase font-black">/month</span>
+              </div>
+              {billingPeriod === 'annual' && (
+                <span className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">
+                  Billed annually as $2,028/yr
+                </span>
+              )}
+            </div>
+
+            <button 
+              onClick={handleSelectPlan}
+              className="w-full py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all border-4 border-black bg-black text-white hover:bg-white hover:text-black shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)]"
+            >
+              {isCurrent ? 'Extend Subscription' : 'Upgrade to Pro'}
+            </button>
+          </div>
+
+          {/* Right: Value Props (All 6 Benefits, no Included in Pro header) */}
+          <div className="space-y-6 w-full">
+            <div className="grid grid-cols-1 gap-5">
+              {VALUE_PROPS.map((vp, index) => (
+                <div key={index} className="flex gap-4 items-start">
+                  <div className="p-2 border-2 border-black bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
+                    <vp.icon size={16} className="text-black" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <h4 className="text-[11px] font-black uppercase tracking-tight text-black">{vp.title}</h4>
+                    <p className="text-[9px] text-muted-foreground font-bold uppercase leading-tight">{vp.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
 
         {/* Footer / Cancel */}
-        <div className="text-center">
+        <div className="text-center pt-4">
           <button 
             onClick={() => setShowPaywall(false)}
             className="text-[10px] font-black uppercase underline tracking-[0.2em] opacity-50 hover:opacity-100 transition-all"
