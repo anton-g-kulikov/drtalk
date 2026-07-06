@@ -18,7 +18,13 @@ export interface UnrecognizedDocData {
 
 interface UnrecognizedSenderPageContentProps {
   doc: UnrecognizedDocData;
-  onConfirm: (values: { senderPractice: string; patientName: string; itemType: UnrecognizedItemType }) => void;
+  onConfirm: (values: {
+    senderPractice: string;
+    patientName: string;
+    itemType: UnrecognizedItemType;
+    email?: string;
+    phone?: string;
+  }) => void;
   onCancel: () => void;
 }
 
@@ -46,6 +52,8 @@ function guessPatientName(filename: string): string {
 export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: UnrecognizedSenderPageContentProps) {
   const [senderPractice, setSenderPractice] = useState('');
   const [practiceSearch, setPracticeSearch] = useState('');
+  const [practiceEmail, setPracticeEmail] = useState('');
+  const [practicePhone, setPracticePhone] = useState('');
   const [showPracticeDropdown, setShowPracticeDropdown] = useState(false);
   const [connectedPractices, setConnectedPractices] = useState<NetworkPractice[]>([]);
   const [patientName, setPatientName] = useState('');
@@ -84,7 +92,13 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
     if (!canSubmit) return;
     setSubmitted(true);
     setTimeout(() => {
-      onConfirm({ senderPractice: senderPractice.trim(), patientName: patientName.trim(), itemType });
+      onConfirm({
+        senderPractice: senderPractice.trim(),
+        patientName: patientName.trim(),
+        itemType,
+        email: !exactMatch && itemType !== 'spam' ? practiceEmail.trim() : undefined,
+        phone: !exactMatch && itemType !== 'spam' ? practicePhone.trim() : undefined,
+      });
     }, 900);
   };
 
@@ -256,6 +270,41 @@ export function UnrecognizedSenderPageContent({ doc, onConfirm, onCancel }: Unre
                 Enter the name of the sending practice to create or link a channel
               </p>
             </div>
+            
+            {/* If it's a new practice, show Email and Phone/Fax fields */}
+            {senderPractice && !exactMatch && itemType !== 'spam' && (
+              <div className="space-y-3 p-3 border-2 border-dashed border-black bg-zinc-50 animate-in fade-in duration-200">
+                <div className="text-[8px] font-black uppercase tracking-widest text-black mb-1">
+                  New Practice Contact Info
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="new-practice-email" className="text-[8px] font-black uppercase tracking-wider block text-black">
+                    Contact Email Address
+                  </label>
+                  <input
+                    id="new-practice-email"
+                    type="email"
+                    value={practiceEmail}
+                    onChange={(e) => setPracticeEmail(e.target.value)}
+                    placeholder="E.G. REFERRALS@PRACTICE.COM..."
+                    className="wireframe-input w-full p-2 text-[10px] uppercase text-black border-2 border-black bg-white outline-none focus:ring-0"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="new-practice-phone" className="text-[8px] font-black uppercase tracking-wider block text-black">
+                    Contact Phone / Fax Number
+                  </label>
+                  <input
+                    id="new-practice-phone"
+                    type="text"
+                    value={practicePhone}
+                    onChange={(e) => setPracticePhone(e.target.value)}
+                    placeholder="E.G. (602) 555-0100..."
+                    className="wireframe-input w-full p-2 text-[10px] uppercase text-black border-2 border-black bg-white outline-none focus:ring-0"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Patient name */}
             <div className={`space-y-1.5 transition-opacity duration-200 ${itemType === 'spam' ? 'opacity-40 pointer-events-none' : ''}`}>

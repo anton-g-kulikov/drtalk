@@ -16,6 +16,8 @@ export interface DashboardDocumentItem {
   isExternal?: boolean;
   transport?: 'Email' | 'Fax' | 'App';
   isUnrecognized?: boolean;
+  senderEmail?: string;
+  senderPhone?: string;
 }
 
 export interface DashboardDocumentChannelTransfer {
@@ -130,6 +132,8 @@ export function buildDashboardDocumentChannelTransfer({
           status: 'Connected' as const,
           verified: false,
           isExternal: true,
+          email: doc.senderEmail,
+          phone: doc.senderPhone || undefined,
         },
       ];
 

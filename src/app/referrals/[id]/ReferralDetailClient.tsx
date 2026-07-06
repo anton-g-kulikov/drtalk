@@ -281,7 +281,13 @@ export default function ReferralDetailClient({ id }: { id: string }) {
     setTimeout(() => setDownloadToast(null), 3000);
   };
 
-  const handleUnrecognizedConfirm = (values: { senderPractice: string; patientName: string; itemType: 'referral' | 'document' | 'spam' }) => {
+  const handleUnrecognizedConfirm = (values: {
+    senderPractice: string;
+    patientName: string;
+    itemType: 'referral' | 'document' | 'spam';
+    email?: string;
+    phone?: string;
+  }) => {
     if (!unrecognizedDoc) return;
 
     const storageKey = getDashboardStorageKey(unrecognizedRole);
@@ -384,6 +390,8 @@ export default function ReferralDetailClient({ id }: { id: string }) {
       isExternal: true,
       isUnrecognized: false,
       transport: unrecognizedDoc.transport,
+      senderEmail: values.email,
+      senderPhone: values.phone,
     };
     const transfer = buildDashboardDocumentChannelTransfer({
       doc: resolvedDoc,
