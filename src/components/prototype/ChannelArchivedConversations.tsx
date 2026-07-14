@@ -26,18 +26,24 @@ export function ChannelArchivedConversations({
 }: ChannelArchivedConversationsProps) {
   const title = channelType === 'group'
     ? 'Archived Direct Messages'
+    : channelType === 'patient'
+    ? 'Archived Patient Comms'
     : isInternal
     ? 'Archived Channels'
     : 'Archived Conversations';
 
   const subtitle = channelType === 'group'
     ? 'Re-activate any direct message to resume communication'
+    : channelType === 'patient'
+    ? 'Re-activate any patient channel to resume communication'
     : isInternal
     ? 'Re-activate any internal channel to resume communication'
     : 'Re-activate any per-case channel to resume communication';
 
   const emptyText = channelType === 'group'
     ? 'No archived direct messages.'
+    : channelType === 'patient'
+    ? 'No archived patient channels.'
     : isInternal
     ? 'No archived internal channels.'
     : 'No archived conversations for this practice.';
@@ -70,6 +76,8 @@ export function ChannelArchivedConversations({
                         ? 'Direct Message'
                         : conversation.type === 'internal'
                         ? 'Internal Channel'
+                        : conversation.type === 'patient'
+                        ? 'Patient Channel'
                         : `Case ID: ${conversation.id.replace('case_', '')}`}
                     </p>
                   </div>

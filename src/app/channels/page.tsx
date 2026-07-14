@@ -490,6 +490,20 @@ function ChannelsContent() {
                   type: 'group',
                 }));
             }
+            if (actType === 'archive_patient') {
+              return channelsState.channels
+                .filter((c) => c.type === 'patient' && c.isArchived)
+                .map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                  patientName: '',
+                  practiceId: '',
+                  referralId: '',
+                  isArchived: true,
+                  lastMessage: c.lastMessage || '',
+                  type: 'patient',
+                }));
+            }
             if (actType === 'archive_cases') {
               const parentId = (channelsState.activeChannel as any).parentId;
               return channelsState.caseChannels

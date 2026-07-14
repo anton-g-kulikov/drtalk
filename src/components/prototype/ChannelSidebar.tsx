@@ -182,6 +182,7 @@ export function ChannelSidebar({
 }: ChannelSidebarProps) {
   const archivedInternalCount = (channels || []).filter((c) => c.type === 'internal' && c.isArchived).length;
   const archivedGroupCount = (channels || []).filter((c) => c.type === 'group' && c.isArchived).length;
+  const archivedPatientCount = (channels || []).filter((c) => c.type === 'patient' && c.isArchived).length;
 
   return (
     <div className={`${showChannelList ? 'fixed inset-0 z-50' : 'hidden'} lg:relative lg:flex lg:w-80 border-r-2 border-black flex-col bg-white overflow-hidden`}>
@@ -553,6 +554,21 @@ export function ChannelSidebar({
                   onClick={() => onSelectChannel(channel)}
                 />
               ))}
+              {archivedPatientCount > 0 && (
+                <button
+                  onClick={() => onSelectChannel({ id: 'archive_patient', name: 'Archived Patient Comms', type: 'archive_patient', memberCount: archivedPatientCount } as any)}
+                  className={`w-full flex items-center justify-between py-1.5 px-3 text-left transition-all ${
+                    activeChannelId === 'archive_patient'
+                      ? 'bg-black text-white font-black'
+                      : 'hover:bg-gray-100 text-muted-foreground hover:text-black font-bold'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <Folder size={12} className={activeChannelId === 'archive_patient' ? 'text-white' : 'text-black'} />
+                    <span className="text-[10px] uppercase tracking-tight truncate">Archived Patient Comms ({archivedPatientCount})</span>
+                  </div>
+                </button>
+              )}
             </div>
           </>
         </ChannelSidebarSection>

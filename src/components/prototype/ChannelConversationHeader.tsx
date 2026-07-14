@@ -90,7 +90,7 @@ export function ChannelConversationHeader({
             ) : (
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[8px] text-muted-foreground uppercase font-black">
-                  {activeChannel.memberCount} Archived {activeChannel.type === 'archive_internal' ? 'Channels' : activeChannel.type === 'archive_group' ? 'Groups' : 'Cases'}
+                  {activeChannel.memberCount} Archived {activeChannel.type === 'archive_internal' ? 'Channels' : activeChannel.type === 'archive_group' ? 'Groups' : activeChannel.type === 'archive_patient' ? 'Patient Comms' : 'Cases'}
                 </span>
               </div>
             )}
@@ -131,7 +131,7 @@ export function ChannelConversationHeader({
                       Rename Channel
                     </button>
                   )}
-                  {(isCaseChannel || activeChannel.type === 'internal' || activeChannel.type === 'group') && (
+                  {(isCaseChannel || activeChannel.type === 'internal' || activeChannel.type === 'group' || activeChannel.type === 'patient') && (
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);

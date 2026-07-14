@@ -147,10 +147,12 @@ export function ChannelContentPane({
     activeChannel.type === 'archive_internal' ||
     activeChannel.type === 'archive_group' ||
     activeChannel.type === 'archive_cases' ||
+    activeChannel.type === 'archive_patient' ||
     (activeTab === 'archived' && (
       (activeChannel.type === 'inter-practice' && !activeChannel.id.startsWith('case_')) ||
       activeChannel.type === 'internal' ||
-      activeChannel.type === 'group'
+      activeChannel.type === 'group' ||
+      activeChannel.type === 'patient'
     ));
 
   return (
@@ -227,6 +229,8 @@ export function ChannelContentPane({
               ? 'internal'
               : activeChannel.type === 'archive_group'
               ? 'group'
+              : activeChannel.type === 'archive_patient'
+              ? 'patient'
               : activeChannel.type === 'archive_cases'
               ? 'case'
               : activeChannel.type

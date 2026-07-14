@@ -1059,12 +1059,18 @@ export function usePrototypeChannelsState({
     },
     onSendNewDocument: () => onNavigate(isDentist ? '/dentist/dashboard/send-document' : '/dashboard/send-document'),
     onArchiveCase: () => {
-      if (activeChannel.type === 'internal' || activeChannel.type === 'group') {
+      if (activeChannel.type === 'internal' || activeChannel.type === 'group' || activeChannel.type === 'patient') {
         const updatedChannels = baseChannels.map((c) =>
           c.id === activeChannel.id ? { ...c, isArchived: true } : c
         );
         setChannels(updatedChannels);
-        triggerToast(`Archived ${activeChannel.type === 'group' ? 'direct message' : 'internal channel'} "${activeChannel.name}"!`);
+        saveChannels(isDentist, updatedChannels as any);
+        
+        let typeLabel = 'internal channel';
+        if (activeChannel.type === 'group') typeLabel = 'direct message';
+        else if (activeChannel.type === 'patient') typeLabel = 'patient channel';
+        
+        triggerToast(`Archived ${typeLabel} "${activeChannel.name}"!`);
         const nextChannel = updatedChannels.find((c) => c.type === activeChannel.type && !c.isArchived) ||
                             updatedChannels.find((c) => !c.isArchived);
         if (nextChannel) {
@@ -1090,13 +1096,19 @@ export function usePrototypeChannelsState({
     onReactivateArchived: (conversationId: string) => {
       const archivedCase = caseChannels.find((caseChannel) => caseChannel.id === conversationId);
       if (!archivedCase) {
-        const archivedChan = baseChannels.find((c) => c.id === conversationId && (c.type === 'internal' || c.type === 'group'));
+        const archivedChan = baseChannels.find((c) => c.id === conversationId && (c.type === 'internal' || c.type === 'group' || c.type === 'patient'));
         if (archivedChan) {
           const updatedChannels = baseChannels.map((c) =>
             c.id === conversationId ? { ...c, isArchived: false } : c
           );
           setChannels(updatedChannels);
-          triggerToast(`Re-activated ${archivedChan.type === 'group' ? 'direct message' : 'internal channel'} "${archivedChan.name}"!`);
+          saveChannels(isDentist, updatedChannels as any);
+          
+          let typeLabel = 'internal channel';
+          if (archivedChan.type === 'group') typeLabel = 'direct message';
+          else if (archivedChan.type === 'patient') typeLabel = 'patient channel';
+          
+          triggerToast(`Re-activated ${typeLabel} "${archivedChan.name}"!`);
           setActiveChannel({ ...archivedChan, isArchived: false });
           setActiveTab('messages');
         }

@@ -1,4 +1,4 @@
-export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group' | 'archive_internal' | 'archive_group' | 'archive_cases';
+export type ChannelType = 'internal' | 'inter-practice' | 'patient' | 'public' | 'group' | 'archive_internal' | 'archive_group' | 'archive_cases' | 'archive_patient';
 
 export interface Channel {
   id: string;
