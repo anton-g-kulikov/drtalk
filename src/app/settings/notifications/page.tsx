@@ -172,7 +172,7 @@ export default function NotificationsPage() {
                         <p className="text-[10px] text-muted-foreground uppercase">
                           {isDentist 
                             ? 'Configure "Referral Sent" confirmation for the patient' 
-                            : 'Configure "Intake Received" alert for the patient'}
+                            : 'Configure "Referral Accepted" alert for the patient'}
                         </p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
