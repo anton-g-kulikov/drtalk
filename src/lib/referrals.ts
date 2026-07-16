@@ -478,6 +478,11 @@ export function getMessages(): Record<string, any[]> {
     try {
       const parsed = JSON.parse(stored);
       if (parsed && parsed['case_D-9001']) {
+        // Migrate legacy welcome message in local storage to the new copy
+        if (parsed['4'] && parsed['4'][0] && parsed['4'][0].text.includes('Welcome to Sunshine Dental! To help us communicate')) {
+          parsed['4'][0].text = mockData.messages['4'][0].text;
+          localStorage.setItem('drtalk_messages', JSON.stringify(parsed));
+        }
         return parsed;
       }
     } catch (e) {

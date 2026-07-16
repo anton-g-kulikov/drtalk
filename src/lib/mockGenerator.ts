@@ -859,7 +859,7 @@ export function generateMockData() {
     {
       id: 'm4_0',
       user: 'Me',
-      text: 'Welcome to Sunshine Dental! To help us communicate about your care, appointments, and important health information, may we contact you via SMS/text message? Standard messaging rates may apply.\n\nPlease reply with:\n• Full Name:\n• Date of Birth (MM/DD/YYYY):\n\nReply YES to consent to SMS communication, or NO to decline.',
+      text: 'Welcome to Sunshine Dental! By continuing this conversation, you consent to communicate with our office via text message. Message and data rates may apply.\n\nTo best assist you, please reply with your:\n·       Full Name\n·       Date of Birth (MM/DD/YYYY)\n\nPlease do not use text messaging for urgent matters. If you are experiencing a medical emergency, call 911 immediately or go to the nearest emergency room.\n\nWe look forward to assisting you and will respond to your message as soon as possible during regular business hours.\n\nYou may reply STOP at any time to opt out.',
       time: '11:15 AM',
       type: 'self',
       transport: 'SMS'
