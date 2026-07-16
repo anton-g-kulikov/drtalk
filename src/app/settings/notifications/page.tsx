@@ -74,7 +74,7 @@ export default function NotificationsPage() {
                 </h3>
                 <p className="text-[10px] text-muted-foreground uppercase">
                   {isDentist 
-                    ? 'System actions triggered when your practice sends a referral'
+                    ? 'System actions triggered when your practice sends a referral (you can change this behavior for each case in the referral form)'
                     : 'System actions triggered when you process an incoming referral'}
                 </p>
               </div>
@@ -168,7 +168,9 @@ export default function NotificationsPage() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between border-2 border-black p-3 bg-gray-50 hover:bg-gray-100 transition-colors">
                       <div>
-                        <p className="text-xs font-bold uppercase">Patient</p>
+                        <p className="text-xs font-bold uppercase">
+                          {isDentist ? 'Case Sent Notification' : 'Case Accepted Notification'}
+                        </p>
                         <p className="text-[10px] text-muted-foreground uppercase">
                           {isDentist 
                             ? 'Configure "Referral Sent" confirmation for the patient' 
