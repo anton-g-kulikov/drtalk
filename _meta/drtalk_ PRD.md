@@ -494,11 +494,38 @@ Patient notification settings should be organized around the two patient-facing 
 
 #  **8\. Learning Hub And Public/Educational Channels**
 
-TBD
+*drtalk should provide a central space for professional networking, clinical case sharing, and paid or free continuing dental education.*
+
+## **Onboarding and User Roles**
 
 * Onboarding must support an Individual Learning Hub path that allows educational-content access without requiring practice creation.  
-* Any drtalk account can access public Learning Hub content.  
-* Private channels may require invitation, payment, membership approval, or identity verification depending on the channel owner settings.
+* Individual Learners should be able to upgrade, create, or join a practice at any time from their dashboard.
+* Individual Learners are not required to complete professional verification by default, unless attempting to access channels that mandate it.
+* Practice Owners and Practice Admins should be able to create, configure, and host educational channels.
+
+## **Channel Access and Settings**
+
+* Any registered user should be able to access public Learning Hub content.
+* Private channels may require invitation, payment subscription, membership approval, or identity verification depending on the channel creator settings.
+* Channel creators should be able to define channel category tags (e.g., Study Group, Virtual MRP, Case Study) to organize and filter content.
+
+## **Monetization and Stripe Setup**
+
+* Channel creators should be able to charge a recurring subscription fee for premium educational channels.
+* Channel creators must connect a payment processing account to receive subscription payouts.
+* Monetized subscriptions must automatically calculate and deduct platform fees and transaction fees from the total charge before payout.
+* Users must complete subscription payment workflows successfully before gaining access to monetized channel content.
+
+## **Continuing Education (CE) Credits**
+
+* Channel creators should be able to designate channels as eligible for Continuing Education (CE) credits and specify the number of credit hours.
+* The system should track participation or completion status for users in CE-eligible channels to support certificate generation.
+
+## **Channel Content and Discussions**
+
+* Channel creators should be able to restrict posting permissions (e.g., host-only posts vs. all-member posts).
+* Channel discussions must support creating topics, commenting, and attachment of clinical documents and media.
+* Members should be able to view, like, and download shared files within channels they have joined.
 
 # 
 

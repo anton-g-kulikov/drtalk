@@ -22,6 +22,7 @@ type DentistSentReferralsSectionProps = {
   onPageChange: (page: number) => void;
   onReferralClick: (id: string) => void;
   onViewAll: () => void;
+  allPatientsReceived?: boolean;
 };
 
 export function DentistSentReferralsSection({
@@ -34,6 +35,7 @@ export function DentistSentReferralsSection({
   onPageChange,
   onReferralClick,
   onViewAll,
+  allPatientsReceived = false,
 }: DentistSentReferralsSectionProps) {
   return (
     <div className="space-y-6">
@@ -54,41 +56,57 @@ export function DentistSentReferralsSection({
       </div>
 
       <div className="space-y-3">
-        {referrals.map((referral) => (
-          <div
-            key={referral.id}
-            className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer text-black"
-            onClick={() => onReferralClick(referral.id)}
-          >
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-              <div className="md:col-span-4">
-                <div className="flex items-center gap-2">
-                  <p className="text-xs font-black uppercase">{referral.patientName}</p>
-                  {referral.urgency === 'Urgent' && (
-                    <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
-                  )}
-                  {referral.urgency === 'Emergency' && (
-                    <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
-                  )}
+        {allPatientsReceived ? (
+          <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black flex flex-col items-center justify-center gap-3">
+            <span>All referred patients have been received</span>
+            <button
+              onClick={onViewAll}
+              className="wireframe-button border-2 border-black bg-black text-white px-4 py-2 hover:bg-white hover:text-black transition-all font-black uppercase text-[10px]"
+            >
+              Go to Patients Section to Track Them
+            </button>
+          </div>
+        ) : referrals.length === 0 ? (
+          <div className="wireframe-card p-6 text-center text-muted-foreground uppercase text-[10px] font-bold bg-gray-50 border-dashed border-2 border-black">
+            No referred patients found
+          </div>
+        ) : (
+          referrals.map((referral) => (
+            <div
+              key={referral.id}
+              className="wireframe-card p-4 hover:bg-gray-50 transition-all cursor-pointer text-black"
+              onClick={() => onReferralClick(referral.id)}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div className="md:col-span-4">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-black uppercase">{referral.patientName}</p>
+                    {referral.urgency === 'Urgent' && (
+                      <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Urgent</span>
+                    )}
+                    {referral.urgency === 'Emergency' && (
+                      <span className="bg-red-100 text-red-900 border border-red-300 text-[8px] font-black uppercase px-1 py-0.5 rounded-sm shrink-0">Emergency</span>
+                    )}
+                  </div>
+                  <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.code}</p>
                 </div>
-                <p className="text-[8px] uppercase text-muted-foreground font-bold">{referral.code}</p>
-              </div>
-              <div className="md:col-span-4">
-                <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
-                <p className="text-[9px] uppercase font-bold text-muted-foreground">Referred to: {referral.specialistDoctor}</p>
-              </div>
-              <div className="md:col-span-2">
-                <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
-                  {referral.status}
-                </span>
-              </div>
-              <div className="md:col-span-2 flex items-center justify-end gap-2 text-muted-foreground">
-                <span className="text-[9px] uppercase font-bold whitespace-pre-line text-right">{referral.lastUpdate}</span>
-                <ArrowUpRight size={14} />
+                <div className="md:col-span-4">
+                  <p className="text-[10px] uppercase font-black">{referral.specialist}</p>
+                  <p className="text-[9px] uppercase font-bold text-muted-foreground">Referred to: {referral.specialistDoctor}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <span className="inline-block border border-black px-2 py-1 text-[8px] uppercase font-black">
+                    {referral.status}
+                  </span>
+                </div>
+                <div className="md:col-span-2 flex items-center justify-end gap-2 text-muted-foreground">
+                  <span className="text-[9px] uppercase font-bold whitespace-pre-line text-right">{referral.lastUpdate}</span>
+                  <ArrowUpRight size={14} />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {totalPages > 1 && (

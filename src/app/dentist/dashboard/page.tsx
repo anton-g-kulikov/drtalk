@@ -239,10 +239,12 @@ export default function DentistDashboardPage() {
 
   const filteredDocs = React.useMemo(() => {
     const list = activeInboxTab === 'inbox' ? documents : archivedDocuments;
-    return list.filter(d => 
-      d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
-      d.sender.toLowerCase().includes(docSearchQuery.toLowerCase())
-    );
+    return list
+      .filter(d => !d.isUnrecognized)
+      .filter(d => 
+        d.name.toLowerCase().includes(docSearchQuery.toLowerCase()) ||
+        d.sender.toLowerCase().includes(docSearchQuery.toLowerCase())
+      );
   }, [documents, archivedDocuments, activeInboxTab, docSearchQuery]);
 
   const DOCS_PER_PAGE = 5;
@@ -301,7 +303,9 @@ export default function DentistDashboardPage() {
     }, 6000);
   };
 
-  const filteredReferrals = sentReferrals.filter((referral) =>
+  const sentOnlyReferrals = sentReferrals.filter(r => r.status === 'Sent');
+
+  const filteredReferrals = sentOnlyReferrals.filter((referral) =>
     referral.patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     referral.specialist.toLowerCase().includes(searchQuery.toLowerCase()) ||
     referral.type.toLowerCase().includes(searchQuery.toLowerCase())
@@ -347,8 +351,8 @@ export default function DentistDashboardPage() {
           {/* Main Action Area */}
           <div className="lg:col-span-8 space-y-8">
             <PrototypeDocumentSection
-              inboxCount={documents.length}
-              spamCount={archivedDocuments.length}
+              inboxCount={documents.filter(d => !d.isUnrecognized).length}
+              spamCount={archivedDocuments.filter(d => !d.isUnrecognized).length}
               activeTab={activeInboxTab}
               onTabChange={setActiveInboxTab}
               searchQuery={docSearchQuery}
@@ -388,6 +392,7 @@ export default function DentistDashboardPage() {
             <DentistSentReferralsSection
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
+              allPatientsReceived={sentOnlyReferrals.length === 0}
               referrals={paginatedReferrals.map((referral) => ({
                 id: referral.id,
                 patientName: referral.patientName,
