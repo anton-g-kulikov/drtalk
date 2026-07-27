@@ -28,7 +28,7 @@ export default function SettingsPage() {
   const sections = [
     { icon: User, label: 'Practice Profile', desc: 'Manage practice details, locations, and clinical specialties.', href: isDentist ? '/dentist/settings/profile' : '/settings/profile' },
     ...(!isDentist ? [{ icon: Inbox, label: 'Referral Intake', desc: 'Configure and copy credentials for inbound email, eFax, and public referral link.', href: '/settings/intake' }] : []),
-    { icon: Bell, label: isDentist ? 'Patient (Referral) Notifications' : 'Referral Notifications', desc: 'Configure intake alerts for dentists, staff, and patients.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
+    { icon: Bell, label: 'Notifications', desc: 'Configure alerts and routing for patients, internal staff, and billing.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
     ...(!isDentist ? [{ icon: CreditCard, label: 'Subscription', desc: 'View subscription status for referral processing.', href: '/settings/subscription' }] : []),
   ];
