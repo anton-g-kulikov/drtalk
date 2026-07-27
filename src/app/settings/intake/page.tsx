@@ -23,6 +23,22 @@ export default function ReferralIntakePage() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
+  // External routing toggles with persistence
+  const [secureEmailNonUsers, setSecureEmailNonUsers] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('drtalk_intake_secure_email');
+      return stored !== 'false';
+    }
+    return true;
+  });
+  const [faxBackExternal, setFaxBackExternal] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('drtalk_intake_fax_back');
+      return stored !== 'false';
+    }
+    return true;
+  });
+
   // Upload template states
   const [uploadedFile, setUploadedFile] = useState<{ name: string; size: string; uploadedAt: string } | null>({
     name: "valley_dental_referral_sheet_v2.pdf",
@@ -39,6 +55,18 @@ export default function ReferralIntakePage() {
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
+  };
+
+  const handleToggleSecureEmail = (val: boolean) => {
+    setSecureEmailNonUsers(val);
+    localStorage.setItem('drtalk_intake_secure_email', String(val));
+    showToast(`Secure Email Link ${val ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleToggleFaxBack = (val: boolean) => {
+    setFaxBackExternal(val);
+    localStorage.setItem('drtalk_intake_fax_back', String(val));
+    showToast(`Fax-Back Confirmation ${val ? 'enabled' : 'disabled'}`);
   };
 
   const handleCopy = (value: string, fieldName: string) => {
@@ -273,6 +301,63 @@ export default function ReferralIntakePage() {
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          {/* External Routing (Non-User Senders) */}
+          <div className="wireframe-card p-6 space-y-6 bg-white w-full">
+            <div className="flex items-center gap-3 border-b-2 border-black pb-4">
+              <FileText size={20} />
+              <div>
+                <h3 className="font-bold uppercase tracking-tight text-sm">Non-User Senders & External Routing</h3>
+                <p className="text-[9px] text-muted-foreground uppercase">Configure responses for external practitioners</p>
+              </div>
+            </div>
+
+            <div className="space-y-6 divide-y-2 divide-black divide-dashed">
+              {/* Secure Email Link */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pb-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest">Secure Email Link</p>
+                  <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Encrypted</span>
+                </div>
+                <div className="lg:col-span-2 flex items-center justify-between gap-4">
+                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal max-w-lg">
+                    Deliver incoming processed referrals to external recipients via an encrypted link requiring verification codes.
+                  </p>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={secureEmailNonUsers} 
+                      onChange={(e) => handleToggleSecureEmail(e.target.checked)} 
+                    />
+                    <div className="w-9 h-5 bg-white border-2 border-black relative transition-colors peer-checked:bg-black after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black peer-checked:after:bg-white after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-[14px]"></div>
+                  </label>
+                </div>
+              </div>
+
+              {/* Fax-Back Transport */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center pt-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest">Fax-Back Confirmation</p>
+                  <span className="inline-block text-[8px] font-bold text-gray-500 uppercase tracking-widest bg-gray-200 px-1.5 py-0.5 rounded">Receipts</span>
+                </div>
+                <div className="lg:col-span-2 flex items-center justify-between gap-4">
+                  <p className="text-[9px] uppercase font-bold text-muted-foreground leading-normal max-w-lg">
+                    Automatically fax a receipt confirmation back to external practices when their intake referral is processed.
+                  </p>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={faxBackExternal} 
+                      onChange={(e) => handleToggleFaxBack(e.target.checked)} 
+                    />
+                    <div className="w-9 h-5 bg-white border-2 border-black relative transition-colors peer-checked:bg-black after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black peer-checked:after:bg-white after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-[14px]"></div>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
 
