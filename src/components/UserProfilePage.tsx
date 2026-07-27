@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { ArrowLeft, User, Paperclip, Trash2, X } from 'lucide-react';
+import { ArrowLeft, User, Paperclip, Trash2, X, Bell, Mail, Phone, MessageSquare } from 'lucide-react';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 
@@ -14,6 +14,12 @@ interface UserProfile {
   smsNotifications: boolean;
   email: string;
   avatarUrl: string | null;
+  
+  // Personal notification preferences
+  pushDirectMessages: boolean;
+  pushChannelPosts: boolean;
+  pushMentionsComments: boolean;
+  dailyEmailDigest: boolean;
 }
 
 export function UserProfilePage() {
@@ -30,7 +36,11 @@ export function UserProfilePage() {
     mobile: '',
     smsNotifications: false,
     email: '',
-    avatarUrl: null
+    avatarUrl: null,
+    pushDirectMessages: true,
+    pushChannelPosts: true,
+    pushMentionsComments: true,
+    dailyEmailDigest: true
   });
 
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
@@ -44,7 +54,13 @@ export function UserProfilePage() {
       try {
         const parsed = JSON.parse(stored);
         setTimeout(() => {
-          setProfile(parsed);
+          setProfile({
+            pushDirectMessages: true,
+            pushChannelPosts: true,
+            pushMentionsComments: true,
+            dailyEmailDigest: true,
+            ...parsed
+          });
         }, 0);
       } catch (e) {
         console.error(e);
@@ -59,7 +75,11 @@ export function UserProfilePage() {
           mobile: '',
           smsNotifications: false,
           email: isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com',
-          avatarUrl: null
+          avatarUrl: null,
+          pushDirectMessages: true,
+          pushChannelPosts: true,
+          pushMentionsComments: true,
+          dailyEmailDigest: true
         });
       }, 0);
     }
@@ -90,7 +110,7 @@ export function UserProfilePage() {
     localStorage.setItem(storageKey, JSON.stringify(profile));
     // Dispatch event to notify Header
     window.dispatchEvent(new Event('drtalk-profile-updated'));
-    showToast("Profile details updated successfully.");
+    showToast("Profile details and personal notification preferences saved.");
   };
 
   // Avatar initials helper
@@ -160,7 +180,7 @@ export function UserProfilePage() {
 
   return (
     <MainLayout title="User Profile">
-      <div className="max-w-4xl mx-auto space-y-8 animate-fade-in">
+      <div className="max-w-4xl mx-auto space-y-8 pb-12 animate-fade-in">
         
         {/* Navigation & Header */}
         <div className="space-y-4">
@@ -174,7 +194,7 @@ export function UserProfilePage() {
 
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
-              User Profile
+              User Profile & Settings
             </h2>
             <CommentMarker
               id="user-profile-settings"
@@ -183,7 +203,7 @@ export function UserProfilePage() {
             />
           </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-            Manage your personal profile details and security contacts
+            Manage your personal profile details and notification preferences
           </p>
         </div>
 
@@ -222,7 +242,7 @@ export function UserProfilePage() {
             </div>
           </div>
 
-          <form onSubmit={handleSave} className="space-y-6">
+          <form onSubmit={handleSave} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* First Name */}
               <div className="space-y-1">
@@ -260,34 +280,8 @@ export function UserProfilePage() {
                 />
               </div>
 
-              {/* Mobile for SMS */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest">Mobile For SMS Reminder</label>
-                <input
-                  type="tel"
-                  placeholder="(555) 555-5555"
-                  value={profile.mobile}
-                  onChange={(e) => handleInputChange('mobile', e.target.value)}
-                  className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
-                />
-              </div>
-
-              {/* SMS Reminder Notifications Checkbox */}
-              <div className="flex items-center gap-3 md:pt-6">
-                <input
-                  type="checkbox"
-                  id="smsNotifications"
-                  checked={profile.smsNotifications}
-                  onChange={(e) => handleInputChange('smsNotifications', e.target.checked)}
-                  className="w-5 h-5 border-2 border-black checked:bg-black checked:border-black cursor-pointer"
-                />
-                <label htmlFor="smsNotifications" className="text-[10px] font-black uppercase tracking-widest cursor-pointer select-none">
-                  SMS Reminder Notifications
-                </label>
-              </div>
-
               {/* Email */}
-              <div className="space-y-1 md:col-span-2">
+              <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-widest"><span className="text-red-500">*</span>Email</label>
                 <input
                   type="email"
@@ -296,6 +290,114 @@ export function UserProfilePage() {
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
                 />
+              </div>
+            </div>
+
+            {/* Personal Notifications Section */}
+            <div className="border-2 border-black p-5 space-y-6 bg-gray-50">
+              <div className="flex items-center gap-2 border-b border-black border-dashed pb-3">
+                <Bell size={18} />
+                <h4 className="text-xs font-black uppercase tracking-wider">Personal Notification Preferences</h4>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Column 1: Real-Time Mobile Push Alerts */}
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1.5">
+                    <MessageSquare size={12} /> Mobile Push Notifications
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={profile.pushDirectMessages} 
+                        onChange={(e) => handleInputChange('pushDirectMessages', e.target.checked)}
+                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold uppercase block">Direct & Group Chats</span>
+                        <span className="text-[8px] text-muted-foreground uppercase block">When someone sends you a message or file</span>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={profile.pushChannelPosts} 
+                        onChange={(e) => handleInputChange('pushChannelPosts', e.target.checked)}
+                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold uppercase block">Internal & Practice Channels</span>
+                        <span className="text-[8px] text-muted-foreground uppercase block">When new posts or messages are published in shared channels</span>
+                      </div>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={profile.pushMentionsComments} 
+                        onChange={(e) => handleInputChange('pushMentionsComments', e.target.checked)}
+                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold uppercase block">Mentions & Comments</span>
+                        <span className="text-[8px] text-muted-foreground uppercase block">When you are @mentioned or a reply is posted</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Column 2: Offline & Out-of-Office Reminders */}
+                <div className="space-y-4">
+                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1.5">
+                    <Mail size={12} /> Offline Reminders
+                  </p>
+
+                  <div className="space-y-4">
+                    {/* Daily unread posts digest */}
+                    <label className="flex items-start gap-3 cursor-pointer">
+                      <input 
+                        type="checkbox" 
+                        checked={profile.dailyEmailDigest} 
+                        onChange={(e) => handleInputChange('dailyEmailDigest', e.target.checked)}
+                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                      />
+                      <div>
+                        <span className="text-[10px] font-bold uppercase block">Daily Email Activity Digest</span>
+                        <span className="text-[8px] text-muted-foreground uppercase block">Summary of unread posts and channels when away</span>
+                      </div>
+                    </label>
+
+                    {/* Mobile SMS reminders */}
+                    <div className="border-t border-black border-dashed pt-4 space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[9px] font-black uppercase tracking-widest">Mobile Number For SMS Reminders</label>
+                        <input
+                          type="tel"
+                          placeholder="(555) 555-5555"
+                          value={profile.mobile}
+                          onChange={(e) => handleInputChange('mobile', e.target.value)}
+                          className="wireframe-input py-2 px-3 text-xs font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
+                        />
+                      </div>
+
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={profile.smsNotifications}
+                          onChange={(e) => handleInputChange('smsNotifications', e.target.checked)}
+                          className="w-4 h-4 border-2 border-black rounded-none accent-black"
+                        />
+                        <div>
+                          <span className="text-[10px] font-bold uppercase block">Enable SMS Text Reminders</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">Receive text warnings for critical unread office messages</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -311,7 +413,7 @@ export function UserProfilePage() {
                 type="submit"
                 className="bg-black text-white px-8 py-3 text-xs font-bold uppercase hover:bg-gray-800 transition-colors border-2 border-black"
               >
-                Update
+                Update & Save
               </button>
             </div>
           </form>
