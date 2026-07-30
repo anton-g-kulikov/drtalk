@@ -10,7 +10,8 @@ import {
   CheckCircle2 as CheckCircle2Icon,
   UserPlus as UserPlusIcon,
   ArrowRightLeft as ArrowRightLeftIcon,
-  Lock as LockIcon
+  Lock as LockIcon,
+  Key as KeyIcon
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
@@ -306,7 +307,16 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                         >
                           Edit Member
                         </button>
-                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-black">
+                        <button 
+                          onClick={() => {
+                            setOpenMenuId(null);
+                            showToast(`Password reset link & temporary password sent to ${member.email}`);
+                          }}
+                          className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 border-t-2 border-black"
+                        >
+                          <KeyIcon size={14} /> Reset Password
+                        </button>
+                        <button className="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-black hover:text-white flex items-center gap-2 text-black border-t-2 border-black">
                           Remove Member
                         </button>
                       </div>
