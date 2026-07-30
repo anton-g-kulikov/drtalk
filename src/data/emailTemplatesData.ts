@@ -1,4 +1,3 @@
-import { LOGO_PRIMARY_BASE64, LOGO_WHITE_BASE64, LOGO_PURPLE_BASE64 } from "@/lib/logoAssets";
 export interface EmailTemplateItem {
   id: string;
   sectionNumber: string;
@@ -27,9 +26,8 @@ const COMMON_CSS = `
   .email-container { max-width: 580px; margin: 24px auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #dedce5; box-shadow: 0 8px 30px rgba(54, 22, 82, 0.08); }
   .content { padding: 40px 36px; font-size: 15px; line-height: 1.6; color: #5d5c61; }
   .logo-header { text-align: center; margin-bottom: 28px; }
-  .logo-img { height: 42px; width: auto; display: inline-block; border: 0; outline: none; }
-  .logo-badge-row { margin-top: 10px; text-align: center; }
-  .logo-badge { display: inline-block; height: 26px; line-height: 26px; padding: 0 14px; background: rgba(54, 22, 82, 0.08); color: #361652; border-radius: 13px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; box-sizing: border-box; }
+  .logo-text { font-size: 34px; font-weight: 900; color: #361652; tracking: -0.03em; margin: 0; display: inline-block; }
+  .logo-text span.dr { color: #873bb7; }
   .title { font-size: 26px; font-weight: 800; color: #361652; margin-top: 0; margin-bottom: 20px; letter-spacing: -0.025em; }
   .purple { color: #361652; font-weight: 700; }
   .blue { color: #873bb7; font-weight: 700; }
@@ -69,7 +67,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Welcome to drtalk, Alex Morgan!</h2>
       <p><strong>Dr. Sarah Jenkins</strong> has added you to the team at <span class="purple">Valley Dental Clinic</span> on drtalk.</p>
@@ -102,15 +100,15 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 </html>`
   },
   {
-    id: '1.1-2-verify-email',
-    sectionNumber: '1.1.2',
+    id: '1.1-2a-verify-email',
+    sectionNumber: '1.1.2a',
     category: '1.1',
     categoryLabel: '1.1 Account, onboarding, and access',
-    trigger: 'Verify email',
+    trigger: 'Verify email (Standard Link)',
     audience: 'New or updating user',
     subject: 'Verify your email',
     templateFile: 'EmailVerification.cshtml',
-    summary: 'Verification prompt/link or verification code flow to confirm user email address.',
+    summary: 'Verification prompt link flow to confirm user email address.',
     plainText: `Hello Alex Morgan,\n\nWe just need to confirm your email address to complete your drtalk account setup.\n\nPlease click here to verify: https://drtalk.com/verify?code=948123`,
     htmlContent: `
 <!DOCTYPE html>
@@ -120,7 +118,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Verify your email address</h2>
       <p>Hello Alex Morgan,</p>
@@ -131,6 +129,42 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       </div>
 
       <p style="text-align: center;">Once verified, please sign in to finish setting up your practice channels.</p>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.1-2b-web-signup-verification',
+    sectionNumber: '1.1.2b',
+    category: '1.1',
+    categoryLabel: '1.1 Account, onboarding, and access',
+    trigger: 'Verify email (Web Signup Flow)',
+    audience: 'New web signup user',
+    subject: 'Welcome to drtalk - Please verify your email',
+    templateFile: 'EmailWebSignupVerification.cshtml',
+    summary: 'Web signup email verification with direct confirmation button and support contact.',
+    plainText: `Welcome to drtalk! Please verify your email address to activate your new practice account.\nVerification Link: https://drtalk.com/verify-web?code=883192`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
+      <h2 class="title">Welcome to drtalk</h2>
+      <p>Thank you for creating your drtalk account for <strong>Valley Dental Clinic</strong>.</p>
+      <p>Please confirm your email address to start connecting with partner practices and managing patient referrals securely.</p>
+
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="#" class="btn-primary">Confirm Email & Start Setup</a>
+      </div>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
@@ -157,9 +191,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
       <p>We received a request to reset your password for your drtalk account.</p>
@@ -199,9 +230,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
       <p>We received a request to reset your password for your drtalk account.</p>
@@ -241,7 +269,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Setup Your Practice Team</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
@@ -278,7 +306,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title" style="color: #361652;">Welcome to drtalk!</h2>
       <p>Congratulations, Alex! Your onboarding is complete and your practice environment is active.</p>
@@ -322,8 +350,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-        <div class="logo-badge-row"><span class="logo-badge" style="background: rgba(5, 150, 105, 0.1); color: #059669;">Identity Verified ✓</span></div>
+        <h1 class="logo-text" style="color: #059669;">Identity Verified ✓</h1>
       </div>
       <h2 class="title">Identity Verified</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
@@ -358,9 +385,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Your drtalk account has been deleted</h2>
       <p>Hello Alex Morgan,</p>
       <p>This email confirms that your drtalk account for <strong>alex.morgan@valleydental.com</strong> has been permanently removed from our system.</p>
@@ -396,7 +420,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Connect with Apex Endodontics</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
@@ -418,8 +442,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 </html>`
   },
   {
-    id: '1.2-2-new-practice-invite',
-    sectionNumber: '1.2.2',
+    id: '1.2-2a-new-practice-invite',
+    sectionNumber: '1.2.2a',
     category: '1.2',
     categoryLabel: '1.2 Practice connection and network',
     trigger: 'New practice invitation',
@@ -436,7 +460,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Invitation from Valley Dental Clinic for drtalk</h2>
       <p>Hello,</p>
@@ -444,6 +468,46 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 
       <div style="text-align: center; margin: 30px 0;">
         <a href="#" class="btn-primary">Accept & Create Account</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.2-2b-new-practice-message-invite',
+    sectionNumber: '1.2.2b',
+    category: '1.2',
+    categoryLabel: '1.2 Practice connection and network',
+    trigger: 'New practice invitation with custom message',
+    audience: 'External recipient',
+    subject: 'Dr. Sarah Jenkins sent you a message on drtalk',
+    templateFile: 'EmailInvitationToOtherPracticesWithMessage.cshtml',
+    summary: 'Invitation sent to an external practice containing a custom personal note/message.',
+    plainText: `Dr. Sarah Jenkins from Valley Dental Clinic sent you a note: "Hi Dr. Vance, let's share endo referrals via drtalk!"`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
+      <h2 class="title">Dr. Sarah Jenkins sent you a message on drtalk</h2>
+      <p>Hello <strong>Dr. Mark Vance</strong>,</p>
+      
+      <div class="info-card">
+        <p style="font-style: italic; color: #361652;">"Hi Dr. Vance, we're transitioning our endodontic patient referrals to drtalk for instant HIPAA-compliant file transfers. Would love to connect our practices!"</p>
+        <p style="font-size: 12px; color: #8d8a99; margin-top: 8px;">— Dr. Sarah Jenkins (Valley Dental Clinic)</p>
+      </div>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn-primary">View Message & Connect</a>
       </div>
     </div>
     <div class="footer">
@@ -471,9 +535,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">drtalk invitation accepted</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p><strong>Apex Endodontics</strong> has accepted your invitation to connect on drtalk.</p>
@@ -507,9 +568,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Declined: connection request</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p><strong>Apex Endodontics</strong> has declined your practice connection request on drtalk.</p>
@@ -539,9 +597,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Declined: connection request for the new practice</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p>The invite to connect sent to <strong>Horizon Dental</strong> was declined.</p>
@@ -572,7 +627,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
       </div>
       <h2 class="title">Dr. Michael Chang wants to connect with you on drtalk</h2>
       <p>Hello Alex Morgan,</p>
@@ -607,9 +662,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Dr. Michael Chang accepted your connection request</h2>
       <p>Hello Alex Morgan,</p>
       <p><strong>Dr. Michael Chang</strong> has accepted your individual connection request on drtalk.</p>
@@ -648,8 +700,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-        <div class="logo-badge-row"><span class="logo-badge">Patient Portal</span></div>
+        <h1 class="logo-text"><span class="dr">dr</span>talk Patient Portal</h1>
       </div>
       <h2 class="title">Valley Dental Clinic has sent you a copy of your Referral Letter</h2>
       <p>Dear <strong>John Doe</strong>,</p>
@@ -689,9 +740,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
       <p><strong>Valley Dental Clinic</strong> has transmitted a HIPAA-compliant secure document to you via drtalk.</p>
@@ -745,15 +793,15 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 </html>`
   },
   {
-    id: '1.3-4-referral-sent-notice',
-    sectionNumber: '1.3.4',
+    id: '1.3-4a-referral-sent-notice',
+    sectionNumber: '1.3.4a',
     category: '1.3',
     categoryLabel: '1.3 Referral, document, and secure message flows',
-    trigger: 'Referral sent confirmation',
+    trigger: 'Referral sent confirmation notice',
     audience: 'Recipient practice/contact',
     subject: 'Referral Confirmation',
     templateFile: 'ReferralSentNotice.cshtml',
-    summary: 'Confirms referral/document has been sent to specialist practice.',
+    summary: 'Email notice confirming referral/document has been transmitted to specialist practice.',
     plainText: `Referral Confirmation:\nValley Dental Clinic has submitted a new patient referral for John Doe.`,
     htmlContent: `
 <!DOCTYPE html>
@@ -763,8 +811,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-        <div class="logo-badge-row"><span class="logo-badge">Referrals</span></div>
+        <h1 class="logo-text"><span class="dr">dr</span>talk Referrals</h1>
       </div>
       <h2 class="title">Referral Confirmation</h2>
       <p>Hello <strong>Apex Endodontics</strong>,</p>
@@ -781,6 +828,68 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.3-4b-referral-letter-document',
+    sectionNumber: '1.3.4b',
+    category: '1.3',
+    categoryLabel: '1.3 Referral, document, and secure message flows',
+    trigger: 'Formal Referral Letter Document',
+    audience: 'Recipient Specialist Practice',
+    subject: 'Referral Letter from Valley Dental Clinic',
+    templateFile: 'ReferralLetter.cshtml',
+    summary: 'Full formal clinical referral letter document detailing patient info, clinical notes, digital signature timestamp, and attached radiographs.',
+    plainText: `REFERRAL LETTER\nFrom: Valley Dental Clinic (Dr. Sarah Jenkins)\nTo: Apex Endodontics (Dr. Mark Vance)\nPatient: John Doe\nNotes: Patient presenting with severe pulpitis tooth #14. Please evaluate for RCT.\nDigital signature made at 10:42 AM 05/14/2026.`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <div style="display: flex; justify-content: space-between; border-b: 2px solid #dedce5; pb-3; margin-bottom: 20px;">
+        <div>
+          <h2 className="title" style="margin: 0; color: #361652; font-size: 24px;">Referral Letter</h2>
+          <p style="margin: 0; font-size: 13px; color: #8d8a99;">Date: May 14, 2026</p>
+        </div>
+        <div style="text-align: right;">
+          <p style="margin: 0; font-weight: 700; color: #361652;">Valley Dental Clinic</p>
+          <p style="margin: 0; font-size: 13px; color: #5d5c61;">Dr. Sarah Jenkins</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <p><strong>Patient Name:</strong> John Doe (DOB: 05/14/1982)</p>
+        <p><strong>To Specialist:</strong> Dr. Mark Vance (Apex Endodontics)</p>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <p><strong>Clinical Notes & Chief Complaint:</strong></p>
+        <p style="background: #faf8f5; padding: 16px; border-radius: 12px; border: 1px solid #dedce5; color: #361652;">
+          Patient presents with acute irreversible pulpitis tooth #14. Thermal testing positive with prolonged lingering pain. Radiographs show periapical radiolucency. Please evaluate and perform endodontic treatment as needed.
+        </p>
+      </div>
+
+      <div style="margin: 20px 0;">
+        <p><strong>Attachments Sent (2 Files):</strong></p>
+        <p style="font-size: 13px; color: #361652;">📷 <code>tooth14_periapical_xray.png</code> (Radiograph)</p>
+        <p style="font-size: 13px; color: #361652;">📄 <code>medical_history_johndoe.pdf</code> (Patient History)</p>
+      </div>
+
+      <div style="font-size: 11px; color: #8d8a99; text-align: center; border-t: 1px solid #dedce5; pt-3; margin-top: 24px;">
+        Digital signature recorded at 10:42 AM 05/14/2026 (NPI #1982741928)
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <a href="#" class="btn-primary">Download Formal PDF</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk HIPAA Referral System.</p>
     </div>
   </div>
 </body>
@@ -804,9 +913,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
       <p>You have a new document delivery from <strong>Valley Dental Clinic</strong>.</p>
@@ -827,8 +933,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   // 1.4 Billing, trial, and operational emails
   // ==========================================
   {
-    id: '1.4-1-invoice',
-    sectionNumber: '1.4.1',
+    id: '1.4-1a-invoice',
+    sectionNumber: '1.4.1a',
     category: '1.4',
     categoryLabel: '1.4 Billing, trial, and operational emails',
     trigger: 'Invoice',
@@ -844,9 +950,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Your invoice is attached</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
       <p>Your drtalk subscription invoice for this billing cycle is attached to this email.</p>
@@ -869,8 +972,47 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 </html>`
   },
   {
-    id: '1.4-2-payment-failure',
-    sectionNumber: '1.4.2',
+    id: '1.4-1b-payment-receipt',
+    sectionNumber: '1.4.1b',
+    category: '1.4',
+    categoryLabel: '1.4 Billing, trial, and operational emails',
+    trigger: 'Stripe Payment Receipt',
+    audience: 'Billing user',
+    subject: 'Receipt for your drtalk subscription',
+    templateFile: 'EmailStripeReceipt.cshtml',
+    summary: 'Payment confirmation receipt containing payment method and itemized breakdown.',
+    plainText: `Receipt from drtalk Inc. Amount Paid: $149.00. Card: Visa ending in 4242.`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <h2 class="title">Receipt for your drtalk subscription</h2>
+      <p>Hello <strong>Valley Dental Clinic</strong>,</p>
+      <p>Thank you for your payment. Here is your payment receipt summary:</p>
+
+      <div class="info-card">
+        <p><strong>Amount Paid:</strong> $149.00 USD</p>
+        <p><strong>Payment Method:</strong> Visa ending in 4242</p>
+        <p><strong>Date:</strong> May 1, 2026</p>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="#" class="btn-primary">Download Receipt PDF</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk Billing.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.4-2a-payment-failure',
+    sectionNumber: '1.4.2a',
     category: '1.4',
     categoryLabel: '1.4 Billing, trial, and operational emails',
     trigger: 'Invoice payment failure',
@@ -886,9 +1028,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title" style="color: #DC2626;">Invoice Payment Failed</h2>
       <p>Hello Valley Dental Clinic,</p>
       <p>We were unable to process your monthly drtalk payment of <strong>$149.00</strong> on card ending in 4242.</p>
@@ -899,6 +1038,40 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk Billing Support.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.4-2b-card-expiration-warning',
+    sectionNumber: '1.4.2b',
+    category: '1.4',
+    categoryLabel: '1.4 Billing, trial, and operational emails',
+    trigger: 'Payment Card Expiration Alert',
+    audience: 'Billing user',
+    subject: 'Your payment card is about to expire',
+    templateFile: 'EmailCardExpiry.cshtml',
+    summary: 'Proactive reminder sent 30 days before stored payment card expires.',
+    plainText: `Reminder: Your credit card ending in 4242 expires next month. Please update your payment method.`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <h2 class="title">Your payment card is about to expire</h2>
+      <p>Hello Valley Dental Clinic,</p>
+      <p>Our records show your <strong>Visa ending in 4242</strong> will expire at the end of this month.</p>
+      <p>To ensure uninterrupted inter-office chat and referral services, please update your billing card.</p>
+
+      <div style="text-align: center;">
+        <a href="#" class="btn-primary">Update Payment Card</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk Billing Team.</p>
     </div>
   </div>
 </body>
@@ -922,9 +1095,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Subscription Trial Will End Soon</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p>Your 14-day free trial for <strong>Valley Dental Clinic</strong> ends in 3 days.</p>
@@ -958,9 +1128,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Subscription Has Been Changed</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
       <p>This email confirms that your subscription plan has been updated to <strong>Practice Pro (10 seats)</strong>.</p>
@@ -990,9 +1157,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">New User Registered for drtalk</h2>
       <p>A new user has completed registration on drtalk:</p>
 
@@ -1027,9 +1191,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Update on drtalk Access Issues — Platform Secure and Fully Intact</h2>
       <p>Dear drtalk Community,</p>
       <p>All core infrastructure services have returned to 100% operational status.</p>
@@ -1060,8 +1221,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-        <div class="logo-badge-row"><span class="logo-badge">Product Update</span></div>
+        <h1 class="logo-text"><span class="dr">dr</span>talk Product Update</h1>
       </div>
       <h2 class="title">drtalk Product update - Identity Verification</h2>
       <p>Hello drtalk Users,</p>
@@ -1092,9 +1252,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">drtalk request for a manual user verification request</h2>
       <p>A manual practitioner verification request has been submitted:</p>
       
@@ -1110,6 +1267,78 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk Support Desk.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.4-9-organization-request',
+    sectionNumber: '1.4.9',
+    category: '1.4',
+    categoryLabel: '1.4 Billing, trial, and operational emails',
+    trigger: 'New practice creation request alert',
+    audience: 'Super Admin',
+    subject: 'New practice request for drtalk',
+    templateFile: 'EmailOrganizationRequest.cshtml',
+    summary: 'Administrative alert when a user submits a request to add or claim a practice on drtalk.',
+    plainText: `New practice request submitted for Valley Dental Clinic by Dr. Sarah Jenkins.`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <h2 class="title">New practice request for drtalk</h2>
+      <p>Hello Administrator,</p>
+      <p>A practitioner has submitted a new practice registration request:</p>
+      
+      <div class="info-card">
+        <p><strong>Practice Name:</strong> Valley Dental Clinic</p>
+        <p><strong>Requestor:</strong> Dr. Sarah Jenkins (dr.jenkins@valleydental.com)</p>
+        <p><strong>NPI #:</strong> 1982741928</p>
+      </div>
+
+      <div style="text-align: center;">
+        <a href="#" class="btn-primary">Approve Practice Request</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk Admin System.</p>
+    </div>
+  </div>
+</body>
+</html>`
+  },
+  {
+    id: '1.4-10-patient-transfer-request',
+    sectionNumber: '1.4.10',
+    category: '1.4',
+    categoryLabel: '1.4 Billing, trial, and operational emails',
+    trigger: 'Patient transfer request between practices',
+    audience: 'Target practice user',
+    subject: 'Patient Transfer Request',
+    templateFile: 'ConnectAPatientToANewPracticeRequest.cshtml',
+    summary: 'Request sent to a connected practice when transferring patient records.',
+    plainText: `Valley Dental Clinic has requested to transfer patient records for John Doe to your practice.`,
+    htmlContent: `
+<!DOCTYPE html>
+<html>
+<head><style>${COMMON_CSS}</style></head>
+<body>
+  <div class="email-container">
+    <div class="content">
+      <h2 class="title">Patient Transfer Request</h2>
+      <p>Hello <strong>Apex Endodontics</strong>,</p>
+      <p><strong>Valley Dental Clinic</strong> has requested to transfer patient records for <strong>John Doe</strong> to your practice.</p>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="#" class="btn-primary">Review & Accept Transfer</a>
+      </div>
+    </div>
+    <div class="footer">
+      <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -1138,8 +1367,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-        <div class="logo-badge-row"><span class="logo-badge">Digest</span></div>
+        <h1 class="logo-text"><span class="dr">dr</span>talk Digest</h1>
       </div>
       <h2 class="title">Unopened items in drtalk</h2>
       <p>Hello <strong>Alex Morgan</strong>,</p>
@@ -1176,9 +1404,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">New users for the past 24 hours</h2>
       <p>Hello Administrator,</p>
       <p>Summary of platform activity over the last 24 hours:</p>
@@ -1215,9 +1440,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
-      <div class="logo-header">
-        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
-      </div>
       <h2 class="title">Weekly new users report</h2>
       <p>Hello Administrator,</p>
       <p>Summary of platform onboarding activity for this past week:</p>
