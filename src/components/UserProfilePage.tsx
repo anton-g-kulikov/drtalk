@@ -15,10 +15,22 @@ interface UserProfile {
   email: string;
   avatarUrl: string | null;
   
-  // Personal notification preferences
+  // Personal notification preferences matrix
   pushDirectMessages: boolean;
-  pushChannelPosts: boolean;
+  emailDirectMessages: boolean;
+
+  pushInOfficeChannels: boolean;
+  emailInOfficeChannels: boolean;
+
+  pushConnectedPractices: boolean;
+  emailConnectedPractices: boolean;
+
   pushMentionsComments: boolean;
+  emailMentionsComments: boolean;
+
+  pushPatientCommunication: boolean;
+  emailPatientCommunication: boolean;
+
   dailyEmailDigest: boolean;
 }
 
@@ -38,8 +50,15 @@ export function UserProfilePage() {
     email: '',
     avatarUrl: null,
     pushDirectMessages: true,
-    pushChannelPosts: true,
+    emailDirectMessages: true,
+    pushInOfficeChannels: true,
+    emailInOfficeChannels: false,
+    pushConnectedPractices: true,
+    emailConnectedPractices: true,
     pushMentionsComments: true,
+    emailMentionsComments: true,
+    pushPatientCommunication: true,
+    emailPatientCommunication: false,
     dailyEmailDigest: true
   });
 
@@ -56,8 +75,15 @@ export function UserProfilePage() {
         setTimeout(() => {
           setProfile({
             pushDirectMessages: true,
-            pushChannelPosts: true,
+            emailDirectMessages: true,
+            pushInOfficeChannels: true,
+            emailInOfficeChannels: false,
+            pushConnectedPractices: true,
+            emailConnectedPractices: true,
             pushMentionsComments: true,
+            emailMentionsComments: true,
+            pushPatientCommunication: true,
+            emailPatientCommunication: false,
             dailyEmailDigest: true,
             ...parsed
           });
@@ -77,8 +103,15 @@ export function UserProfilePage() {
           email: isDentist ? 'taylor@sunshine.dental' : 'john.doe@valleyendo.com',
           avatarUrl: null,
           pushDirectMessages: true,
-          pushChannelPosts: true,
+          emailDirectMessages: true,
+          pushInOfficeChannels: true,
+          emailInOfficeChannels: false,
+          pushConnectedPractices: true,
+          emailConnectedPractices: true,
           pushMentionsComments: true,
+          emailMentionsComments: true,
+          pushPatientCommunication: true,
+          emailPatientCommunication: false,
           dailyEmailDigest: true
         });
       }, 0);
@@ -295,107 +328,194 @@ export function UserProfilePage() {
 
             {/* Personal Notifications Section */}
             <div className="border-2 border-black p-5 space-y-6 bg-gray-50">
-              <div className="flex items-center gap-2 border-b border-black border-dashed pb-3">
-                <Bell size={18} />
-                <h4 className="text-xs font-black uppercase tracking-wider">Personal Notification Preferences</h4>
+              <div className="flex items-center justify-between border-b border-black border-dashed pb-3">
+                <div className="flex items-center gap-2">
+                  <Bell size={18} />
+                  <h4 className="text-xs font-black uppercase tracking-wider">Personal Notification Preferences</h4>
+                </div>
+                <span className="text-[9px] text-muted-foreground uppercase font-bold">Configure Push & Email Alerts</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Column 1: Real-Time Mobile Push Alerts */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1.5">
-                    <MessageSquare size={12} /> Mobile Push Notifications
-                  </p>
-                  
-                  <div className="space-y-3">
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={profile.pushDirectMessages} 
-                        onChange={(e) => handleInputChange('pushDirectMessages', e.target.checked)}
-                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
-                      />
-                      <div>
-                        <span className="text-[10px] font-bold uppercase block">Direct & Group Chats</span>
-                        <span className="text-[8px] text-muted-foreground uppercase block">When someone sends you a message or file</span>
-                      </div>
-                    </label>
+              {/* Category Matrix */}
+              <div className="space-y-4">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b-2 border-black text-[9px] font-black uppercase text-muted-foreground">
+                        <th className="pb-2 pl-1">Category & Activity</th>
+                        <th className="pb-2 text-center w-24">
+                          <span className="flex items-center justify-center gap-1"><MessageSquare size={10} /> Push</span>
+                        </th>
+                        <th className="pb-2 text-center w-24">
+                          <span className="flex items-center justify-center gap-1"><Mail size={10} /> Email</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y border-black divide-dashed text-[10px]">
+                      {/* Direct Messages */}
+                      <tr className="hover:bg-gray-100/50">
+                        <td className="py-3 pl-1">
+                          <span className="font-bold uppercase block text-black">Direct Messages</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">When someone sends you a direct message or file attachment</span>
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushDirectMessages} 
+                            onChange={(e) => handleInputChange('pushDirectMessages', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailDirectMessages} 
+                            onChange={(e) => handleInputChange('emailDirectMessages', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                      </tr>
 
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={profile.pushChannelPosts} 
-                        onChange={(e) => handleInputChange('pushChannelPosts', e.target.checked)}
-                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
-                      />
-                      <div>
-                        <span className="text-[10px] font-bold uppercase block">Internal & Practice Channels</span>
-                        <span className="text-[8px] text-muted-foreground uppercase block">When new posts or messages are published in shared channels</span>
-                      </div>
-                    </label>
+                      {/* In Office Channels */}
+                      <tr className="hover:bg-gray-100/50">
+                        <td className="py-3 pl-1">
+                          <span className="font-bold uppercase block text-black">In Office Channels</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">When new posts or messages are published in internal practice channels</span>
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushInOfficeChannels} 
+                            onChange={(e) => handleInputChange('pushInOfficeChannels', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailInOfficeChannels} 
+                            onChange={(e) => handleInputChange('emailInOfficeChannels', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                      </tr>
 
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={profile.pushMentionsComments} 
-                        onChange={(e) => handleInputChange('pushMentionsComments', e.target.checked)}
-                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
-                      />
-                      <div>
-                        <span className="text-[10px] font-bold uppercase block">Mentions & Comments</span>
-                        <span className="text-[8px] text-muted-foreground uppercase block">When you are @mentioned or a reply is posted</span>
-                      </div>
-                    </label>
-                  </div>
+                      {/* Connected Practices */}
+                      <tr className="hover:bg-gray-100/50">
+                        <td className="py-3 pl-1">
+                          <span className="font-bold uppercase block text-black">Connected Practices</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">Updates, requests, and activity from connected partner practices</span>
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushConnectedPractices} 
+                            onChange={(e) => handleInputChange('pushConnectedPractices', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailConnectedPractices} 
+                            onChange={(e) => handleInputChange('emailConnectedPractices', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                      </tr>
+
+                      {/* Mentions & Comments */}
+                      <tr className="hover:bg-gray-100/50">
+                        <td className="py-3 pl-1">
+                          <span className="font-bold uppercase block text-black">Mentions & Comments</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">When you are @mentioned, replied to, or notified in discussions & Learning Hub</span>
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushMentionsComments} 
+                            onChange={(e) => handleInputChange('pushMentionsComments', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailMentionsComments} 
+                            onChange={(e) => handleInputChange('emailMentionsComments', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                      </tr>
+
+                      {/* Patient Communication */}
+                      <tr className="hover:bg-gray-100/50">
+                        <td className="py-3 pl-1">
+                          <span className="font-bold uppercase block text-black">Patient Communication</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">Direct updates and message alerts regarding patient channels</span>
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.pushPatientCommunication} 
+                            onChange={(e) => handleInputChange('pushPatientCommunication', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                        <td className="py-3 text-center align-middle">
+                          <input 
+                            type="checkbox" 
+                            checked={profile.emailPatientCommunication} 
+                            onChange={(e) => handleInputChange('emailPatientCommunication', e.target.checked)}
+                            className="w-4 h-4 border-2 border-black rounded-none accent-black cursor-pointer" 
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
 
-                {/* Column 2: Offline & Out-of-Office Reminders */}
-                <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase text-muted-foreground tracking-wider flex items-center gap-1.5">
-                    <Mail size={12} /> Offline Reminders
-                  </p>
+                {/* Secondary Preferences: Digest & SMS */}
+                <div className="pt-4 border-t border-black border-dashed grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Daily Email Digest */}
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={profile.dailyEmailDigest} 
+                      onChange={(e) => handleInputChange('dailyEmailDigest', e.target.checked)}
+                      className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                    />
+                    <div>
+                      <span className="text-[10px] font-bold uppercase block">Daily Email Activity Digest</span>
+                      <span className="text-[8px] text-muted-foreground uppercase block">Consolidated email summary of unread activity when away</span>
+                    </div>
+                  </label>
 
-                  <div className="space-y-4">
-                    {/* Daily unread posts digest */}
-                    <label className="flex items-start gap-3 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={profile.dailyEmailDigest} 
-                        onChange={(e) => handleInputChange('dailyEmailDigest', e.target.checked)}
-                        className="w-4 h-4 border-2 border-black rounded-none accent-black mt-0.5" 
+                  {/* SMS Reminders */}
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[9px] font-black uppercase tracking-widest">Mobile Number For SMS Reminders</label>
+                      <input
+                        type="tel"
+                        placeholder="(555) 555-5555"
+                        value={profile.mobile}
+                        onChange={(e) => handleInputChange('mobile', e.target.value)}
+                        className="wireframe-input py-2 px-3 text-xs font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
+                      />
+                    </div>
+
+                    <label className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={profile.smsNotifications}
+                        onChange={(e) => handleInputChange('smsNotifications', e.target.checked)}
+                        className="w-4 h-4 border-2 border-black rounded-none accent-black"
                       />
                       <div>
-                        <span className="text-[10px] font-bold uppercase block">Daily Email Activity Digest</span>
-                        <span className="text-[8px] text-muted-foreground uppercase block">Summary of unread posts and channels when away</span>
+                        <span className="text-[10px] font-bold uppercase block">Enable SMS Text Reminders</span>
+                        <span className="text-[8px] text-muted-foreground uppercase block">Receive text warnings for critical unread office messages</span>
                       </div>
                     </label>
-
-                    {/* Mobile SMS reminders */}
-                    <div className="border-t border-black border-dashed pt-4 space-y-3">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-black uppercase tracking-widest">Mobile Number For SMS Reminders</label>
-                        <input
-                          type="tel"
-                          placeholder="(555) 555-5555"
-                          value={profile.mobile}
-                          onChange={(e) => handleInputChange('mobile', e.target.value)}
-                          className="wireframe-input py-2 px-3 text-xs font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
-                        />
-                      </div>
-
-                      <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={profile.smsNotifications}
-                          onChange={(e) => handleInputChange('smsNotifications', e.target.checked)}
-                          className="w-4 h-4 border-2 border-black rounded-none accent-black"
-                        />
-                        <div>
-                          <span className="text-[10px] font-bold uppercase block">Enable SMS Text Reminders</span>
-                          <span className="text-[8px] text-muted-foreground uppercase block">Receive text warnings for critical unread office messages</span>
-                        </div>
-                      </label>
-                    </div>
                   </div>
                 </div>
               </div>

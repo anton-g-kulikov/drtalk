@@ -10,22 +10,8 @@ export default function NotificationsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const isDentist = pathname.includes('/dentist');
-  
+
   // Practice Referral Notification States
-  const [staffInApp, setStaffInApp] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_pref_staff_inapp');
-      return stored !== 'false';
-    }
-    return true;
-  });
-  const [staffEmail, setStaffEmail] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_pref_staff_email');
-      return stored !== 'false';
-    }
-    return true;
-  });
   const [patientEmail, setPatientEmail] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('drtalk_pref_patient_email');
@@ -40,20 +26,21 @@ export default function NotificationsPage() {
     }
     return true;
   });
-  // Safety Delay
-  const [delayEnabled, setDelayEnabled] = useState(() => {
+
+  // Team Referral Alerts (Push and Email separately)
+  const [referralPushAlerts, setReferralPushAlerts] = useState(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_pref_delay_enabled');
+      const stored = localStorage.getItem('drtalk_pref_referral_push');
       return stored !== 'false';
     }
     return true;
   });
-  const [delayMinutes, setDelayMinutes] = useState(() => {
+  const [referralEmailAlerts, setReferralEmailAlerts] = useState(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_pref_delay_minutes');
-      return stored ? Number(stored) : 5;
+      const stored = localStorage.getItem('drtalk_pref_referral_email');
+      return stored !== 'false';
     }
-    return 5;
+    return true;
   });
 
   // Practice Admin & Billing Settings
@@ -78,14 +65,12 @@ export default function NotificationsPage() {
     }
     return true;
   });
-
-  // Internal routing channel selector
-  const [selectedInternalChannel, setSelectedInternalChannel] = useState(() => {
+  const [connectedPracticeEmail, setConnectedPracticeEmail] = useState(() => {
     if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('drtalk_pref_internal_channel');
-      return stored || 'team-members';
+      const stored = localStorage.getItem('drtalk_pref_connected_practice_email');
+      return stored !== 'false';
     }
-    return 'team-members';
+    return true;
   });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -110,34 +95,18 @@ export default function NotificationsPage() {
     showToast(`Patient SMS Alerts ${val ? 'enabled' : 'disabled'}`);
   };
 
-  const handleToggleDelay = (val: boolean) => {
-    setDelayEnabled(val);
-    localStorage.setItem('drtalk_pref_delay_enabled', String(val));
-    showToast(`Safety Delay Hold ${val ? 'enabled' : 'disabled'}`);
+  const handleToggleReferralPush = (val: boolean) => {
+    setReferralPushAlerts(val);
+    localStorage.setItem('drtalk_pref_referral_push', String(val));
+    const label = isDentist ? 'Released Patients Push Alerts' : 'New Referral Push Alerts';
+    showToast(`${label} ${val ? 'enabled' : 'disabled'}`);
   };
 
-  const handleSelectDelayMinutes = (val: number) => {
-    setDelayMinutes(val);
-    localStorage.setItem('drtalk_pref_delay_minutes', String(val));
-    showToast(`Safety Delay duration updated to ${val} minutes`);
-  };
-
-  const handleToggleStaffInApp = (val: boolean) => {
-    setStaffInApp(val);
-    localStorage.setItem('drtalk_pref_staff_inapp', String(val));
-    showToast(`Internal Channel Alerts ${val ? 'enabled' : 'disabled'}`);
-  };
-
-  const handleSelectInternalChannel = (val: string) => {
-    setSelectedInternalChannel(val);
-    localStorage.setItem('drtalk_pref_internal_channel', val);
-    showToast(`Notification channel updated to #${val}`);
-  };
-
-  const handleToggleStaffEmail = (val: boolean) => {
-    setStaffEmail(val);
-    localStorage.setItem('drtalk_pref_staff_email', String(val));
-    showToast(`Staff Email Summary ${val ? 'enabled' : 'disabled'}`);
+  const handleToggleReferralEmail = (val: boolean) => {
+    setReferralEmailAlerts(val);
+    localStorage.setItem('drtalk_pref_referral_email', String(val));
+    const label = isDentist ? 'Released Patients Email Alerts' : 'New Referral Email Alerts';
+    showToast(`${label} ${val ? 'enabled' : 'disabled'}`);
   };
 
   const handleToggleAdminReport = (val: boolean) => {
@@ -152,6 +121,12 @@ export default function NotificationsPage() {
     showToast(`Summary report frequency set to ${val}`);
   };
 
+  const handleToggleConnectedPractice = (val: boolean) => {
+    setConnectedPracticeEmail(val);
+    localStorage.setItem('drtalk_pref_connected_practice_email', String(val));
+    showToast(`Connected Practice Request Alerts ${val ? 'enabled' : 'disabled'}`);
+  };
+
   const handleToggleBilling = (val: boolean) => {
     setBillingEmailsEnabled(val);
     localStorage.setItem('drtalk_pref_billing_emails', String(val));
@@ -163,111 +138,84 @@ export default function NotificationsPage() {
       <div className="max-w-3xl mx-auto space-y-8 pb-12">
         {/* Header Section */}
         <div className="space-y-4">
-          <button 
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-colors w-fit px-2 py-1 border-2 border-transparent hover:border-black"
           >
             <ArrowLeft size={14} />
             Back to Settings
           </button>
-          
+
           <div className="flex items-center gap-3">
             <h2 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter text-black italic">
               Notifications
             </h2>
-            <CommentMarker 
-              id={isDentist ? "notifications-dentist" : "notifications-main"} 
-              title={isDentist ? "Dentist Notifications" : "Specialist Notifications"} 
-              description={isDentist ? "Configure referral submission alerts for patients." : "Configure intake alerts and processing delays."} 
+            <CommentMarker
+              id={isDentist ? "notifications-dentist" : "notifications-main"}
+              title={isDentist ? "Dentist Notifications" : "Specialist Notifications"}
+              description={isDentist ? "Configure referral submission alerts for patients." : "Configure intake alerts and processing delays."}
             />
           </div>
           <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-            Manage how patients and your internal staff receive updates.
+            Manage how patients and practice team members receive updates.
           </p>
         </div>
 
         {/* Unified clean settings sheet */}
         <div className="border-2 border-black bg-white p-8 divide-y-2 divide-black">
-          
-          {/* Section 1: Patient Communication & Safety Delay */}
+
+          {/* Section 1: Patient Communication */}
           <div className="py-6 first:pt-0 space-y-6">
             <div className="flex items-center gap-2.5">
               <Users size={18} />
               <h3 className="font-bold uppercase tracking-tight text-xs">
-                1. Patient Communication & Safety Delay
+                1. Patient Communication
               </h3>
             </div>
-            
-            <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
-                <div>
-                  <p className="text-[10px] font-bold uppercase">
-                    {isDentist ? 'Referral Sent Notifications' : 'Referral Accepted Notifications'}
-                  </p>
-                  <p className="text-[9px] text-muted-foreground uppercase">
-                    {isDentist 
-                      ? 'Notify patients instantly when your office submits a new referral.' 
-                      : 'Notify patients when your staff accepts and processes their referral.'}
-                  </p>
-                </div>
-                <div className="flex items-center gap-4 shrink-0">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={patientEmail} 
-                      onChange={(e) => handleTogglePatientEmail(e.target.checked)} 
-                      className="border-black rounded-none w-4 h-4 accent-black" 
-                    />
-                    <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Mail size={10} /> Email</span>
-                  </label>
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={patientSMS} 
-                      onChange={(e) => handleTogglePatientSMS(e.target.checked)} 
-                      className="border-black rounded-none w-4 h-4 accent-black" 
-                    />
-                    <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Phone size={10} /> SMS Text</span>
-                  </label>
-                </div>
-              </div>
 
-              {/* Safety Hold (Specialists only) */}
-              {!isDentist && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-black border-dashed">
+            {isDentist ? (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                   <div>
-                    <p className="text-[10px] font-bold uppercase">Alert hold period (Safeguard)</p>
+                    <p className="text-[10px] font-bold uppercase">
+                      Referral Sent Notifications
+                    </p>
                     <p className="text-[9px] text-muted-foreground uppercase">
-                      Pauses patient alerts for set minutes, allowing staff to recall accidental processing.
+                      Default setting to notify patients instantly when your office submits a new referral. Can also be managed case-by-case when sending each referral via the platform.
                     </p>
                   </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center gap-4 shrink-0">
                     <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input 
-                        type="checkbox" 
-                        checked={delayEnabled} 
-                        onChange={(e) => handleToggleDelay(e.target.checked)}
+                      <input
+                        type="checkbox"
+                        checked={patientEmail}
+                        onChange={(e) => handleTogglePatientEmail(e.target.checked)}
                         className="border-black rounded-none w-4 h-4 accent-black"
                       />
-                      <span className="text-[9px] font-bold uppercase">Delay Alerts</span>
+                      <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Mail size={10} /> Email</span>
                     </label>
-                    
-                    {delayEnabled && (
-                      <select 
-                        value={delayMinutes} 
-                        onChange={(e) => handleSelectDelayMinutes(Number(e.target.value))}
-                        className="border-2 border-black p-1 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer"
-                      >
-                        <option value={5}>5 Min</option>
-                        <option value={10}>10 Min</option>
-                        <option value={15}>15 Min</option>
-                      </select>
-                    )}
+                    <label className="flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={patientSMS}
+                        onChange={(e) => handleTogglePatientSMS(e.target.checked)}
+                        className="border-black rounded-none w-4 h-4 accent-black"
+                      />
+                      <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Phone size={10} /> SMS Text</span>
+                    </label>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 border-2 border-black border-dashed p-4">
+                <p className="text-[10px] font-bold uppercase text-black">
+                  Patient Notification Management
+                </p>
+                <p className="text-[9px] text-muted-foreground uppercase mt-1">
+                  Patients are automatically notified when their referral is sent by the referring general dentist office.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Section 2: Team Notifications */}
@@ -279,46 +227,35 @@ export default function NotificationsPage() {
               </h3>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 pt-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
               <div>
-                <p className="text-[10px] font-bold uppercase">New Referral Alerts</p>
+                <p className="text-[10px] font-bold uppercase">
+                  {isDentist ? 'Released Patients Alerts' : 'New Referral Alerts'}
+                </p>
                 <p className="text-[9px] text-muted-foreground uppercase">
-                  Select default channels for notifying staff about new inbox cases.
+                  {isDentist
+                    ? 'Select how practice staff are notified when referred patients are released back to your care.'
+                    : 'Select how practice staff are notified when new referral inbox cases arrive.'}
                 </p>
               </div>
-              <div className="flex flex-col gap-3 shrink-0 items-start sm:items-end">
-                {/* Line 1: Internal Channel + Channel Selector */}
-                <div className="flex items-center gap-2">
-                  <label className="flex items-center gap-1.5 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={staffInApp} 
-                      onChange={(e) => handleToggleStaffInApp(e.target.checked)} 
-                      className="border-black rounded-none w-4 h-4 accent-black" 
-                    />
-                    <span className="text-[9px] font-bold uppercase">Internal Channel</span>
-                  </label>
-                  {staffInApp && (
-                    <select 
-                      value={selectedInternalChannel} 
-                      onChange={(e) => handleSelectInternalChannel(e.target.value)}
-                      className="border-2 border-black px-1 py-0.5 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer h-6 animate-in fade-in zoom-in-95 duration-150"
-                    >
-                      <option value="team-members">#team-members</option>
-                      <option value="admin-billing">#admin-billing</option>
-                    </select>
-                  )}
-                </div>
-
-                {/* Line 2: Email Summary */}
+              <div className="flex items-center gap-4 shrink-0">
                 <label className="flex items-center gap-1.5 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={staffEmail} 
-                    onChange={(e) => handleToggleStaffEmail(e.target.checked)} 
-                    className="border-black rounded-none w-4 h-4 accent-black" 
+                  <input
+                    type="checkbox"
+                    checked={referralPushAlerts}
+                    onChange={(e) => handleToggleReferralPush(e.target.checked)}
+                    className="border-black rounded-none w-4 h-4 accent-black"
                   />
-                  <span className="text-[9px] font-bold uppercase">Email Summary</span>
+                  <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Bell size={10} /> Push</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={referralEmailAlerts}
+                    onChange={(e) => handleToggleReferralEmail(e.target.checked)}
+                    className="border-black rounded-none w-4 h-4 accent-black"
+                  />
+                  <span className="text-[9px] font-bold uppercase flex items-center gap-1"><Mail size={10} /> Email</span>
                 </label>
               </div>
             </div>
@@ -329,29 +266,32 @@ export default function NotificationsPage() {
             <div className="flex items-center gap-2.5">
               <CreditCard size={18} />
               <h3 className="font-bold uppercase tracking-tight text-xs">
-                3. Administrative Reports & Billing
+                {isDentist ? '3. Administrative Reports' : '3. Administrative Reports & Billing'}
               </h3>
             </div>
 
             <div className="space-y-4 pt-1">
-              {/* Admin New User Reports */}
+              {/* Admin New User Reports & Join Requests */}
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-bold uppercase">New User Summary Reports</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[10px] font-bold uppercase">Join Requests & New User Reports</p>
+                    <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
+                  </div>
                   <p className="text-[9px] text-muted-foreground uppercase">
-                    Daily or weekly email digests sent to admins when staff join.
+                    Alerts and email digests when new staff request to join your practice.
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <input 
-                    type="checkbox" 
-                    checked={adminReportEnabled} 
-                    onChange={(e) => handleToggleAdminReport(e.target.checked)} 
-                    className="border-black rounded-none w-4 h-4 accent-black" 
+                  <input
+                    type="checkbox"
+                    checked={adminReportEnabled}
+                    onChange={(e) => handleToggleAdminReport(e.target.checked)}
+                    className="border-black rounded-none w-4 h-4 accent-black"
                   />
                   {adminReportEnabled && (
-                    <select 
-                      value={adminReportFrequency} 
+                    <select
+                      value={adminReportFrequency}
                       onChange={(e) => handleSelectAdminFrequency(e.target.value)}
                       className="border-2 border-black p-1 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer"
                     >
@@ -362,24 +302,51 @@ export default function NotificationsPage() {
                 </div>
               </div>
 
-              {/* Billing Failures and Invoices */}
-              <div className="flex items-center justify-between gap-4">
+              {/* Connected Practice Requests */}
+              <div className="flex items-center justify-between gap-4 border-t border-black border-dashed pt-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase">Billing & Subscription Alerts</p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[10px] font-bold uppercase">Connected Practice Requests</p>
+                    <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
+                  </div>
                   <p className="text-[9px] text-muted-foreground uppercase">
-                    Invoices and credit card payment warnings.
+                    Receive email notifications when partner offices request to connect with your practice.
                   </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only peer" 
-                    checked={billingEmailsEnabled} 
-                    onChange={(e) => handleToggleBilling(e.target.checked)} 
+                <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={connectedPracticeEmail}
+                    onChange={(e) => handleToggleConnectedPractice(e.target.checked)}
+                    className="border-black rounded-none w-4 h-4 accent-black"
                   />
-                  <div className="w-9 h-5 bg-white border-2 border-black relative transition-colors peer-checked:bg-black after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black peer-checked:after:bg-white after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-[14px]"></div>
+                  <span className="text-[9px] font-bold uppercase"><Mail size={10} className="inline mr-1" /> Email</span>
                 </label>
               </div>
+
+              {/* Billing Failures and Invoices (Specialists only) */}
+              {!isDentist && (
+                <div className="flex items-center justify-between gap-4 border-t border-black border-dashed pt-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-[10px] font-bold uppercase">Billing & Subscription Alerts</p>
+                      <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
+                    </div>
+                    <p className="text-[9px] text-muted-foreground uppercase">
+                      Invoices and credit card payment warnings.
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      checked={billingEmailsEnabled}
+                      onChange={(e) => handleToggleBilling(e.target.checked)}
+                    />
+                    <div className="w-9 h-5 bg-white border-2 border-black relative transition-colors peer-checked:bg-black after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-black peer-checked:after:bg-white after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-[14px]"></div>
+                  </label>
+                </div>
+              )}
             </div>
           </div>
 
