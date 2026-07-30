@@ -20,12 +20,21 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { EMAIL_TEMPLATES, EMAIL_GROUPS, EmailTemplateItem } from '@/data/emailTemplatesData';
+import { 
+  LOGO_PRIMARY_BASE64, 
+  LOGO_WHITE_BASE64, 
+  LOGO_PURPLE_BASE64,
+  LOGO_PRIMARY_URL,
+  LOGO_WHITE_URL,
+  LOGO_PURPLE_URL
+} from '@/lib/logoAssets';
 
 export default function EmailGalleryPage() {
   const [selectedId, setSelectedId] = useState<string>(EMAIL_TEMPLATES[0].id);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
   const [viewMode, setViewMode] = useState<'visual' | 'text' | 'code'>('visual');
+  const [logoVariant, setLogoVariant] = useState<'primary' | 'white' | 'purple'>('primary');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Filter templates based on search query
@@ -48,6 +57,13 @@ export default function EmailGalleryPage() {
       return { group: g, items };
     }).filter(g => g.items.length > 0);
   }, [filteredTemplates]);
+
+  const getHtmlWithLogoVariant = (html: string) => {
+    let logoData = LOGO_PRIMARY_BASE64;
+    if (logoVariant === 'white') logoData = LOGO_WHITE_BASE64;
+    if (logoVariant === 'purple') logoData = LOGO_PURPLE_BASE64;
+    return html.replaceAll(LOGO_PRIMARY_BASE64, logoData);
+  };
 
   const handleCopySubject = (id: string, subject: string) => {
     navigator.clipboard.writeText(subject);
@@ -79,8 +95,8 @@ export default function EmailGalleryPage() {
             </Link>
             <div className="h-5 w-px bg-slate-800" />
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-inner shrink-0">
-                <Mail size={18} />
+              <div className="h-9 px-2.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white shadow-inner shrink-0">
+                <img src={LOGO_PRIMARY_URL} alt="drTalk" className="h-5 w-auto" />
               </div>
               <div>
                 <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-2">
@@ -105,8 +121,43 @@ export default function EmailGalleryPage() {
             </div>
           </div>
 
-          {/* Controls: Viewport & View Mode Toggles */}
+          {/* Controls: Logotype Variant, Viewport & View Mode Toggles */}
           <div className="flex items-center space-x-4">
+            {/* Logotype Selector */}
+            <div className="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center space-x-1">
+              <span className="text-[10px] text-slate-400 font-semibold px-2 uppercase tracking-wider hidden xl:inline">Logotype:</span>
+              <button
+                onClick={() => setLogoVariant('primary')}
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  logoVariant === 'primary' ? 'bg-amber-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Primary Brand Logotype (Orange / Purple)"
+              >
+                <img src={LOGO_PRIMARY_URL} alt="Primary" className="h-3.5 w-auto bg-white/90 px-1 py-0.5 rounded" />
+                <span>Primary</span>
+              </button>
+              <button
+                onClick={() => setLogoVariant('white')}
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  logoVariant === 'white' ? 'bg-slate-700 text-white shadow ring-1 ring-slate-500' : 'text-slate-400 hover:text-white'
+                }`}
+                title="White Logotype"
+              >
+                <img src={LOGO_WHITE_URL} alt="White" className="h-3.5 w-auto bg-slate-950 px-1 py-0.5 rounded" />
+                <span>White</span>
+              </button>
+              <button
+                onClick={() => setLogoVariant('purple')}
+                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  logoVariant === 'purple' ? 'bg-purple-700 text-white shadow' : 'text-slate-400 hover:text-white'
+                }`}
+                title="Purple Logotype"
+              >
+                <img src={LOGO_PURPLE_URL} alt="Purple" className="h-3.5 w-auto bg-white/90 px-1 py-0.5 rounded" />
+                <span>Purple</span>
+              </button>
+            </div>
+
             {/* Viewport selector */}
             <div className="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center space-x-1">
               <button
@@ -116,7 +167,7 @@ export default function EmailGalleryPage() {
                 }`}
               >
                 <Monitor size={14} />
-                <span>Desktop (600px)</span>
+                <span>Desktop</span>
               </button>
               <button
                 onClick={() => setViewport('mobile')}
@@ -125,7 +176,7 @@ export default function EmailGalleryPage() {
                 }`}
               >
                 <Smartphone size={14} />
-                <span>Mobile (375px)</span>
+                <span>Mobile</span>
               </button>
             </div>
 
@@ -369,7 +420,7 @@ export default function EmailGalleryPage() {
                                 {/* Actual Rendered Email iframe */}
                                 <iframe
                                   title={template.subject}
-                                  srcDoc={template.htmlContent}
+                                  srcDoc={getHtmlWithLogoVariant(template.htmlContent)}
                                   className="w-full min-h-[520px] border-0 bg-white"
                                 />
                               </div>

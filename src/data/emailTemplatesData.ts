@@ -1,3 +1,4 @@
+import { LOGO_PRIMARY_BASE64, LOGO_WHITE_BASE64, LOGO_PURPLE_BASE64 } from "@/lib/logoAssets";
 export interface EmailTemplateItem {
   id: string;
   sectionNumber: string;
@@ -26,8 +27,9 @@ const COMMON_CSS = `
   .email-container { max-width: 580px; margin: 24px auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #dedce5; box-shadow: 0 8px 30px rgba(54, 22, 82, 0.08); }
   .content { padding: 40px 36px; font-size: 15px; line-height: 1.6; color: #5d5c61; }
   .logo-header { text-align: center; margin-bottom: 28px; }
-  .logo-text { font-size: 34px; font-weight: 900; color: #361652; tracking: -0.03em; margin: 0; display: inline-block; }
-  .logo-text span.dr { color: #873bb7; }
+  .logo-img { height: 42px; width: auto; display: inline-block; border: 0; outline: none; }
+  .logo-badge-row { margin-top: 10px; text-align: center; }
+  .logo-badge { display: inline-block; height: 26px; line-height: 26px; padding: 0 14px; background: rgba(54, 22, 82, 0.08); color: #361652; border-radius: 13px; font-size: 12px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; box-sizing: border-box; }
   .title { font-size: 26px; font-weight: 800; color: #361652; margin-top: 0; margin-bottom: 20px; letter-spacing: -0.025em; }
   .purple { color: #361652; font-weight: 700; }
   .blue { color: #873bb7; font-weight: 700; }
@@ -67,7 +69,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Welcome to drtalk, Alex Morgan!</h2>
       <p><strong>Dr. Sarah Jenkins</strong> has added you to the team at <span class="purple">Valley Dental Clinic</span> on drtalk.</p>
@@ -118,7 +120,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Verify your email address</h2>
       <p>Hello Alex Morgan,</p>
@@ -155,6 +157,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
       <p>We received a request to reset your password for your drtalk account.</p>
@@ -194,6 +199,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
       <p>We received a request to reset your password for your drtalk account.</p>
@@ -233,7 +241,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Setup Your Practice Team</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
@@ -270,7 +278,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title" style="color: #361652;">Welcome to drtalk!</h2>
       <p>Congratulations, Alex! Your onboarding is complete and your practice environment is active.</p>
@@ -314,7 +322,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text" style="color: #059669;">Identity Verified ✓</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <div class="logo-badge-row"><span class="logo-badge" style="background: rgba(5, 150, 105, 0.1); color: #059669;">Identity Verified ✓</span></div>
       </div>
       <h2 class="title">Identity Verified</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
@@ -349,6 +358,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Your drtalk account has been deleted</h2>
       <p>Hello Alex Morgan,</p>
       <p>This email confirms that your drtalk account for <strong>alex.morgan@valleydental.com</strong> has been permanently removed from our system.</p>
@@ -384,7 +396,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Connect with Apex Endodontics</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
@@ -424,7 +436,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Invitation from Valley Dental Clinic for drtalk</h2>
       <p>Hello,</p>
@@ -459,6 +471,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">drtalk invitation accepted</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p><strong>Apex Endodontics</strong> has accepted your invitation to connect on drtalk.</p>
@@ -492,6 +507,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Declined: connection request</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p><strong>Apex Endodontics</strong> has declined your practice connection request on drtalk.</p>
@@ -521,6 +539,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Declined: connection request for the new practice</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p>The invite to connect sent to <strong>Horizon Dental</strong> was declined.</p>
@@ -551,7 +572,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
       </div>
       <h2 class="title">Dr. Michael Chang wants to connect with you on drtalk</h2>
       <p>Hello Alex Morgan,</p>
@@ -586,6 +607,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Dr. Michael Chang accepted your connection request</h2>
       <p>Hello Alex Morgan,</p>
       <p><strong>Dr. Michael Chang</strong> has accepted your individual connection request on drtalk.</p>
@@ -624,7 +648,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk Patient Portal</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <div class="logo-badge-row"><span class="logo-badge">Patient Portal</span></div>
       </div>
       <h2 class="title">Valley Dental Clinic has sent you a copy of your Referral Letter</h2>
       <p>Dear <strong>John Doe</strong>,</p>
@@ -664,6 +689,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
       <p><strong>Valley Dental Clinic</strong> has transmitted a HIPAA-compliant secure document to you via drtalk.</p>
@@ -735,7 +763,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk Referrals</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <div class="logo-badge-row"><span class="logo-badge">Referrals</span></div>
       </div>
       <h2 class="title">Referral Confirmation</h2>
       <p>Hello <strong>Apex Endodontics</strong>,</p>
@@ -775,6 +804,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
       <p>You have a new document delivery from <strong>Valley Dental Clinic</strong>.</p>
@@ -812,6 +844,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Your invoice is attached</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
       <p>Your drtalk subscription invoice for this billing cycle is attached to this email.</p>
@@ -851,6 +886,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title" style="color: #DC2626;">Invoice Payment Failed</h2>
       <p>Hello Valley Dental Clinic,</p>
       <p>We were unable to process your monthly drtalk payment of <strong>$149.00</strong> on card ending in 4242.</p>
@@ -884,6 +922,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Subscription Trial Will End Soon</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
       <p>Your 14-day free trial for <strong>Valley Dental Clinic</strong> ends in 3 days.</p>
@@ -917,6 +958,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Subscription Has Been Changed</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
       <p>This email confirms that your subscription plan has been updated to <strong>Practice Pro (10 seats)</strong>.</p>
@@ -946,6 +990,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">New User Registered for drtalk</h2>
       <p>A new user has completed registration on drtalk:</p>
 
@@ -980,6 +1027,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Update on drtalk Access Issues — Platform Secure and Fully Intact</h2>
       <p>Dear drtalk Community,</p>
       <p>All core infrastructure services have returned to 100% operational status.</p>
@@ -1010,7 +1060,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk Product Update</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <div class="logo-badge-row"><span class="logo-badge">Product Update</span></div>
       </div>
       <h2 class="title">drtalk Product update - Identity Verification</h2>
       <p>Hello drtalk Users,</p>
@@ -1041,6 +1092,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">drtalk request for a manual user verification request</h2>
       <p>A manual practitioner verification request has been submitted:</p>
       
@@ -1084,7 +1138,8 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
   <div class="email-container">
     <div class="content">
       <div class="logo-header">
-        <h1 class="logo-text"><span class="dr">dr</span>talk Digest</h1>
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+        <div class="logo-badge-row"><span class="logo-badge">Digest</span></div>
       </div>
       <h2 class="title">Unread posts in channels</h2>
       <p>Hello Alex Morgan,</p>
@@ -1119,6 +1174,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">New users for the past 24 hours</h2>
       <p>Hello Administrator,</p>
       <p>Summary of platform activity over the last 24 hours:</p>
@@ -1155,6 +1213,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <body>
   <div class="email-container">
     <div class="content">
+      <div class="logo-header">
+        <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
+      </div>
       <h2 class="title">Weekly new users report</h2>
       <p>Hello Administrator,</p>
       <p>Summary of platform onboarding activity for this past week:</p>
