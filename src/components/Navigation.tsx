@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug, Building2 as Building2Icon } from 'lucide-react';
+import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug, Building2 as Building2Icon, Mail } from 'lucide-react';
 import { useVerification } from './VerificationContext';
 import { useSubscription } from './SubscriptionContext';
 
@@ -34,6 +34,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       { icon: MessageSquare, label: 'Communication', href: '/dentist/channels' },
       { icon: Users, label: 'Network', href: '/dentist/network' },
       { icon: GraduationCap, label: 'Learning Hub', href: '/dentist/academy' },
+      { icon: Mail, label: 'Email Gallery', href: '/emails' },
     ]
     : [
       { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },
@@ -41,6 +42,7 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
       { icon: MessageSquare, label: 'Communication', href: '/channels' },
       { icon: GraduationCap, label: 'Learning Hub', href: '/academy' },
       { icon: Users, label: 'Network', href: '/network' },
+      { icon: Mail, label: 'Email Gallery', href: '/emails' },
     ];
 
   const filteredNavItems = userRole === 'individual'
