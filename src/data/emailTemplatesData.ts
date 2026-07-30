@@ -21,26 +21,27 @@ export const EMAIL_GROUPS = [
 ];
 
 const COMMON_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
-  body { margin: 0; padding: 0; font-family: 'Roboto', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; background-color: #f6f1eb; color: #221261; }
-  .email-container { max-width: 600px; margin: 24px auto; background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #dedce5; box-shadow: 0 8px 24px rgba(34, 18, 97, 0.08); }
-  .header { background: #4a1e4f; padding: 36px 24px; text-align: center; color: #ffffff; }
-  .header-logo { font-size: 32px; font-weight: 900; letter-spacing: -0.03em; margin: 0; color: #ffffff; }
-  .header-logo span.dr { color: #f3e8f7; }
-  .content { padding: 36px 32px; font-size: 15px; line-height: 1.6; color: #5d5c61; }
-  .title { font-size: 24px; font-weight: 800; color: #4a1e4f; margin-top: 0; margin-bottom: 16px; letter-spacing: -0.02em; }
-  .blue { color: #6f5ac2; font-weight: 600; }
-  .purple { color: #4a1e4f; font-weight: 700; }
-  .btn-primary { display: inline-block; background-color: #6f5ac2; color: #ffffff !important; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; box-shadow: 0 4px 12px rgba(111, 90, 194, 0.25); }
-  .btn-blue { display: inline-block; background-color: #873bb7; color: #ffffff !important; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; box-shadow: 0 4px 12px rgba(135, 59, 183, 0.25); }
-  .btn-danger { display: inline-block; background-color: #DC2626; color: #ffffff !important; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; }
-  .info-card { background: #f2effe; border: 1px solid #dedce5; border-radius: 12px; padding: 20px 24px; margin: 20px 0; }
-  .info-card p { margin: 4px 0; font-size: 14px; color: #221261; }
-  .code-box { display: inline-block; background: #f3e8f7; border: 2px dashed #873bb7; color: #4a1e4f; font-family: monospace; font-size: 28px; font-weight: 800; letter-spacing: 4px; padding: 14px 28px; border-radius: 12px; margin: 16px 0; }
-  .footer { background-color: #faf8f5; padding: 24px 32px; text-align: center; font-size: 12px; color: #8d8a99; border-top: 1px solid #dedce5; }
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+  body { margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f6f1eb; color: #361652; }
+  .email-container { max-width: 580px; margin: 24px auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #dedce5; box-shadow: 0 8px 30px rgba(54, 22, 82, 0.08); }
+  .content { padding: 40px 36px; font-size: 15px; line-height: 1.6; color: #5d5c61; }
+  .logo-header { text-align: center; margin-bottom: 28px; }
+  .logo-text { font-size: 34px; font-weight: 900; color: #361652; tracking: -0.03em; margin: 0; display: inline-block; }
+  .logo-text span.dr { color: #873bb7; }
+  .title { font-size: 26px; font-weight: 800; color: #361652; margin-top: 0; margin-bottom: 20px; letter-spacing: -0.025em; }
+  .purple { color: #361652; font-weight: 700; }
+  .blue { color: #873bb7; font-weight: 700; }
+  .btn-primary { display: inline-block; background-color: #873bb7; color: #ffffff !important; font-weight: 700; padding: 14px 36px; border-radius: 14px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; box-shadow: 0 6px 18px rgba(135, 59, 183, 0.35); transition: all 0.2s ease; }
+  .btn-blue { display: inline-block; background-color: #873bb7; color: #ffffff !important; font-weight: 700; padding: 14px 36px; border-radius: 14px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; box-shadow: 0 6px 18px rgba(135, 59, 183, 0.35); }
+  .btn-secondary { display: inline-block; background-color: #f3e8f7; color: #361652 !important; font-weight: 700; padding: 14px 36px; border-radius: 14px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; border: 1px solid #e6e1f7; }
+  .btn-danger { display: inline-block; background-color: #DC2626; color: #ffffff !important; font-weight: 700; padding: 14px 36px; border-radius: 14px; text-decoration: none; margin: 24px 0; font-size: 15px; text-align: center; box-shadow: 0 6px 18px rgba(220, 38, 38, 0.3); }
+  .info-card { background: #f3e8f7; border: 1px solid #e6e1f7; border-radius: 16px; padding: 24px; margin: 24px 0; }
+  .info-card p { margin: 4px 0; font-size: 14px; color: #361652; }
+  .code-box { display: inline-block; background: #f3e8f7; border: 2px dashed #873bb7; color: #361652; font-family: monospace; font-size: 30px; font-weight: 800; letter-spacing: 6px; padding: 16px 32px; border-radius: 16px; margin: 16px 0; }
+  .footer { background-color: #faf8f5; padding: 24px 32px; text-align: center; font-size: 13px; color: #8d8a99; border-top: 1px solid #dedce5; }
   .footer p { margin: 4px 0; }
   .app-badges { margin-top: 24px; }
-  .app-badge { display: inline-block; background: #4a1e4f; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 11px; text-decoration: none; margin: 0 4px; font-weight: 600; }
+  .app-badge { display: inline-block; background: #361652; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-size: 11px; text-decoration: none; margin: 0 4px; font-weight: 600; }
 `;
 
 export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
@@ -64,10 +65,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
       <h2 class="title">Welcome to drtalk, Alex Morgan!</h2>
       <p><strong>Dr. Sarah Jenkins</strong> has added you to the team at <span class="purple">Valley Dental Clinic</span> on drtalk.</p>
       <p>drtalk is your practice's HIPAA-compliant platform for instant team messaging, referrals, and secure document sharing.</p>
@@ -75,24 +76,24 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       <div class="info-card">
         <p><strong>Your Account Details:</strong></p>
         <p>Email: alex.morgan@valleydental.com</p>
-        <p>Temporary Password: <strong style="color: #4a1e4f;">TempPass2026!</strong></p>
+        <p>Temporary Password: <strong style="color: #361652;">TempPass2026!</strong></p>
       </div>
 
       <div style="text-align: center;">
         <a href="https://drtalk.com/login" class="btn-primary">Log In & Set Password</a>
       </div>
 
-      <p style="font-size: 13px; color: #8d8a99;">For security, please change your password upon your first sign-in.</p>
+      <p style="font-size: 13px; color: #8d8a99; text-align: center;">For security, please change your password upon your first sign-in.</p>
       
-      <div class="app-badges" style="text-align: center; margin-top: 30px;">
-        <p style="font-size: 12px; font-weight: 700; color: #4a1e4f; margin-bottom: 10px;">GET THE DRTALK APP</p>
+      <div class="app-badges" style="text-align: center;">
+        <p style="font-size: 12px; font-weight: 700; color: #361652; margin-bottom: 10px;">GET THE DRTALK APP</p>
         <a href="#" class="app-badge">iOS App Store</a>
         <a href="#" class="app-badge">Google Play Store</a>
         <a href="#" class="app-badge">Windows Desktop</a>
       </div>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} drtalk Inc. All rights reserved.</p>
+      <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
     </div>
   </div>
 </body>
@@ -115,18 +116,19 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
-      <h2 class="title">Hello Alex Morgan,</h2>
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
+      <h2 class="title">Verify your email address</h2>
+      <p>Hello Alex Morgan,</p>
       <p>We just need to confirm your email address to complete your <span class="blue">drtalk</span> account setup for <strong>Valley Dental Clinic</strong>.</p>
       
       <div style="text-align: center; margin: 32px 0;">
-        <a href="#" class="btn-blue">Verify Email Address</a>
+        <a href="#" class="btn-primary">Verify Email Address</a>
       </div>
 
-      <p>Once verified, please sign in to finish setting up your practice channels and inviting your staff.</p>
+      <p style="text-align: center;">Once verified, please sign in to finish setting up your practice channels.</p>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
@@ -152,13 +154,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
-      <h2 class="title">Password Reset Request</h2>
+      <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
-      <p>We received a request to reset the password for your drtalk account.</p>
+      <p>We received a request to reset your password for your drtalk account.</p>
 
       <div style="text-align: center; margin: 20px 0;">
         <div class="code-box">491 029</div>
@@ -168,7 +167,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
         <a href="#" class="btn-primary">Click Here to Reset Password</a>
       </div>
 
-      <p style="font-size: 13px; color: #8d8a99;">If you did not request a password reset, please ignore this email.</p>
+      <p style="font-size: 13px; color: #8d8a99; text-align: center;">If you did not request a password reset, please ignore this email.</p>
     </div>
     <div class="footer">
       <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
@@ -194,9 +193,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
       <h2 class="title">Password Reset</h2>
       <p>Hello Alex Morgan,</p>
@@ -204,7 +200,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 
       <div class="info-card" style="text-align: center;">
         <p style="font-size: 13px; color: #8d8a99;">Your new temporary password:</p>
-        <p style="font-size: 22px; font-weight: 800; color: #4a1e4f; font-family: monospace;">Res3tPass!99</p>
+        <p style="font-size: 24px; font-weight: 800; color: #361652; font-family: monospace; margin-top: 8px;">Res3tPass!99</p>
       </div>
 
       <div style="text-align: center;">
@@ -235,10 +231,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
       <h2 class="title">Setup Your Practice Team</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
       <p>Your practice, <strong>Valley Dental Clinic</strong>, is now active on drtalk!</p>
@@ -272,11 +268,11 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: linear-gradient(135deg, #4a1e4f 0%, #873bb7 100%);">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
-      <h2 class="title" style="color: #4a1e4f;">Welcome to drtalk!</h2>
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
+      <h2 class="title" style="color: #361652;">Welcome to drtalk!</h2>
       <p>Congratulations, Alex! Your onboarding is complete and your practice environment is active.</p>
       
       <div class="info-card">
@@ -289,7 +285,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       </div>
 
       <div style="text-align: center;">
-        <a href="#" class="btn-blue">Launch Dashboard</a>
+        <a href="#" class="btn-primary">Launch Dashboard</a>
       </div>
     </div>
     <div class="footer">
@@ -316,10 +312,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #059669;">
-      <h1 class="header-logo" style="color: white;">Identity Verified ✓</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text" style="color: #059669;">Identity Verified ✓</h1>
+      </div>
       <h2 class="title">Identity Verified</h2>
       <p>Hello <strong>Dr. Sarah Jenkins</strong>,</p>
       <p>Your practitioner profile and NPI license have been successfully verified by our credentialing team.</p>
@@ -352,9 +348,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #5d5c61;">
-      <h1 class="header-logo" style="color: white;">Account Deleted</h1>
-    </div>
     <div class="content">
       <h2 class="title">Your drtalk account has been deleted</h2>
       <p>Hello Alex Morgan,</p>
@@ -389,10 +382,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Network</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
       <h2 class="title">Connect with Apex Endodontics</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
       <p><strong>Dr. Mark Vance</strong> at <span class="purple">Apex Endodontics</span> has invited your office to connect on drtalk.</p>
@@ -402,7 +395,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       </div>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-blue">Accept Connection Request</a>
+        <a href="#" class="btn-primary">Accept Connection Request</a>
       </div>
     </div>
     <div class="footer">
@@ -429,10 +422,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
       <h2 class="title">Invitation from Valley Dental Clinic for drtalk</h2>
       <p>Hello,</p>
       <p><strong>Valley Dental Clinic</strong> uses drtalk for fast HIPAA-compliant referrals and instant specialist communication, and would like to invite your practice to connect.</p>
@@ -465,9 +458,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #4a1e4f;">
-      <h1 class="header-logo">Connection Accepted</h1>
-    </div>
     <div class="content">
       <h2 class="title">drtalk invitation accepted</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
@@ -501,9 +491,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #5d5c61;">
-      <h1 class="header-logo">Connection Status</h1>
-    </div>
     <div class="content">
       <h2 class="title">Declined: connection request</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
@@ -533,9 +520,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #5d5c61;">
-      <h1 class="header-logo">Connection Status</h1>
-    </div>
     <div class="content">
       <h2 class="title">Declined: connection request for the new practice</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
@@ -565,16 +549,16 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk</h1>
+      </div>
       <h2 class="title">Dr. Michael Chang wants to connect with you on drtalk</h2>
       <p>Hello Alex Morgan,</p>
       <p><strong>Dr. Michael Chang</strong> (Periodontics) wants to connect with you on drtalk.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-blue">Accept Request</a>
+        <a href="#" class="btn-primary">Accept Request</a>
       </div>
     </div>
     <div class="footer">
@@ -601,9 +585,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #4a1e4f;">
-      <h1 class="header-logo">Request Accepted</h1>
-    </div>
     <div class="content">
       <h2 class="title">Dr. Michael Chang accepted your connection request</h2>
       <p>Hello Alex Morgan,</p>
@@ -641,10 +622,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #4a1e4f;">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Patient Portal</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk Patient Portal</h1>
+      </div>
       <h2 class="title">Valley Dental Clinic has sent you a copy of your Referral Letter</h2>
       <p>Dear <strong>John Doe</strong>,</p>
       <p><strong>Valley Dental Clinic</strong> has forwarded your referral to specialist <strong>Apex Endodontics</strong>.</p>
@@ -682,9 +663,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo" style="color: #f3e8f7;">🔒 Secure Document Delivery</h1>
-    </div>
     <div class="content">
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
@@ -696,7 +674,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       </div>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-primary" style="background-color: #6f5ac2;">Access Secure Document</a>
+        <a href="#" class="btn-primary">Access Secure Document</a>
       </div>
     </div>
     <div class="footer">
@@ -723,12 +701,9 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Security</h1>
-    </div>
     <div class="content" style="text-align: center;">
-      <h2 class="title">Verification code to view secure email sent from Valley Dental Clinic</h2>
-      <p>Enter this verification PIN to view the secure message:</p>
+      <h2 class="title">Verification code to view secure email</h2>
+      <p>Enter this verification PIN to view the secure message sent from Valley Dental Clinic:</p>
 
       <div class="code-box">739 201</div>
 
@@ -758,10 +733,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Referrals</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk Referrals</h1>
+      </div>
       <h2 class="title">Referral Confirmation</h2>
       <p>Hello <strong>Apex Endodontics</strong>,</p>
       <p>You have received a new patient referral from <strong>Dr. Sarah Jenkins</strong> at <strong>Valley Dental Clinic</strong>.</p>
@@ -799,16 +774,13 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
       <h2 class="title">Valley Dental Clinic has sent you a secure email</h2>
       <p>Hello,</p>
       <p>You have a new document delivery from <strong>Valley Dental Clinic</strong>.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-blue">Open Secure Document</a>
+        <a href="#" class="btn-primary">Open Secure Document</a>
       </div>
     </div>
     <div class="footer">
@@ -839,9 +811,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo" style="color: white;">Invoice Delivery</h1>
-    </div>
     <div class="content">
       <h2 class="title">Your invoice is attached</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
@@ -854,7 +823,7 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
       </div>
 
       <div style="text-align: center;">
-        <a href="#" class="btn-blue">View Account Billing</a>
+        <a href="#" class="btn-primary">View Account Billing</a>
       </div>
     </div>
     <div class="footer">
@@ -881,9 +850,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #DC2626;">
-      <h1 class="header-logo" style="color: white;">Payment Failed</h1>
-    </div>
     <div class="content">
       <h2 class="title" style="color: #DC2626;">Invoice Payment Failed</h2>
       <p>Hello Valley Dental Clinic,</p>
@@ -917,9 +883,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: linear-gradient(135deg, #4a1e4f 0%, #6f5ac2 100%);">
-      <h1 class="header-logo">Trial Ending Soon</h1>
-    </div>
     <div class="content">
       <h2 class="title">Subscription Trial Will End Soon</h2>
       <p>Hello Dr. Sarah Jenkins,</p>
@@ -953,9 +916,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk</h1>
-    </div>
     <div class="content">
       <h2 class="title">Subscription Has Been Changed</h2>
       <p>Hello <strong>Valley Dental Clinic</strong>,</p>
@@ -985,9 +945,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo">Admin Alert</h1>
-    </div>
     <div class="content">
       <h2 class="title">New User Registered for drtalk</h2>
       <p>A new user has completed registration on drtalk:</p>
@@ -1022,9 +979,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #5d5c61;">
-      <h1 class="header-logo">System Status Update</h1>
-    </div>
     <div class="content">
       <h2 class="title">Update on drtalk Access Issues — Platform Secure and Fully Intact</h2>
       <p>Dear drtalk Community,</p>
@@ -1054,10 +1008,10 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Product Update</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk Product Update</h1>
+      </div>
       <h2 class="title">drtalk Product update - Identity Verification</h2>
       <p>Hello drtalk Users,</p>
       <p>We are updating our practitioner identity verification workflows to align with updated HIPAA and state dental board guidelines.</p>
@@ -1086,9 +1040,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo">Support Ticket</h1>
-    </div>
     <div class="content">
       <h2 class="title">drtalk request for a manual user verification request</h2>
       <p>A manual practitioner verification request has been submitted:</p>
@@ -1131,16 +1082,16 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <h1 class="header-logo"><span class="dr">dr</span>talk Digest</h1>
-    </div>
     <div class="content">
+      <div class="logo-header">
+        <h1 class="logo-text"><span class="dr">dr</span>talk Digest</h1>
+      </div>
       <h2 class="title">Unread posts in channels</h2>
       <p>Hello Alex Morgan,</p>
       <p>You have unread activity waiting in your practice channels at <strong>Valley Dental Clinic</strong>.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-blue">Open Channels in App</a>
+        <a href="#" class="btn-primary">Open Channels in App</a>
       </div>
     </div>
     <div class="footer">
@@ -1167,9 +1118,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo">Daily Admin Metrics</h1>
-    </div>
     <div class="content">
       <h2 class="title">New users for the past 24 hours</h2>
       <p>Hello Administrator,</p>
@@ -1206,9 +1154,6 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
 <head><style>${COMMON_CSS}</style></head>
 <body>
   <div class="email-container">
-    <div class="header" style="background: #221261;">
-      <h1 class="header-logo">Weekly Admin Metrics</h1>
-    </div>
     <div class="content">
       <h2 class="title">Weekly new users report</h2>
       <p>Hello Administrator,</p>
