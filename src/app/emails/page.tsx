@@ -34,7 +34,7 @@ export default function EmailGalleryPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewport, setViewport] = useState<'desktop' | 'mobile'>('desktop');
   const [viewMode, setViewMode] = useState<'visual' | 'text' | 'code'>('visual');
-  const [logoVariant, setLogoVariant] = useState<'primary' | 'white' | 'purple'>('primary');
+  const [logoVariant, setLogoVariant] = useState<'primary' | 'purple'>('primary');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Filter templates based on search query
@@ -60,7 +60,6 @@ export default function EmailGalleryPage() {
 
   const getHtmlWithLogoVariant = (html: string) => {
     let logoData = LOGO_PRIMARY_BASE64;
-    if (logoVariant === 'white') logoData = LOGO_WHITE_BASE64;
     if (logoVariant === 'purple') logoData = LOGO_PURPLE_BASE64;
     return html.replaceAll(LOGO_PRIMARY_BASE64, logoData);
   };
@@ -95,9 +94,6 @@ export default function EmailGalleryPage() {
             </Link>
             <div className="h-5 w-px bg-slate-800" />
             <div className="flex items-center space-x-3">
-              <div className="h-9 px-2.5 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white shadow-inner shrink-0">
-                <img src={LOGO_PRIMARY_URL} alt="drTalk" className="h-5 w-auto" />
-              </div>
               <div>
                 <h1 className="text-base font-bold tracking-tight text-white flex items-center gap-2">
                   <span>drTalk Email Notifications Gallery</span>
@@ -121,94 +117,48 @@ export default function EmailGalleryPage() {
             </div>
           </div>
 
-          {/* Controls: Logotype Variant, Viewport & View Mode Toggles */}
-          <div className="flex items-center space-x-4">
-            {/* Logotype Selector */}
-            <div className="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center space-x-1">
-              <span className="text-[10px] text-slate-400 font-semibold px-2 uppercase tracking-wider hidden xl:inline">Logotype:</span>
-              <button
-                onClick={() => setLogoVariant('primary')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  logoVariant === 'primary' ? 'bg-amber-600 text-white shadow' : 'text-slate-400 hover:text-white'
-                }`}
-                title="Primary Brand Logotype (Orange / Purple)"
+          {/* Controls: Logotype, Viewport & View Mode Select Dropdowns */}
+          <div className="flex items-center space-x-3">
+            {/* Logotype Select */}
+            <div className="flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs shadow-inner hover:bg-slate-750 transition-colors">
+              <span className="text-slate-400 font-semibold text-[10px] uppercase tracking-wider">Logo:</span>
+              <select
+                value={logoVariant}
+                onChange={(e) => setLogoVariant(e.target.value as 'primary' | 'purple')}
+                className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer text-xs"
               >
-                <img src={LOGO_PRIMARY_URL} alt="Primary" className="h-3.5 w-auto bg-white/90 px-1 py-0.5 rounded" />
-                <span>Primary</span>
-              </button>
-              <button
-                onClick={() => setLogoVariant('white')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  logoVariant === 'white' ? 'bg-slate-700 text-white shadow ring-1 ring-slate-500' : 'text-slate-400 hover:text-white'
-                }`}
-                title="White Logotype"
-              >
-                <img src={LOGO_WHITE_URL} alt="White" className="h-3.5 w-auto bg-slate-950 px-1 py-0.5 rounded" />
-                <span>White</span>
-              </button>
-              <button
-                onClick={() => setLogoVariant('purple')}
-                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
-                  logoVariant === 'purple' ? 'bg-purple-700 text-white shadow' : 'text-slate-400 hover:text-white'
-                }`}
-                title="Purple Logotype"
-              >
-                <img src={LOGO_PURPLE_URL} alt="Purple" className="h-3.5 w-auto bg-white/90 px-1 py-0.5 rounded" />
-                <span>Purple</span>
-              </button>
+                <option value="primary" className="bg-slate-900 text-white">Primary (Orange / Purple)</option>
+                <option value="purple" className="bg-slate-900 text-white">Purple</option>
+              </select>
             </div>
 
-            {/* Viewport selector */}
-            <div className="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center space-x-1">
-              <button
-                onClick={() => setViewport('desktop')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  viewport === 'desktop' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-                }`}
+            {/* Viewport Select */}
+            <div className="flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs shadow-inner hover:bg-slate-750 transition-colors">
+              {viewport === 'desktop' ? <Monitor size={14} className="text-indigo-400 shrink-0" /> : <Smartphone size={14} className="text-indigo-400 shrink-0" />}
+              <select
+                value={viewport}
+                onChange={(e) => setViewport(e.target.value as 'desktop' | 'mobile')}
+                className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer text-xs"
               >
-                <Monitor size={14} />
-                <span>Desktop</span>
-              </button>
-              <button
-                onClick={() => setViewport('mobile')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  viewport === 'mobile' ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Smartphone size={14} />
-                <span>Mobile</span>
-              </button>
+                <option value="desktop" className="bg-slate-900 text-white">Desktop (600px)</option>
+                <option value="mobile" className="bg-slate-900 text-white">Mobile (375px)</option>
+              </select>
             </div>
 
-            {/* Mode selector */}
-            <div className="bg-slate-800 p-1 rounded-lg border border-slate-700 flex items-center space-x-1">
-              <button
-                onClick={() => setViewMode('visual')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  viewMode === 'visual' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
-                }`}
+            {/* Mode Select */}
+            <div className="flex items-center space-x-2 bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs shadow-inner hover:bg-slate-750 transition-colors">
+              {viewMode === 'visual' && <Eye size={14} className="text-emerald-400 shrink-0" />}
+              {viewMode === 'text' && <FileText size={14} className="text-amber-400 shrink-0" />}
+              {viewMode === 'code' && <Code size={14} className="text-cyan-400 shrink-0" />}
+              <select
+                value={viewMode}
+                onChange={(e) => setViewMode(e.target.value as 'visual' | 'text' | 'code')}
+                className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer text-xs"
               >
-                <Eye size={14} />
-                <span>Visual</span>
-              </button>
-              <button
-                onClick={() => setViewMode('text')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  viewMode === 'text' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <FileText size={14} />
-                <span>Plain Text</span>
-              </button>
-              <button
-                onClick={() => setViewMode('code')}
-                className={`flex items-center space-x-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
-                  viewMode === 'code' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                <Code size={14} />
-                <span>Razor</span>
-              </button>
+                <option value="visual" className="bg-slate-900 text-white">Visual Mode</option>
+                <option value="text" className="bg-slate-900 text-white">Plain Text</option>
+                <option value="code" className="bg-slate-900 text-white">Razor Code</option>
+              </select>
             </div>
           </div>
 
