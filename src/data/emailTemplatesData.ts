@@ -1124,12 +1124,12 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
     sectionNumber: '1.5.1',
     category: '1.5',
     categoryLabel: '1.5 Scheduled reporting emails',
-    trigger: 'Daily unread posts reminder',
+    trigger: 'Daily unread posts & unopened documents reminder',
     audience: 'End user',
-    subject: 'Unread posts in channels',
+    subject: 'Unopened items in drtalk',
     templateFile: 'EmailUnopenedDocuments.cshtml',
-    summary: 'Reminder to check unread posts; links to web app.',
-    plainText: `Hello Alex Morgan,\nYou have 4 unread posts in Valley Dental Clinic channels.\nLog in to review: https://drtalk.com/channels`,
+    summary: 'Daily summary reminder notifying users of unopened documents or unread channel posts in drtalk.',
+    plainText: `Hello Alex Morgan,\n\nYou have unopened items waiting in your drtalk account.\n\nPlease log in to review: https://drtalk.com/dashboard`,
     htmlContent: `
 <!DOCTYPE html>
 <html>
@@ -1141,16 +1141,18 @@ export const EMAIL_TEMPLATES: EmailTemplateItem[] = [
         <img src="${LOGO_PRIMARY_BASE64}" alt="drtalk" class="logo-img" />
         <div class="logo-badge-row"><span class="logo-badge">Digest</span></div>
       </div>
-      <h2 class="title">Unread posts in channels</h2>
-      <p>Hello Alex Morgan,</p>
-      <p>You have unread activity waiting in your practice channels at <strong>Valley Dental Clinic</strong>.</p>
+      <h2 class="title">Unopened items in drtalk</h2>
+      <p>Hello <strong>Alex Morgan</strong>,</p>
+      <p>You have unprocessed documents and unread activity waiting in your drtalk account for <strong>Valley Dental Clinic</strong>.</p>
 
       <div style="text-align: center; margin: 30px 0;">
-        <a href="#" class="btn-primary">Open Channels in App</a>
+        <a href="#" class="btn-primary">Go to drtalk</a>
       </div>
+
+      <p style="font-size: 13px; color: #8d8a99; text-align: center;">If accessing this button from a mobile device, please open your drtalk app to check the unprocessed documents.</p>
     </div>
     <div class="footer">
-      <p>© ${new Date().getFullYear()} drtalk Notifications.</p>
+      <p>© ${new Date().getFullYear()} drtalk. All rights reserved.</p>
     </div>
   </div>
 </body>
