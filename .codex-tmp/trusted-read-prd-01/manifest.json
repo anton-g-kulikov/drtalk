@@ -1,0 +1,59 @@
+{
+  "bridgeVersion": "3.6",
+  "kind": "google-docs-trusted-read",
+  "status": "complete",
+  "outputDir": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01",
+  "target": {
+    "documentId": "1I2Z9-bT9CWaAs4NYJQuG5LVhXCMmuWVLRx0O5NWGGOg",
+    "title": "drtalk: PRD",
+    "revisionId": "AIroW37DzYe7zRIuvvI9J0SLVQtlwsQMVh1CnhXnCKbWaMvBL3TXQx1YZdpqdAr0_wAEgoO1bq-sneK3FnwxaOUKshr4jb1XcX74TvNaMGs",
+    "documentUrl": "https://docs.google.com/document/d/1I2Z9-bT9CWaAs4NYJQuG5LVhXCMmuWVLRx0O5NWGGOg",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "controlAwareness": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "affectedParagraphCount": 0,
+    "nativeElementCounts": {
+      "horizontalRule": 1
+    },
+    "preservationRequired": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope."
+  },
+  "warnings": [],
+  "files": {
+    "document_result": {
+      "path": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01/document-result.json",
+      "bytes": 1049026,
+      "sha256": "121e6310a0be65c5ca074a16f24ed922af803027ab8e78cae89ee4638ca7e871"
+    },
+    "control_inventory": {
+      "path": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01/control-inventory.json",
+      "bytes": 1593,
+      "sha256": "7427781b34c7a89c4b4c57a49d1ba4572b2773eb1ed3f6a4bb34f01cbeee0043"
+    },
+    "document_outline": {
+      "path": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01/document-outline.json",
+      "bytes": 202245,
+      "sha256": "b6e89160b9faf002e94a10ca93d92761fa84b6379deb8ffaf036ba0b8c953921"
+    },
+    "document_text": {
+      "path": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01/document-text.md",
+      "bytes": 60123,
+      "sha256": "97c94a20fd5bfd68fc5d9cfcc8fecb7ea86ac8d9e0bed1894f22b6f22fe468be"
+    },
+    "receipt": {
+      "path": "/Users/antonkulikov/Projects/_devpoint/drtalk_prototype/.codex-tmp/trusted-read-prd-01/receipt.json",
+      "bytes": 978,
+      "sha256": "8c081f7f13e039bd61f9e4603c148e19dbeb4d5327c72bbb04e996bafba86518"
+    }
+  },
+  "error": null
+}

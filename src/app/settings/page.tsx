@@ -31,6 +31,7 @@ export default function SettingsPage() {
     { icon: Bell, label: 'Notifications', desc: 'Configure alerts and routing for patients, internal staff, and billing.', href: isDentist ? '/dentist/settings/notifications' : '/settings/notifications' },
     { icon: Shield, label: 'TEAM, ROLES & ACCESS CONTROL', desc: 'Manage team permissions and patient communication safeguards.', href: isDentist ? '/dentist/settings/team' : '/dashboard/settings/team' },
     ...(!isDentist ? [{ icon: CreditCard, label: 'Subscription', desc: 'View subscription status for referral processing.', href: '/settings/subscription' }] : []),
+    { icon: HelpCircle, label: 'Support & Help', desc: 'Get assistance or report issues directly to support@drtalk.com.', href: 'mailto:support@drtalk.com', external: true },
   ];
 
   return (
@@ -53,7 +54,9 @@ export default function SettingsPage() {
             <div 
               key={section.label} 
               onClick={() => {
-                if (section.href !== '#') {
+                if (section.external) {
+                  window.location.href = section.href;
+                } else if (section.href !== '#') {
                   router.push(section.href);
                 }
               }}
@@ -69,7 +72,7 @@ export default function SettingsPage() {
                 </div>
               </div>
               <div className="sm:opacity-0 group-hover:opacity-100 transition-opacity w-full sm:w-auto text-right">
-                <p className="text-[10px] font-bold uppercase underline">Configure</p>
+                <p className="text-[10px] font-bold uppercase underline">{section.external ? 'Contact' : 'Configure'}</p>
               </div>
             </div>
           ))}

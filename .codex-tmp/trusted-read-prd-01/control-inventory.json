@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "google-docs-trusted-read-context",
+  "target": {
+    "documentId": "1I2Z9-bT9CWaAs4NYJQuG5LVhXCMmuWVLRx0O5NWGGOg",
+    "title": "drtalk: PRD",
+    "revisionId": "AIroW37DzYe7zRIuvvI9J0SLVQtlwsQMVh1CnhXnCKbWaMvBL3TXQx1YZdpqdAr0_wAEgoO1bq-sneK3FnwxaOUKshr4jb1XcX74TvNaMGs",
+    "documentUrl": "https://docs.google.com/document/d/1I2Z9-bT9CWaAs4NYJQuG5LVhXCMmuWVLRx0O5NWGGOg",
+    "selectedTabId": null
+  },
+  "dropdownMetadata": {
+    "status": "unavailable",
+    "resolvedTool": null,
+    "authoritative": false,
+    "count": 0
+  },
+  "derivedControlInventory": {
+    "hasProtectedControls": false,
+    "authoritativeDropdownCount": 0,
+    "opaqueControlCount": 0,
+    "nativeElementCounts": {
+      "horizontalRule": 1
+    },
+    "tabsScanned": [
+      "t.0"
+    ],
+    "controls": [],
+    "nativeElements": [
+      {
+        "type": "horizontalRule",
+        "startIndex": 34923,
+        "endIndex": 34924,
+        "tabId": "t.0",
+        "segmentId": null,
+        "container": {
+          "kind": "paragraph",
+          "path": "root.tabs[0].body.content[377]",
+          "tabId": "t.0",
+          "segmentId": null,
+          "startIndex": 34923,
+          "endIndex": 34925,
+          "namedStyleType": "NORMAL_TEXT",
+          "listId": null,
+          "nestingLevel": null,
+          "table": null
+        },
+        "properties": null
+      }
+    ]
+  },
+  "editGuidance": {
+    "advisoryOnly": true,
+    "requiresTargetedPreservation": false,
+    "recommendedBehavior": "No protected controls were detected in the scanned scope.",
+    "warnings": []
+  }
+}

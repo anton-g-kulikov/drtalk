@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug, Building2 as Building2Icon, Mail } from 'lucide-react';
+import { FileText, GraduationCap, LayoutDashboard, MessageSquare, Settings, Users, Menu, X, Bug, Building2 as Building2Icon, Mail, HelpCircle } from 'lucide-react';
 import { useVerification } from './VerificationContext';
 import { useSubscription } from './SubscriptionContext';
 
@@ -199,7 +199,14 @@ export const Sidebar = ({ onClose }: { onClose?: () => void }) => {
             <Settings size={18} />
             Settings
           </Link>
-
+          <a
+            href="mailto:support@drtalk.com"
+            onClick={onClose}
+            className="w-full flex items-center gap-3 p-3 text-xs uppercase font-bold text-black hover:bg-gray-100 transition-all"
+          >
+            <HelpCircle size={18} />
+            Support
+          </a>
         </div>
       </div>
     </div>
@@ -312,8 +319,18 @@ export const Header = ({ title, onMenuClick }: { title?: string, onMenuClick?: (
               {[
                 { label: 'View Profile', href: isDentist ? '/dentist/settings/profile/user' : '/settings/profile/user' },
                 { icon: Settings, label: 'Settings', href: isDentist ? '/dentist/settings' : '/settings' },
+                { icon: HelpCircle, label: 'Support', href: 'mailto:support@drtalk.com', isExternal: true },
                 { label: 'Sign Out', href: '/', color: 'text-black' },
-              ].map((item, i) => (
+              ].map((item, i) => item.isExternal ? (
+                <a
+                  key={i}
+                  href={item.href}
+                  className={`block w-full text-left px-4 py-2 text-[10px] font-bold uppercase hover:bg-black hover:text-white transition-all ${item.color || 'text-black'}`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {item.label}
+                </a>
+              ) : (
                 <Link
                   key={i}
                   href={item.href}
