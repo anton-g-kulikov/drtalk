@@ -183,7 +183,8 @@ drtalk routes referrals, documents, and communication into one structured practi
 
 The structured referral form should support sender details, receiving practice, receiving doctor when applicable, patient details, case details, and attachments.
 
-When the destination practice has only one receiving doctor, that doctor should be auto-selected rather than requiring manual selection.
+* The `Select Receiving Doctor` list must dynamically populate team members from the selected receiving practice who have been marked as Doctors in Team Settings (displaying their formatted `Dr.` prefix name).
+* When the destination practice has only one receiving doctor, that doctor should be auto-selected rather than requiring manual selection.
 
 The exact standard field set should be confirmed with stakeholders and may remain customizable per practice within approved limits. A pre-designed editable PDF (created either by the practice or with help from the drtalk team) can also be uploaded and used instead of the general referral fields that are in the platform. This document can be uploaded directly by the practice or by the drtalk team..
 
@@ -424,8 +425,8 @@ Practice Network is the relationship, discovery, and performance workspace for c
 
 ## **User Profile**
 
-* Each user should be able to manage first name, last name, display name, email address, mobile number, and profile photo.  
-* The display name should be used consistently across messages, referrals, activity history, and team management.  
+* Each user should be able to manage first name, last name, email address, mobile number, and profile photo. (Display Name field is removed from User Profile).  
+* The display name is dynamically computed from first name and last name, prepending a `Dr.` prefix when the user is designated as a doctor in Team Settings, and is used consistently across messages, referrals, activity history, and team management.  
 * Users should be able to enable SMS reminders only when a valid mobile number is available. More detailed individual user notification preference settings TBD.
 
 ## **Practice Settings Core Model**
@@ -471,10 +472,12 @@ Patient notification settings should be organized around the two patient-facing 
 
 ## **Team, Roles And Access Control**
 
-* Practice owners and practice admins should be able to view the team roster, member role, PHI-access status, and join date.  
+* Practice owners and practice admins should be able to view the team roster, member role, Doctor status, PHI-access status, and join date.  
+* Practice Owners and Practice Admins should be able to toggle a Doctor setting (checkbox or switch) for each team member in Team Settings and during join request approval.  
+* When the Doctor toggle is ON, the user's display name automatically receives a `Dr.` prefix across the platform and the user is added to referral receiving doctor selection options.  
 * Authorized users should be able to invite team members and review pending join requests.  
 * All join requests should be confirmable or ignorable by Practice Admins and Practice Owner.  
-* When approving a join request, authorized users should be able to adjust the requested role and PHI access before confirming the member.  
+* When approving a join request, authorized users should be able to adjust the requested role, Doctor status, and PHI access before confirming the member.  
 * Practice Owners and Practice Admins should be able to assign Practice Admin or Team Member roles and independently enable or restrict PHI access for each non-owner user.   
 * Team Members should receive PHI access by default after Practice Owner verification, unless an authorized administrator restricts it.  
 * Practice Owner PHI access is mandatory and cannot be disabled. It is only granted upon Persona verification.  
