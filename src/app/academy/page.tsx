@@ -6,7 +6,9 @@ import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { 
   GraduationCap, Star, PlayCircle, Users, Award, ArrowRight, Plus, 
   Search, ArrowLeft, ThumbsUp, MessageSquare, Paperclip, Lock, Globe,
-  Download, User, ShieldAlert, Check
+  Download, User, ShieldAlert, Check, Share2, MoreVertical, Bold,
+  Italic, Underline, Strikethrough, List, ListOrdered, Smile, Link as LinkIcon,
+  Info, KeyRound, Building2, Sparkles, DollarSign
 } from 'lucide-react';
 import { useVerification } from '@/components/VerificationContext';
 import { useRouter } from 'next/navigation';
@@ -14,9 +16,45 @@ import { LearningChannel, LearningTopic, LearningComment } from '@/types/learnin
 import CreateChannelDrawer from '@/components/prototype/CreateChannelDrawer';
 import StripeCheckoutModal from '@/components/prototype/StripeCheckoutModal';
 import StripeConnectScreen from '@/components/prototype/StripeConnectScreen';
+import JoinCodeModal from '@/components/prototype/JoinCodeModal';
+import ChannelInviteModal from '@/components/prototype/ChannelInviteModal';
+import AccessDeniedModal from '@/components/prototype/AccessDeniedModal';
 
 // Default initial learning channels
 const INITIAL_CHANNELS: LearningChannel[] = [
+  {
+    id: 'csa_1',
+    name: "CSA Champion's Circle",
+    description: 'Exclusive discussion group for practice leaders and administrators.',
+    type: 'private',
+    category: 'Practice Admin Disc...',
+    ownerBio: 'CSA Dental Network - Leading practice management and staffing insights.',
+    sponsorName: 'Dental Designs',
+    sponsorLogoUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=120&auto=format&fit=crop&q=80',
+    joinCode: 'CSA2026',
+    isMonetized: false,
+    subscriptionCost: 0,
+    platformFee: 0,
+    stripeFee: 0,
+    totalCharge: 0,
+    ceCreditsEnabled: false,
+    onlyHostsCanPost: false,
+    membersCount: 49,
+    isJoined: true,
+    posts: [
+      {
+        id: 't_csa_1',
+        author: 'Stephanie Grauberger',
+        authorRole: 'Host',
+        title: 'Staffing Shortages and Retention',
+        content: 'Strategies for retaining clinical team members in high-demand markets. Sharing our onboarding framework.',
+        views: 16,
+        likes: ['Dr. John Doe'],
+        timestamp: '11/19/2025 12:00 AM',
+        comments: []
+      }
+    ]
+  },
   {
     id: '1',
     name: 'Advanced Implantology',
@@ -176,9 +214,15 @@ export default function LearningHubPage() {
   const [newPostContent, setNewPostContent] = useState('');
   const [newCommentText, setNewCommentText] = useState('');
   
-  // Dialog visibility states
+  // Dialog & Modal visibility states
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [checkoutChannel, setCheckoutChannel] = useState<LearningChannel | null>(null);
+  const [isJoinCodeOpen, setIsJoinCodeOpen] = useState(false);
+  const [inviteChannel, setInviteChannel] = useState<LearningChannel | null>(null);
+  const [accessDeniedState, setAccessDeniedState] = useState<{ isOpen: boolean; channelName?: string; reason?: string }>({ isOpen: false });
+  const [topicSponsorName, setTopicSponsorName] = useState('');
+  const [showTopicSponsorInput, setShowTopicSponsorInput] = useState(false);
+  const [activeContextMenuId, setActiveContextMenuId] = useState<string | null>(null);
   
   // Load and save state
   useEffect(() => {
@@ -323,7 +367,8 @@ export default function LearningHubPage() {
       views: 1,
       likes: [],
       timestamp: 'Just now',
-      comments: []
+      comments: [],
+      topicSponsor: topicSponsorName.trim() ? { name: topicSponsorName.trim() } : undefined
     };
 
     const updated = channels.map(c => {
@@ -336,6 +381,21 @@ export default function LearningHubPage() {
     saveChannels(updated);
     setNewPostTitle('');
     setNewPostContent('');
+    setTopicSponsorName('');
+    setShowTopicSponsorInput(false);
+  };
+
+  const handleJoinByCodeSuccess = (channelId: string) => {
+    const updated = channels.map(c => {
+      if (c.id === channelId) {
+        return { ...c, isJoined: true, membersCount: c.membersCount + 1 };
+      }
+      return c;
+    });
+    saveChannels(updated);
+    setSelectedChannelId(channelId);
+    setSelectedPostId(null);
+    setActiveTab('discussions');
   };
 
   const handleLikePost = (postId: string) => {
@@ -577,6 +637,20 @@ export default function LearningHubPage() {
               </div>
             )}
           </div>
+
+          {/* Join channel via code banner (Slide 2) */}
+          <div className="p-3 border-t-2 border-black bg-amber-50 shrink-0">
+            <button
+              onClick={() => setIsJoinCodeOpen(true)}
+              className="w-full wireframe-button bg-amber-100 hover:bg-amber-200 text-amber-950 border-amber-950 text-[10px] font-black uppercase py-2.5 px-3 flex items-center justify-between shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            >
+              <span className="flex items-center gap-2">
+                <GraduationCap size={15} className="text-amber-800" />
+                Join channel via code
+              </span>
+              <Info size={13} className="opacity-70" />
+            </button>
+          </div>
         </div>
 
         {/* Right Panel: Content Area */}
@@ -585,19 +659,40 @@ export default function LearningHubPage() {
             <>
               {/* Channel Header Details */}
               <div className="p-6 bg-white border-b-2 border-black flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <h2 className="text-lg font-black uppercase tracking-tight">{selectedChannel.name}</h2>
                     <span className="text-[7px] font-bold border-2 border-black px-1.5 py-0.5 bg-gray-50 uppercase">
                       {selectedChannel.category}
                     </span>
+                    
+                    {/* Channel Sponsor Badge (Slide 7) */}
+                    {(selectedChannel.sponsorName || selectedChannel.sponsorLogoUrl) && (
+                      <div className="flex items-center gap-1 bg-gray-100 border border-black px-2 py-0.5 text-[8px] font-black uppercase">
+                        <span className="text-[7px] text-muted-foreground">Channel Sponsor</span>
+                        {selectedChannel.sponsorLogoUrl ? (
+                          <img src={selectedChannel.sponsorLogoUrl} alt={selectedChannel.sponsorName || 'Sponsor'} className="h-4 w-auto object-contain rounded-xs" />
+                        ) : (
+                          <span className="font-black text-black">{selectedChannel.sponsorName}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <p className="text-[10px] uppercase font-bold text-muted-foreground">
                     Hosted by {selectedChannel.ownerBio?.split('-')[0] || 'Practice Owner'} • {selectedChannel.membersCount} subscribers
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {/* Invite Button (Slide 6) */}
+                  <button
+                    onClick={() => setInviteChannel(selectedChannel)}
+                    className="wireframe-button border-black hover:bg-black hover:text-white text-[9px] uppercase py-2 px-3 flex items-center gap-1.5 font-bold"
+                    title="Invite to Channel"
+                  >
+                    <Share2 size={12} /> Invite
+                  </button>
+
                   {selectedChannel.isJoined ? (
                     <button
                       onClick={handleLeaveChannel}
@@ -846,7 +941,7 @@ export default function LearningHubPage() {
                             )}
                           </div>
 
-                          {/* New Topic Composer (visible if all members can post, or if the user is host) */}
+                          {/* New Topic Composer (Slide 8 rich text toolbar & tools) */}
                           {(!selectedChannel.onlyHostsCanPost || isHost) ? (
                             <form onSubmit={handleCreatePost} className="wireframe-card bg-white p-5 space-y-4">
                               <h3 className="text-[9px] font-black uppercase tracking-wider border-b border-black pb-1">Create new topic</h3>
@@ -863,8 +958,23 @@ export default function LearningHubPage() {
                                 />
                               </div>
 
+                              {/* Rich Text Formatting Toolbar (Slide 8) */}
                               <div className="space-y-1">
-                                <label className="text-[8px] font-black uppercase tracking-wider block text-muted-foreground">Body Content</label>
+                                <div className="flex items-center justify-between">
+                                  <label className="text-[8px] font-black uppercase tracking-wider block text-muted-foreground">Body Content</label>
+                                  {/* Formatting options toolbar */}
+                                  <div className="flex items-center gap-1 border border-black p-1 bg-gray-50">
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Bold"><Bold size={11} /></button>
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Italic"><Italic size={11} /></button>
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Underline"><Underline size={11} /></button>
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Strikethrough"><Strikethrough size={11} /></button>
+                                    <span className="w-px h-3 bg-black/30 mx-0.5" />
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Insert Link"><LinkIcon size={11} /></button>
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Bullet List"><List size={11} /></button>
+                                    <button type="button" className="p-1 hover:bg-black hover:text-white transition-colors" title="Numbered List"><ListOrdered size={11} /></button>
+                                  </div>
+                                </div>
+
                                 <textarea
                                   placeholder="Type here..."
                                   value={newPostContent}
@@ -874,11 +984,44 @@ export default function LearningHubPage() {
                                 />
                               </div>
 
-                              <div className="flex justify-between items-center pt-2">
-                                <button type="button" className="p-1 border border-black hover:bg-black hover:text-white transition-colors" title="Attach Files">
-                                  <Paperclip size={12} />
-                                </button>
-                                <button type="submit" className="wireframe-button bg-black text-white text-[9px] uppercase py-2 px-6">
+                              {/* Topic Sponsor input toggle */}
+                              {showTopicSponsorInput && (
+                                <div className="space-y-1 bg-purple-50 p-2.5 border border-purple-900">
+                                  <label className="text-[8px] font-black uppercase tracking-wider block text-purple-900">Topic Sponsor Name</label>
+                                  <input
+                                    type="text"
+                                    placeholder="Enter topic sponsor (e.g. Medit, Straumann)"
+                                    value={topicSponsorName}
+                                    onChange={(e) => setTopicSponsorName(e.target.value)}
+                                    className="wireframe-input text-xs font-bold bg-white"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Bottom tools toolbar (Slide 8) */}
+                              <div className="flex justify-between items-center pt-2 border-t border-black/10">
+                                <div className="flex items-center gap-2">
+                                  <button type="button" className="p-1.5 border border-black hover:bg-black hover:text-white transition-colors" title="Emoji">
+                                    <Smile size={13} />
+                                  </button>
+                                  <button type="button" className="p-1.5 border border-black hover:bg-black hover:text-white transition-colors" title="Attach Files">
+                                    <Paperclip size={13} />
+                                  </button>
+                                  <button type="button" className="p-1.5 border border-black hover:bg-black hover:text-white transition-colors" title="Add Link">
+                                    <LinkIcon size={13} />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowTopicSponsorInput(!showTopicSponsorInput)}
+                                    className={`text-[8px] font-black uppercase px-2 py-1 border border-black transition-colors ${
+                                      showTopicSponsorInput ? 'bg-purple-900 text-white' : 'hover:bg-black hover:text-white'
+                                    }`}
+                                  >
+                                    + Add topic sponsor
+                                  </button>
+                                </div>
+
+                                <button type="submit" className="wireframe-button bg-black text-white text-[9px] uppercase py-2 px-6 font-black">
                                   Create Topic
                                 </button>
                               </div>
@@ -1086,6 +1229,26 @@ export default function LearningHubPage() {
         onClose={() => setCheckoutChannel(null)}
         channel={checkoutChannel}
         onSuccess={handleStripeCheckoutSuccess}
+      />
+
+      <JoinCodeModal
+        isOpen={isJoinCodeOpen}
+        onClose={() => setIsJoinCodeOpen(false)}
+        channels={channels}
+        onJoinSuccess={handleJoinByCodeSuccess}
+      />
+
+      <ChannelInviteModal
+        isOpen={inviteChannel !== null}
+        onClose={() => setInviteChannel(null)}
+        channel={inviteChannel}
+      />
+
+      <AccessDeniedModal
+        isOpen={accessDeniedState.isOpen}
+        onClose={() => setAccessDeniedState({ isOpen: false })}
+        channelName={accessDeniedState.channelName}
+        reason={accessDeniedState.reason}
       />
     </MainLayout>
   );

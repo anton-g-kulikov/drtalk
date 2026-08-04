@@ -17,6 +17,7 @@ export interface LearningTopic {
   comments: LearningComment[];
   timestamp: string;
   attachments?: { name: string; size: string; type: string }[];
+  topicSponsor?: { name: string; logoUrl?: string };
 }
 
 export interface LearningChannel {
@@ -28,6 +29,11 @@ export interface LearningChannel {
   otherCategory?: string;
   ownerBio?: string;
   coverUrl?: string;
+  sponsorName?: string;
+  sponsorLogoUrl?: string;
+  joinCode?: string;
+  hostRevenueShare?: number; // e.g. 0.70
+  platformRevenueShare?: number; // e.g. 0.30
   isMonetized: boolean;
   subscriptionCost: number;
   totalCharge: number;

@@ -212,17 +212,17 @@ export default function CreateChannelDrawer({ isOpen, onClose, onCreate }: Creat
                     />
                     
                     <div className="space-y-1 text-[8px] uppercase font-bold text-muted-foreground pt-1">
-                      <div className="flex justify-between">
-                        <span>drTalk platform fee (14%):</span>
-                        <span>${platformFee.toFixed(2)}</span>
+                      <div className="flex justify-between text-green-700">
+                        <span>Host Earnings (70% revenue split):</span>
+                        <span>${(costVal * 0.70).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>Stripe processing fee:</span>
-                        <span>${stripeFee.toFixed(2)}</span>
+                        <span>drTalk Platform & Processing (30% split):</span>
+                        <span>${(costVal * 0.30).toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between border-t border-black/10 pt-1 text-black font-black text-[9px]">
-                        <span>Monthly Total:</span>
-                        <span>${totalMonthlyCharge.toFixed(2)}</span>
+                        <span>Monthly Total Charge:</span>
+                        <span>${costVal.toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
@@ -291,14 +291,17 @@ export default function CreateChannelDrawer({ isOpen, onClose, onCreate }: Creat
                 </select>
 
                 {category === 'Other' && (
-                  <input
-                    type="text"
-                    placeholder="Enter category name"
-                    value={otherCategory}
-                    onChange={(e) => setOtherCategory(e.target.value)}
-                    className="wireframe-input text-xs font-bold mt-2"
-                    maxLength={50}
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Enter category name (max 30 chars)"
+                      value={otherCategory}
+                      onChange={(e) => setOtherCategory(e.target.value)}
+                      className="wireframe-input text-xs font-bold mt-2"
+                      maxLength={30}
+                    />
+                    <div className="text-right text-[8px] text-muted-foreground uppercase mt-0.5">{otherCategory.length}/30</div>
+                  </div>
                 )}
               </div>
 
