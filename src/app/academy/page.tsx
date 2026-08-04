@@ -464,15 +464,13 @@ export default function LearningHubPage() {
                 Learning Hub
                 <CommentMarker id="learning-hub-nav" title="Learning Channels" description="Explore educational workspaces." />
               </h3>
-              {isHost && (
-                <button
-                  onClick={() => setIsCreateOpen(true)}
-                  className="p-1 border-2 border-black hover:bg-black hover:text-white transition-colors"
-                  title="Create Channel"
-                >
-                  <Plus size={14} strokeWidth={3} />
-                </button>
-              )}
+              <button
+                onClick={() => setIsCreateOpen(true)}
+                className="p-1 border-2 border-black hover:bg-black hover:text-white transition-colors"
+                title="Create Channel"
+              >
+                <Plus size={14} strokeWidth={3} />
+              </button>
             </div>
             
             {/* Search Input */}
@@ -506,7 +504,7 @@ export default function LearningHubPage() {
           <div className="flex-1 overflow-y-auto divide-y-2 divide-black">
             
             {/* My hosted channels */}
-            {userRole !== 'individual' && hostedChannels.length > 0 && (
+            {hostedChannels.length > 0 && (
               <div className="p-2 space-y-1">
                 <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground px-2 py-1">My hosted channels</p>
                 {hostedChannels.map(chan => (
