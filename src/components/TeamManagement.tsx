@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft as ArrowLeftIcon, 
   ShieldCheck as ShieldCheckIcon, 
@@ -11,28 +11,25 @@ import {
   UserPlus as UserPlusIcon,
   ArrowRightLeft as ArrowRightLeftIcon,
   Lock as LockIcon,
-  Key as KeyIcon
+  Key as KeyIcon,
+  UserCheck as UserCheckIcon
 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
 import { InviteModal } from "@/components/InviteModal";
+import { 
+  TeamMember, 
+  MemberRole, 
+  PhiStatus, 
+  getStoredTeamMembers, 
+  saveStoredTeamMembers, 
+  getMemberDisplayName,
+  getCleanName 
+} from '@/lib/teamStore';
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
-
-type MemberRole = 'Owner' | 'Practice Admin' | 'Team Member';
-type PhiStatus = 'Verified' | 'Granted' | 'Pending' | 'Restricted';
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: MemberRole;
-  hasPhiAccess: boolean;
-  joinedAt: string;
-  specialty?: string;
-}
 
 interface JoinRequest {
   id: string;
@@ -42,25 +39,16 @@ interface JoinRequest {
   requestedAt: string;
 }
 
-const mockTeam: TeamMember[] = [
-  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', hasPhiAccess: true, joinedAt: 'Mar 2024', specialty: 'Endodontics' },
-  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Practice Admin', hasPhiAccess: false, joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
-];
-
 const mockRequests: JoinRequest[] = [
   { id: 'r1', name: 'Dr. Sarah Connor', email: 's.connor@gmail.com', role: 'Team Member', requestedAt: '08:20 AM\n05/11/2026' },
   { id: 'r2', name: 'James T. Kirk', email: 'kirk@enterprise.com', role: 'Practice Admin', requestedAt: '05:20 AM\n05/11/2026' },
 ];
 
-
-
 export function TeamManagement({ backPath }: { backPath: string }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isVerified, reset, setShowVerification } = useVerification();
-  const [team, setTeam] = useState<TeamMember[]>(mockTeam);
+  const { isVerified, reset } = useVerification();
+  const [team, setTeam] = useState<TeamMember[]>(getStoredTeamMembers);
   const [requests, setRequests] = useState<JoinRequest[]>(mockRequests);
   const [showTransferModal, setShowTransferModal] = useState(false);
   const [newOwnerId, setNewOwnerId] = useState<string>('');
@@ -72,6 +60,13 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   const [approvingRequest, setApprovingRequest] = useState<JoinRequest | null>(null);
   const [approvingRole, setApprovingRole] = useState<MemberRole>('Team Member');
   const [approvingPhi, setApprovingPhi] = useState<boolean>(true);
+  const [approvingIsDoctor, setApprovingIsDoctor] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleUpdate = () => setTeam(getStoredTeamMembers());
+    window.addEventListener('drtalk-team-updated', handleUpdate);
+    return () => window.removeEventListener('drtalk-team-updated', handleUpdate);
+  }, []);
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -84,6 +79,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
     setApprovingRequest(request);
     setApprovingRole(request.role);
     setApprovingPhi(request.role === 'Team Member');
+    setApprovingIsDoctor(request.name.toLowerCase().startsWith('dr.'));
   };
 
   const handleConfirmApproval = () => {
@@ -94,12 +90,33 @@ export function TeamManagement({ backPath }: { backPath: string }) {
       email: approvingRequest.email,
       role: approvingRole,
       hasPhiAccess: approvingPhi,
-      joinedAt: 'May 2024'
+      joinedAt: 'May 2024',
+      isDoctor: approvingIsDoctor
     };
-    setTeam([...team, newMember]);
+    const updated = [...team, newMember];
+    setTeam(updated);
+    saveStoredTeamMembers(updated);
     setRequests(requests.filter(r => r.id !== approvingRequest.id));
     setApprovingRequest(null);
-    showToast(`Approved ${approvingRequest.name} as ${approvingRole}`);
+    showToast(`Approved ${getMemberDisplayName(newMember)} as ${approvingRole}`);
+  };
+
+  const handleToggleDoctor = (memberId: string) => {
+    const updated = team.map(m => {
+      if (m.id === memberId) {
+        return {
+          ...m,
+          isDoctor: !m.isDoctor
+        };
+      }
+      return m;
+    });
+    setTeam(updated);
+    saveStoredTeamMembers(updated);
+    const target = updated.find(m => m.id === memberId);
+    if (target) {
+      showToast(`Updated doctor status for ${getMemberDisplayName(target)}`);
+    }
   };
 
   const denyRequest = (id: string) => {
@@ -128,7 +145,6 @@ export function TeamManagement({ backPath }: { backPath: string }) {
   const confirmTransfer = () => {
     if (!newOwnerId) return;
     
-    // Simulate ownership transfer
     const updatedTeam = team.map(m => {
       if (m.id === newOwnerId) return { ...m, role: 'Owner' as MemberRole };
       if (m.role === 'Owner') return { ...m, role: 'Team Member' as MemberRole };
@@ -136,9 +152,9 @@ export function TeamManagement({ backPath }: { backPath: string }) {
     });
     
     setTeam(updatedTeam);
+    saveStoredTeamMembers(updatedTeam);
     setShowTransferModal(false);
     setNewOwnerId('');
-    // Reset global verification when owner changes
     reset();
   };
 
@@ -165,7 +181,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
             </div>
             
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-              Manage practice ownership, team member permissions, and PHI access safeguards.
+              Manage practice ownership, team member permissions, doctor titles, and PHI access safeguards.
             </p>
           </div>
           <button 
@@ -244,7 +260,6 @@ export function TeamManagement({ backPath }: { backPath: string }) {
               ))}
             </div>
             
-            {/* Divider */}
             <div className="py-4">
               <div className="border-t-2 border-black border-dashed opacity-20" />
             </div>
@@ -254,9 +269,10 @@ export function TeamManagement({ backPath }: { backPath: string }) {
         {/* Team Table */}
         <div className="space-y-4">
           <div className="grid grid-cols-12 px-4 py-2 text-[9px] font-black uppercase text-muted-foreground tracking-widest border-b-2 border-black">
-            <div className="col-span-4">Name / Email</div>
+            <div className="col-span-3">Name / Email</div>
+            <div className="col-span-2">Doctor</div>
             <div className="col-span-2">Role</div>
-            <div className="col-span-3">PHI Access</div>
+            <div className="col-span-2">PHI Access</div>
             <div className="col-span-2">Joined</div>
             <div className="col-span-1 text-right">Action</div>
           </div>
@@ -264,16 +280,40 @@ export function TeamManagement({ backPath }: { backPath: string }) {
           <div className="space-y-3">
             {team.map((member) => (
               <div key={member.id} className="wireframe-card p-5 bg-white flex flex-col sm:grid sm:grid-cols-12 items-center gap-4 transition-all">
-                <div className="col-span-4 w-full">
-                  <p className="font-black uppercase text-xs tracking-tight">{member.name}</p>
+                <div className="col-span-3 w-full">
+                  <p className="font-black uppercase text-xs tracking-tight">{getMemberDisplayName(member)}</p>
                   <p className="text-[10px] text-muted-foreground lowercase truncate">{member.email}</p>
                 </div>
+
+                {/* Doctor Switch Column */}
+                <div className="col-span-2 w-full flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleDoctor(member.id);
+                    }}
+                    className={`w-10 h-5 border-2 border-black relative cursor-pointer transition-colors ${
+                      member.isDoctor ? 'bg-black' : 'bg-white'
+                    }`}
+                  >
+                    <div
+                      className={`absolute top-0.5 bottom-0.5 w-3.5 transition-all ${
+                        member.isDoctor ? 'right-0.5 bg-white' : 'left-0.5 bg-black'
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[9px] font-black uppercase tracking-wider">
+                    {member.isDoctor ? 'Doctor' : 'Staff'}
+                  </span>
+                </div>
+
                 <div className="col-span-2 w-full">
                   <span className={`text-[10px] font-black uppercase px-2 py-1 border-2 border-black ${member.role === 'Owner' ? 'bg-black text-white' : 'bg-white'}`}>
                     {member.role}
                   </span>
                 </div>
-                <div className="col-span-3 w-full flex items-center">
+                <div className="col-span-2 w-full flex items-center">
                   {getPhiBadge(getPhiStatus(member))}
                 </div>
                 <div className="col-span-2 w-full">
@@ -352,7 +392,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                   >
                     <option value="">Choose team member...</option>
                     {teamMembers.map(m => (
-                      <option key={m.id} value={m.id}>{m.name} ({m.specialty || 'Team Member'})</option>
+                      <option key={m.id} value={m.id}>{getMemberDisplayName(m)} ({m.specialty || 'Team Member'})</option>
                     ))}
                   </select>
                 </div>
@@ -402,7 +442,7 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-black">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-black">
                 {/* Role Management */}
                 <div className="wireframe-card p-6 space-y-6 border-black border-2 bg-white">
                   <div className="flex items-center gap-3">
@@ -439,13 +479,48 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                   </div>
                 </div>
 
+                {/* Doctor Toggle */}
+                <div className="wireframe-card p-6 space-y-6 border-black border-2 bg-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
+                      <UserCheckIcon size={16} />
+                    </div>
+                    <h3 className="font-black uppercase text-sm tracking-tight">Doctor Status</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    <div className="flex items-start gap-4">
+                      <div className="pt-1">
+                        <div 
+                          onClick={() => setApprovingIsDoctor(prev => !prev)}
+                          className={`w-12 h-6 border-2 border-black relative cursor-pointer transition-colors ${
+                            approvingIsDoctor ? 'bg-black' : 'bg-white'
+                          }`}
+                        >
+                          <div className={`absolute top-0.5 bottom-0.5 w-4 transition-all ${
+                            approvingIsDoctor ? 'right-0.5 bg-white' : 'left-0.5 bg-black'
+                          }`} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest">
+                          {approvingIsDoctor ? 'DOCTOR (DR. PREFIX)' : 'STAFF MEMBER'}
+                        </p>
+                        <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold">
+                          Mark as doctor to display Dr. prefix and show in referral receiving doctor selections.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {/* PHI Access Management */}
                 <div className="wireframe-card p-6 space-y-6 border-black border-2 bg-white">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
                       <ShieldCheckIcon size={16} />
                     </div>
-                    <h3 className="font-black uppercase text-sm tracking-tight">PHI Access Control</h3>
+                    <h3 className="font-black uppercase text-sm tracking-tight">PHI Access</h3>
                   </div>
 
                   <div className="space-y-6">
@@ -467,25 +542,9 @@ export function TeamManagement({ backPath }: { backPath: string }) {
                           {approvingPhi ? 'ACCESS GRANTED' : 'ACCESS RESTRICTED'}
                         </p>
                         <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold">
-                          Allow this member to view Protected Health Information (PHI) including patient charts, messages, and referrals.
+                          Allow access to PHI, patient charts & referrals.
                         </p>
                       </div>
-                    </div>
-
-                    <div className="p-4 border-2 border-black border-dashed bg-gray-50 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <ShieldAlertIcon size={14} />
-                        <p className="text-[9px] font-black uppercase tracking-widest">
-                          Current Status: {!isVerified ? 'Pending' : approvingPhi ? 'Granted' : 'Restricted'}
-                        </p>
-                      </div>
-                      <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold italic">
-                        {!isVerified 
-                          ? 'Global restriction in effect. PHI will remain hidden until practice verification is complete.'
-                          : approvingPhi 
-                            ? 'Member can process referrals and view patient data.' 
-                            : 'Member is restricted from viewing all patient-identifiable data.'}
-                      </p>
                     </div>
                   </div>
                 </div>

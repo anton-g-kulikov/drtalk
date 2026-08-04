@@ -1,44 +1,39 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft as ArrowLeftIcon, 
   ShieldCheck as ShieldCheckIcon, 
   Users as UsersIcon,
   CheckCircle2 as CheckCircle2Icon,
-  ShieldAlert as ShieldAlertIcon
+  ShieldAlert as ShieldAlertIcon,
+  UserCheck as UserCheckIcon
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useVerification } from '@/components/VerificationContext';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
-
-type MemberRole = 'Owner' | 'Practice Admin' | 'Team Member';
-type PhiStatus = 'Verified' | 'Granted' | 'Pending' | 'Restricted';
-
-interface TeamMember {
-  id: string;
-  name: string;
-  email: string;
-  role: MemberRole;
-  hasPhiAccess: boolean;
-  joinedAt: string;
-  specialty?: string;
-}
-
-const mockTeam: TeamMember[] = [
-  { id: '1', name: 'Dr. Emma Smith', email: 'emma.smith@sunshinedental.com', role: 'Owner', hasPhiAccess: true, joinedAt: 'Mar 2024', specialty: 'Endodontics' },
-  { id: '2', name: 'Alice Johnson', email: 'alice.j@sunshinedental.com', role: 'Practice Admin', hasPhiAccess: false, joinedAt: 'Mar 2024' },
-  { id: '3', name: 'Bob Wilson', email: 'bob.wilson@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'Apr 2024', specialty: 'Oral Surgery' },
-  { id: '4', name: 'Carol Danvers', email: 'carol.d@sunshinedental.com', role: 'Team Member', hasPhiAccess: true, joinedAt: 'May 2024', specialty: 'Periodontics' },
-];
+import { 
+  TeamMember, 
+  MemberRole, 
+  PhiStatus, 
+  getStoredTeamMembers, 
+  saveStoredTeamMembers, 
+  getMemberDisplayName 
+} from '@/lib/teamStore';
 
 export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backPath: string }) {
   const router = useRouter();
   const { isVerified } = useVerification();
-  const [member, setMember] = useState<TeamMember | null>(() => 
-    mockTeam.find(m => m.id === memberId) || null
-  );
+  const [member, setMember] = useState<TeamMember | null>(null);
+
+  useEffect(() => {
+    const list = getStoredTeamMembers();
+    const found = list.find(m => m.id === memberId);
+    if (found) {
+      setMember(found);
+    }
+  }, [memberId]);
 
   const getPhiStatus = (m: TeamMember): PhiStatus => {
     if (!isVerified) return 'Pending';
@@ -51,6 +46,11 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
     setMember({ ...member, hasPhiAccess: !member.hasPhiAccess });
   };
 
+  const handleToggleDoctor = () => {
+    if (!member) return;
+    setMember({ ...member, isDoctor: !member.isDoctor });
+  };
+
   const handleSetRole = (role: MemberRole) => {
     if (!member || member.role === 'Owner') return;
     setMember({ 
@@ -60,11 +60,21 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
     });
   };
 
+  const handleSave = () => {
+    if (!member) return;
+    const currentList = getStoredTeamMembers();
+    const updated = currentList.map(m => m.id === member.id ? member : m);
+    saveStoredTeamMembers(updated);
+    router.push(backPath);
+  };
+
   if (!member) return null;
 
+  const displayName = getMemberDisplayName(member);
+
   return (
-    <MainLayout title={`Edit Member: ${member.name}`}>
-      <div className="max-w-3xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <MainLayout title={`Edit Member: ${displayName}`}>
+      <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
           <div className="space-y-4">
@@ -77,11 +87,11 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
             </button>
             
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic leading-none">{member.name}</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold uppercase tracking-tighter italic leading-none">{displayName}</h1>
               <CommentMarker 
                 id="team-member-page" 
                 title="Team Member Settings" 
-                description="Practice owners can independently manage roles and PHI access for each team member. Team members have PHI access enabled by default." 
+                description="Practice owners can independently manage roles, doctor status, and PHI access for each team member." 
               />
             </div>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">{member.email}</p>
@@ -91,9 +101,9 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Role Management */}
-          <div className="wireframe-card p-8 space-y-6 border-black border-2">
+          <div className="wireframe-card p-6 space-y-6 border-black border-2">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
                 <UsersIcon size={16} />
@@ -142,8 +152,48 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
             )}
           </div>
 
+          {/* Doctor Status Management */}
+          <div className="wireframe-card p-6 space-y-6 border-black border-2">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
+                <UserCheckIcon size={16} />
+              </div>
+              <h3 className="font-black uppercase text-sm tracking-tight">Doctor Status</h3>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="pt-1">
+                  <div 
+                    onClick={handleToggleDoctor}
+                    className={`w-12 h-6 border-2 border-black relative cursor-pointer transition-colors ${
+                      member.isDoctor ? 'bg-black' : 'bg-white'
+                    }`}
+                  >
+                    <div className={`absolute top-0.5 bottom-0.5 w-4 transition-all ${
+                      member.isDoctor ? 'right-0.5 bg-white' : 'left-0.5 bg-black'
+                    }`} />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest">
+                    {member.isDoctor ? 'DOCTOR (DR. PREFIX)' : 'STAFF MEMBER'}
+                  </p>
+                  <p className="text-[9px] uppercase text-muted-foreground leading-relaxed font-bold">
+                    Marking as doctor adds 'Dr.' prefix and includes member in referral receiving doctor selections.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-4 border-2 border-black border-dashed bg-gray-50 space-y-2">
+                <p className="text-[9px] font-black uppercase">Current Display Name:</p>
+                <p className="text-xs font-black uppercase text-black">{displayName}</p>
+              </div>
+            </div>
+          </div>
+
           {/* PHI Access Management */}
-          <div className="wireframe-card p-8 space-y-6 border-black border-2">
+          <div className="wireframe-card p-6 space-y-6 border-black border-2">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 border-2 border-black flex items-center justify-center bg-black text-white">
                 <ShieldCheckIcon size={16} />
@@ -197,7 +247,7 @@ export function TeamMemberEdit({ memberId, backPath }: { memberId: string, backP
         {/* Save Section */}
         <div className="flex justify-end pt-6 border-t-2 border-black border-dashed">
           <button 
-            onClick={() => router.push(backPath)}
+            onClick={handleSave}
             className="wireframe-button bg-black text-white px-12 py-4 uppercase text-xs font-black tracking-[0.2em] hover:opacity-90 transition-all shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] hover:shadow-none hover:translate-x-1 hover:translate-y-1"
           >
             Save Changes

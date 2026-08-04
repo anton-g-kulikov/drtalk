@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { ArrowLeft, User, Paperclip, Trash2, X, Bell, Mail, Phone, MessageSquare } from 'lucide-react';
 import { MainLayout } from "@/components/MainLayout";
 import { CommentMarker } from "@/components/Comments/CommentMarker";
+import { getStoredTeamMembers, getCleanName } from '@/lib/teamStore';
 
 interface UserProfile {
   firstName: string;
@@ -128,12 +129,8 @@ export function UserProfilePage() {
   const handleInputChange = (field: keyof UserProfile, value: any) => {
     setProfile(prev => {
       const updated = { ...prev, [field]: value };
-      // Auto-generate display name if first or last name changes and displayName hasn't been heavily customized
-      if (field === 'firstName' || field === 'lastName') {
-        const prefix = isDentist ? 'Dr. ' : 'Dr. ';
-        const suffix = isDentist ? ', DDS' : ', Endodontist';
-        updated.displayName = `${prefix}${updated.firstName} ${updated.lastName}${suffix}`;
-      }
+      const baseName = `${updated.firstName} ${updated.lastName}`.trim();
+      updated.displayName = baseName;
       return updated;
     });
   };
@@ -211,6 +208,19 @@ export function UserProfilePage() {
     showToast("Profile photo deleted.");
   };
 
+  const getFormattedHeaderName = () => {
+    const cleanFirst = getCleanName(profile.firstName);
+    const cleanLast = getCleanName(profile.lastName);
+    const baseName = `${cleanFirst} ${cleanLast}`.trim();
+    if (!baseName) return 'No Name Set';
+
+    const storedTeam = getStoredTeamMembers();
+    const matchedMember = storedTeam.find(m => m.email.toLowerCase() === profile.email.toLowerCase()) ||
+                          storedTeam.find(m => getCleanName(m.name).toLowerCase() === baseName.toLowerCase());
+    const isDoc = matchedMember ? matchedMember.isDoctor : (isDentist || profile.firstName.toLowerCase().includes('john') || profile.firstName.toLowerCase().includes('emma'));
+    return isDoc ? `Dr. ${baseName}` : baseName;
+  };
+
   return (
     <MainLayout title="User Profile">
       <div className="max-w-4xl mx-auto space-y-8 pb-12 animate-fade-in">
@@ -264,7 +274,7 @@ export function UserProfilePage() {
             </div>
             
             <div className="text-center md:text-left space-y-1">
-              <h3 className="text-lg font-black uppercase">{profile.displayName || 'No Name Set'}</h3>
+              <h3 className="text-lg font-black uppercase">{getFormattedHeaderName()}</h3>
               <p className="text-xs text-muted-foreground uppercase font-bold">{isDentist ? 'Practice Owner' : 'Practice Admin'}</p>
               <button 
                 onClick={() => setIsPhotoModalOpen(true)}
@@ -297,18 +307,6 @@ export function UserProfilePage() {
                   required
                   value={profile.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
-                />
-              </div>
-
-              {/* Display Name */}
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-widest"><span className="text-red-500">*</span>Display Name</label>
-                <input
-                  type="text"
-                  required
-                  value={profile.displayName}
-                  onChange={(e) => handleInputChange('displayName', e.target.value)}
                   className="wireframe-input py-3 px-4 text-sm font-bold border-2 border-black w-full focus:bg-black focus:text-white transition-colors"
                 />
               </div>

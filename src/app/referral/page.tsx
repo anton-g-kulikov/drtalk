@@ -18,6 +18,7 @@ import {
 } from '@/components/prototype/guest-referral/GuestReferralStepViews';
 import { getReferrals, saveReferrals, type UnifiedReferral } from '@/lib/referrals';
 import { SPECIALIST_DOCTORS } from '@/lib/mockGenerator';
+import { getDoctorList } from '@/lib/teamStore';
 
 type ReferralStep = 'IDENTIFY' | 'LOGIN' | 'PATIENT' | 'CASE' | 'DOCS' | 'SUCCESS';
 
@@ -143,11 +144,23 @@ function ReferralFormContent() {
 
   const nextStep = (next: ReferralStep) => setStep(next);
 
+  const [teamDoctors, setTeamDoctors] = useState<string[]>([]);
+
+  useEffect(() => {
+    const updateDocs = () => {
+      setTeamDoctors(getDoctorList());
+    };
+    updateDocs();
+    window.addEventListener('drtalk-team-updated', updateDocs);
+    return () => window.removeEventListener('drtalk-team-updated', updateDocs);
+  }, []);
+
   const selectedPracticeName = isInternal
     ? (targetPractices[0] || '')
     : targetPractice;
   const clinicDoctors = selectedPracticeName ? (SPECIALIST_DOCTORS[selectedPracticeName] || []) : [];
-  const doctorOptions = ['First Available', ...clinicDoctors];
+  const combinedDoctors = Array.from(new Set([...teamDoctors, ...clinicDoctors]));
+  const doctorOptions = ['First Available', ...combinedDoctors];
 
   // Filter practices based on selected state and search text
   const filteredPractices = selectedState 

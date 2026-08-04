@@ -20,6 +20,7 @@ import {
 } from '@/prototype/dashboardDocuments';
 import { saveDashboardDocumentsToStorage } from '@/prototype/dashboardDocumentStorage';
 import { getInitialDentistDocs, getInitialSpecialistDocs, SPECIALIST_DOCTORS } from '@/lib/mockGenerator';
+import { getDoctorList } from '@/lib/teamStore';
 import {
   appendReferralComment,
   loadReferralActivityLogs,
@@ -118,8 +119,18 @@ export default function ReferralDetailClient({ id }: { id: string }) {
   const [editedDentist, setEditedDentist] = useState('');
   const [editedSpecialistDoctor, setEditedSpecialistDoctor] = useState('');
 
+  const [teamDoctors, setTeamDoctors] = useState<string[]>([]);
+
+  useEffect(() => {
+    const updateDocs = () => setTeamDoctors(getDoctorList());
+    updateDocs();
+    window.addEventListener('drtalk-team-updated', updateDocs);
+    return () => window.removeEventListener('drtalk-team-updated', updateDocs);
+  }, []);
+
   const clinicDoctors = referral?.specialist ? (SPECIALIST_DOCTORS[referral.specialist] || []) : [];
-  const doctorOptions = ['First Available', ...clinicDoctors];
+  const combinedDoctors = Array.from(new Set([...teamDoctors, ...clinicDoctors]));
+  const doctorOptions = ['First Available', ...combinedDoctors];
 
   const [activityLogs, setActivityLogs] = useState<ReferralActivityLog[]>([]);
   const [commentText, setCommentText] = useState('');
