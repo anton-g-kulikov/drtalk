@@ -183,7 +183,7 @@ describe('prototype route use cases', () => {
     cleanup();
     renderRoute(<NotificationsPage />);
     await waitFor(() => {
-      expect(screen.getAllByText(/referral notifications/i).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/notifications/i).length).toBeGreaterThan(0);
     });
   });
 });

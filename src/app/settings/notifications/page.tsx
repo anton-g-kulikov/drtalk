@@ -72,6 +72,13 @@ export default function NotificationsPage() {
     }
     return true;
   });
+  const [connectedPracticeFreq, setConnectedPracticeFreq] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('drtalk_pref_connected_freq');
+      return stored || 'daily';
+    }
+    return 'daily';
+  });
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -112,19 +119,25 @@ export default function NotificationsPage() {
   const handleToggleAdminReport = (val: boolean) => {
     setAdminReportEnabled(val);
     localStorage.setItem('drtalk_pref_admin_report', String(val));
-    showToast(`New User Reports ${val ? 'enabled' : 'disabled'}`);
+    showToast(`Join Requests Alerts ${val ? 'enabled' : 'disabled'}`);
   };
 
   const handleSelectAdminFrequency = (val: string) => {
     setAdminReportFrequency(val);
     localStorage.setItem('drtalk_pref_admin_freq', val);
-    showToast(`Summary report frequency set to ${val}`);
+    showToast(`Join requests email digest frequency set to ${val}`);
   };
 
   const handleToggleConnectedPractice = (val: boolean) => {
     setConnectedPracticeEmail(val);
     localStorage.setItem('drtalk_pref_connected_practice_email', String(val));
     showToast(`Connected Practice Request Alerts ${val ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleSelectConnectedFrequency = (val: string) => {
+    setConnectedPracticeFreq(val);
+    localStorage.setItem('drtalk_pref_connected_freq', val);
+    showToast(`Connected practice digest frequency set to ${val}`);
   };
 
   const handleToggleBilling = (val: boolean) => {
@@ -164,16 +177,16 @@ export default function NotificationsPage() {
         {/* Unified clean settings sheet */}
         <div className="border-2 border-black bg-white p-8 divide-y-2 divide-black">
 
-          {/* Section 1: Patient Communication */}
-          <div className="py-6 first:pt-0 space-y-6">
-            <div className="flex items-center gap-2.5">
-              <Users size={18} />
-              <h3 className="font-bold uppercase tracking-tight text-xs">
-                1. Patient Communication
-              </h3>
-            </div>
+          {/* Section 1: Patient Communication (Dentist view only) */}
+          {isDentist && (
+            <div className="py-6 first:pt-0 space-y-6">
+              <div className="flex items-center gap-2.5">
+                <Users size={18} />
+                <h3 className="font-bold uppercase tracking-tight text-xs">
+                  1. Patient Communication
+                </h3>
+              </div>
 
-            {isDentist ? (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                   <div>
@@ -206,20 +219,11 @@ export default function NotificationsPage() {
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="bg-gray-50 border-2 border-black border-dashed p-4">
-                <p className="text-[10px] font-bold uppercase text-black">
-                  Patient Notification Management
-                </p>
-                <p className="text-[9px] text-muted-foreground uppercase mt-1">
-                  Patients are automatically notified when their referral is sent by the referring general dentist office.
-                </p>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Section 2: Team Notifications */}
-          <div className="py-6 space-y-4">
+          <div className="py-6 first:pt-0 space-y-4">
             <div className="flex items-center gap-2.5">
               <Bell size={18} />
               <h3 className="font-bold uppercase tracking-tight text-xs">
@@ -261,22 +265,23 @@ export default function NotificationsPage() {
             </div>
           </div>
 
-          {/* Section 3: Administrative Reports & Billing */}
+          {/* Section 3: Administrative Messages & Billing */}
           <div className="py-6 space-y-4">
             <div className="flex items-center gap-2.5">
               <CreditCard size={18} />
               <h3 className="font-bold uppercase tracking-tight text-xs">
-                {isDentist ? '3. Administrative Reports' : '3. Administrative Reports & Billing'}
+                {isDentist ? '3. Administrative Messages' : '3. Administrative Messages & Billing'}
               </h3>
             </div>
 
             <div className="space-y-4 pt-1">
-              {/* Admin New User Reports & Join Requests */}
+              {/* Admin New User Requests & Join Requests */}
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-bold uppercase">Join Requests & New User Reports</p>
+                    <p className="text-[10px] font-bold uppercase">Join Requests & New Users</p>
                     <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
+                    <span className="text-[8px] font-bold uppercase bg-gray-100 text-black border border-black px-1.5 py-0.5">Email Only</span>
                   </div>
                   <p className="text-[9px] text-muted-foreground uppercase">
                     Alerts and email digests when new staff request to join your practice.
@@ -313,15 +318,28 @@ export default function NotificationsPage() {
                     Receive email notifications when partner offices request to connect with your practice.
                   </p>
                 </div>
-                <label className="flex items-center gap-1.5 cursor-pointer shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={connectedPracticeEmail}
-                    onChange={(e) => handleToggleConnectedPractice(e.target.checked)}
-                    className="border-black rounded-none w-4 h-4 accent-black"
-                  />
-                  <span className="text-[9px] font-bold uppercase"><Mail size={10} className="inline mr-1" /> Email</span>
-                </label>
+                <div className="flex items-center gap-3 shrink-0">
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={connectedPracticeEmail}
+                      onChange={(e) => handleToggleConnectedPractice(e.target.checked)}
+                      className="border-black rounded-none w-4 h-4 accent-black"
+                    />
+                    <span className="text-[9px] font-bold uppercase"><Mail size={10} className="inline mr-1" /> Email</span>
+                  </label>
+                  {connectedPracticeEmail && (
+                    <select
+                      value={connectedPracticeFreq}
+                      onChange={(e) => handleSelectConnectedFrequency(e.target.value)}
+                      className="border-2 border-black p-1 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer"
+                    >
+                      <option value="instant">Instant</option>
+                      <option value="daily">Daily Digest</option>
+                      <option value="weekly">Weekly Digest</option>
+                    </select>
+                  )}
+                </div>
               </div>
 
               {/* Billing Failures and Invoices (Specialists only) */}
@@ -332,9 +350,6 @@ export default function NotificationsPage() {
                       <p className="text-[10px] font-bold uppercase">Billing & Subscription Alerts</p>
                       <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
                     </div>
-                    <p className="text-[9px] text-muted-foreground uppercase">
-                      Invoices and credit card payment warnings.
-                    </p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input

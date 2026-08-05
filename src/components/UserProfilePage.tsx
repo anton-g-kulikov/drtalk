@@ -354,7 +354,7 @@ export function UserProfilePage() {
                       <tr className="hover:bg-gray-100/50">
                         <td className="py-3 pl-1">
                           <span className="font-bold uppercase block text-black">Direct Messages</span>
-                          <span className="text-[8px] text-muted-foreground uppercase block">When someone sends you a direct message or file attachment</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">When new messages or documents are shared in direct messages</span>
                         </td>
                         <td className="py-3 text-center align-middle">
                           <input 
@@ -378,7 +378,7 @@ export function UserProfilePage() {
                       <tr className="hover:bg-gray-100/50">
                         <td className="py-3 pl-1">
                           <span className="font-bold uppercase block text-black">In Office Channels</span>
-                          <span className="text-[8px] text-muted-foreground uppercase block">When new posts or messages are published in internal practice channels</span>
+                          <span className="text-[8px] text-muted-foreground uppercase block">When new posts or messages are published in channels and the Learning Hub</span>
                         </td>
                         <td className="py-3 text-center align-middle">
                           <input 
@@ -485,7 +485,7 @@ export function UserProfilePage() {
                     />
                     <div>
                       <span className="text-[10px] font-bold uppercase block">Daily Email Activity Digest</span>
-                      <span className="text-[8px] text-muted-foreground uppercase block">Consolidated email summary of unread activity when away</span>
+                      <span className="text-[8px] text-muted-foreground uppercase block">Consolidated email summary of unread activity</span>
                     </div>
                   </label>
 
