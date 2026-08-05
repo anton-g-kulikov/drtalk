@@ -269,8 +269,9 @@ export default function NotificationsPage() {
           <div className="py-6 space-y-4">
             <div className="flex items-center gap-2.5">
               <CreditCard size={18} />
-              <h3 className="font-bold uppercase tracking-tight text-xs">
-                {isDentist ? '3. Administrative Messages' : '3. Administrative Messages & Billing'}
+              <h3 className="font-bold uppercase tracking-tight text-xs flex items-center gap-2">
+                <span>{isDentist ? '3. Administrative Messages' : '3. Administrative Messages & Billing'}</span>
+                <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5 tracking-normal">Owners & Admins</span>
               </h3>
             </div>
 
@@ -278,28 +279,28 @@ export default function NotificationsPage() {
               {/* Admin New User Requests & Join Requests */}
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-bold uppercase">Join Requests & New Users</p>
-                    <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
-                    <span className="text-[8px] font-bold uppercase bg-gray-100 text-black border border-black px-1.5 py-0.5">Email Only</span>
-                  </div>
+                  <p className="text-[10px] font-bold uppercase">Join Requests & New Users</p>
                   <p className="text-[9px] text-muted-foreground uppercase">
                     Alerts and email digests when new staff request to join your practice.
                   </p>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <input
-                    type="checkbox"
-                    checked={adminReportEnabled}
-                    onChange={(e) => handleToggleAdminReport(e.target.checked)}
-                    className="border-black rounded-none w-4 h-4 accent-black"
-                  />
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={adminReportEnabled}
+                      onChange={(e) => handleToggleAdminReport(e.target.checked)}
+                      className="border-black rounded-none w-4 h-4 accent-black"
+                    />
+                    <span className="text-[9px] font-bold uppercase"><Mail size={10} className="inline mr-1" /> Email</span>
+                  </label>
                   {adminReportEnabled && (
                     <select
                       value={adminReportFrequency}
                       onChange={(e) => handleSelectAdminFrequency(e.target.value)}
                       className="border-2 border-black p-1 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer"
                     >
+                      <option value="instant">Instant</option>
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>
                     </select>
@@ -310,10 +311,7 @@ export default function NotificationsPage() {
               {/* Connected Practice Requests */}
               <div className="flex items-center justify-between gap-4 border-t border-black border-dashed pt-3">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <p className="text-[10px] font-bold uppercase">Connected Practice Requests</p>
-                    <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
-                  </div>
+                  <p className="text-[10px] font-bold uppercase">Connected Practice Requests</p>
                   <p className="text-[9px] text-muted-foreground uppercase">
                     Receive email notifications when partner offices request to connect with your practice.
                   </p>
@@ -335,8 +333,8 @@ export default function NotificationsPage() {
                       className="border-2 border-black p-1 text-[9px] font-bold uppercase bg-white outline-none cursor-pointer"
                     >
                       <option value="instant">Instant</option>
-                      <option value="daily">Daily Digest</option>
-                      <option value="weekly">Weekly Digest</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
                     </select>
                   )}
                 </div>
@@ -346,10 +344,7 @@ export default function NotificationsPage() {
               {!isDentist && (
                 <div className="flex items-center justify-between gap-4 border-t border-black border-dashed pt-3">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-[10px] font-bold uppercase">Billing & Subscription Alerts</p>
-                      <span className="text-[8px] font-black uppercase bg-black text-white px-1.5 py-0.5">Owners & Admins</span>
-                    </div>
+                    <p className="text-[10px] font-bold uppercase">Billing & Subscription Alerts</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer shrink-0">
                     <input

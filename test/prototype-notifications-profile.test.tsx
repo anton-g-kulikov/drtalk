@@ -6,12 +6,12 @@ import { UserProfilePage } from '@/components/UserProfilePage';
 import { renderPrototype } from './utils/renderPrototype';
 
 describe('Notifications & User Profile feedback updates', () => {
-  it('renders updated Administrative Messages headings and Email Only tag on NotificationsPage', () => {
+  it('renders updated Administrative Messages headings and consistent Email toggles on NotificationsPage', () => {
     renderPrototype(<NotificationsPage />);
     
     expect(screen.getByText(/3\. Administrative Messages/i)).toBeInTheDocument();
     expect(screen.getByText(/Join Requests & New Users/i)).toBeInTheDocument();
-    expect(screen.getByText(/Email Only/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Email Only/i)).toBeNull();
   });
 
   it('renders updated User Profile subcopy without "when away"', () => {
