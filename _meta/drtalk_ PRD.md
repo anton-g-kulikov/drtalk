@@ -457,18 +457,33 @@ Practice Settings is the administrative workspace for practice identity, referra
 
 ## **Referral Notifications**
 
-Patient notification settings should be organized around the two patient-facing case events: Case Sent and Case Accepted, with controls appropriate to the referring or receiving practice.
+Practice-level notification settings govern outbound and inbound communication for patients, practice team members, and administrative events. These settings vary based on practice designation (Dentist vs. Specialist). The complete and up-to-date catalog and visual map of all automated emails sent by the platform is located at [https://prototype.drtalk.com/emails](https://prototype.drtalk.com/emails).
 
-* Patient Case Sent and Case Accepted notifications should be enabled by default for both email and SMS/text, where the patient has a valid contact method.  
-* Dentist and specialist practices should be able to configure patient notifications independently by event and select email, SMS/text, or both, subject to available patient contact information.  
-* Dentist practices should configure the patient’s Case Sent notification, sent after a referral is successfully submitted.  
-* Receiving practices should configure the patient’s Case Accepted notification, sent after the referral is automatically accepted when the receiving practice opens the case. Separately, specialist practices should configure registered-sender notifications by in-app message and email, non-user confirmation by secure email, and fax/email-sender confirmation by fax-back or secure email.  
-* Receiving practices should be able to apply a configurable 5-to-15-minute delay before the Case Accepted notification is sent, allowing accidental case openings to be corrected.  
-* Patients should not be notified about other referral case status changes. Patient notifications are limited to Case Sent and Case Accepted, when the related settings are enabled.
+* **1. Patient Communication (Practice Settings)**:
+  * **Dentist Accounts**: Practices configure **Referral Sent Notifications** via **Email** and/or **SMS Text** to automatically notify patients instantly upon referral submission. Senders can also override this setting case-by-case when sending individual referrals via the platform.
+  * **Specialist Accounts**: Display an informational banner for **Patient Notification Management** indicating that patient notifications for sent referrals depend on the sending practice's notification settings (enabled by default).
+* **2. Team Notifications (Practice Operational Alerts)**:
+  * **Dentist Accounts**: Practices configure **Released Patient Alerts** via **Push** and/or **Email** to notify staff when referred patients are released back to dentist care.
+  * **Specialist Accounts**: Practices configure **New Referral Alerts** via **Push** and/or **Email** to notify staff when new referral cases arrive in the practice intake inbox.
+* **3. Administrative Messages & Billing (Badged for Owners & Admins)**:
+  * **Join Requests & New Users**: Configurable **Email** toggle and delivery cadence (**Instant**, **Daily**, or **Weekly**) for alerts when new staff request to join the practice.
+  * **Connected Practice Requests**: Configurable **Email** toggle and delivery cadence (**Instant**, **Daily**, or **Weekly**) when partner offices request to connect on drtalk.
+  * **Billing & Subscription Alerts (Specialist Accounts Only)**: Toggle switch enabling billing warnings, invoice notices, and credit card payment alerts for practice owners and admins.
 
 ## **Internal notification**
 
-* 
+Internal notifications manage how individual users receive alerts for direct messaging, practice channels, patient channels, mentions, and digests across both Dentist and Specialist accounts.
+
+* **Personal Notification Matrix (User Profile Settings)**:
+  Each user independently manages Push and Email notification preferences on their personal profile page for:
+  * **Direct Messages**: Push and Email toggles for new direct messages or file attachments.
+  * **In Office Channels**: Push and Email toggles for posts and messages in internal practice channels and the Learning Hub.
+  * **Connected Practices**: Push and Email toggles for updates, requests, and activity from partner practices.
+  * **Mentions & Comments**: Push and Email toggles when @mentioned, replied to, or notified in discussions and Learning Hub topics.
+  * **Patient Communication**: Push and Email toggles for direct updates and message alerts regarding patient channels.
+* **Secondary & Digest Preferences**:
+  * **Daily Email Activity Digest**: Toggle for a consolidated daily email summary of unread activity.
+  * **SMS Text Reminders**: Mobile phone number field and toggle to receive text warnings for critical unread office messages.
 
 ## **Team, Roles And Access Control**
 
