@@ -105,14 +105,14 @@ export default function NotificationsPage() {
   const handleToggleReferralPush = (val: boolean) => {
     setReferralPushAlerts(val);
     localStorage.setItem('drtalk_pref_referral_push', String(val));
-    const label = isDentist ? 'Released Patients Push Alerts' : 'New Referral Push Alerts';
+    const label = isDentist ? 'Released Patient Push Alerts' : 'New Referral Push Alerts';
     showToast(`${label} ${val ? 'enabled' : 'disabled'}`);
   };
 
   const handleToggleReferralEmail = (val: boolean) => {
     setReferralEmailAlerts(val);
     localStorage.setItem('drtalk_pref_referral_email', String(val));
-    const label = isDentist ? 'Released Patients Email Alerts' : 'New Referral Email Alerts';
+    const label = isDentist ? 'Released Patient Email Alerts' : 'New Referral Email Alerts';
     showToast(`${label} ${val ? 'enabled' : 'disabled'}`);
   };
 
@@ -177,16 +177,16 @@ export default function NotificationsPage() {
         {/* Unified clean settings sheet */}
         <div className="border-2 border-black bg-white p-8 divide-y-2 divide-black">
 
-          {/* Section 1: Patient Communication (Dentist view only) */}
-          {isDentist && (
-            <div className="py-6 first:pt-0 space-y-6">
-              <div className="flex items-center gap-2.5">
-                <Users size={18} />
-                <h3 className="font-bold uppercase tracking-tight text-xs">
-                  1. Patient Communication
-                </h3>
-              </div>
+          {/* Section 1: Patient Communication */}
+          <div className="py-6 first:pt-0 space-y-6">
+            <div className="flex items-center gap-2.5">
+              <Users size={18} />
+              <h3 className="font-bold uppercase tracking-tight text-xs">
+                1. Patient Communication
+              </h3>
+            </div>
 
+            {isDentist ? (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
                   <div>
@@ -219,11 +219,20 @@ export default function NotificationsPage() {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="bg-gray-50 border-2 border-black border-dashed p-4">
+                <p className="text-[10px] font-bold uppercase text-black">
+                  Patient Notification Management
+                </p>
+                <p className="text-[9px] text-muted-foreground uppercase mt-1">
+                  Patients are notified when their referral is sent, depending on the sending practice&apos;s notification settings (on by default).
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Section 2: Team Notifications */}
-          <div className="py-6 first:pt-0 space-y-4">
+          <div className="py-6 space-y-4">
             <div className="flex items-center gap-2.5">
               <Bell size={18} />
               <h3 className="font-bold uppercase tracking-tight text-xs">
@@ -234,7 +243,7 @@ export default function NotificationsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
               <div>
                 <p className="text-[10px] font-bold uppercase">
-                  {isDentist ? 'Released Patients Alerts' : 'New Referral Alerts'}
+                  {isDentist ? 'Released Patient Alerts' : 'New Referral Alerts'}
                 </p>
                 <p className="text-[9px] text-muted-foreground uppercase">
                   {isDentist
